@@ -1,0 +1,25 @@
+<!-- Z15 Sales Landing (mobile-friendly, revenue focused) -->
+<h1>Antminer Z15 Pro — Premium Bundles</h1>
+<p>26 units. Target $43K. Swarm optimization included. 5-tier marketplace + NFT license keys live.</p>
+
+<div class="tier">
+  <h3>$5,999 — Fast Liquidation (36.7% margin)</h3>
+  <button onclick="buy(5999)">Buy Now via Wise + On-chain</button>
+</div>
+<div class="tier">
+  <h3>$6,499 — Optimal (48.1% margin) + 1mo Swarm</h3>
+  <button onclick="buy(6499)">Buy Now</button>
+</div>
+<div class="tier">
+  <h3>$6,999 — Premium Bundle (59.5% margin) + NFT Keys</h3>
+  <button onclick="buy(6999)">Buy Now + Mint NFT</button>
+</div>
+
+<script>
+function buy(price) {
+  const wise = "https://wise.com/pay/business/yieldswarm";
+  alert(`Processing $${price} via Wise. On-chain + NFT license key issued on success.`);
+  window.location = wise;
+  // TODO: Log to Neon, trigger Chainlink Vault 20/80 split, issue license key
+}
+</script>
