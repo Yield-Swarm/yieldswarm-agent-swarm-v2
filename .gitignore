@@ -1,0 +1,17 @@
+.env
+.env.local
+*.auto.tfvars
+*.auto.tfvars.json
+*.tfvars
+*.tfvars.json
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+deploy/akash/*.local.sdl
+deploy/akash/*.local.yaml

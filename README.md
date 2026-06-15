@@ -12,14 +12,17 @@ Unstoppable Domains integration
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
 
 ## Setup
-1. Copy .env.example to .env
-2. Fill in values securely
-3. Deploy to Vercel or Azure
-4. Wire Unstoppable Domains via Cloudflare nameservers
+1. Bootstrap Vault, policies, and AppRoles from `infra/vault/bootstrap`
+2. Write provider and runtime secrets into Vault KV v2
+3. Run Terraform from `infra/terraform` so provider credentials are read from Vault
+4. Render `deploy/akash/openclaw.local.sdl` from `deploy/akash/openclaw.sdl.tpl`
+5. Deploy OpenClaw with runtime Vault injection
+
+See `SECRETS.md` for the exact production setup commands.
 
 ## Business
 Wise: cbrown03777@gmail.com
 UD API Key included in .env.example
 
 ## Next
-Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+Complete the Vault-backed bootstrap in `SECRETS.md` before any production deployment.
