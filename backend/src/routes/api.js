@@ -15,6 +15,7 @@ import * as treasury from '../adapters/treasury.js';
 import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
 import * as odysseus from '../adapters/odysseus.js';
+import * as integrations from '../adapters/integrations.js';
 import { getVaultTelemetry } from '../adapters/vaultTelemetry.js';
 import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
 
@@ -74,6 +75,21 @@ router.get('/models/recommend', asyncRoute(async (req, res) => {
 
 router.get('/models/routes', asyncRoute(async (_req, res) => {
   const data = await cache.get('odysseus:models:routes', () => odysseus.getModelRoutes());
+  res.json(data);
+}));
+
+router.get('/integrations/health', asyncRoute(async (_req, res) => {
+  const data = await cache.get('integrations:health', () => integrations.getIntegrationsHealth());
+  res.json(data);
+}));
+
+router.get('/governance/consensus/status', asyncRoute(async (_req, res) => {
+  const data = await cache.get('governance:status', () => integrations.getGovernanceStatus());
+  res.json(data);
+}));
+
+router.post('/governance/consensus/run', asyncRoute(async (req, res) => {
+  const data = await integrations.runGovernanceConsensus(req.body || {});
   res.json(data);
 }));
 
