@@ -1,0 +1,81 @@
+---
+# YieldSwarm AgentSwarm OS - Akash SDL (Stack Definition Language) v2.
+#
+# The image referenced below MUST be built from infra/akash/docker/Dockerfile
+# with `--build-arg VAULT_APPROLE_ROLE_ID=<role_id>` so the role_id is baked
+# in.  The matching secret_id is delivered EXCLUSIVELY at deploy time via the
+# AKASH_VAULT_SECRET_ID_WRAPPED env var (response-wrapped, single-use, short TTL).
+#
+# Generate a fresh wrapped secret_id immediately before `provider-services tx
+# deployment create`:
+#   wrapped=$(vault write -wrap-ttl=300s -f -format=json \
+#               auth/approle/role/akash-runtime/secret-id \
+#             | jq -r .wrap_info.token)
+# then export AKASH_VAULT_SECRET_ID_WRAPPED=$wrapped in the deploy shell.
+#
+# No application secret ever lives in this file or in the deployment manifest
+# sent to the provider.
+
+version: "2.0"
+
+services:
+  agentswarm:
+    image: ghcr.io/yieldswarm/agentswarm:1.0.0
+    env:
+      # PUBLIC config:
+      - YS_ENV=prod
+      - VAULT_ADDR=https://vault.yieldswarm.internal:8200
+      - VAULT_AGENT_RENDER_TIMEOUT=120
+      - LOG_LEVEL=info
+      # SECRET (response-wrapped single-use token, NOT a credential by itself):
+      - AKASH_VAULT_SECRET_ID_WRAPPED  # must be supplied via `--env` at deploy time
+    expose:
+      - port: 8000
+        as: 80
+        to:
+          - global: true
+        accept:
+          - app.yieldswarm.io
+      - port: 8100  # vault-agent local proxy - sibling-services only
+        to:
+          - service: agentswarm
+    params:
+      storage:
+        ephemeral:
+          mount: /run/vault-agent     # tmpfs for rendered secrets
+          readOnly: false
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:    { units: 2 }
+        memory: { size: 4Gi }
+        storage:
+          - name: ephemeral
+            size: 256Mi
+            attributes:
+              persistent: false
+              class: ram          # request true tmpfs from provider
+          - name: workspace
+            size: 8Gi
+            attributes:
+              persistent: false
+
+  placement:
+    akash-mainnet:
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 10000
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+
+deployment:
+  agentswarm:
+    akash-mainnet:
+      profile:  agentswarm
+      count:    3

@@ -1,0 +1,26 @@
+# Copy to terraform.tfvars (gitignored) or pass via -var-file in CI.
+# NEVER put cloud-provider secrets here -- those live in Vault.
+
+environment   = "prod"
+vault_address = "https://vault.yieldswarm.internal:8200"
+# vault_namespace = "yieldswarm"   # Vault Enterprise only
+vault_kv_mount = "kv"
+
+# Provide ONE of:
+#   1. vault_role_id  +  vault_secret_id_wrapped   (preferred)
+#   2. vault_role_id  +  vault_secret_id
+# Both are typically supplied via env vars in CI:
+#   TF_VAR_vault_role_id=$(cat /run/secrets/approle/terraform-cicd.role_id)
+#   TF_VAR_vault_secret_id_wrapped=$(cat /run/secrets/approle/terraform-cicd.secret_id.wrapped)
+
+enable_azure        = true
+enable_runpod       = true
+enable_vultr        = true
+enable_digitalocean = true
+
+tags = {
+  project = "yieldswarm"
+  owner   = "platform"
+  managed = "terraform"
+  cost    = "shared"
+}
