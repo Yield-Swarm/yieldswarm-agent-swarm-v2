@@ -1,0 +1,15 @@
+# Cron entries for the Akash GPU lease manager.
+#
+# Cron's finest granularity is 1 minute, which matches the 60s health-check
+# spec. Each invocation runs a single reconcile pass (--once) and exits, so it
+# is safe to schedule every minute without overlapping daemons.
+#
+# Install with:  crontab akash/crontab.example   (or paste into `crontab -e`)
+#
+# Make sure the environment is available to cron by pointing at the .env file.
+# Adjust the absolute paths to match your install location.
+
+AKASH_ENV_FILE=/opt/yieldswarm/akash/.env
+
+# Health-check + auto-failover every minute.
+* * * * * cd /opt/yieldswarm/akash && /usr/bin/python3 lease-manager.py --once >> /opt/yieldswarm/akash/state/cron.log 2>&1

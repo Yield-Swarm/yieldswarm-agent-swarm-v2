@@ -1,0 +1,30 @@
+# systemd unit for the Akash GPU lease manager.
+#
+# Install:
+#   sudo cp akash-lease-manager.service /etc/systemd/system/
+#   # edit the paths/User below to match your deployment
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now akash-lease-manager
+#   journalctl -u akash-lease-manager -f
+#
+[Unit]
+Description=Akash GPU Lease Manager (RTX 3090 auto-failover)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Adjust to the user that owns the Akash keyring.
+User=akash
+WorkingDirectory=/opt/yieldswarm/akash
+EnvironmentFile=/opt/yieldswarm/akash/.env
+ExecStart=/usr/bin/python3 /opt/yieldswarm/akash/lease-manager.py
+Restart=always
+RestartSec=10
+# Keep the process from being OOM-killed during a provisioning burst.
+OOMScoreAdjust=-200
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

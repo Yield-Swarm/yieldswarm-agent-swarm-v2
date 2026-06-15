@@ -1,0 +1,62 @@
+---
+# Akash SDL manifest for a single RTX 3090 GPU worker.
+#
+# This is consumed by akash-deploy.sh. The GPU placement attribute below is what
+# constrains bidding to providers that actually offer NVIDIA RTX 3090 cards, so
+# the "best available RTX 3090 provider" selection is correct by construction.
+#
+# Override the image / env / pricing via the env vars documented in
+# akash-lease-manager.env.example, or edit this file directly.
+version: "2.0"
+
+services:
+  worker:
+    # Replace with your GPU worker image (inference server, miner, trainer, etc.)
+    image: ghcr.io/yieldswarm/gpu-worker:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      # Optional health/metrics port exposed globally so the lease-manager can
+      # poll it directly.
+      - port: 9090
+        as: 9090
+        to:
+          - global: true
+    env:
+      - WORKER_ROLE=gpu
+      - HEALTH_PATH=/healthz
+
+profiles:
+  compute:
+    worker:
+      resources:
+        cpu:
+          units: 4
+        memory:
+          size: 16Gi
+        storage:
+          - size: 50Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+  placement:
+    akash:
+      # Set to "true" behavior via AKASH_REQUIRE_AUDITED in the deploy script if
+      # you want to restrict to audited providers only.
+      pricing:
+        worker:
+          denom: uakt
+          # Max price (uakt per block) you are willing to pay. Keep in sync with
+          # AKASH_MAX_BID_PRICE in the environment.
+          amount: 100000
+
+deployment:
+  worker:
+    akash:
+      profile: worker
+      count: 1
