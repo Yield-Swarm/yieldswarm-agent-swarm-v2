@@ -21,6 +21,7 @@ S := deploy/scripts
 A := deploy/akash
 
 .PHONY: help deploy all preflight vault-check akash-deploy-vault \
+        akash-preflight akash-verify deploy-akash-europlots \
         login build push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy \
@@ -57,7 +58,21 @@ vault-check:
 
 ## akash-deploy-vault: production Akash deploy with Vault runtime injection
 akash-deploy-vault:
-	bash $(S)/akash-production-deploy.sh
+	bash scripts/akash-deploy-with-vault.sh
+
+## akash-preflight: GO/NO-GO gate before live Akash deploy
+akash-preflight:
+	bash scripts/akash-preflight.sh
+
+## akash-verify: post-deploy smoke tests against live lease
+akash-verify:
+	bash scripts/verify-akash-lease.sh
+
+## deploy-akash-europlots: live mainnet deploy to provider.europlots.com
+deploy-akash-europlots:
+	AKASH_PROVIDER=akash18ga02jzaq8cw52anyhzkwta5wygufgu6zsz6xc \
+	VAULT_INJECT_RUNTIME_SECRETS=yes \
+	bash scripts/deploy-to-akash.sh deploy deploy/deploy-swarm-monolith.yaml
 
 # ---- STEP 1: images -------------------------------------------------------
 ## login: docker login to GHCR (uses GHCR_TOKEN/GHCR_USER)

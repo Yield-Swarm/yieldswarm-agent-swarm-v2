@@ -67,7 +67,8 @@ AKASH_AUTH_MODE="${AKASH_AUTH_MODE:-jwt}"
 AKASH_BID_WAIT_SECONDS="${AKASH_BID_WAIT_SECONDS:-180}"
 AKASH_BID_POLL_INTERVAL="${AKASH_BID_POLL_INTERVAL:-10}"
 AKASH_MAX_BID_PRICE="${AKASH_MAX_BID_PRICE:-700000}"
-AKASH_PROVIDER="${AKASH_PROVIDER:-}"
+# Preferred production provider (europlots.com); unset to auto-select cheapest bid
+AKASH_PROVIDER="${AKASH_PROVIDER:-akash18ga02jzaq8cw52anyhzkwta5wygufgu6zsz6xc}"
 AKASH_GPU_MODEL="${AKASH_GPU_MODEL:-rtx3090}"
 
 # SDL + health
@@ -188,18 +189,26 @@ retry() {
 # Preflight
 # ---------------------------------------------------------------------------
 cmd_preflight() {
+  local sdl="${1:-${AKASH_SDL}}"
+  if [[ -x "${SCRIPT_DIR}/akash-preflight.sh" ]]; then
+    "${SCRIPT_DIR}/akash-preflight.sh" --json "${sdl}" || die "preflight NO-GO — run ./scripts/akash-preflight.sh for details"
+    return 0
+  fi
+
   need_cmd "${AKASH_BIN}"
   need_cmd jq
   need_cmd curl
   vault_load_akash_config
   resolve_owner
 
-  local sdl="${1:-${AKASH_SDL}}"
   [[ -f "${REPO_ROOT}/${sdl}" || -f "${sdl}" ]] || die "SDL not found: ${sdl}"
 
-  local balance
+  local balance min_bal="${AKASH_MIN_BALANCE_UAKT:-500000}"
   balance="$(retry "${AKASH_BIN}" query bank balances "${AKASH_ACCOUNT_ADDRESS}" \
     $(query_flags) | jq -r '[.balances[]? | select(.denom=="uakt") | .amount][0] // "0"')"
+
+  [[ "${balance}" -ge "${min_bal}" ]] || \
+    die "insufficient balance: ${balance} uakt (need >= ${min_bal} uakt / 0.5 AKT)"
 
   log "preflight OK"
   jq -n \
@@ -210,6 +219,7 @@ cmd_preflight() {
     --arg auth "${AKASH_AUTH_MODE}" \
     --arg sdl "${sdl}" \
     --arg balance "${balance}" \
+    --arg provider "${AKASH_PROVIDER}" \
     '{
       ok: true,
       bin: $bin,
@@ -218,7 +228,8 @@ cmd_preflight() {
       chain_id: $chain,
       auth_mode: $auth,
       sdl: $sdl,
-      balance_uakt: ($balance | tonumber)
+      balance_uakt: ($balance | tonumber),
+      preferred_provider: $provider
     }'
 }
 
@@ -540,8 +551,8 @@ cmd_deploy() {
   local sdl="${1:-${AKASH_SDL}}"
   [[ -f "${sdl}" ]] || sdl="${REPO_ROOT}/${sdl}"
 
-  step_preflight="$(cmd_preflight "${sdl}")"
-  printf '%s' "$step_preflight" | jq -e '.ok' >/dev/null || die "preflight failed"
+  log "deploy pipeline start sdl=${sdl} provider=${AKASH_PROVIDER:-auto}"
+  cmd_preflight "${sdl}" >/dev/null || die "preflight failed"
 
   local create_json dseq select_json provider price
   create_json="$(cmd_create_deployment "${sdl}")"
@@ -562,6 +573,11 @@ cmd_deploy() {
     die "health checks failed — lease is live but worker not healthy yet"
 
   write_state "${dseq}" "${provider}" "${price:-null}" "${sdl}" "${health_json}"
+
+  if [[ -x "${SCRIPT_DIR}/verify-akash-lease.sh" ]]; then
+    log "running post-deploy verification"
+    "${SCRIPT_DIR}/verify-akash-lease.sh" || log "WARN: verify-akash-lease reported failures (lease may still be warming up)"
+  fi
 
   jq -n \
     --arg dseq "$dseq" \
