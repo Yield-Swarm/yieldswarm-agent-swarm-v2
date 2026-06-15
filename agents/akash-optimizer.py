@@ -1,62 +1,30 @@
-"""Akash Optimizer — lease self-healing, ROI optimization, and Odysseus memory."""
+# Akash Optimizer Agent
+# Connects to current allocations (GPU miners, OpenClaw, Eliza, Gensyn)
+# Optimizes leases, model placement, and YieldSwarm Cookbook inference routes.
 
 from __future__ import annotations
 
 import json
-import os
-from pathlib import Path
+import pathlib
+import sys
 
-from iteration_100_sovereign_loops import SovereignController
-from odysseus_memory import build_agent_id, get_memory
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from services.yieldswarm_model_router import (  # noqa: E402
+    YieldSwarmModelRouter,
+    summarize_recommendations,
+)
 
 
-def main() -> int:
-    memory = get_memory()
-    shard_id = int(os.getenv("AGENT_SHARD_ID", "0"))
-    agent_id = os.getenv("AGENT_ID", build_agent_id(shard_id, 0))
+def optimize_akash_gpu_fleet() -> dict:
+    """Recommend active model placements for the Akash RTX 3090 fleet."""
 
-    memory.register_agent_mesh()
-    memory.record_mutation(
-        agent_id=agent_id,
-        shard_id=shard_id,
-        mutation={
-            "type": "akash_lease_optimization",
-            "target": "openclaw_gpu_cpu_leases",
-            "strategy": "top_up_high_roi_leases_and_migrate_unhealthy_providers",
-        },
-        outcome={"status": "planned", "sync_scope": "all_odysseus_peers"},
-        tags=["akash", "openclaw", "multi-cloud", "odysseus-memory"],
-    )
-    memory.record_performance(
-        agent_id=agent_id,
-        shard_id=shard_id,
-        metric_name="akash_optimizer_boot",
-        metric_value=1.0,
-        context={"dseq_monitoring": True, "worker_node": memory.config.node_id},
-    )
-    sync_reports = memory.sync_with_peers()
-
-    controller = SovereignController(
-        state_path=Path("dashboard/iteration_100_state.json"),
-        dashboard_path=Path("dashboard/final-monitoring-dashboard-5m.md"),
-    )
-    report = controller.run_cycle()
-
-    print(
-        json.dumps(
-            {
-                "loop": "self-healing-akash-leases",
-                "cycle": report["cycle"],
-                "healed_or_renewed": report["lease_metrics"]["healed_or_renewed"],
-                "health_ratio": report["lease_metrics"]["health_ratio"],
-                "avg_sla": report["lease_metrics"]["avg_sla"],
-                "odysseus_sync_reports": sync_reports,
-            },
-            indent=2,
-        )
-    )
-    return 0
+    router = YieldSwarmModelRouter.from_env()
+    return summarize_recommendations(router)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    print("Akash Optimizer Agent active - optimizing RTX 3090 model routes")
+    print(json.dumps(optimize_akash_gpu_fleet(), indent=2, sort_keys=True))

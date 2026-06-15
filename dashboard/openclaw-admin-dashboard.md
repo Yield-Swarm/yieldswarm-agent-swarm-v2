@@ -2,6 +2,8 @@
 
 ## Features
 - Real-time view of all Akash leases and mining activity
+- Odysseus Cookbook model routes by RTX 3090 VRAM, Great Delta emission score, and agent mutation fit
+- Dynamic model load/unload view for `/api/yieldswarm/workers` and `/api/yieldswarm/models/routes`
 - Shard harvesting cron status
 - Marketing campaign performance
 - Immunefi bug bounty dashboard

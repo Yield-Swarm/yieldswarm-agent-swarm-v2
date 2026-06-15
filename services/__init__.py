@@ -1,1 +1,1 @@
-"""YieldSwarm service package."""
+"""YieldSwarm service modules."""
