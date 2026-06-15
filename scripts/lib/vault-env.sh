@@ -119,7 +119,7 @@ vault_export_env() {
   tmp_file="$(mktemp)"
   chmod 600 "$tmp_file"
 
-  vault__curl GET "$secret_path" -H "X-Vault-Token: ${token}" | python - "$tmp_file" <<'PY'
+  vault__curl GET "$secret_path" -H "X-Vault-Token: ${token}" | python -c '
 import json
 import os
 import re
@@ -145,7 +145,7 @@ with open(target, "w", encoding="utf-8") as handle:
         else:
             value = str(value)
         handle.write(f"export {key}={shlex.quote(value)}\n")
-PY
+' "$tmp_file"
 
   # shellcheck disable=SC1090
   . "$tmp_file"
