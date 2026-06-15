@@ -10,8 +10,6 @@
 
 **Immediate human action required:** Enable branch protection on `main` (PR reviews + status checks) before merging the integration PR.
 
-**Mega Round status (June 15, 2026):** Integration branch content is ready to land on `main`. Environment branches (`development`, `testnet`, `devnets`, `production`, `MAINNET`) already mirror the integration tree. Run `scripts/merge-swarm.sh` to promote to `main`.
-
 ---
 
 ## Branch Inventory by Domain
@@ -106,6 +104,25 @@
 
 Run via: `scripts/merge-swarm.sh` (or merge the integration PR).
 
+### Promote to main (after validation on development)
+
+```bash
+# From a clean development branch:
+bash scripts/merge-to-main.sh
+
+# Or manually:
+git checkout main && git merge origin/development --no-edit
+git push origin main
+
+# Create/sync environment branches from main:
+for b in development testnet devnets production MAINNET; do
+  git checkout -B "$b" main && git push -u origin "$b"
+done
+```
+
+Enable branch protection on `main`, `testnet`, `devnets`, `production`, and `MAINNET`
+before the first merge to `main`.
+
 ### Known Conflict Resolutions
 
 | File | Resolution |
@@ -166,16 +183,14 @@ development → testnet → production → MAINNET
 
 ## Kairo Integration
 
-Kairo (driver-first marketplace) lives under `kairo/` in this monorepo and shares:
+Kairo (driver-first marketplace) lives in **`kairo/`** and shares:
 
 - `frontend/src/wallet` — unified wallet layer
-- `src/lib/payments` / payment rails — Square, Wise, Web3
-- Vault secret injection patterns
-- DePIN telemetry pipeline → Mandelbrot / Tree of Life
+- `src/lib/payments` / `src/lib/kairo/fees.ts` — Square, Wise, Web3 + 1%/2× fees
+- Vault secret injection (`vault/policies/kairo-runtime.hcl`)
+- DePIN telemetry pipeline → Mandelbrot / Tree of Life (`kairo/backend/mandelbrot.py`)
 
-**Status (Mega Round):** `kairo/` scaffold is merged with cryptographic identity, signed telemetry API, Mandelbrot pipeline, and contribution dashboard.
-
-Recommended path for new Kairo features: branch `cursor/kairo-*` off `development`, PR to `development`.
+See `KAIRO_FRONTEND.md` for deploy instructions.
 
 ---
 
@@ -200,58 +215,3 @@ Recommended path for new Kairo features: branch `cursor/kairo-*` off `developmen
 2. All new work branches off `development`, PRs to `development`.
 3. Merge coordination agent runs weekly or when >5 cursor branches accumulate.
 4. Kairo work uses `cursor/kairo-*` prefix, targets `development`.
-
----
-
-## God Prompt — 16 Prong Execution (June 15, 2026)
-
-See `INTEGRATION_REPORT.md` and `PRODUCTION_READINESS.md` for full status.
-
-| Prong | Status |
-|-------|--------|
-| 1 Merge strategy | ✅ |
-| 2 Akash + Vault deploy | ✅ |
-| 3 Vault hardening | ✅ |
-| 4 Odysseus integration | ⚠️ staging |
-| 5 Kairo crypto identity | ✅ |
-| 6 Domains + Kairo FE | ⚠️ needs Mapbox token |
-| 7 Payment rails | ✅ |
-| 8 $5M dashboard | ⚠️ live API + static fallback |
-| 9 Multi-cloud | ✅ |
-| 10 Sovereign core | ⚠️ simulation |
-| 11 Emission router | ⚠️ needs deploy |
-| 12 Arena live metrics | ✅ |
-| 13 Prod deploy scripts | ✅ |
-| 14 Secrets audit | ✅ |
-| 15 Documentation | ✅ |
-| 16 Integration tests | ✅ |
-
-| Task | Status | Branch / Path |
-|------|--------|---------------|
-| **M5** Merge + branch strategy | ✅ Complete | `main` ← `cursor/merge-coordination-93dd` |
-| **M1** Akash + Vault production deploy | ✅ Vault-at-runtime wired | `scripts/akash-deploy-with-vault.sh`, `deploy/deploy-swarm-monolith.yaml` |
-| **M2** Kairo crypto identity + pipeline | ✅ Scaffolded | `kairo/`, `backend/src/routes/kairo.js` |
-| **M3** Odysseus full integration | ✅ Compose overlay | `docker-compose.odysseus.yml`, Vault seed paths |
-| **M4** Payment rails + Kairo wiring | ✅ Fees + 2× payout | `src/lib/payments/fees.ts`, `kairo-bridge.ts` |
-| **M6** Unstoppable Domains | ✅ Merged + updated | `DOMAINS.md` |
-
-### Merge `main` (if not yet pushed)
-
-```bash
-git fetch origin
-git checkout main
-git merge --no-ff origin/cursor/merge-coordination-93dd -m "Merge swarm integration"
-# Or fast-path:
-./scripts/merge-swarm.sh
-git push -u origin main development testnet devnets production MAINNET
-```
-
-### Post-merge validation
-
-```bash
-pip install -r requirements.txt
-python kairo/cli.py ping
-make preflight
-./scripts/akash-deploy-with-vault.sh --help  # dry-run with VAULT_ADDR set
-cd backend && npm install && npm test
-```

@@ -1,0 +1,68 @@
+:root {
+  --bg: #0a0c10;
+  --panel: #12161f;
+  --accent: #00d4aa;
+  --accent-dim: #0a7a62;
+  --text: #e8edf5;
+  --muted: #8b95a8;
+  --fee: #ffb347;
+  --driver: #7dd3fc;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #1e2430;
+}
+header h1 { margin: 0; font-size: 1.25rem; color: var(--accent); }
+header span { color: var(--muted); font-size: 0.85rem; }
+main { display: grid; grid-template-columns: 1fr 380px; min-height: calc(100vh - 65px); }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+.map-panel { position: relative; min-height: 400px; }
+.map-panel .mapbox-fallback {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; min-height: 400px; background: #0d1117; color: var(--muted);
+  text-align: center; padding: 24px;
+}
+.side-panel { padding: 20px; background: var(--panel); border-left: 1px solid #1e2430; }
+.card {
+  background: #0d1117; border: 1px solid #1e2430; border-radius: 12px;
+  padding: 16px; margin-bottom: 16px;
+}
+.card h2 { margin: 0 0 12px; font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); }
+.row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; }
+.row.total { border-top: 1px solid #1e2430; margin-top: 8px; padding-top: 12px; font-weight: 700; }
+.fee { color: var(--fee); }
+.driver-pay { color: var(--driver); }
+button {
+  width: 100%; padding: 12px; border: none; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-dim), var(--accent));
+  color: #021510; font-weight: 700; cursor: pointer; font-size: 0.95rem;
+}
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+input, select {
+  width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px;
+  border: 1px solid #1e2430; background: #0a0c10; color: var(--text);
+}
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: 0.7rem; background: rgba(0,212,170,0.15); color: var(--accent);
+  border: 1px solid var(--accent-dim);
+}
+.contribution-bar {
+  height: 8px; border-radius: 4px; background: #1e2430; overflow: hidden; margin-top: 8px;
+}
+.contribution-bar > span {
+  display: block; height: 100%; background: var(--accent);
+  transition: width 0.4s ease;
+}
