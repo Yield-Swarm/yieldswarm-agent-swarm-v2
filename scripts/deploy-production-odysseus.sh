@@ -36,7 +36,7 @@ render_template() {
   local template="$1"
   local output="$2"
 
-  python - "$template" "$output" <<'PY'
+  vault__python - "$template" "$output" <<'PY'
 import os
 import pathlib
 import re

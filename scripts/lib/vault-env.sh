@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+vault__python() {
+  if [ -n "${PYTHON_BIN:-}" ]; then
+    "$PYTHON_BIN" "$@"
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 "$@"
+  elif command -v python >/dev/null 2>&1; then
+    python "$@"
+  else
+    echo "python3 or python is required for Vault secret loading" >&2
+    return 1
+  fi
+}
+
 vault__trim_slashes() {
   local value="${1:-}"
   value="${value#/}"
@@ -20,7 +33,7 @@ vault__read_secret_value() {
   fi
 
   if [ -n "$file_path" ] && [ -r "$file_path" ]; then
-    python - "$file_path" <<'PY'
+    vault__python - "$file_path" <<'PY'
 import pathlib
 import sys
 
@@ -61,7 +74,7 @@ vault__login_approle() {
   secret_id="$(vault__read_secret_value VAULT_SECRET_ID VAULT_SECRET_ID_FILE)"
   auth_path="${VAULT_APPROLE_AUTH_PATH:-auth/approle/login}"
 
-  python - "$role_id" "$secret_id" <<'PY' | vault__curl POST "$auth_path" --data @- | python -c 'import json,sys; print(json.load(sys.stdin)["auth"]["client_token"], end="")'
+  vault__python - "$role_id" "$secret_id" <<'PY' | vault__curl POST "$auth_path" --data @- | vault__python -c 'import json,sys; print(json.load(sys.stdin)["auth"]["client_token"], end="")'
 import json
 import sys
 
@@ -80,7 +93,7 @@ vault__login_jwt() {
     return 1
   fi
 
-  python - "$role" "$jwt" <<'PY' | vault__curl POST "$auth_path" --data @- | python -c 'import json,sys; print(json.load(sys.stdin)["auth"]["client_token"], end="")'
+  vault__python - "$role" "$jwt" <<'PY' | vault__curl POST "$auth_path" --data @- | vault__python -c 'import json,sys; print(json.load(sys.stdin)["auth"]["client_token"], end="")'
 import json
 import sys
 
@@ -119,7 +132,7 @@ vault_export_env() {
   tmp_file="$(mktemp)"
   chmod 600 "$tmp_file"
 
-  vault__curl GET "$secret_path" -H "X-Vault-Token: ${token}" | python -c '
+  vault__curl GET "$secret_path" -H "X-Vault-Token: ${token}" | vault__python -c '
 import json
 import os
 import re
