@@ -73,8 +73,64 @@ production keys, Vault bootstrap, Akash wallet funding) and first Akash lease.
 | Akash monolith SDL | ✅ | manual | `scripts/deploy-to-akash.sh` |
 | Odysseus + ChromaDB | ✅ | ✅ | ready |
 | Kairo API + frontend | ✅ | ✅ | Vercel |
+| Bittensor dual-purpose miner | ✅ | ✅ | `scripts/deploy-bittensor.sh` |
 | Sovereign $5M dashboard | ✅ | manual | static + API |
 | Emission router | ✅ | manual | on-chain |
+
+---
+
+## Merge coordination pass (June 15, 2026)
+
+| Item | Status |
+|------|--------|
+| 82 `cursor/*` branches analyzed | ✅ `scripts/analyze-cursor-branches.sh` |
+| Merge strategy documented | ✅ `MERGE_STRATEGY.md` |
+| Integration report | ✅ `INTEGRATION_REPORT.md` |
+| Environment branches created | ✅ `development`, `testnet`, `devnets`, `production`, `MAINNET` |
+| Environment sync to `main` | ⏳ Run `./scripts/sync-environment-branches.sh` |
+| Bittensor layer on `main` | ⏳ PR `cursor/merge-integration-pass-9c82` |
+| Vault `runtime/bittensor` path | ✅ seed + policy + env.ctmpl |
+| Close 40+ duplicate PRs | ⏳ Maintainer action |
+
+---
+
+## Final production readiness checklist
+
+### Code & integration
+- [x] `main` is canonical integration branch (~700 files)
+- [x] Cross-component API wiring (backend, Arena, Kairo, Odysseus, Vault)
+- [x] Stripe payments + 1% platform fee
+- [x] Odysseus brain + model router on Akash SDL
+- [x] Bittensor miner agents + SDL + deploy wrapper
+- [x] Python tests: 21/21 pass
+- [x] Vault policies for all runtimes (akash, odysseus, kairo, payments, bittensor)
+- [x] No hardcoded secrets (secrets-audit clean)
+- [ ] Merge integration pass PR → `development` → `main`
+- [ ] Sync environment branches to `main`
+
+### GitHub hygiene
+- [ ] Branch protection on `main`, `production`, `MAINNET`
+- [ ] Close 27 absorbed `cursor/*` branches (0 commits ahead)
+- [ ] Close 40 duplicate/stale `cursor/*` branches
+- [ ] Delete merged remote refs: `git fetch --prune`
+
+### Operator credentials (MAINNET blockers)
+- [ ] Production Vault cluster + `vault/scripts/bootstrap.sh`
+- [ ] Seed `runtime/bittensor` (wallet, netuid, network, ollama_model)
+- [ ] Funded Akash wallet (≥0.5 AKT)
+- [ ] RTX 3090 lease via `./scripts/deploy-bittensor.sh` or `./scripts/deploy-to-akash.sh`
+- [ ] Stripe production keys in Vault `runtime/payments`
+- [ ] Postgres/Neon for payment persistence
+- [ ] Great Delta router deploy + Foundry tests
+- [ ] Vault OIDC replaces auth stubs
+- [ ] Wire 17 domains per `DOMAINS.md`
+
+### Deploy verification
+- [ ] `./scripts/diagnostic.sh` — paste `=== ACTIVE SYSTEM STATE ===` line
+- [ ] `docker build -f deploy/Dockerfile.bittensor-miner`
+- [ ] `./scripts/smoke-test.sh` with backend running
+- [ ] Arena: `src/app/arena?workers=https://<lease-uri>:8080`
+- [ ] Tag release: `v1.0-helix-launch`
 
 ---
 
