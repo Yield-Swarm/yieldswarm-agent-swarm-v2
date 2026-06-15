@@ -1,0 +1,70 @@
+# ── Secrets — never commit real values ────────────────────────────────────
+.env
+*.env.local
+.vault-token
+vault-init.json
+/tmp/vault-*.json
+
+# Terraform state and credentials — use a remote backend instead
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+# Allow the example tfvars
+!terraform.tfvars.example
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Generated Terraform plan files
+*.tfplan
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+.npm
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Akash — deploy.yaml with real secret values should never be committed.
+# Edit locally, deploy, then revert to placeholder values before committing.
+akash/deploy.local.yaml
+
+# Docker build artifacts
+*.tar
+docker/secrets/
+
+# Logs
+*.log
+logs/

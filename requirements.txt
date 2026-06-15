@@ -1,0 +1,36 @@
+# requirements.txt
+# YieldSwarm AgentSwarm OS v2 — Python dependencies
+# Pin exact versions for reproducible builds.
+
+# HTTP client (used by agents and entrypoint health checks)
+requests==2.32.3
+httpx==0.27.2
+
+# Async support
+aiohttp==3.10.10
+
+# Solana ecosystem
+solana==0.35.1
+solders==0.21.0
+anchorpy==0.20.1
+
+# Data / parsing
+python-dotenv==1.0.1
+pydantic==2.9.2
+orjson==3.10.10
+
+# Logging / observability
+structlog==24.4.0
+prometheus-client==0.21.0
+
+# Scheduling (agent cron orchestration)
+apscheduler==3.10.4
+
+# LLM clients
+openai==1.54.3
+anthropic==0.39.0
+google-generativeai==0.8.3
+
+# Utilities
+tenacity==9.0.0
+python-dateutil==2.9.0.post0

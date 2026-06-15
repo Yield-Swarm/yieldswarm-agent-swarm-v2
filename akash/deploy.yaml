@@ -1,0 +1,95 @@
+---
+# akash/deploy.yaml
+# Akash Network SDL — YieldSwarm AgentSwarm OS v2
+#
+# SECURITY MODEL:
+#   Only three env vars are present in this SDL: VAULT_ADDR, VAULT_ROLE_ID,
+#   and VAULT_SECRET_ID. The container's entrypoint.sh uses these to
+#   authenticate to Vault at startup and fetch ALL other secrets dynamically.
+#   No real secrets are ever stored in this file or the Akash on-chain state.
+#
+# DEPLOY STEPS:
+#   1. Complete vault/setup.sh to obtain VAULT_ROLE_ID and VAULT_SECRET_ID
+#   2. Replace the three placeholder values below with your actual values
+#   3. provider_price_strategy can be adjusted — start low, bid up if needed
+#   4. Run: provider-services tx deployment create akash/deploy.yaml
+#        or use the Akash Console at console.akash.network
+#
+# SDL Reference: https://akash.network/docs/deployments/akash-deployments-explained/
+
+version: "2.0"
+
+services:
+  agent-swarm:
+    image: yieldswarm/agent-swarm:latest
+    pull: always
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+        accept:
+          - "*.yieldswarm.io"
+      - port: 9090
+        as: 9090
+        to:
+          - global: false
+
+    env:
+      # ── Vault connection (the ONLY secrets in this file) ────────────────
+      # Obtain these from vault/setup.sh output, then store them in your
+      # local environment or CI secrets — never commit real values here.
+      - VAULT_ADDR=https://vault.yieldswarm.io:8200
+      - VAULT_ROLE_ID=REPLACE_WITH_AKASH_AGENT_ROLE_ID
+      - VAULT_SECRET_ID=REPLACE_WITH_AKASH_AGENT_SECRET_ID
+
+      # ── Non-secret operational config ───────────────────────────────────
+      - LOG_LEVEL=INFO
+      - AGENT_COUNT_TOTAL=10080
+      - AGENTS_PER_SHARD=84
+      - AGENT_SHARD_ID=0
+      - CRON_SHARD_COUNT=120
+      - CRON_INTERVAL_MINUTES=15
+      - NETWORK_LOCKDOWN_MODE=true
+      - MAYHEM_MODE_ENABLED=false
+      - IPFS_GATEWAY=https://ipfs.io
+      - BACKUP_CRON_INTERVAL=1440
+      - BUG_BOUNTY_AGENT_ENABLED=true
+
+    params:
+      storage:
+        data:
+          mount: /workspace
+          readOnly: false
+
+profiles:
+  compute:
+    agent-swarm:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 20Gi
+          - name: data
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+  placement:
+    dcloud:
+      # Attributes can be narrowed to specific providers if needed
+      # attributes:
+      #   host: akash
+      pricing:
+        agent-swarm:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  agent-swarm:
+    dcloud:
+      profile: agent-swarm
+      count: 1

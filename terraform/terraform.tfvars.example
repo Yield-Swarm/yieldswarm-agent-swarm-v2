@@ -1,0 +1,39 @@
+# terraform/terraform.tfvars.example
+# Copy to terraform.tfvars and fill in values — terraform.tfvars is gitignored.
+# All cloud credentials come from Vault via vault-env.sh; only non-secret
+# configuration belongs here.
+
+vault_addr = "https://vault.yieldswarm.io:8200"
+
+# Azure
+azure_location            = "eastus"
+azure_resource_group_name = "rg-yieldswarm-prod"
+azure_container_app_name  = "ca-yieldswarm-agents"
+azure_container_image     = "yieldswarm/agent-swarm:latest"
+azure_container_cpu       = 0.5
+azure_container_memory    = "1Gi"
+azure_min_replicas        = 1
+azure_max_replicas        = 10
+
+# DigitalOcean
+do_region       = "nyc3"
+do_droplet_size = "s-2vcpu-4gb"
+do_droplet_image = "ubuntu-24-04-x64"
+
+# Vultr
+vultr_region = "ewr"
+vultr_plan   = "vc2-2c-4gb"
+vultr_os_id  = 2136
+
+# RunPod
+runpod_gpu_type_id       = "NVIDIA RTX A4000"
+runpod_pod_name          = "yieldswarm-gpu"
+runpod_container_disk_gb = 20
+runpod_volume_in_gb      = 50
+
+# Tags
+tags = {
+  project     = "yieldswarm"
+  environment = "prod"
+  managed_by  = "terraform"
+}
