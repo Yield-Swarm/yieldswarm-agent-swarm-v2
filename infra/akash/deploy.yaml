@@ -1,0 +1,79 @@
+---
+# Akash deployment manifest for the APN AgentSwarm runtime.
+#
+# The image bundles Vault Agent and an entrypoint that fetches every
+# operational secret from HashiCorp Vault at container start. The only
+# values that touch Akash itself are:
+#
+#   VAULT_ADDR        - public URL of the Vault cluster
+#   VAULT_ROLE_ID     - non-sensitive identifier for the AppRole
+#   VAULT_SECRET_ID   - one-time / short-lived AppRole credential
+#   VAULT_KV_MOUNT    - mount path (default: kv)
+#   VAULT_SECRET_PREFIX - logical prefix (default: apn)
+#   VAULT_NAMESPACE   - Enterprise namespace, optional
+#   AGENT_SHARD_ID    - which of the 120 shards this replica owns
+#
+# Push the image to a registry the Akash provider can pull from, then:
+#   provider-services tx deployment create infra/akash/deploy.yaml \
+#     --from <wallet> --gas auto --gas-adjustment 1.5 -y
+#
+# Provide the AppRole values at deploy time via `--env-file` or the
+# `manifest update` flow; never bake them into the SDL.
+version: "2.0"
+
+services:
+  agentswarm:
+    image: ghcr.io/yieldswarm/apn-agentswarm:1.0.0
+    expose:
+      - port: 8080
+        as: 80
+        proto: tcp
+        to:
+          - global: true
+    env:
+      # Vault wiring. ROLE_ID/SECRET_ID are provided per deployment.
+      - VAULT_ADDR=https://vault.apn.internal:8200
+      - VAULT_KV_MOUNT=kv
+      - VAULT_SECRET_PREFIX=apn
+      - VAULT_NAMESPACE=
+      - VAULT_ROLE_ID=
+      - VAULT_SECRET_ID=
+      # Sharding knobs (no secrets).
+      - AGENT_SHARD_ID=0
+      - AGENTS_PER_SHARD=84
+      - AGENT_COUNT_TOTAL=10080
+      - CRON_SHARD_COUNT=120
+      - CRON_INTERVAL_MINUTES=15
+      - LOG_LEVEL=INFO
+    command:
+      - python
+      - -m
+      - agents.akash_optimizer
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 8Gi
+  placement:
+    apn-prod:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  agentswarm:
+    apn-prod:
+      profile: agentswarm
+      count: 1
