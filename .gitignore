@@ -1,0 +1,47 @@
+# ============================================================
+# Repo-wide ignores. Anything secret-bearing belongs in Vault,
+# never on disk in the repo.
+# ============================================================
+
+# Local env overrides (real .env files MUST never be committed)
+.env
+.env.*
+!.env.example
+
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!**/terraform.tfvars.example
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Vault local artifacts
+vault-token
+.vault-token
+/vault/data/
+/vault/logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
