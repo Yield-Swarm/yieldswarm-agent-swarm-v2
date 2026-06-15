@@ -25,6 +25,53 @@ The 5 steps, in order:
 
 ---
 
+## GitHub Codespace — exact commands
+
+Run these in a fresh Codespace after cloning `yieldswarm-agent-swarm-v2`:
+
+```bash
+# 1. Tooling + config
+sudo apt-get update && sudo apt-get install -y jq curl make python3-pip
+cp deploy/config.env.example deploy/config.env
+cp .env.example .env
+# Edit deploy/config.env (GHCR_OWNER, AKASH_KEY_NAME) and .env (Vault addr if used)
+
+# 2. Vault secrets (production) — exports AKASH_KEY_NAME, API keys, image tags
+export VAULT_ADDR=https://vault.your-domain.example
+export VAULT_TOKEN="$(cat ~/.vault-token)"   # or AppRole/JWT via scripts/lib/vault-env.sh
+source <(bash -c '. scripts/lib/vault-env.sh && vault_export_env kv/data/yieldswarm/akash/deploy && env | grep -E "^(AKASH_|GHCR_|OPENROUTER_|FIREWORKS_)"')
+
+# 3. Build + push images
+make preflight
+make build
+
+# 4. Akash monolith deploy (Vault-aware)
+export AUTO_SELECT_BID=1
+scripts/akash-deploy.sh deploy/deploy-swarm-monolith.yaml
+
+# 5. Odysseus full stack (local validation before Akash SDL render)
+scripts/deploy-odysseus-stack.sh up
+python3 scripts/render-akash-sdl.py --output deploy/rendered/akash-odysseus.sdl.yml
+scripts/deploy-production-odysseus.sh render-akash
+
+# 6. Sovereign loops + monitoring
+make deploy   # or run steps 3–5 individually
+
+# 7. Kairo + payments smoke test
+npm install && npm run dev &
+curl -s -X POST http://localhost:3000/api/kairo/drivers/register | jq .
+```
+
+Health checks after deploy:
+
+```bash
+make status
+curl -fsS http://localhost:7000/healthz    # Odysseus (when running locally)
+curl -fsS http://localhost:4000/health/readiness  # LiteLLM router
+```
+
+---
+
 ## 0. Prerequisites
 
 ### Tooling

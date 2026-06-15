@@ -6,7 +6,9 @@
 
 ## Executive Summary
 
-`main` is a single initial commit (markdown/HTML stubs). **All real work lives on 54 parallel `cursor/*` branches** created by Cloud Agents. The highest-risk area is **Vault integration duplication** (28 near-identical branches). The integration branch `cursor/merge-coordination-93dd` merges **18 canonical feature branches** into a deployable monorepo (~545 files) with resolved conflicts.
+`main` was a single initial commit (markdown/HTML stubs). **All real work lived on 54 parallel `cursor/*` branches** created by Cloud Agents. The integration branch `cursor/merge-coordination-93dd` merged **18 canonical feature branches** into a deployable monorepo (~545 files) with resolved conflicts.
+
+**Status (June 15, 2026):** Integration landed on `development`, `testnet`, `devnets`, `production`, and `MAINNET`. This mega-task round adds **Kairo** (`kairo/`, `/api/kairo/*`), restores full **Odysseus compose stack**, **Vault-aware Akash deploy**, and **DOMAINS.md**. Run `scripts/merge-to-main.sh` to fast-forward `main`.
 
 **Immediate human action required:** Enable branch protection on `main` (PR reviews + status checks) before merging the integration PR.
 
@@ -162,16 +164,18 @@ development → testnet → production → MAINNET
 
 ---
 
-## Kairo Integration (Future)
+## Kairo Integration
 
-Kairo (driver-first marketplace) should live **in this monorepo** under `kairo/` to share:
+Kairo (driver-first marketplace) lives in this monorepo under `kairo/` and shares:
 
 - `frontend/src/wallet` — unified wallet layer
 - `src/lib/payments` / payment rails — Square, Wise, Web3
 - Vault secret injection patterns
-- DePIN telemetry pipeline → Mandelbrot / Tree of Life
+- DePIN telemetry pipeline → Mandelbrot / Tree of Life (`kairo/pipeline/mandelbrot.py`)
 
-Recommended path: scaffold `kairo/` on `development` after this merge lands on `main`.
+Dashboard: `http://localhost:3000/kairo` (Next.js) or `kairo/dashboard/`.
+
+New Kairo work uses `cursor/kairo-*` prefix, targets `development`.
 
 ---
 
@@ -196,3 +200,22 @@ Recommended path: scaffold `kairo/` on `development` after this merge lands on `
 2. All new work branches off `development`, PRs to `development`.
 3. Merge coordination agent runs weekly or when >5 cursor branches accumulate.
 4. Kairo work uses `cursor/kairo-*` prefix, targets `development`.
+
+---
+
+## Merge `main` (one command)
+
+After review:
+
+```bash
+chmod +x scripts/merge-to-main.sh
+./scripts/merge-to-main.sh
+```
+
+This fast-forwards `main` to `origin/development`. Then promote:
+
+```bash
+git checkout testnet && git merge --ff-only main && git push origin testnet
+git checkout production && git merge --ff-only testnet && git push origin production
+git checkout MAINNET && git merge --ff-only production && git push origin MAINNET
+```

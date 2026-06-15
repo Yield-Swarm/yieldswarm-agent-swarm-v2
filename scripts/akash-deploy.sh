@@ -30,6 +30,9 @@ Environment variables:
   AKASH_BID_WAIT_SECONDS    Optional: how long to wait for bids (default: 180).
   AUTO_SELECT_BID           Optional: set to 1 to auto-create lease for lowest-price bid.
   AKASH_PROVIDER            Optional: provider to use when AUTO_SELECT_BID=1 (overrides auto-pick).
+  VAULT_ADDR                Optional: HashiCorp Vault address for runtime secret injection.
+  AKASH_DEPLOY_VAULT_PATH   Optional: KV path (default: kv/data/yieldswarm/akash/deploy).
+  VAULT_AUTH_METHOD         Optional: token | approle | jwt (default: token when VAULT_ADDR set).
 EOF
 }
 
@@ -124,6 +127,22 @@ create_lease() {
     --output json > "${output_file}"
 }
 
+load_vault_secrets() {
+  local vault_path="${AKASH_DEPLOY_VAULT_PATH:-kv/data/yieldswarm/akash/deploy}"
+  if [[ -z "${VAULT_ADDR:-}" ]]; then
+    log "VAULT_ADDR not set — skipping Vault secret load (using local env)"
+    return 0
+  fi
+
+  local root_dir
+  root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  # shellcheck source=lib/vault-env.sh
+  . "${root_dir}/scripts/lib/vault-env.sh"
+
+  log "loading Akash deployment secrets from Vault path ${vault_path}"
+  vault_export_env "${vault_path}"
+}
+
 main() {
   if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     usage
@@ -132,6 +151,8 @@ main() {
 
   require_cmd provider-services
   require_cmd jq
+
+  load_vault_secrets
 
   SDL_FILE="${1:-deploy/deploy-swarm-monolith.yaml}"
   [[ -f "${SDL_FILE}" ]] || fail "SDL file not found: ${SDL_FILE}"
