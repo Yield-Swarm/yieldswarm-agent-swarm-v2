@@ -1,0 +1,242 @@
+/* Styles for the unified wallet UI. Prefixed with `ysw-` to avoid collisions. */
+
+.ysw-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 12, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: ysw-fade 0.15s ease-out;
+}
+
+@keyframes ysw-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ysw-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #12141c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  color: #f4f5f7;
+  overflow: hidden;
+  animation: ysw-pop 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes ysw-pop {
+  from { transform: translateY(8px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.ysw-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+}
+
+.ysw-modal__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ysw-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: #aeb4c2;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.15s;
+}
+.ysw-close:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+
+.ysw-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 8px;
+  flex-wrap: wrap;
+}
+.ysw-tab {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: #aeb4c2;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ysw-tab:hover { color: #fff; border-color: rgba(255, 255, 255, 0.2); }
+.ysw-tab--active {
+  background: linear-gradient(135deg, #5b8cff, #3ddc97);
+  color: #06121a;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.ysw-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 12px 16px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.ysw-wallet {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+}
+.ysw-wallet:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); }
+.ysw-wallet:disabled { cursor: not-allowed; opacity: 0.5; }
+
+.ysw-wallet__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+.ysw-wallet__body { flex: 1; min-width: 0; }
+.ysw-wallet__name { font-size: 15px; font-weight: 600; }
+.ysw-wallet__meta { font-size: 12px; color: #8b91a1; }
+.ysw-wallet__badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(61, 220, 151, 0.14);
+  color: #3ddc97;
+}
+.ysw-wallet__badge--install {
+  background: rgba(255, 255, 255, 0.06);
+  color: #aeb4c2;
+}
+
+.ysw-section-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7080;
+  padding: 12px 12px 4px;
+}
+
+.ysw-error {
+  margin: 0 16px 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 86, 86, 0.12);
+  color: #ff8c8c;
+  font-size: 13px;
+}
+
+.ysw-footer {
+  padding: 12px 20px 18px;
+  font-size: 12px;
+  color: #6b7080;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Connect button */
+.ysw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.08s, filter 0.15s;
+  background: linear-gradient(135deg, #5b8cff, #3ddc97);
+  color: #06121a;
+}
+.ysw-btn:hover { filter: brightness(1.05); }
+.ysw-btn:active { transform: translateY(1px); }
+
+.ysw-btn--ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4f5f7;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ysw-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px 8px 6px 12px;
+  cursor: pointer;
+  color: #f4f5f7;
+  font-size: 14px;
+}
+.ysw-account:hover { background: rgba(255, 255, 255, 0.09); }
+.ysw-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+.ysw-chip img, .ysw-account img { width: 18px; height: 18px; border-radius: 50%; }
+
+.ysw-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3ddc97;
+  box-shadow: 0 0 0 3px rgba(61, 220, 151, 0.2);
+}
+
+.ysw-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ysw-spin 0.7s linear infinite;
+}
+@keyframes ysw-spin { to { transform: rotate(360deg); } }
+
+.ysw-account-grid { display: grid; gap: 10px; padding: 8px 16px 16px; }
+.ysw-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.ysw-account-row--active { border-color: rgba(91, 140, 255, 0.6); }
+.ysw-muted { color: #8b91a1; font-size: 12px; }
+.ysw-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
