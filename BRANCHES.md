@@ -139,12 +139,12 @@ Secrets never live in branch content — only Vault coordinates and `.env.exampl
 
 | Branch | Tip commit | Status |
 |--------|------------|--------|
-| `main` | `ca74492` | ✅ Integration + JWT Codespace workflow |
-| `development` | `060f193` | ⚠️ Behind `main` — run sync script |
-| `testnet` | `060f193` | ⚠️ Behind `main` |
-| `devnets` | `060f193` | ⚠️ Behind `main` |
-| `production` | `060f193` | ⚠️ Behind `main` |
-| `MAINNET` | `060f193` | ⚠️ Behind `main` |
+| `main` | `12efeee` | ✅ Integration + Odysseus router + Stripe |
+| `development` | `12efeee` | ⚠️ Run sync script after merge |
+| `testnet` | `12efeee` | ⚠️ Run sync script after merge |
+| `devnets` | `12efeee` | ⚠️ Run sync script after merge |
+| `production` | `12efeee` | ⚠️ Run sync script after merge |
+| `MAINNET` | `12efeee` | ⚠️ Run sync script after merge |
 
 **Action:** Run `./scripts/sync-environment-branches.sh` to align all environment branches to `main`.
 
