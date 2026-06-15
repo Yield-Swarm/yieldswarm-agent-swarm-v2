@@ -1,0 +1,28 @@
+{
+  "manifestVersion": "1.0.0",
+  "swarmProfile": "mutated-swarm-10080",
+  "seededAt": "2026-06-15T00:00:00Z",
+  "heartbeatSeconds": 420,
+  "latencyGuardrailMs": 80,
+  "treasurySplit": {
+    "vault": 50,
+    "operations": 30,
+    "ecosystem": 15,
+    "sovereignReserve": 5
+  },
+  "cohorts": [
+    {
+      "cohortId": "single-origin",
+      "count": 5040
+    },
+    {
+      "cohortId": "blends",
+      "count": 5040
+    }
+  ],
+  "identityTemplate": {
+    "idFormat": "ys-agent-{index}",
+    "signatureScheme": "hmac-sha256-placeholder",
+    "defaultRole": "yield-operator"
+  }
+}

@@ -1,0 +1,31 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash \
+    ca-certificates \
+    curl \
+    jq \
+    python3 \
+    python3-pip \
+    tini \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir fastapi uvicorn pydantic
+
+RUN useradd -m -u 10001 worker
+WORKDIR /opt/yieldswarm
+
+COPY depin/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY depin/docker/healthcheck.sh /usr/local/bin/healthcheck.sh
+COPY src/pages/api/great-delta /opt/yieldswarm/api/great-delta
+COPY src/lib /opt/yieldswarm/lib
+
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh
+
+EXPOSE 8080 9090
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 CMD ["/usr/local/bin/healthcheck.sh"]
+
+USER worker
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
