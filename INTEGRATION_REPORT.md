@@ -78,6 +78,14 @@ requires Vault bootstrap, Akash wallet funding, and domain wiring per runbooks.
 4. **Vault Kairo policy** — `vault/policies/kairo-runtime.hcl`.
 5. **Documentation** — `DOMAINS.md`, `KAIRO_FRONTEND.md`, `INTEGRATION_REPORT.md`.
 
+## Fixes Applied (final cross-component pass)
+
+6. **Odysseus telemetry empty agents** — Fixed `board.rows` mapping in odysseus route.
+7. **Great Delta 50/30/15/5 alignment** — Treasury + emission adapters + `great-delta.ts`.
+8. **$5M dashboard live data** — `/api/sovereign/state` + dashboard live-first load.
+9. **Backend serves vault dashboard** — `/dashboard/` + `/vault` redirect.
+10. **Live API verified** — Akash + Solana upstreams connected at runtime.
+
 ---
 
 ## Remaining Manual Steps

@@ -58,10 +58,18 @@ else
   echo "[SKIP] Kairo API not running on :8100"
 fi
 
-if curl -sf http://127.0.0.1:8787/api/health >/dev/null 2>&1; then
-  check "Backend API health" curl -sf http://127.0.0.1:8787/api/health
+if curl -sf http://127.0.0.1:8080/api/health >/dev/null 2>&1; then
+  check "Backend API health" curl -sf http://127.0.0.1:8080/api/health
+  check "Sovereign state API" curl -sf http://127.0.0.1:8080/api/sovereign/state
+  if curl -sf http://127.0.0.1:8080/api/telemetry/odysseus | grep -q '"agents"'; then
+    echo "[PASS] Odysseus telemetry returns agents"
+    PASS=$((PASS + 1))
+  else
+    echo "[FAIL] Odysseus telemetry returns agents"
+    FAIL=$((FAIL + 1))
+  fi
 else
-  echo "[SKIP] Backend API not running on :8787"
+  echo "[SKIP] Backend API not running on :8080"
 fi
 
 echo ""

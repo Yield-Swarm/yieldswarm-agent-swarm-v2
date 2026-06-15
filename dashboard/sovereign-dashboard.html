@@ -227,8 +227,8 @@
   </section>
 
   <div class="footer">
-    Iteration 100 — sovereign self-governed core. Data: <code>dashboard/state.json</code>
-    (regenerate with <code>python3 iteration-100/run.py</code>). Auto-refreshes every 4s.
+    Iteration 100 — sovereign self-governed core. Live: <code>/api/sovereign/state</code>
+    · static fallback: <code>dashboard/state.json</code>. Auto-refreshes every 4s.
     <span id="updated"></span>
   </div>
 </main>
@@ -243,15 +243,27 @@ let history = [];
 
 async function load() {
   let data;
+  const liveApi = window.YIELDSWARM_CONFIG?.sovereignStateUrl || "/api/sovereign/state";
+  try {
+    const liveRes = await fetch(liveApi + "?_=" + Date.now(), { cache: "no-store" });
+    if (liveRes.ok) {
+      data = await liveRes.json();
+      $("error").innerHTML = "";
+      render(data);
+      return;
+    }
+  } catch (_) { /* fall through to static state.json */ }
+
   try {
     const res = await fetch("state.json?_=" + Date.now(), { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     data = await res.json();
     $("error").innerHTML = "";
   } catch (e) {
-    $("error").innerHTML = '<div class="err">Could not load <b>state.json</b> ('
-      + e.message + '). Serve this folder over HTTP (e.g. <code>python3 -m http.server</code> '
-      + 'inside <code>dashboard/</code>) and run <code>python3 iteration-100/run.py</code> to generate data.</div>';
+    $("error").innerHTML = '<div class="err">Could not load sovereign state. '
+      + 'Start the integration backend (<code>cd backend && npm start</code>) for live data at '
+      + '<code>/api/sovereign/state</code>, or run <code>python3 iteration-100/run.py</code> '
+      + 'to generate <code>state.json</code>. (' + e.message + ')</div>';
     return;
   }
   render(data);

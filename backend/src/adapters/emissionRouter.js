@@ -40,11 +40,12 @@ export async function getEmissions() {
     targetAnnualInflation: TARGET_ANNUAL_INFLATION,
     emissionPerEpoch: Number(emissionPerEpoch.toFixed(4)),
     emissionPerDay: Number((emissionPerEpoch * (24 * 3600 / EPOCH_SECONDS)).toFixed(4)),
-    // How the per-epoch emission is routed (must sum to 1.0).
+    // Great Delta 50/30/15/5 emission routing (matches on-chain router)
     routes: [
-      { destination: 'stakers', share: 0.5, perEpoch: Number((emissionPerEpoch * 0.5).toFixed(4)) },
-      { destination: 'workers', share: 0.3, perEpoch: Number((emissionPerEpoch * 0.3).toFixed(4)) },
-      { destination: 'treasury', share: 0.2, perEpoch: Number((emissionPerEpoch * 0.2).toFixed(4)) },
+      { destination: 'coreTreasury', share: 0.5, bps: 5000, perEpoch: Number((emissionPerEpoch * 0.5).toFixed(4)) },
+      { destination: 'growthTreasury', share: 0.3, bps: 3000, perEpoch: Number((emissionPerEpoch * 0.3).toFixed(4)) },
+      { destination: 'insuranceTreasury', share: 0.15, bps: 1500, perEpoch: Number((emissionPerEpoch * 0.15).toFixed(4)) },
+      { destination: 'opsTreasury', share: 0.05, bps: 500, perEpoch: Number((emissionPerEpoch * 0.05).toFixed(4)) },
     ],
     error: live ? null : supply.error,
   };

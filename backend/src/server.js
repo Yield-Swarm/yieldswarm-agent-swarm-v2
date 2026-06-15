@@ -33,6 +33,12 @@ app.use((req, res, next) => {
 
 app.use('/api', apiRouter);
 
+// ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------
+app.use('/dashboard', express.static(path.join(repoRoot, 'dashboard')));
+app.get('/vault', (_req, res) =>
+  res.redirect('/dashboard/sovereign-dashboard.html'),
+);
+
 // ---- Frontends -----------------------------------------------------------
 app.use('/arena', express.static(path.join(frontendDir, 'arena')));
 app.use('/portal', express.static(path.join(frontendDir, 'portal')));
@@ -60,6 +66,7 @@ const server = app.listen(config.port, config.host, () => {
     `[yieldswarm] integration server listening on http://${config.host}:${config.port}\n` +
       `  Portal:  /portal/\n` +
       `  Arena:   /arena/\n` +
+      `  Vault:   /dashboard/sovereign-dashboard.html\n` +
       `  API:     /api/arena/overview`,
   );
 });
