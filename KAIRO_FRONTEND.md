@@ -1,123 +1,96 @@
-# KAIRO_FRONTEND.md — Driver-First Consumer App
+# KAIRO_FRONTEND.md — Customer & Driver App
 
-Kairo is the customer-facing ride/delivery app integrated with YieldSwarm DePIN
-telemetry and payment rails.
+## Overview
 
----
+The Kairo frontend is a static ride/delivery shell deployable to **Vercel** or **Netlify**, wired to the YieldSwarm Kairo API and payment rails.
 
-## Architecture
-
-```
-kairo/frontend/          Vite + React (Mapbox, 1% fee UI, 2× driver pay)
-kairo/backend/           FastAPI (crypto identity, signed telemetry)
-kairo/models/            Fare + earnings schemas
-src/app/api/kairo/       Next.js payment rail integration (shared monorepo)
-src/lib/kairo/fees.ts    Fee calculation (1% customer, 2× driver)
-```
-
-Each Kairo driver is a **YieldSwarm DePIN node**: persistent IoTeX + EVM identity,
-cryptographically signed telemetry routed into the Mandelbrot / Tree of Life mesh.
-
----
-
-## Quick start (local)
-
-### 1. Kairo backend (identity + telemetry)
-
-```bash
-cd kairo/backend
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-export KAIRO_API_PORT=8100
-python -m kairo.backend.server
-# Health: http://127.0.0.1:8100/health
-```
-
-### 2. Kairo frontend
-
-```bash
-cd kairo/frontend
-npm install
-export VITE_KAIRO_API_URL=http://127.0.0.1:8100
-export VITE_MAPBOX_TOKEN=your_mapbox_token   # optional; fallback UI without map
-npm run dev
-# Open http://localhost:5174
-```
-
-### 3. Payment rails (monorepo root)
-
-```bash
-cp .env.example .env   # fill Square, Wise, Web3 keys via Vault
-npm install && npm run dev
-# Payments: http://localhost:3000/payments
-# Kairo fare API: http://localhost:3000/api/kairo/fare
-```
-
----
+| Surface | Path | URL (local) |
+|---------|------|-------------|
+| Customer/driver app | `kairo/frontend/index.html` | `/kairo-app/` (via integration backend) |
+| Contribution dashboard | `kairo/dashboard/contribution.html` | `/kairo/contribution.html` |
+| API proxy | `backend/src/routes/kairo.js` | `/api/kairo/*` |
 
 ## Features
 
-| Feature | Location | Notes |
-|---------|----------|-------|
-| 1% customer flat fee | `App.tsx`, `src/lib/kairo/fees.ts` | Shown in fare breakdown |
-| 2× driver app pay | Same | Base fare × 2 |
-| DePIN reward estimate | `mandelbrot.py`, contribution panel | $0.02 per contribution point |
-| Mapbox live tracking | `components/MapView.tsx` | Requires `VITE_MAPBOX_TOKEN` |
-| Crypto identity | `identity.py` | EVM + IoTeX from single secp256k1 key |
-| Signed telemetry | `telemetry.py` | ECDSA sign → Mandelbrot shard routing |
-| Instant cashout flag | UI + payment rails | Wire to Square/Wise withdraw APIs |
+- **Mapbox** live map (dark style) — set `MAPBOX_TOKEN`
+- **1% platform fee** display on every fare quote
+- **2× driver pay** estimate
+- **Signed telemetry** submission to Mandelbrot pipeline
+- **Earnings breakdown** — app revenue + DePIN rewards
 
----
-
-## Deployment
-
-### Vercel (recommended for frontend)
+## Local development
 
 ```bash
-cd kairo/frontend && npm run build
-# Deploy dist/ to Vercel or Netlify
-# Set env: VITE_KAIRO_API_URL=https://kairo-api.yourdomain
-# Set env: VITE_MAPBOX_TOKEN (from Vault)
+# Terminal 1 — Kairo Python API
+pip install -r requirements.txt
+python -m kairo.api.routes
+
+# Terminal 2 — Integration backend (serves frontend + proxies API)
+cd backend && npm install && npm start
+
+# Open
+open http://localhost:8080/kairo-app/
 ```
 
-### Akash (Kairo API alongside swarm)
+Inject Mapbox token in the browser console or via `kairo/frontend/config.js`:
 
-Add Kairo service to `deploy/deploy-swarm-monolith.yaml` or run as sidecar.
-Secrets injected via `vault/policies/kairo-runtime.hcl` + Vault Agent.
+```html
+<script>
+  window.KAIRO_CONFIG = {
+    apiBase: '/api/kairo',
+    mapboxToken: 'pk.eyJ...'
+  };
+</script>
+```
 
----
+## Vercel deployment
 
-## API reference
+```bash
+# From repo root
+vercel --cwd kairo
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/v1/drivers/identity` | Create driver crypto identity |
-| GET | `/api/v1/drivers/{id}/identity` | Public identity + contribution |
-| POST | `/api/v1/telemetry` | Submit signed driving telemetry |
-| GET | `/api/v1/drivers/{id}/contribution` | DePIN contribution stats |
-| POST | `/api/kairo/fare` | Fare breakdown (Next.js, payment rails) |
+# Required env vars (Vercel dashboard or Vault → Vercel sync)
+KAIRO_API_BASE=https://api.yieldswarm.crypto/api/kairo
+MAPBOX_TOKEN=pk.eyJ...
+```
 
----
+`kairo/vercel.json` routes all paths to the static frontend.
 
-## YieldSwarm integration points
+## Netlify deployment
 
-- **Wallet layer:** `frontend/src/wallet/` — reuse for driver crypto payouts
-- **Payments:** `src/lib/payments/` — Square deposit, Wise bank, Web3 on-ramp
-- **Vault:** `kv/yieldswarm/kairo/runtime` — Mapbox, API keys, identity encryption
-- **Odysseus memory:** telemetry forwarded to ChromaDB when `ODYSSEUS_CHROMA_URL` set
-- **Mandelbrot routing:** `kairo/backend/mandelbrot.py` — Tree of Life shard assignment
+```toml
+# netlify.toml (repo root or kairo/)
+[build]
+  publish = "kairo/frontend"
 
----
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.yieldswarm.crypto/api/:splat"
+  status = 200
+  force = true
+```
 
-## Environment variables
+## Payment integration
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_MAPBOX_TOKEN` | For live map | Mapbox GL access token |
-| `VITE_KAIRO_API_URL` | Prod | Kairo backend base URL |
-| `KAIRO_API_PORT` | Backend | Default 8100 |
-| `KAIRO_IDENTITY_STORE` | Backend | Path for encrypted identity store |
-| `KAIRO_DEPIN_REWARD_RATE` | Backend | USD per contribution point (default 0.02) |
-| `ODYSSEUS_CHROMA_URL` | Optional | Forward telemetry to Odysseus mesh |
+Kairo uses the shared YieldSwarm payment rails:
 
-All secrets should be sourced from HashiCorp Vault at runtime — see `SECRETS.md`.
+| Flow | Module |
+|------|--------|
+| Card / ACH deposit | `src/lib/payments/square.ts` |
+| Bank transfer / cashout | `src/lib/payments/wise.ts` |
+| On-chain wallet | `frontend/src/wallet/`, `src/lib/web3/` |
+
+Fee model (env-configurable):
+
+```bash
+KAIRO_CUSTOMER_FEE_RATE=0.01
+KAIRO_DRIVER_PAY_MULTIPLIER=2.0
+```
+
+## DNS
+
+Point `kairo.yieldswarm.crypto` (or `app.kairo.crypto`) to Vercel — see `DOMAINS.md`.
+
+## Unstoppable Domains
+
+Website record → Vercel deployment URL. Crypto records for treasury wallets are separate from the app.

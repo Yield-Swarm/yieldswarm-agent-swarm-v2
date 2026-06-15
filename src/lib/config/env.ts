@@ -27,7 +27,9 @@ export const serverEnv = {
     const secret = str("SESSION_SECRET");
     const isNextBuild = process.env.NEXT_PHASE === "phase-production-build";
     if (!secret && process.env.NODE_ENV === "production" && !isNextBuild) {
-      throw new Error("SESSION_SECRET is required in production");
+      throw new Error(
+        "SESSION_SECRET is required in production — load from Vault kv/data/yieldswarm/payments/runtime",
+      );
     }
     return secret || "yieldswarm-dev-session-secret-change-me";
   })(),

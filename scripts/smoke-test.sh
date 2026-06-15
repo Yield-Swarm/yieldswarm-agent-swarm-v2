@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Integration smoke tests across YieldSwarm + Kairo + Odysseus stack.
+# YieldSwarm integration smoke test — structural checks + optional runtime probes.
 set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+BACKEND_URL="${BACKEND_URL:-http://127.0.0.1:8080}"
+KAIRO_URL="${KAIRO_URL:-http://127.0.0.1:8100}"
 PASS=0
 FAIL=0
 
-check() {
+check_cmd() {
   local name="$1"
   shift
   if "$@" >/dev/null 2>&1; then
@@ -20,39 +22,52 @@ check() {
   fi
 }
 
+check_url() {
+  local name="$1"
+  local url="$2"
+  if curl -fsS "$url" >/dev/null 2>&1; then
+    echo "  ✓ $name — $url"
+    PASS=$((PASS + 1))
+  else
+    echo "  ✗ $name — $url"
+    FAIL=$((FAIL + 1))
+  fi
+}
+
 echo "=== YieldSwarm + Kairo Smoke Tests ==="
 
 # File structure
-check "deploy-swarm-monolith.yaml exists" test -f deploy/deploy-swarm-monolith.yaml
-check "akash-deploy.sh executable" test -x scripts/akash-deploy.sh
-check "deploy-to-akash.sh executable" test -x scripts/deploy-to-akash.sh
-check "DOMAINS.md exists" test -f DOMAINS.md
-check "MERGE_STRATEGY.md exists" test -f MERGE_STRATEGY.md
-check "Vault policies exist" test -f vault/policies/kairo-runtime.hcl
-check "Kairo identity module" test -f kairo/models/identity.py
-check "Odysseus service" test -f services/odysseus/main.py
-check "Emission router contract" test -f contracts/GreatDeltaEmissionRouter.sol
-check "Sovereign dashboard" test -f dashboard/sovereign-dashboard.html
-check "Payment rails page" test -f src/app/payments/page.tsx
-check "Arena page (Next.js)" test -f src/app/arena/page.tsx
-check "Stripe deposit route" test -f src/app/api/deposits/stripe/route.ts
-check "Stripe webhook route" test -f src/app/api/webhooks/stripe/route.ts
-check "Platform fee module" test -f src/lib/payments/fees.ts
+check_cmd "deploy-swarm-monolith.yaml exists" test -f deploy/deploy-swarm-monolith.yaml
+check_cmd "akash-deploy.sh executable" test -x scripts/akash-deploy.sh
+check_cmd "deploy-to-akash.sh executable" test -x scripts/deploy-to-akash.sh
+check_cmd "DOMAINS.md exists" test -f DOMAINS.md
+check_cmd "MERGE_STRATEGY.md exists" test -f MERGE_STRATEGY.md
+check_cmd "Vault policies exist" test -f vault/policies/kairo-runtime.hcl
+check_cmd "Kairo identity module" test -f kairo/models/identity.py
+check_cmd "Odysseus service" test -f services/odysseus/main.py
+check_cmd "Emission router contract" test -f contracts/GreatDeltaEmissionRouter.sol
+check_cmd "Sovereign dashboard" test -f dashboard/sovereign-dashboard.html
+check_cmd "Payment rails page" test -f src/app/payments/page.tsx
+check_cmd "Arena page (Next.js)" test -f src/app/arena/page.tsx
+check_cmd "Stripe deposit route" test -f src/app/api/deposits/stripe/route.ts
+check_cmd "Stripe webhook route" test -f src/app/api/webhooks/stripe/route.ts
+check_cmd "Platform fee module" test -f src/lib/payments/fees.ts
+check_cmd "Integration backend" test -f backend/src/server.js
 
-# Python imports
-check "Kairo tests" python3 -m pytest kairo/tests/ -q
-check "Odysseus memory tests" python3 -m pytest tests/test_odysseus_memory.py -q
-check "YieldSwarm tools tests" python3 -m pytest tests/test_yieldswarm_tools.py -q
+# Python tests
+check_cmd "Kairo tests" python3 -m pytest kairo/tests/ -q
+check_cmd "Odysseus memory tests" python3 -m pytest tests/test_odysseus_memory.py -q
+check_cmd "YieldSwarm tools tests" python3 -m pytest tests/test_yieldswarm_tools.py -q
 
-# Node unit tests (payments, ledger, auth)
+# Node unit tests
 if command -v npm >/dev/null 2>&1 && [[ -d node_modules ]]; then
-  check "Vitest (src/lib)" npm test
+  check_cmd "Vitest (src/lib)" npm run test:unit
+  check_cmd "Backend unit tests" npm run test:backend
 fi
 
-# Frontend shared-module tests (node:test)
-check "Frontend auth/telemetry" node --test frontend/tests/*.test.js
+check_cmd "Frontend auth/telemetry" node --test frontend/tests/*.test.js
 
-# Secrets audit — no hardcoded API keys in tracked files
+# Secrets audit
 if rg -l 'ud_mcp_[a-f0-9]{20,}' --glob '!*.lock' . 2>/dev/null; then
   echo "  ✗ hardcoded UD API key found"
   FAIL=$((FAIL + 1))
@@ -61,12 +76,19 @@ else
   PASS=$((PASS + 1))
 fi
 
-# HTTP health (if services running)
-if curl -sf http://localhost:8787/healthz >/dev/null 2>&1; then
-  check "Kairo API health" curl -sf http://localhost:8787/healthz
+echo ""
+echo "=== Optional runtime checks ==="
+if curl -sf "$KAIRO_URL/health" >/dev/null 2>&1 || curl -sf "$KAIRO_URL/healthz" >/dev/null 2>&1; then
+  check_url "Kairo API health" "$KAIRO_URL/health"
+else
+  echo "  [skip] Kairo API not running on $KAIRO_URL"
 fi
-if curl -sf http://localhost:8080/healthz >/dev/null 2>&1; then
-  check "Odysseus health" curl -sf http://localhost:8080/healthz
+
+if curl -sf "$BACKEND_URL/api/health" >/dev/null 2>&1; then
+  check_url "Backend API health" "$BACKEND_URL/api/health"
+  check_url "Sovereign state API" "$BACKEND_URL/api/sovereign/state"
+else
+  echo "  [skip] Backend API not running on $BACKEND_URL"
 fi
 
 echo ""

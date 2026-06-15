@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "name": "kairo",
+  "builds": [
+    { "src": "kairo/frontend/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/kairo/frontend/$1" }
+  ],
+  "env": {
+    "KAIRO_API_BASE": "https://api.yieldswarm.crypto/api/kairo",
+    "MAPBOX_TOKEN": "@mapbox_token"
+  }
+}

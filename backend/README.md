@@ -36,7 +36,9 @@ Open:
 | GET | `/api/health` | Upstream connectivity (Akash + Solana). |
 | GET | `/api/arena/overview` | Aggregated payload for the dashboard (all sections + per-source connection health). |
 | GET | `/api/akash/workers` | Akash network capacity + worker/lease telemetry. |
-| GET | `/api/telemetry/emission-router` | Emission router telemetry. |
+| GET | `/api/telemetry/akash` | Akash payload for static Arena (`frontend/shared/telemetry.js`). |
+| GET | `/api/telemetry/odysseus` | Odysseus payload for static Arena. |
+| GET | `/api/vault/telemetry` | $5M vault / sovereign treasury snapshot. |
 | GET | `/api/telemetry/treasury` | Treasury balance + splits. |
 | GET | `/api/telemetry/leaderboard?limit=N` | Agent leaderboard (1–25). |
 

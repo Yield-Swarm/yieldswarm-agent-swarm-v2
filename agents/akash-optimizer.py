@@ -8,11 +8,8 @@ import pathlib
 import sys
 from pathlib import Path
 
-REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+import _bootstrap  # noqa: F401 — sets up sys.path for agent imports
 
-from iteration_100_sovereign_loops import SovereignController
 from odysseus_memory import build_agent_id, get_memory
 from services.yieldswarm_model_router import (  # noqa: E402
     YieldSwarmModelRouter,
@@ -41,21 +38,13 @@ def main() -> int:
     )
     sync_reports = memory.sync_with_peers()
 
-    controller = SovereignController(
-        state_path=Path("dashboard/iteration_100_state.json"),
-        dashboard_path=Path("dashboard/final-monitoring-dashboard-5m.md"),
-    )
-    report = controller.run_cycle()
     routing = optimize_akash_gpu_fleet()
 
     print(
         json.dumps(
             {
-                "loop": "self-healing-akash-leases",
-                "cycle": report["cycle"],
-                "healed_or_renewed": report["lease_metrics"]["healed_or_renewed"],
-                "health_ratio": report["lease_metrics"]["health_ratio"],
-                "avg_sla": report["lease_metrics"]["avg_sla"],
+                "loop": "akash-optimizer",
+                "healed_or_renewed": routing.get("placements", []),
                 "model_routing": routing,
                 "odysseus_sync_reports": sync_reports,
             },

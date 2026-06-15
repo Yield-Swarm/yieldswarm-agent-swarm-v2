@@ -105,9 +105,13 @@ def iotex_address_from_evm(evm_address: str) -> str:
 
 
 def _encryption_key() -> bytes:
-    material = os.environ.get("KAIRO_IDENTITY_ENCRYPTION_KEY") or os.environ.get(
-        "WALLET_ENCRYPTION_KEY", "yieldswarm-dev-kairo-key"
-    )
+    material = os.environ.get("KAIRO_IDENTITY_ENCRYPTION_KEY") or os.environ.get("WALLET_ENCRYPTION_KEY")
+    if not material:
+        if os.environ.get("NODE_ENV") == "production" or os.environ.get("KAIRO_REQUIRE_ENCRYPTION_KEY") == "1":
+            raise RuntimeError(
+                "KAIRO_IDENTITY_ENCRYPTION_KEY or WALLET_ENCRYPTION_KEY is required in production"
+            )
+        material = "yieldswarm-dev-kairo-key"
     return hashlib.sha256(material.encode("utf-8")).digest()
 
 

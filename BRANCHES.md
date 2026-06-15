@@ -1,114 +1,201 @@
-# Branch Strategy — YieldSwarm / Kairo Helix Chain
+# BRANCHES.md — YieldSwarm Branch Structure
 
-Deployment-track branches for the AgentSwarm OS. Feature work lands on `main`
-via PR; tracks are long-lived promotion lanes.
+> Last updated: June 15, 2026  
+> Repo: [yieldswarm-agent-swarm-v2](https://github.com/Yield-Swarm/yieldswarm-agent-swarm-v2)
+
+## Overview
+
+YieldSwarm uses a **six-branch environment model**. All feature work lands on `development` first; changes promote through increasingly hardened environments toward `MAINNET`.
+
+```
+                    ┌─────────────┐
+                    │    main     │  ← integration gate (PR + checks)
+                    └──────┬──────┘
+                           │ merge / fast-forward
+                    ┌──────▼──────┐
+              ┌─────┤ development ├─────┐
+              │     └──────┬──────┘     │
+              │            │            │
+       ┌──────▼──────┐     │     ┌──────▼──────┐
+       │   devnets   │     │     │   testnet   │
+       │ IoTeX/HNT/  │     │     │ Akash stage │
+       │   GRASS     │     │     │ Vercel prev │
+       └─────────────┘     │     └──────┬──────┘
+                           │            │
+                    ┌──────▼──────┐     │
+                    │ production  │◄────┘
+                    │ pre-mainnet │
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │   MAINNET   │
+                    │  live deploy│
+                    └─────────────┘
+```
 
 ---
 
-## Branch ladder
+## Branch definitions
+
+| Branch | Purpose | Who pushes | Protection | Deploy target |
+|--------|---------|------------|------------|---------------|
+| `main` | Clean integration snapshot; source of truth for releases | Merge PRs only | **Required** — reviews + CI | Reference only |
+| `development` | Active daily development; all `cursor/*` PRs target here | Agents + humans | Optional | Local / Codespaces |
+| `testnet` | Staging: Akash testnet, Vercel preview, payment sandbox | Promotion from `development` | **Recommended** | Akash sandbox, Vercel preview |
+| `devnets` | Broader DePIN devnet testing (IoTeX, Helium, GRASS) | Promotion from `development` | **Recommended** | Devnet RPCs |
+| `production` | Pre-mainnet hardened; full QA sign-off | Promotion from `testnet` | **Required** | Akash mainnet (dry-run) |
+| `MAINNET` | Final mainnet deployment tag | Promotion from `production` | **Required** | Live infrastructure |
+
+### Feature branches (`cursor/*`)
+
+Cloud Agents create branches matching `cursor/<descriptive-name>-<id>`:
 
 ```
-feature/cursor/*  ──PR──►  main  ──promote──►  development
-                                                  │
-                                                  ▼
-                                               testnet
-                                                  │
-                                                  ▼
-                                               devnets
-                                                  │
-                                                  ▼
-                                              production
-                                                  │
-                                                  ▼
-                                               MAINNET
+cursor/odysseus-brain-e512
+cursor/kairo-crypto-pipeline-e512
 ```
 
-| Branch | Purpose | Deploy target | Protection |
-|--------|---------|---------------|------------|
-| `main` | Integration / PR target | Vercel preview | Require PR + CI |
-| `development` | Active dev integration | Vercel dev | Require PR |
-| `testnet` | Public testnet contracts + agents | Akash testnet leases | Require PR + review |
-| `devnets` | Multi-devnet sharded crons | Akash + fallback (1 shard) | Require PR + review |
-| `production` | Staging production | Akash prod + multi-cloud | Require 2 reviews |
-| `MAINNET` | Live mainnet | Akash prod + MAINNET RPC | Require 2 reviews + admin |
+**Rules:**
+- Branch off `development` (never off stale `cursor/*` branches)
+- One domain per branch — no parallel Vault branches
+- PR target: `development` first; coordinator promotes to `main`
+- Suffix `-e512` (or similar) is the agent session ID — keep lowercase
 
 ---
 
-## Promotion flow
+## Promotion workflow
 
-1. Merge feature PRs into `main` (squash recommended).
-2. When `main` is green (`make preflight` + smoke tests), fast-forward `development`.
-3. Promote `development` → `testnet` after testnet contract deploy succeeds.
-4. Promote `testnet` → `devnets` after 1-shard cron soak (24h).
-5. Promote `devnets` → `production` after full Akash lease + Vault audit.
-6. Promote `production` → `MAINNET` after council DAO sign-off.
+### Standard path
 
 ```bash
-# Example: promote main → development
-git checkout development
-git merge --ff-only main
+# 1. Feature complete on cursor/* → PR to development
+git checkout development && git pull origin development
+git merge --no-ff origin/cursor/my-feature-e512 -m "feat: my feature"
 git push origin development
+
+# 2. Staging validation on testnet
+git checkout testnet && git pull origin testnet
+git merge --no-ff origin/development -m "promote: development → testnet"
+git push origin testnet
+# → triggers Akash testnet deploy + Vercel preview
+
+# 3. After QA → production
+git checkout production && git merge --no-ff origin/testnet -m "promote: testnet → production"
+git push origin production
+
+# 4. After audit → MAINNET
+git checkout MAINNET && git merge --no-ff origin/production -m "promote: production → MAINNET"
+git push origin MAINNET
 ```
 
----
+### Fast-path: sync all env branches to main
 
-## `cursor/*` branch cleanup
-
-56 agent branches exist. Consolidate before merging:
-
-| Feature area | Canonical branch | Duplicates to close |
-|--------------|------------------|---------------------|
-| Vault / secrets | `cursor/complete-vault-integration-82c9` | ~30 `cursor/vault-integration-*` |
-| Akash deploy | `cursor/harden-akash-sdl-worker-ff04` | — |
-| Akash lease manager | `cursor/akash-lease-manager-f88c` | — |
-| Multi-cloud Terraform | `cursor/multicloud-fallback-infra-e3ca` | `cursor/multicloud-fallback-6923` |
-| Deploy orchestrator | `cursor/production-deploy-orchestrator-85ce` | — |
-| Domains | `cursor/wire-unstoppable-domains-ffe8` | — |
-| Odysseus | `cursor/odysseus-ui-integration-35ff` | `cursor/integrate-odysseus-1074` |
-| Emission router | `cursor/greatdelta-emission-router-1068` | `cursor/great-delta-emission-router-4594` |
-| Sovereign core | `cursor/iteration-100-sovereign-core-fede` | `cursor/iteration-100-sovereign-loops-6c60` |
-
-**This PR** (`cursor/helix-chain-activation-597f`) consolidates infra, domains,
-Vault, Akash, and Terraform into one merge-ready branch.
-
-### Merge order (dependency-first)
-
-1. `cursor/helix-chain-activation-597f` — infra foundation (this PR)
-2. Vault runtime + `SECRETS.md` validation
-3. Akash lease manager + monolith SDL
-4. Odysseus tools → memory → UI → deployments
-5. Arena / telemetry dashboards
-6. Payments / wallet / emission router
-7. Sovereign core / production orchestrator
-
-### Delete stale branches (after merge)
+When `main` has passed integration review and env branches are behind:
 
 ```bash
-# After PR merges, delete consolidated cursor branches
-for b in $(git branch -r | grep 'origin/cursor/vault-integration-' | sed 's|origin/||'); do
-  git push origin --delete "$b"
-done
+./scripts/sync-environment-branches.sh
 ```
 
----
+### Parallel devnet track
 
-## Tags & milestones
-
-| Tag / branch | When |
-|--------------|------|
-| `v1.0-helix-launch` | First successful Akash deploy + domains wired |
-| `milestone/helix-chain-activation` | Celebration branch after launch |
+`devnets` can receive experimental DePIN work directly from `development` without blocking the `testnet → production` path:
 
 ```bash
-git tag -a v1.0-helix-launch -m "Helix Chain activation: Akash + domains live"
-git push origin v1.0-helix-launch
-git checkout -b milestone/helix-chain-activation
+git checkout devnets && git merge --no-ff origin/development && git push origin devnets
 ```
 
 ---
 
-## Kairo placement
+## What belongs on each branch
 
-Kairo lives in **`/kairo`** within this repo for now (shared Vault, Akash, and
-domain wiring). Extract to a separate repo when the UI stabilizes; until then,
-`/kairo` references YieldSwarm infra via `../deploy/` and `../akash/`.
+| Branch | Expected contents |
+|--------|-------------------|
+| `main` | Merged, reviewed, CI-green integration only |
+| `development` | Latest features including in-progress Odysseus/Kairo work |
+| `testnet` | Same as `development` after smoke tests pass |
+| `devnets` | DePIN-specific configs (IoTeX keys, HNT, GRASS node refs) |
+| `production` | Frozen deps, Vault paths for prod, no dev fallbacks |
+| `MAINNET` | Exact commit deployed to live Akash + Vercel + domains |
+
+---
+
+## Environment-specific configuration
+
+Set these per branch in GitHub Environments or Vault:
+
+| Variable | development | testnet | production | MAINNET |
+|----------|-------------|---------|------------|---------|
+| `AKASH_CHAIN_ID` | `akashnet-2` | `akashnet-2` | `akashnet-2` | `akashnet-2` |
+| `SQUARE_ENVIRONMENT` | `sandbox` | `sandbox` | `production` | `production` |
+| `VAULT_NAMESPACE` | `dev` | `staging` | `prod` | `mainnet` |
+| `NETWORK_LOCKDOWN_MODE` | `false` | `true` | `true` | `true` |
+| `VAULT_TARGET_USD` | `5000000` | `5000000` | `5000000` | `5000000` |
+
+Secrets never live in branch content — only Vault coordinates and `.env.example` placeholders.
+
+---
+
+## Current branch tips (June 15, 2026)
+
+| Branch | Tip commit | Status |
+|--------|------------|--------|
+| `main` | `ca74492` | ✅ Integration + JWT Codespace workflow |
+| `development` | `060f193` | ⚠️ Behind `main` — run sync script |
+| `testnet` | `060f193` | ⚠️ Behind `main` |
+| `devnets` | `060f193` | ⚠️ Behind `main` |
+| `production` | `060f193` | ⚠️ Behind `main` |
+| `MAINNET` | `060f193` | ⚠️ Behind `main` |
+
+**Action:** Run `./scripts/sync-environment-branches.sh` to align all environment branches to `main`.
+
+---
+
+## GitHub branch protection (recommended)
+
+### `main`
+- Require PR reviews: 1
+- Require status checks: CI, smoke tests
+- No direct pushes
+- Require linear history: optional
+
+### `production`, `MAINNET`
+- Require PR reviews: 1
+- Require status checks: full integration suite
+- Restrict pushes to release managers
+
+### `testnet`, `devnets`
+- Require status checks: smoke tests
+
+---
+
+## Cleaning up `cursor/*` branches
+
+After a `cursor/*` branch is merged to `development` and/or `main`:
+
+```bash
+# Delete remote branch (after PR merge)
+git push origin --delete cursor/my-feature-e512
+
+# Prune local tracking refs
+git fetch origin --prune
+```
+
+See `MERGE_STRATEGY.md` for the full list of branches to close without merging.
+
+---
+
+## Quick reference commands
+
+```bash
+# See all cursor branches ahead of main
+./scripts/analyze-cursor-branches.sh
+
+# Sync environment branches to main
+./scripts/sync-environment-branches.sh
+
+# Create missing environment branches from main
+./scripts/merge-swarm.sh --init-branches-only
+
+# Full merge coordinator (post-consolidation mode)
+./scripts/merge-swarm.sh
+```
