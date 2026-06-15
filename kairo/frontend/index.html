@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kairo — Ride &amp; Delivery</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    :root { --bg:#0a0a0f; --panel:#12121a; --accent:#6c5ce7; --green:#00d68f; --text:#f0f0f5; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:system-ui,sans-serif; background:var(--bg); color:var(--text); }
+    header { padding:16px 20px; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { font-size:20px; color:var(--accent); }
+    .fee-badge { background:#1a1a2e; border:1px solid var(--accent); padding:6px 12px; border-radius:20px; font-size:13px; }
+    #map { width:100%; height:55vh; }
+    .panel { padding:20px; }
+    .stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0; }
+    .stat { background:var(--panel); border-radius:12px; padding:14px; text-align:center; }
+    .stat .val { font-size:22px; font-weight:700; color:var(--green); }
+    .stat .lbl { font-size:11px; color:#888; margin-top:4px; text-transform:uppercase; }
+    button { width:100%; padding:16px; background:var(--accent); color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer; margin-top:12px; }
+    button:disabled { opacity:.4; cursor:not-allowed; }
+    .tabs { display:flex; gap:8px; margin-bottom:12px; }
+    .tab { flex:1; padding:10px; text-align:center; background:var(--panel); border-radius:8px; cursor:pointer; font-size:14px; }
+    .tab.active { background:var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kairo</h1>
+    <span class="fee-badge">1% platform fee · 2× driver pay</span>
+  </header>
+  <div id="map"></div>
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab active" data-mode="ride">Ride</div>
+      <div class="tab" data-mode="delivery">Delivery</div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="val" id="fare">$0.00</div><div class="lbl">Est. fare</div></div>
+      <div class="stat"><div class="val" id="driver-pay">$0.00</div><div class="lbl">Driver pay (2×)</div></div>
+      <div class="stat"><div class="val" id="depin">$0.00</div><div class="lbl">DePIN earnings</div></div>
+    </div>
+    <button id="request-btn">Request Ride</button>
+  </div>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+  <script>
+    const MAPBOX_TOKEN = window.KAIRO_CONFIG?.mapboxToken || '';
+    const API_BASE = window.KAIRO_CONFIG?.apiBase || 'http://localhost:8787';
+    let mode = 'ride';
+
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        mode = t.dataset.mode;
+        document.getElementById('request-btn').textContent =
+          mode === 'ride' ? 'Request Ride' : 'Request Delivery';
+      });
+    });
+
+    if (MAPBOX_TOKEN) {
+      mapboxgl.accessToken = MAPBOX_TOKEN;
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [-104.99, 39.74],
+        zoom: 12,
+      });
+      map.addControl(new mapboxgl.NavigationControl());
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          map.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14 });
+          new mapboxgl.Marker({ color: '#6c5ce7' })
+            .setLngLat([pos.coords.longitude, pos.coords.latitude])
+            .addTo(map);
+        });
+      }
+    } else {
+      document.getElementById('map').innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">Set MAPBOX_TOKEN via Vault → KAIRO_CONFIG</div>';
+    }
+
+    function updateEconomics(fare) {
+      const fee = fare * 0.01;
+      const driverPay = fare * 0.5 * 2;
+      const depin = fare * 0.15;
+      document.getElementById('fare').textContent = '$' + fare.toFixed(2);
+      document.getElementById('driver-pay').textContent = '$' + driverPay.toFixed(2);
+      document.getElementById('depin').textContent = '$' + depin.toFixed(2);
+    }
+
+    updateEconomics(24.50);
+
+    document.getElementById('request-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('request-btn');
+      btn.disabled = true;
+      btn.textContent = 'Matching driver…';
+      try {
+        const pos = await new Promise((res, rej) =>
+          navigator.geolocation.getCurrentPosition(res, rej));
+        const resp = await fetch(API_BASE + '/api/telemetry/ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            driver_id: 'pending',
+            evm_address: '0x' + '0'.repeat(40),
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            fare_usd: 24.50,
+            trip_phase: mode === 'ride' ? 'pickup' : 'en_route',
+          }),
+        });
+        const data = await resp.json();
+        if (data.economics) updateEconomics(data.economics.fare_usd);
+        btn.textContent = mode === 'ride' ? 'Driver en route ✓' : 'Courier assigned ✓';
+      } catch (e) {
+        btn.textContent = 'Retry';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,21 +1,32 @@
-# Kairo — Cryptographic Identity
+# Kairo — Cryptographic Identity + Ride/Delivery App
 
-Kairo lives in this repo (`/kairo`) alongside YieldSwarm for shared infra:
+Kairo is the consumer app integrated with YieldSwarm's DePIN intelligence layer.
 
-- **Domains:** `kairo.x`, `kairo.crypto` (see `DOMAINS.md`)
-- **Akash:** GPU workers via `../akash/`
-- **Secrets:** HashiCorp Vault via `../vault/`
-- **Frontend:** Vercel deployment (shared or dedicated project)
+## Quick start
 
-## Status
+```bash
+pip install -r kairo/requirements.txt
+python -m kairo.api.main          # API on :8787
+python -m http.server 5173 -d kairo/frontend  # UI
+```
 
-Scaffold pending. Next PR will add:
+## Docs
 
-- Mandelbrot identity pipeline
-- Cryptographic key derivation UI
-- Integration with YieldSwarm agent mesh
+- `KAIRO_FRONTEND.md` — deployment, Mapbox, Vercel/Netlify
+- `DOMAINS.md` — `kairo.x`, `kairo.crypto` DNS records
+- `INTEGRATION_REPORT.md` — full system wiring
 
-## Why same repo (for now)
+## Architecture
 
-Shared Vault policies, Akash SDL, Terraform fallback, and UD domain wiring.
-Extract to `yieldswarm-kairo` when the UI stabilizes.
+```
+kairo/
+├── models/identity.py    # IoTeX + EVM driver identity
+├── models/telemetry.py   # Signed GPS telemetry
+├── services/pipeline.py  # Mandelbrot / Tree of Life routing
+├── services/rewards.py   # 1% fee, 2× pay, DePIN breakdown
+├── api/main.py           # HTTP API
+├── frontend/index.html   # Mapbox ride/delivery UI
+└── tests/                # pytest suite
+```
+
+Telemetry flows: **Kairo → Mandelbrot shards → Odysseus memory → 10,080 agents**

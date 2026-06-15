@@ -1,0 +1,30 @@
+services:
+  odysseus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${ODYSSEUS_IMAGE:-ghcr.io/yieldswarm/agent-swarm-odysseus:local}
+    ports:
+      - "${ODYSSEUS_PORT:-8080}:8080"
+    environment:
+      AGENT_SHARD_ID: ${AGENT_SHARD_ID:-0}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ODYSSEUS_AGENT_COUNT: ${ODYSSEUS_AGENT_COUNT:-84}
+      ODYSSEUS_GPU_COUNT: ${ODYSSEUS_GPU_COUNT:-1}
+      ODYSSEUS_RUNTIME_VAULT_PATH: ${ODYSSEUS_RUNTIME_VAULT_PATH:-kv/data/yieldswarm/odysseus/runtime}
+      ODYSSEUS_SERVICE_NAME: odysseus
+      VAULT_ADDR: ${VAULT_ADDR}
+      VAULT_APPROLE_AUTH_PATH: ${VAULT_APPROLE_AUTH_PATH:-auth/approle/login}
+      VAULT_AUTH_METHOD: ${VAULT_AUTH_METHOD:-token}
+      VAULT_JWT_AUTH_PATH: ${VAULT_JWT_AUTH_PATH:-auth/jwt/login}
+      VAULT_JWT_ROLE: ${VAULT_JWT_ROLE:-}
+      VAULT_KV_PATH: ${VAULT_KV_PATH:-kv/data/yieldswarm/odysseus/runtime}
+      VAULT_NAMESPACE: ${VAULT_NAMESPACE:-}
+      VAULT_TOKEN_FILE: /run/secrets/vault_token
+    secrets:
+      - vault_token
+    restart: unless-stopped
+
+secrets:
+  vault_token:
+    file: ${VAULT_TOKEN_FILE:-./.vault-token}

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "kairo/frontend/**", "use": "@vercel/static" },
+    { "src": "src/app/**", "use": "@vercel/next" },
+    { "src": "dashboard/**", "use": "@vercel/static" },
+    { "src": "council/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/kairo", "dest": "/kairo/frontend/index.html" },
+    { "src": "/kairo/(.*)", "dest": "/kairo/frontend/$1" },
+    { "src": "/payments", "dest": "/src/app/payments" },
+    { "src": "/arena", "dest": "/app/arena/page.tsx" },
+    { "src": "/council/(.*)", "dest": "/council/$1" },
+    { "src": "/dashboard/(.*)", "dest": "/dashboard/$1" },
+    { "src": "/(.*)", "dest": "/src/app/$1" }
+  ],
+  "env": {
+    "KAIRO_API_BASE": "@kairo_api_base",
+    "MAPBOX_TOKEN": "@mapbox_token"
+  }
+}

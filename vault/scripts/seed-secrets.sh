@@ -111,4 +111,34 @@ put_if_set integrations/linear  api_key=LINEAR_API_KEY
 put_if_set integrations/telegram bot_token=TELEGRAM_BOT_TOKEN
 put_if_set integrations/unstoppable api_key=UD_API_KEY
 
+# ---- Kairo (driver app) ----
+put_if_set runtime/kairo \
+  mapbox_token=MAPBOX_TOKEN \
+  iotex_api_key=IOTEX_API_KEY \
+  identity_signing_key=KAIRO_IDENTITY_SIGNING_KEY
+
+# ---- Payments (Stripe, Square, Wise) ----
+put_if_set runtime/payments \
+  stripe_secret_key=STRIPE_SECRET_KEY \
+  stripe_webhook_secret=STRIPE_WEBHOOK_SECRET \
+  stripe_publishable_key=STRIPE_PUBLISHABLE_KEY \
+  square_access_token=SQUARE_ACCESS_TOKEN \
+  square_webhook_secret=SQUARE_WEBHOOK_SECRET \
+  wise_api_token=WISE_API_TOKEN
+
+put_if_set integrations/stripe \
+  secret_key=STRIPE_SECRET_KEY \
+  webhook_secret=STRIPE_WEBHOOK_SECRET \
+  publishable_key=STRIPE_PUBLISHABLE_KEY
+
+put_if_set integrations/mapbox \
+  token=MAPBOX_TOKEN
+
+# ---- Odysseus orchestration ----
+put_if_set runtime/odysseus \
+  api_key=ODYSSEUS_API_KEY \
+  model_host=ODYSSEUS_MODEL_HOST \
+  model_api_key=ODYSSEUS_MODEL_API_KEY \
+  chromadb_host=CHROMADB_HOST
+
 log "done"

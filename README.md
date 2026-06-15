@@ -30,8 +30,12 @@ make deploy             # full production deploy
 | `DOMAINS.md` | Unstoppable Domains wiring (17 domains, exact records) |
 | `DEPLOY.md` | Production deployment orchestrator (5 steps) |
 | `SECRETS.md` | HashiCorp Vault bootstrap + Akash runtime secrets |
+| `MERGE_STRATEGY.md` | Consolidate 56 cursor branches → clean main |
 | `BRANCHES.md` | Branch ladder: development → MAINNET |
 | `HELIX-EXECUTION.md` | Parallel track execution plan |
+| `INTEGRATION_REPORT.md` | Full system wiring diagram |
+| `KAIRO_FRONTEND.md` | Kairo ride/delivery app deployment |
+| `PRODUCTION_READINESS.md` | Final smoke test + launch checklist |
 | `infra/README.md` | Multi-cloud Terraform + Packer |
 
 ## Setup

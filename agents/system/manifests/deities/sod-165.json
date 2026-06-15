@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "iota-governance",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-165",
+  "metal_skin": "neon-vanadium",
+  "mutation_affinity": 0.81,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "west"
+}
