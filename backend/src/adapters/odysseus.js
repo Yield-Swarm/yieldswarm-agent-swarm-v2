@@ -132,6 +132,20 @@ export async function executeTool(name, arguments_ = {}) {
   });
 }
 
+export async function getModelRoutes() {
+  return fetchJson(`${BRAIN_BASE}/api/models/routes`, { timeoutMs: config.upstreamTimeoutMs });
+}
+
+export async function getModelRecommendation(query = {}) {
+  const params = new URLSearchParams();
+  if (query.task) params.set('task', query.task);
+  if (query.agent_id) params.set('agent_id', query.agent_id);
+  if (query.priority) params.set('priority', query.priority);
+  const qs = params.toString();
+  const path = `/api/models/recommend${qs ? `?${qs}` : ''}`;
+  return fetchJson(`${BRAIN_BASE}${path}`, { timeoutMs: config.upstreamTimeoutMs });
+}
+
 export async function ping() {
   if (!config.odysseus.enabled) return { live: false, error: 'disabled' };
   try {

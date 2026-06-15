@@ -68,7 +68,7 @@ class OdysseusBrain:
 
     def __init__(self) -> None:
         self.memory = get_memory()
-        self.router = YieldSwarmModelRouter.from_env()
+        self.router = self._build_router()
         self.status = BrainStatus(
             agent_count=int(os.getenv("ODYSSEUS_AGENT_COUNT", os.getenv("AGENT_COUNT_TOTAL", "84"))),
             deity_count=int(os.getenv("YIELDSWARM_DEITY_COUNT", "169")),
@@ -84,6 +84,50 @@ class OdysseusBrain:
         )
         self.status.registered_tools = list(self._tool_registry.keys())
         self.status.memory_collections = list(MEMORY_COLLECTIONS.keys())
+
+    @staticmethod
+    def _build_router() -> YieldSwarmModelRouter:
+        return YieldSwarmModelRouter.from_env()
+
+    def refresh_akash_workers(self) -> int:
+        """Reload RTX 3090 workers from live Akash lease URLs."""
+        self.router = self._build_router()
+        count = len(self.router.workers)
+        self.status.model_router_workers = count
+        return count
+
+    def route_inference(
+        self,
+        *,
+        task: str = "chat",
+        agent_id: str | None = None,
+        priority: float = 0.5,
+    ) -> dict[str, Any]:
+        """Select model + worker; include LiteLLM fallback chain."""
+        self.refresh_akash_workers()
+        decision = self.router.recommend(
+            task=task,
+            agent_id=agent_id,
+            priority=priority,
+        )
+        litellm_primary = os.getenv("ODYSSEUS_DEFAULT_MODEL", "akash-ollama")
+        fallbacks = ["yieldswarm-fireworks", "yieldswarm-default"]
+        ollama_url = None
+        try:
+            from services.akash_worker_sync import primary_ollama_base_url
+
+            ollama_url = primary_ollama_base_url()
+        except Exception:
+            pass
+        return {
+            "route": decision.to_dict(),
+            "litellm": {
+                "primary": litellm_primary,
+                "fallbacks": fallbacks,
+                "akash_ollama_base_url": ollama_url,
+            },
+            "task": task,
+        }
 
     def bootstrap(self) -> BrainStatus:
         """Register mesh, sync peers, and prime model routing."""
@@ -107,16 +151,26 @@ class OdysseusBrain:
 
     def sync_model_routing(self) -> dict[str, Any]:
         """Compute RTX 3090 placements and publish routing hints for LiteLLM."""
+        self.refresh_akash_workers()
         summary = summarize_recommendations(self.router)
         routing_path = Path(os.getenv("ODYSSEUS_ROUTING_STATE_PATH", ".run/odysseus-routing.json"))
         routing_path.parent.mkdir(parents=True, exist_ok=True)
+        ollama_url = None
+        try:
+            from services.akash_worker_sync import primary_ollama_base_url
+
+            ollama_url = primary_ollama_base_url()
+        except Exception:
+            pass
         payload = {
             "generated_at": time.time(),
             "workers": summary.get("workers", []),
-            "recommendations": summary.get("recommendations", []),
+            "recommendations": summary.get("recommendations", {}),
             "preferred_models": summary.get("preferred_models", []),
+            "litellm_routing": summary.get("litellm_routing", []),
             "litellm_default": os.getenv("ODYSSEUS_DEFAULT_MODEL", "akash-ollama"),
             "fallback_models": ["yieldswarm-fireworks", "yieldswarm-default"],
+            "akash_ollama_base_url": ollama_url,
         }
         routing_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         self.status.model_router_workers = len(summary.get("workers", []))
@@ -168,7 +222,7 @@ class OdysseusBrain:
                 "id": f"odysseus-shard-{self.status.shard_id}",
                 "name": "Odysseus Brain",
                 "status": self.status.status,
-                "activeResearchRuns": len(routing.get("recommendations", [])),
+                "activeResearchRuns": len(routing.get("recommendations", {})),
                 "memoryWrites": stats.get("total_events", 0) if isinstance(stats, dict) else 0,
             }
         ]

@@ -65,7 +65,8 @@ SDL: `deploy/akash-odysseus.sdl.yml` (RTX 3090, full stack)
 | GET | `/healthz` | Health + secret status |
 | GET | `/api/brain/status` | Full brain status |
 | GET | `/api/telemetry/odysseus` | Arena-compatible telemetry |
-| GET | `/api/models/routes` | Current RTX 3090 routing plan |
+| GET | `/api/models/recommend?task=chat` | Route inference (model + worker + LiteLLM chain) |
+| POST | `/api/infer/route` | Route inference (JSON body: task, agent_id, priority) |
 | POST | `/api/models/sync` | Force router sync |
 | GET | `/api/tools` | List registered tools |
 | POST | `/api/tools/execute` | Execute a YieldSwarm tool |
@@ -95,6 +96,17 @@ Tool handlers call the integration backend when `YIELDSWARM_*_API_URL` is set (s
 ## Model routing
 
 `YieldSwarmModelRouter` scores RTX 3090 placements by VRAM, task type, and Great Delta emission weight. The brain syncs decisions every 300s to `.run/odysseus-routing.json` and records them in ChromaDB.
+
+**Live Akash worker sync:** When `AKASH_WORKER_URLS` or `.run/akash-lease.env` is present, workers are probed via `/healthz` and injected into the router automatically (`services/akash_worker_sync.py`). Set `YIELDSWARM_SYNC_AKASH_WORKERS=false` to disable.
+
+```bash
+# After Akash lease creation:
+source .run/akash-lease.env
+curl -X POST http://localhost:8080/api/models/sync
+
+# Export Ollama URL for LiteLLM reload:
+source scripts/sync-litellm-from-routing.sh
+```
 
 LiteLLM routes:
 - **Primary:** `akash-ollama` → Ollama on RTX 3090

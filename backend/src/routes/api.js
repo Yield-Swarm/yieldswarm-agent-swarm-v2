@@ -64,6 +64,19 @@ router.get('/brain/status', asyncRoute(async (_req, res) => {
   res.json(data);
 }));
 
+router.get('/models/recommend', asyncRoute(async (req, res) => {
+  const data = await cache.get(
+    `odysseus:recommend:${req.query.task || 'chat'}`,
+    () => odysseus.getModelRecommendation(req.query),
+  );
+  res.json(data);
+}));
+
+router.get('/models/routes', asyncRoute(async (_req, res) => {
+  const data = await cache.get('odysseus:models:routes', () => odysseus.getModelRoutes());
+  res.json(data);
+}));
+
 router.get('/auth/session', asyncRoute(async (_req, res) => {
   res.json({ authenticated: false, user: null, mode: process.env.AUTH_MODE || 'demo' });
 }));
