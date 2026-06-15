@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YieldSwarm Portal</title>
+  <meta name="description" content="YieldSwarm Portal — gateway to the Arena live telemetry dashboard, council status, marketplace, and sales." />
+  <style>
+    :root { --bg:#07090d; --panel:#10141c; --border:#232c3b; --text:#e7edf5; --muted:#8a97ab; --accent:#25e6a5; --accent2:#4aa8ff; --bad:#ff5d6c; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,sans-serif; background:radial-gradient(1200px 600px at 50% -10%, #11202b 0%, var(--bg) 55%); color:var(--text); min-height:100vh; }
+    header { text-align:center; padding:54px 20px 24px; }
+    .logo { font-size:40px; color:var(--accent); filter:drop-shadow(0 0 12px rgba(37,230,165,.6)); }
+    h1 { margin:10px 0 6px; font-size:30px; letter-spacing:.4px; }
+    .tag { color:var(--muted); margin:0; font-size:14px; }
+    .status-line { margin-top:16px; display:inline-flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); border:1px solid var(--border); padding:8px 16px; border-radius:999px; }
+    .dot { width:9px; height:9px; border-radius:50%; background:var(--muted); }
+    .dot.ok { background:var(--accent); box-shadow:0 0 8px var(--accent); }
+    .dot.bad { background:var(--bad); box-shadow:0 0 8px var(--bad); }
+    main { max-width:1040px; margin:0 auto; padding:20px 24px 70px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px; }
+    a.card { display:block; text-decoration:none; color:var(--text); background:linear-gradient(180deg,var(--panel),#161c27); border:1px solid var(--border); border-radius:16px; padding:22px; transition:transform .12s ease, border-color .12s ease; }
+    a.card:hover { transform:translateY(-3px); border-color:var(--accent2); }
+    a.card.primary { border-color:var(--accent); }
+    .card h2 { margin:0 0 8px; font-size:17px; }
+    .card p { margin:0; color:var(--muted); font-size:13px; line-height:1.5; }
+    .chip { display:inline-block; margin-top:14px; font-size:11px; color:var(--accent2); border:1px solid var(--border); border-radius:999px; padding:4px 10px; }
+    .chip.live { color:var(--accent); border-color:var(--accent); }
+    footer { text-align:center; color:var(--muted); font-size:12px; padding:20px; border-top:1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">◆</div>
+    <h1>YieldSwarm Portal</h1>
+    <p class="tag">10,080 agents · 120 crons · Akash compute + on-chain $APN telemetry</p>
+    <div class="status-line"><span id="dot" class="dot"></span><span id="status-text">checking integration backend…</span></div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <a class="card primary" href="/arena/">
+        <h2>Arena Dashboard →</h2>
+        <p>Live telemetry fused from Akash workers and on-chain sources: emission router, treasury splits, and the agent leaderboard.</p>
+        <span class="chip live" id="arena-chip">live data</span>
+      </a>
+      <a class="card" href="/council/status">
+        <h2>Council Status →</h2>
+        <p>DAO consensus council status, Akash hardware health, crons, and Helix Chain receipts.</p>
+        <span class="chip">governance</span>
+      </a>
+      <a class="card" href="/marketplace">
+        <h2>Marketplace →</h2>
+        <p>5-tier DePIN hardware marketplace with NFT license keys unlocking API access.</p>
+        <span class="chip">revenue</span>
+      </a>
+      <a class="card" href="/sales">
+        <h2>Z15 Sales →</h2>
+        <p>Antminer Z15 Pro bundles, mobile-optimized checkout, swarm optimization included.</p>
+        <span class="chip">revenue</span>
+      </a>
+      <a class="card" href="/api/arena/overview">
+        <h2>Telemetry API →</h2>
+        <p>Raw aggregated JSON powering the Arena dashboard. Per-source connection health included.</p>
+        <span class="chip">api</span>
+      </a>
+      <a class="card" href="/api/health">
+        <h2>Health Check →</h2>
+        <p>Upstream connectivity for Akash REST and Solana RPC. Used for monitoring/alerts.</p>
+        <span class="chip">ops</span>
+      </a>
+    </div>
+  </main>
+
+  <footer>YieldSwarm AgentSwarm OS v2.0 · Portal</footer>
+
+  <script>
+    async function checkHealth() {
+      const dot = document.getElementById('dot');
+      const text = document.getElementById('status-text');
+      try {
+        const res = await fetch('/api/health', { cache: 'no-store' });
+        const data = await res.json();
+        const ak = data.upstreams?.akash?.live;
+        const sol = data.upstreams?.solana?.live;
+        const liveCount = [ak, sol].filter(Boolean).length;
+        dot.className = 'dot ' + (data.status === 'ok' ? 'ok' : 'bad');
+        text.textContent = `backend ${data.status} · upstreams live: ${liveCount}/2 (Akash ${ak ? 'up' : 'fallback'}, Solana ${sol ? 'up' : 'fallback'})`;
+      } catch (e) {
+        dot.className = 'dot bad';
+        text.textContent = 'integration backend offline — start it with: npm start (in /backend)';
+      }
+    }
+    checkHealth();
+    setInterval(checkHealth, 15000);
+  </script>
+</body>
+</html>

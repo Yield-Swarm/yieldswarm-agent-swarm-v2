@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YieldSwarm Arena — Live Telemetry</title>
+  <meta name="description" content="Arena dashboard: live Akash worker telemetry and on-chain emission router, treasury splits, and agent leaderboard." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◆</span>
+      <div>
+        <h1>YieldSwarm Arena</h1>
+        <p class="sub">Live integration: Akash workers + on-chain telemetry</p>
+      </div>
+    </div>
+    <div class="status-cluster">
+      <span id="conn-summary" class="pill pill-muted">connecting…</span>
+      <span id="last-updated" class="updated">—</span>
+      <a class="nav-link" href="/portal/">Portal</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="connections" aria-label="Connection health">
+      <div class="conn" data-conn="akashWorkers"><span class="dot"></span><span class="label">Akash Workers</span><span class="src"></span></div>
+      <div class="conn" data-conn="emissionRouter"><span class="dot"></span><span class="label">Emission Router</span><span class="src"></span></div>
+      <div class="conn" data-conn="treasury"><span class="dot"></span><span class="label">Treasury Splits</span><span class="src"></span></div>
+      <div class="conn" data-conn="leaderboard"><span class="dot"></span><span class="label">Agent Leaderboard</span><span class="src"></span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card span-2">
+        <div class="card-head"><h2>Akash Workers</h2><span id="akash-badge" class="badge"></span></div>
+        <div class="kpis">
+          <div class="kpi"><span class="kpi-val" id="workers-active">—</span><span class="kpi-lbl">Active workers</span></div>
+          <div class="kpi"><span class="kpi-val" id="net-gpu">—</span><span class="kpi-lbl">Network GPUs (active/total)</span></div>
+          <div class="kpi"><span class="kpi-val" id="net-providers">—</span><span class="kpi-lbl">Providers online</span></div>
+        </div>
+        <p id="workers-note" class="note"></p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Worker</th><th>Kind</th><th>State</th><th>CPU</th><th>Uptime</th><th>Hashrate</th></tr></thead>
+            <tbody id="workers-rows"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head"><h2>Emission Router</h2><span id="emission-badge" class="badge"></span></div>
+        <div class="kpis kpis-col">
+          <div class="kpi"><span class="kpi-val" id="emission-supply">—</span><span class="kpi-lbl">Circulating $APN</span></div>
+          <div class="kpi"><span class="kpi-val" id="emission-epoch">—</span><span class="kpi-lbl">Emission / epoch</span></div>
+          <div class="kpi"><span class="kpi-val" id="emission-day">—</span><span class="kpi-lbl">Emission / day</span></div>
+        </div>
+        <ul class="routes" id="emission-routes"></ul>
+      </article>
+
+      <article class="card">
+        <div class="card-head"><h2>Treasury Splits</h2><span id="treasury-badge" class="badge"></span></div>
+        <div class="kpi big"><span class="kpi-val" id="treasury-total">—</span><span class="kpi-lbl">Total (SOL)</span></div>
+        <ul class="splits" id="treasury-splits"></ul>
+      </article>
+
+      <article class="card span-2">
+        <div class="card-head"><h2>Agent Leaderboard</h2><span id="leaderboard-badge" class="badge"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Agent</th><th>Shard</th><th>Rewards ($APN)</th><th>Tasks</th></tr></thead>
+            <tbody id="leaderboard-rows"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <p id="error-banner" class="error-banner" hidden></p>
+  </main>
+
+  <footer>
+    <span>Auto-refresh every <strong id="refresh-secs">10</strong>s · data sources flagged <em>live</em> or <em>fallback</em>.</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
