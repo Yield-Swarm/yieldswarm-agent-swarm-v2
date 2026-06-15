@@ -1,0 +1,24 @@
+# =============================================================================
+# Example tfvars. Copy to terraform.tfvars (which is gitignored) and edit, OR
+# - preferred - export the equivalent TF_VAR_* environment variables in CI so
+# nothing sensitive ever touches disk.
+# =============================================================================
+
+vault_address      = "https://vault.yieldswarm.internal:8200"
+vault_namespace    = ""
+vault_ca_cert_file = "/etc/ssl/certs/yieldswarm-vault-ca.crt"
+vault_kv_mount     = "yieldswarm"
+
+# Inject via env in CI:
+#   export TF_VAR_vault_approle_role_id=$(vault read -field=role_id auth/approle/role/terraform-deploy/role-id)
+#   export TF_VAR_vault_approle_secret_id=$(vault unwrap -field=secret_id "$WRAP_TOKEN")
+vault_approle_role_id   = ""
+vault_approle_secret_id = ""
+
+environment = "prod"
+
+enable_azure        = true
+enable_runpod       = true
+enable_vultr        = true
+enable_digitalocean = true
+enable_rpc          = true
