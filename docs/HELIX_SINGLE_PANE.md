@@ -1,10 +1,8 @@
-# YieldSwarm Helix Chain + 35-Layer Neural Mesh
+# Helix Chain — Single Pane of Glass (detail)
 
-**Single Pane of Glass** — full architecture visual for GitHub, investors, and Swarm Conductor.
+> **Canonical diagram:** [`SINGLE_PANE_OF_GLASS.md`](../SINGLE_PANE_OF_GLASS.md) · [`docs/ARCHITECTURE.md`](ARCHITECTURE.md)
 
----
-
-## Master diagram (renders on GitHub)
+**YieldSwarm AgentSwarm OS v2** — layer detail, domain breakdown, and supporting diagrams.
 
 ```mermaid
 flowchart TB
