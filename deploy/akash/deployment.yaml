@@ -1,0 +1,45 @@
+version: "2.0"
+
+services:
+  akash-optimizer:
+    image: ${AKASH_IMAGE}
+    command:
+      - /usr/local/bin/akash-entrypoint.sh
+      - python
+      - /app/agents/akash-optimizer.py
+    env:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_NAMESPACE=${VAULT_NAMESPACE}
+      - VAULT_AUTH_PATH=${VAULT_AUTH_PATH}
+      - VAULT_KV_MOUNT=${VAULT_KV_MOUNT}
+      - VAULT_AKASH_SECRET_PATH=${VAULT_AKASH_SECRET_PATH}
+      - VAULT_RPC_SECRET_PATH=${VAULT_RPC_SECRET_PATH}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    akash-optimizer:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi
+  placement:
+    dcloud:
+      pricing:
+        akash:
+          denom: uakt
+          amount: 10000
+  deployment:
+    akash-optimizer:
+      dcloud:
+        profile: akash-optimizer
+        count: 1

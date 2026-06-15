@@ -1,0 +1,17 @@
+# Local env and secret artifacts
+.env
+*.env
+!*.env.example
+deploy/akash/akash.env
+
+# Terraform local state and overrides
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
