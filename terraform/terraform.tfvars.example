@@ -1,0 +1,26 @@
+# =============================================================================
+# terraform.tfvars.example — Non-secret configuration values
+# YieldSwarm AgentSwarm OS v2.0
+#
+# Copy to terraform.tfvars and fill in values.
+# All secrets are pulled from Vault — NEVER put credentials in this file.
+# =============================================================================
+
+vault_addr        = "https://vault.yieldswarm.internal:8200"
+vault_environment = "production"
+
+azure_location       = "eastus"
+azure_resource_group = "yieldswarm-agents-rg"
+
+do_region    = "nyc3"
+vultr_region = "ewr"
+
+runpod_gpu_type  = "NVIDIA RTX A4000"
+runpod_gpu_count = 1
+
+tags = {
+  project     = "yieldswarm"
+  managed_by  = "terraform"
+  secrets_src = "vault"
+  environment = "production"
+}

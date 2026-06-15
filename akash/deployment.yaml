@@ -1,0 +1,114 @@
+---
+# =============================================================================
+# Akash Network SDL v2 — YieldSwarm AgentSwarm OS v2.0
+#
+# Secrets injection model:
+#   Only three bootstrap values are set in this SDL:
+#     VAULT_ADDR        — non-sensitive (URL of the Vault server)
+#     VAULT_ROLE_ID     — non-sensitive (acts like a username for AppRole)
+#     VAULT_SECRET_ID   — sensitive; NEVER hardcode here. Use envsubst or
+#                         the deploy script to substitute at deploy time.
+#
+#   At container start, Vault Agent authenticates with AppRole and renders
+#   ALL other secrets to the container's environment. No secrets touch disk
+#   persistently and none are visible in the SDL or container image.
+#
+# Deploy workflow:
+#   1. Generate a fresh Secret ID:
+#        VAULT_SECRET_ID=$(vault write -field=secret_id -f \
+#          auth/approle/role/akash-agents/secret-id)
+#   2. Substitute values:
+#        envsubst < akash/deployment.yaml > /tmp/akash-deploy.yaml
+#   3. Deploy:
+#        akash tx deployment create /tmp/akash-deploy.yaml \
+#          --from <your-wallet> --chain-id akashnet-2 --node https://rpc.akash.network
+#   4. Shred the temp file:
+#        shred -u /tmp/akash-deploy.yaml
+# =============================================================================
+
+version: "2.0"
+
+services:
+  agentswarm:
+    image: yieldswarm/agentswarm:2.0
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      # Prometheus metrics endpoint (restrict to internal if using service mesh)
+      - port: 9090
+        as: 9090
+        to:
+          - global: false
+
+    env:
+      # -----------------------------------------------------------------------
+      # Vault bootstrap credentials — the ONLY values set in this SDL.
+      # All other secrets are fetched by Vault Agent inside the container.
+      # -----------------------------------------------------------------------
+
+      # Vault server address (non-secret)
+      - VAULT_ADDR=${VAULT_ADDR}
+
+      # AppRole role_id — stable, non-sensitive identifier (like a username)
+      # Retrieve with: vault read -field=role_id auth/approle/role/akash-agents/role-id
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+
+      # AppRole secret_id — SENSITIVE, single-use, rotate per deployment
+      # Generate with: vault write -field=secret_id -f auth/approle/role/akash-agents/secret-id
+      # Pass via: VAULT_SECRET_ID=$(./vault/setup/07-rotate-secret-id.sh akash-agents) envsubst ...
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+
+      # Environment namespace (maps to Vault secret paths)
+      - VAULT_ENVIRONMENT=${VAULT_ENVIRONMENT:-production}
+
+      # -----------------------------------------------------------------------
+      # Non-secret runtime configuration
+      # -----------------------------------------------------------------------
+      - LOG_LEVEL=INFO
+      - NETWORK_LOCKDOWN_MODE=true
+      - AGENT_COUNT_TOTAL=10080
+      - AGENTS_PER_SHARD=84
+      - CRON_SHARD_COUNT=120
+      - CRON_INTERVAL_MINUTES=15
+
+    resources:
+      cpu:
+        units: 2.0
+      memory:
+        size: 2Gi
+      storage:
+        - size: 20Gi
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 20Gi
+
+  placement:
+    akash:
+      # Restrict to providers with valid on-chain attributes
+      attributes:
+        region: us-west
+      signedBy:
+        anyOf:
+          # Akash Network Foundation verified providers
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+          - akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 1500     # ~$0.15/hour at current AKT price; adjust to market
+
+deployment:
+  agentswarm:
+    akash:
+      profile: agentswarm
+      count: 1

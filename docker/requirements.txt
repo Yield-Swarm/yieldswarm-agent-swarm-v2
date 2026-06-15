@@ -1,0 +1,31 @@
+# =============================================================================
+# Python dependencies — YieldSwarm AgentSwarm OS v2.0
+# =============================================================================
+
+# Vault SDK (used if agents need direct Vault API calls beyond Agent-rendered secrets)
+hvac==2.3.0
+
+# HTTP client for RPC and API calls
+requests==2.32.3
+httpx==0.27.0
+
+# Async support for 10,080 concurrent agent tasks
+aiohttp==3.9.5
+asyncio-throttle==1.0.2
+
+# Solana RPC client
+solana==0.34.3
+solders==0.21.0
+
+# Blockchain utilities
+web3==6.20.0
+
+# Data handling
+pydantic==2.7.4
+python-dotenv==1.0.1      # fallback local dev only; production uses Vault Agent
+
+# Monitoring and metrics
+prometheus-client==0.20.0
+
+# Retry / backoff utilities
+tenacity==8.4.1
