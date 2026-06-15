@@ -1,0 +1,22 @@
+# Terraform may read only the provider and RPC credentials required for plans.
+%{ for secret in provider_secrets ~}
+path "${kv_mount_path}/data/${secret}" {
+  capabilities = ["read"]
+}
+
+path "${kv_mount_path}/metadata/${secret}" {
+  capabilities = ["read", "list"]
+}
+
+%{ endfor ~}
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+path "auth/token/renew-self" {
+  capabilities = ["update"]
+}
+
+path "${approle_mount_path}/role/yieldswarm-terraform/role-id" {
+  capabilities = ["read"]
+}

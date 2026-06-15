@@ -1,0 +1,27 @@
+.env
+.env.*
+!.env.example
+
+# Terraform local state and dependency caches must never be committed.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# Rendered Akash manifests can contain short-lived Vault bootstrap credentials.
+akash/deploy/*.yaml
+!akash/deploy/*.yaml.tpl
+
+# Local Vault/AppRole material.
+.vault-token
+.vault-*.json
+.vault-role-id
+.vault-secret-id
