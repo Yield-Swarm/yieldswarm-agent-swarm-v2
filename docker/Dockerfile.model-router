@@ -1,0 +1,10 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY services/yieldswarm_model_router.py /app/yieldswarm_model_router.py
+COPY services/model_router_api.py /app/model_router_api.py
+
+RUN pip install --no-cache-dir fastapi uvicorn httpx pydantic
+
+EXPOSE 8090
+CMD ["uvicorn", "model_router_api:app", "--host", "0.0.0.0", "--port", "8090"]

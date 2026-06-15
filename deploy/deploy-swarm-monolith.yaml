@@ -1,23 +1,47 @@
+# =========================================================================
+# Akash SDL — YieldSwarm GPU monolith (RTX 3090) with HashiCorp Vault.
+#
+# ZERO application secrets in this file. Bootstrap coordinates only:
+#   VAULT_ROLE_ID, VAULT_WRAPPED_SECRET_ID, AGENT_SHARD_ID
+# are injected at `deployment create` via --env (see scripts/akash-deploy.sh).
+#
+# Runtime secrets are rendered by Vault Agent inside the container.
+# See akash/entrypoint.sh and akash/vault-agent.hcl.
+# =========================================================================
 version: "2.0"
 
 services:
   worker:
-    image: ghcr.io/yieldswarm/swarm-worker:stable
+    image: ghcr.io/yield-swarm/yieldswarm-agent:stable
+    expose:
+      - port: 8080
+        as: 80
+        proto: tcp
+        to:
+          - global: true
     env:
+      # Vault bootstrap (injected at deploy time — not secrets in SDL)
+      - VAULT_ADDR=https://vault.yieldswarm.io:8200
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - AGENT_SHARD_ID
+
+      # Non-sensitive workload tuning
       - NODE_ENV=production
       - WORKER_ENV=production
       - WORKER_PORT=8080
       - HEALTHCHECK_PATH=/healthz
-    expose:
-      - port: 8080
-        as: 80
-        to:
-          - global: true
+      - LOG_LEVEL=INFO
+      - AGENT_COUNT_TOTAL=10080
+      - AGENTS_PER_SHARD=84
+      - CRON_SHARD_COUNT=120
+      - CRON_INTERVAL_MINUTES=15
+
     readiness_probe:
       http_get:
         path: /healthz
         port: 8080
-      initial_delay_seconds: 20
+      initial_delay_seconds: 30
       period_seconds: 10
       timeout_seconds: 5
       success_threshold: 1
@@ -26,11 +50,12 @@ services:
       http_get:
         path: /healthz
         port: 8080
-      initial_delay_seconds: 45
+      initial_delay_seconds: 60
       period_seconds: 15
       timeout_seconds: 5
       success_threshold: 1
       failure_threshold: 5
+
     params:
       storage:
         worker-state:
@@ -39,6 +64,9 @@ services:
           mount: /var/cache/yieldswarm
         worker-logs:
           mount: /var/log/yieldswarm
+        secrets:
+          mount: /run/secrets
+          readOnly: false
 
 profiles:
   compute:
@@ -52,10 +80,12 @@ profiles:
           units: "1"
           attributes:
             vendor:
-              nvidia
-            model:
-              - rtx3090
+              nvidia:
+                - model: rtx3090
+                  ram: 24GB
         storage:
+          - name: default
+            size: 4Gi
           - name: worker-state
             size: 200Gi
             attributes:
@@ -71,6 +101,9 @@ profiles:
             attributes:
               persistent: "true"
               class: beta3
+          - name: secrets
+            size: 8Mi
+
   placement:
     rtx3090-production:
       attributes:

@@ -89,5 +89,36 @@ put integrations/linear   api_key="$(val LINEAR_API_KEY)"
 put integrations/github   token="$(val GITHUB_TOKEN)"
 put integrations/vercel   token="$(val VERCEL_API_TOKEN)"
 put integrations/telegram bot_token="$(val TELEGRAM_BOT_TOKEN)"
+put integrations/ud       api_key="$(val UD_API_KEY)"
+
+# ---- Odysseus runtime + deploy ----------------------------------------
+put odysseus/runtime \
+  api_key="$(val ODYSSEUS_API_KEY)" \
+  model_host="$(val ODYSSEUS_MODEL_HOST)" \
+  model_api_key="$(val ODYSSEUS_MODEL_API_KEY)" \
+  openrouter_api_key="$(val OPENROUTER_API_KEY)" \
+  fireworks_api_key="$(val FIREWORKS_API_KEY)" \
+  router_api_key="$(val YIELDSWARM_ROUTER_API_KEY)"
+
+put odysseus/deploy \
+  admin_user="$(val ODYSSEUS_ADMIN_USER)" \
+  admin_password="$(val ODYSSEUS_ADMIN_PASSWORD)" \
+  allowed_origins="$(val ALLOWED_ORIGINS)"
+
+# ---- Payment rails (Square + Wise) --------------------------------------
+put payments/square \
+  access_token="$(val SQUARE_ACCESS_TOKEN)" \
+  location_id="$(val SQUARE_LOCATION_ID)" \
+  webhook_signature_key="$(val SQUARE_WEBHOOK_SIGNATURE_KEY)"
+
+put payments/wise \
+  api_token="$(val WISE_API_TOKEN)" \
+  profile_id="$(val WISE_PROFILE_ID)" \
+  webhook_public_key="$(val WISE_WEBHOOK_PUBLIC_KEY)"
+
+# ---- Kairo driver secrets -----------------------------------------------
+put kairo/runtime \
+  identity_master_seed="$(val KAIRO_IDENTITY_MASTER_SEED)" \
+  mapbox_token="$(val MAPBOX_ACCESS_TOKEN)"
 
 log "Seed complete. Verify with: vault kv list yieldswarm/"

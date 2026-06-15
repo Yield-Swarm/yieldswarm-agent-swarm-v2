@@ -8,6 +8,7 @@ import { WalletConnectPanel } from "./WalletConnectPanel";
 import { DepositPanel } from "./DepositPanel";
 import { WithdrawPanel } from "./WithdrawPanel";
 import { TransactionsPanel } from "./TransactionsPanel";
+import { KairoEarningsPanel } from "./KairoEarningsPanel";
 
 export function PaymentsApp() {
   const [config, setConfig] = useState<PublicConfig | null>(null);
@@ -59,6 +60,8 @@ export function PaymentsApp() {
       </div>
 
       <TransactionsPanel transactions={account?.transactions ?? []} onRefresh={refresh} />
+
+      <KairoEarningsPanel />
     </div>
   );
 }

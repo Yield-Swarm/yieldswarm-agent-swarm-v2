@@ -331,7 +331,88 @@ make logs                                                # tail .run/*.log
 
 Then point your domain / Vercel frontend at the worker URLs written to
 `dashboard/config.js` and wire Unstoppable Domains via Cloudflare nameservers
-(see root `README.md`).
+(see [`DOMAINS.md`](DOMAINS.md)).
+
+---
+
+## Akash + Vault Production Deploy (Codespace / CLI)
+
+Repeatable GPU monolith deployment with HashiCorp Vault runtime secret injection.
+
+### Prerequisites
+
+```bash
+# In GitHub Codespace or local shell:
+sudo apt-get update && sudo apt-get install -y jq curl
+# Akash CLI
+curl -sSfL https://raw.githubusercontent.com/akash-network/provider/main/install.sh | bash
+export PATH="$HOME/.akash/bin:$PATH"
+# Vault CLI
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install -y vault
+```
+
+### 1. Bootstrap Vault (one-time)
+
+```bash
+export VAULT_ADDR=https://vault.yieldswarm.io:8200
+export VAULT_TOKEN=<operator-root-or-bootstrap-token>
+bash vault/setup/bootstrap.sh
+SOURCE_ENV=.env bash vault/setup/05-seed-secrets.sh
+```
+
+### 2. Import Akash wallet
+
+```bash
+export AKASH_KEY_NAME=yieldswarm
+provider-services keys add "$AKASH_KEY_NAME" --recover  # or --ledger
+provider-services query bank balances $(provider-services keys show "$AKASH_KEY_NAME" -a)
+```
+
+### 3. Deploy GPU monolith with Vault
+
+```bash
+export AKASH_KEY_NAME=yieldswarm
+export VAULT_ADDR=https://vault.yieldswarm.io:8200
+export VAULT_TOKEN=<ci-bootstrap-or-operator-token>
+export AGENT_SHARD_ID=0
+export AUTO_SELECT_BID=1
+
+chmod +x scripts/akash-deploy.sh scripts/vault-mint-wrap.sh
+bash scripts/akash-deploy.sh deploy/deploy-swarm-monolith.yaml
+```
+
+The script auto-mints a wrapped SecretID, injects `VAULT_ROLE_ID` + `VAULT_WRAPPED_SECRET_ID` + `AGENT_SHARD_ID` at deployment create, auto-selects the lowest bid, sends the manifest, and runs an initial health check.
+
+### 4. Deploy Odysseus full stack (local or Akash)
+
+```bash
+# Local dev (ChromaDB + LiteLLM + SearXNG + Ollama):
+docker compose up -d odysseus llm-router chromadb searxng ntfy
+docker compose --profile gpu up -d ollama   # if GPU available
+
+# Akash production Odysseus:
+python scripts/render-akash-sdl.py deploy/akash-odysseus.sdl.yml > /tmp/odysseus.sdl.yml
+bash scripts/akash-deploy.sh /tmp/odysseus.sdl.yml
+```
+
+### 5. CI deploy (GitHub Actions)
+
+Workflow: [`.github/workflows/akash-deploy.yml`](.github/workflows/akash-deploy.yml)
+
+Required GitHub secrets: `VAULT_ADDR`, `VAULT_CI_ROLE_ID`, `VAULT_CI_SECRET_ID`, `AKASH_KEY_NAME`, `AKASH_ACCOUNT_ADDRESS`
+
+```bash
+gh workflow run akash-deploy.yml -f sdl_file=deploy/deploy-swarm-monolith.yaml -f shard_id=0
+```
+
+### 6. Auto-healing
+
+```bash
+make akash-heal                    # background daemon
+deploy/akash/auto-heal.sh --once   # single pass (cron-friendly)
+```
 
 ---
 

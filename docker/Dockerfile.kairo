@@ -1,0 +1,8 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY kairo/ /app/kairo/
+RUN pip install --no-cache-dir -r kairo/requirements.txt
+
+EXPOSE 8092
+CMD ["uvicorn", "kairo.api.server:app", "--host", "0.0.0.0", "--port", "8092"]

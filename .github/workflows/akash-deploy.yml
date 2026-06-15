@@ -1,0 +1,66 @@
+name: Akash Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdl_file:
+        description: SDL file path
+        required: false
+        default: deploy/deploy-swarm-monolith.yaml
+      shard_id:
+        description: Agent shard ID (0-119)
+        required: false
+        default: "0"
+      auto_lease:
+        description: Auto-select lowest bid
+        required: false
+        default: "1"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Akash CLI
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/akash-network/provider/main/install.sh | bash
+          echo "$HOME/.akash/bin" >> "$GITHUB_PATH"
+
+      - name: Install Vault CLI
+        uses: hashicorp/setup-vault@v3
+        with:
+          version: latest
+
+      - name: Vault login (ci-bootstrap)
+        run: |
+          set -euo pipefail
+          export VAULT_ADDR='${{ secrets.VAULT_ADDR }}'
+          TOKEN=$(vault write -format=json auth/approle/login \
+            role_id='${{ secrets.VAULT_CI_ROLE_ID }}' \
+            secret_id='${{ secrets.VAULT_CI_SECRET_ID }}' \
+            | jq -r '.auth.client_token')
+          echo "::add-mask::${TOKEN}"
+          echo "VAULT_TOKEN=${TOKEN}" >> "$GITHUB_ENV"
+
+      - name: Mint wrapped SecretID for Akash
+        id: akash-cred
+        run: |
+          set -euo pipefail
+          eval "$(bash scripts/vault-mint-wrap.sh)"
+          echo "role_id=${VAULT_ROLE_ID}" >> "$GITHUB_OUTPUT"
+          echo "wrap=${VAULT_WRAPPED_SECRET_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Akash
+        env:
+          AKASH_KEY_NAME: ${{ secrets.AKASH_KEY_NAME }}
+          AKASH_ACCOUNT_ADDRESS: ${{ secrets.AKASH_ACCOUNT_ADDRESS }}
+          AUTO_SELECT_BID: ${{ inputs.auto_lease }}
+          AGENT_SHARD_ID: ${{ inputs.shard_id }}
+          VAULT_ROLE_ID: ${{ steps.akash-cred.outputs.role_id }}
+          VAULT_WRAPPED_SECRET_ID: ${{ steps.akash-cred.outputs.wrap }}
+        run: |
+          bash scripts/akash-deploy.sh "${{ inputs.sdl_file }}"

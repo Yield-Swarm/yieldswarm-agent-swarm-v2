@@ -14,6 +14,7 @@ import * as emission from '../adapters/emissionRouter.js';
 import * as treasury from '../adapters/treasury.js';
 import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
+import * as kairo from '../adapters/kairo.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -58,6 +59,18 @@ router.get('/telemetry/leaderboard', asyncRoute(async (req, res) => {
   const limit = req.query.limit;
   const data = await cache.get(`telemetry:leaderboard:${limit || 'default'}`, () =>
     leaderboard.getLeaderboard({ limit }),
+  );
+  res.json(data);
+}));
+
+router.get('/kairo/dashboard', asyncRoute(async (_req, res) => {
+  const data = await cache.get('kairo:dashboard', () => kairo.getDashboardSummary());
+  res.json(data);
+}));
+
+router.get('/kairo/drivers/:id', asyncRoute(async (req, res) => {
+  const data = await cache.get(`kairo:driver:${req.params.id}`, () =>
+    kairo.getDriverContribution(req.params.id),
   );
   res.json(data);
 }));

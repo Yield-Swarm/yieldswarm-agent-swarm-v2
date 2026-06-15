@@ -18,6 +18,8 @@ usage() {
   cat <<'EOF'
 Usage: scripts/akash-deploy.sh [SDL_FILE]
 
+Production Akash deployment with HashiCorp Vault runtime secret injection.
+
 Environment variables:
   AKASH_KEY_NAME            Required: local key name used to sign transactions.
   AKASH_ACCOUNT_ADDRESS     Optional: wallet address (auto-discovered from key if omitted).
@@ -28,8 +30,13 @@ Environment variables:
   AKASH_GAS_PRICES          Optional: gas prices (default: 0.025uakt).
   AKASH_DEPOSIT             Optional: deployment deposit (default: 5000000uakt).
   AKASH_BID_WAIT_SECONDS    Optional: how long to wait for bids (default: 180).
-  AUTO_SELECT_BID           Optional: set to 1 to auto-create lease for lowest-price bid.
-  AKASH_PROVIDER            Optional: provider to use when AUTO_SELECT_BID=1 (overrides auto-pick).
+  AUTO_SELECT_BID           Optional: set to 1 to auto-create lease (default: 1 in production).
+  AKASH_PROVIDER            Optional: provider override when AUTO_SELECT_BID=1.
+  AGENT_SHARD_ID            Optional: shard id 0-119 (default: 0).
+  VAULT_ROLE_ID             Optional: pre-minted; auto-minted if VAULT_TOKEN set.
+  VAULT_WRAPPED_SECRET_ID   Optional: pre-minted; auto-minted if VAULT_TOKEN set.
+  VAULT_ADDR                Optional: Vault server (default: https://vault.yieldswarm.io:8200).
+  SKIP_VAULT                Optional: set to 1 to deploy without Vault env injection.
 EOF
 }
 
@@ -39,6 +46,43 @@ require_cmd() {
 
 json_tmp() {
   mktemp -t akash-deploy.XXXXXX.json
+}
+
+mint_vault_credentials() {
+  if [[ -n "${VAULT_ROLE_ID:-}" && -n "${VAULT_WRAPPED_SECRET_ID:-}" ]]; then
+    log "using pre-supplied Vault credentials"
+    return 0
+  fi
+
+  if [[ "${SKIP_VAULT:-0}" == "1" ]]; then
+    log "SKIP_VAULT=1 — deploying without Vault bootstrap env"
+    return 0
+  fi
+
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  [[ -x "${script_dir}/vault-mint-wrap.sh" ]] || fail "vault-mint-wrap.sh not found"
+
+  log "minting wrapped SecretID from Vault"
+  eval "$("${script_dir}/vault-mint-wrap.sh")"
+  export VAULT_ROLE_ID VAULT_WRAPPED_SECRET_ID
+}
+
+build_deploy_env_args() {
+  DEPLOY_ENV_ARGS=()
+  if [[ "${SKIP_VAULT:-0}" == "1" ]]; then
+    return 0
+  fi
+  if [[ -z "${VAULT_ROLE_ID:-}" || -z "${VAULT_WRAPPED_SECRET_ID:-}" ]]; then
+    fail "Vault credentials required (set VAULT_* or SKIP_VAULT=1)"
+  fi
+  AGENT_SHARD_ID="${AGENT_SHARD_ID:-0}"
+  DEPLOY_ENV_ARGS=(
+    --env "VAULT_ADDR=${VAULT_ADDR:-https://vault.yieldswarm.io:8200}"
+    --env "VAULT_ROLE_ID=${VAULT_ROLE_ID}"
+    --env "VAULT_WRAPPED_SECRET_ID=${VAULT_WRAPPED_SECRET_ID}"
+    --env "AGENT_SHARD_ID=${AGENT_SHARD_ID}"
+  )
 }
 
 create_deployment() {
@@ -54,6 +98,7 @@ create_deployment() {
     --gas "${AKASH_GAS}" \
     --gas-adjustment "${AKASH_GAS_ADJUSTMENT}" \
     --gas-prices "${AKASH_GAS_PRICES}" \
+    "${DEPLOY_ENV_ARGS[@]}" \
     --yes \
     --output json > "${output_file}"
 }
@@ -124,6 +169,22 @@ create_lease() {
     --output json > "${output_file}"
 }
 
+health_check_worker() {
+  local url="$1"
+  local attempts="${2:-12}"
+  local i=0
+  while (( i < attempts )); do
+    if curl -fsS --max-time 10 "${url}/healthz" >/dev/null 2>&1; then
+      log "worker healthy at ${url}"
+      return 0
+    fi
+    sleep 10
+    i=$((i + 1))
+  done
+  log "worker health check timed out for ${url}"
+  return 1
+}
+
 main() {
   if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     usage
@@ -146,10 +207,14 @@ main() {
   AKASH_GAS_PRICES="${AKASH_GAS_PRICES:-0.025uakt}"
   AKASH_DEPOSIT="${AKASH_DEPOSIT:-5000000uakt}"
   AKASH_BID_WAIT_SECONDS="${AKASH_BID_WAIT_SECONDS:-180}"
-  AUTO_SELECT_BID="${AUTO_SELECT_BID:-0}"
+  AUTO_SELECT_BID="${AUTO_SELECT_BID:-1}"
+  AGENT_SHARD_ID="${AGENT_SHARD_ID:-0}"
 
   AKASH_ACCOUNT_ADDRESS="${AKASH_ACCOUNT_ADDRESS:-$(provider-services keys show "${AKASH_KEY_NAME}" -a 2>/dev/null || true)}"
   [[ -n "${AKASH_ACCOUNT_ADDRESS}" ]] || fail "unable to resolve AKASH_ACCOUNT_ADDRESS from key ${AKASH_KEY_NAME}"
+
+  mint_vault_credentials
+  build_deploy_env_args
 
   deployment_json="$(json_tmp)"
   bids_json="$(json_tmp)"
@@ -177,17 +242,29 @@ main() {
       --provider "${provider}" \
       --from "${AKASH_KEY_NAME}" \
       --node "${AKASH_NODE}"
+
+    # Auto-healing: verify worker health after manifest
+    lease_uri="$(provider-services lease-status \
+      --dseq "${DSEQ}" --gseq 1 --oseq 1 \
+      --provider "${provider}" \
+      --node "${AKASH_NODE}" 2>/dev/null \
+      | jq -r '.services.worker.uris[0] // empty' || true)"
+    if [[ -n "${lease_uri}" ]]; then
+      health_check_worker "${lease_uri}" || log "WARN: initial health check failed — run deploy/akash/auto-heal.sh"
+    fi
   else
     log "AUTO_SELECT_BID disabled. Review bids and create lease manually for dseq=${DSEQ}"
   fi
 
   cat <<EOF
 Deployment summary:
-  owner:    ${AKASH_ACCOUNT_ADDRESS}
-  dseq:     ${DSEQ}
-  chain:    ${AKASH_CHAIN_ID}
-  node:     ${AKASH_NODE}
-  sdl:      ${SDL_FILE}
+  owner:     ${AKASH_ACCOUNT_ADDRESS}
+  dseq:      ${DSEQ}
+  chain:     ${AKASH_CHAIN_ID}
+  node:      ${AKASH_NODE}
+  sdl:       ${SDL_FILE}
+  shard:     ${AGENT_SHARD_ID}
+  vault:     $([[ "${SKIP_VAULT:-0}" == "1" ]] && echo "skipped" || echo "injected")
 EOF
 }
 

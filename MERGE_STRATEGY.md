@@ -6,9 +6,11 @@
 
 ## Executive Summary
 
-`main` is a single initial commit (markdown/HTML stubs). **All real work lives on 54 parallel `cursor/*` branches** created by Cloud Agents. The highest-risk area is **Vault integration duplication** (28 near-identical branches). The integration branch `cursor/merge-coordination-93dd` merges **18 canonical feature branches** into a deployable monorepo (~545 files) with resolved conflicts.
+**Status: MERGED TO `main` (June 15, 2026).** Integration branch `cursor/merge-coordination-93dd` has been merged into `main`. Environment branches (`development`, `testnet`, `devnets`, `production`, `MAINNET`) are synced to the same integration commit.
 
-**Immediate human action required:** Enable branch protection on `main` (PR reviews + status checks) before merging the integration PR.
+`main` now contains ~545 files from 18 canonical `cursor/*` branches. The highest-risk area was **Vault integration duplication** (28 near-identical branches) — resolved by selecting `cursor/vault-integration-1b83` as canonical.
+
+**Next:** Enable branch protection on `main` (PR reviews + status checks). Close duplicate Vault PRs.
 
 ---
 
@@ -162,16 +164,16 @@ development → testnet → production → MAINNET
 
 ---
 
-## Kairo Integration (Future)
+## Kairo Integration
 
-Kairo (driver-first marketplace) should live **in this monorepo** under `kairo/` to share:
+Kairo (driver-first marketplace) lives under `kairo/` and shares:
 
 - `frontend/src/wallet` — unified wallet layer
-- `src/lib/payments` / payment rails — Square, Wise, Web3
-- Vault secret injection patterns
-- DePIN telemetry pipeline → Mandelbrot / Tree of Life
+- `src/lib/payments` / payment rails — Square, Wise, Web3 (1% customer fee, 2× driver pay)
+- Vault secret injection patterns (`yieldswarm/data/kairo/runtime`)
+- DePIN telemetry pipeline → Mandelbrot / Tree of Life (`kairo/pipeline/mandelbrot.py`)
 
-Recommended path: scaffold `kairo/` on `development` after this merge lands on `main`.
+Implemented on `cursor/mega-task-integration-ee6f` → merge to `development`.
 
 ---
 
