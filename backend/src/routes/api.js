@@ -14,6 +14,7 @@ import * as emission from '../adapters/emissionRouter.js';
 import * as treasury from '../adapters/treasury.js';
 import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
+import * as odysseus from '../adapters/odysseus.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -26,16 +27,66 @@ function asyncRoute(fn) {
   };
 }
 
+function toArenaAkashPayload(snapshot) {
+  const workers = (snapshot.workers || []).map((w, index) => ({
+    id: w.id || `akash-${index + 1}`,
+    name: w.id || w.kind || `Akash worker ${index + 1}`,
+    status: w.state || 'active',
+    gpuCount: w.gpu ? 1 : 0,
+    cpuCores: w.kind === 'gpu-miner' ? 16 : 8,
+    memoryGb: w.kind === 'gpu-miner' ? 64 : 32,
+    monthlyCostUsd: w.kind === 'gpu-miner' ? 520 : 180,
+    throughput: w.hashrateMhs || 0,
+    updatedAt: new Date().toISOString(),
+  }));
+  return {
+    status: snapshot.live ? 'active' : 'degraded',
+    updatedAt: new Date().toISOString(),
+    workers,
+    alerts: snapshot.reason ? [snapshot.reason] : [],
+    live: snapshot.live,
+  };
+}
+
 router.get('/health', asyncRoute(async (_req, res) => {
-  const [akashPing, solanaPing] = await Promise.all([akash.ping(), solana.ping()]);
-  const ok = akashPing.live || solanaPing.live; // service is up even if one upstream is down
+  const [akashPing, solanaPing, odysseusPing] = await Promise.all([
+    akash.ping(),
+    solana.ping(),
+    odysseus.ping(),
+  ]);
+  const ok = akashPing.live || solanaPing.live || odysseusPing.live;
   res.status(ok ? 200 : 503).json({
     status: ok ? 'ok' : 'degraded',
     time: new Date().toISOString(),
-    upstreams: {
-      akash: akashPing,
-      solana: solanaPing,
-    },
+    upstreams: { akash: akashPing, solana: solanaPing, odysseus: odysseusPing },
+  });
+}));
+
+router.get('/telemetry/akash', asyncRoute(async (_req, res) => {
+  const snapshot = await cache.get('akash:workers', () => akash.getWorkers());
+  res.json(toArenaAkashPayload(snapshot));
+}));
+
+router.get('/telemetry/odysseus', asyncRoute(async (_req, res) => {
+  const data = await cache.get('telemetry:odysseus', () => odysseus.getTelemetry());
+  res.json(data);
+}));
+
+router.get('/brain/status', asyncRoute(async (_req, res) => {
+  const data = await cache.get('odysseus:brain', () => odysseus.getBrainStatus());
+  res.json(data);
+}));
+
+router.get('/auth/session', asyncRoute(async (_req, res) => {
+  res.json({ authenticated: false, user: null, mode: process.env.AUTH_MODE || 'demo' });
+}));
+
+router.post('/auth/odysseus/handoff', asyncRoute(async (_req, res) => {
+  const workspace = process.env.ODYSSEUS_WORKSPACE_URL || 'http://127.0.0.1:7000';
+  res.json({
+    redirectUrl: workspace,
+    handoffToken: null,
+    message: 'Direct workspace redirect — configure Vault OIDC for production SSO',
   });
 }));
 

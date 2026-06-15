@@ -6,6 +6,9 @@ crash.*.log
 crash.log
 # dashboard/config.js
 /.data
+.data/
+.odysseus/
+.run/
 data/
 # debug
 # dependencies

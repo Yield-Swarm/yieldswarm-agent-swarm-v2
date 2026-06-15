@@ -666,16 +666,11 @@ def record_driver_telemetry(record: Dict[str, Any]) -> None:
         "signed_at": record.get("signed_at"),
     }
     memory.record_cross_agent_learning(
-        agent_id=f"kairo:{record.get('driver_id', 'unknown')}",
-        topic="driver_telemetry",
-        insight=_safe_json(payload),
-        metadata=_clean_metadata(
-            {
-                "driver_id": record.get("driver_id"),
-                "shard_id": (record.get("tree") or {}).get("shard_id"),
-                "reward_weight": (record.get("tree") or {}).get("reward_weight"),
-            }
-        ),
+        source_agent_id=f"kairo:{record.get('driver_id', 'unknown')}",
+        summary=f"Kairo driver telemetry {record.get('telemetry_id', '')}",
+        applies_to=["kairo", "depin-rewards", "odysseus-brain"],
+        confidence=0.92,
+        evidence=payload,
     )
 
 

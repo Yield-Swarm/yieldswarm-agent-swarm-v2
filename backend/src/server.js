@@ -15,6 +15,7 @@ import path from 'node:path';
 import config from './config.js';
 import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
+import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -22,11 +23,12 @@ const frontendDir = path.join(repoRoot, 'frontend');
 
 const app = express();
 app.disable('x-powered-by');
+app.use(express.json({ limit: '1mb' }));
 
 // Permissive CORS for read-only telemetry (dashboard may be hosted elsewhere).
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
@@ -34,6 +36,7 @@ app.use((req, res, next) => {
 
 app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
+app.use('/', toolsRouter);
 app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
 app.use('/kairo-app', express.static(path.join(repoRoot, 'kairo', 'frontend')));
 app.use('/vault', express.static(path.join(repoRoot, 'dashboard')));
@@ -69,6 +72,7 @@ const server = app.listen(config.port, config.host, () => {
       `  Portal:  /portal/\n` +
       `  Arena:   /arena/\n` +
       `  API:     /api/arena/overview\n` +
+      `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  Kairo:   /kairo/contribution.html  /api/kairo/*\n` +
       `  Vault:   /vault-dashboard  /api/vault/telemetry`,
   );
