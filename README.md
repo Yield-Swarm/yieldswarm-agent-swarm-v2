@@ -60,6 +60,17 @@ API: `POST /api/kairo/drivers/register`, `POST /api/kairo/telemetry/ingest`
 
 See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo subdomains).
 
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| `INTEGRATION_REPORT.md` | 16-prong status matrix |
+| `PRODUCTION_READINESS.md` | Final smoke tests + mainnet checklist |
+| `KAIRO_FRONTEND.md` | Kairo app architecture + Vercel deploy |
+| `MERGE_STRATEGY.md` | Branch strategy + merge commands |
+| `DEPLOY.md` | Production deployment runbook |
+| `DOMAINS.md` | Unstoppable Domains wiring |
+
 ## Deployment
 - Odysseus stack: `docker-compose.yml`
 - Akash SDL: `deploy/akash-odysseus.sdl.yml`

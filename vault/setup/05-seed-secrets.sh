@@ -116,4 +116,7 @@ put payments/wise \
 
 put payments/kairo webhook_secret="$(val KAIRO_WEBHOOK_SECRET)"
 
+# ---- Kairo driver keys (templates — private keys written at registration) ---
+put kairo/config mapbox_token="$(val MAPBOX_ACCESS_TOKEN)" api_base="$(val KAIRO_API_BASE)"
+
 log "Seed complete. Verify with: vault kv list yieldswarm/"

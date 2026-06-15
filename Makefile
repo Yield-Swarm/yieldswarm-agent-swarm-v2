@@ -20,7 +20,7 @@ endif
 S := deploy/scripts
 A := deploy/akash
 
-.PHONY: help deploy all preflight \
+.PHONY: help deploy all preflight vault-check akash-deploy-vault \
         login build push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy \
@@ -44,11 +44,20 @@ all: deploy
 ## preflight: check required tooling is installed
 preflight:
 	@bash $(S)/lib.sh >/dev/null 2>&1 || true
-	@for t in docker terraform python3; do \
+	@for t in docker terraform python3 vault; do \
 	  command -v $$t >/dev/null 2>&1 && echo "  ok   $$t" || echo "  MISS $$t"; \
 	done
 	@command -v provider-services >/dev/null 2>&1 && echo "  ok   provider-services (akash)" || \
 	 (command -v akash >/dev/null 2>&1 && echo "  ok   akash" || echo "  MISS akash CLI (provider-services)")
+
+## vault-check: verify Vault connectivity
+vault-check:
+	@test -n "$$VAULT_ADDR" || (echo "VAULT_ADDR unset" && exit 1)
+	@vault status >/dev/null && echo "  ok   vault reachable"
+
+## akash-deploy-vault: production Akash deploy with Vault runtime injection
+akash-deploy-vault:
+	bash $(S)/akash-production-deploy.sh
 
 # ---- STEP 1: images -------------------------------------------------------
 ## login: docker login to GHCR (uses GHCR_TOKEN/GHCR_USER)

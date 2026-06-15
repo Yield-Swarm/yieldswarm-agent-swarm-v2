@@ -15,6 +15,7 @@ import path from 'node:path';
 import config from './config.js';
 import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
+import sovereignRouter from './routes/sovereign.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -34,6 +35,8 @@ app.use((req, res, next) => {
 
 app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
+app.use('/api/sovereign', sovereignRouter);
+app.use('/dashboard', express.static(path.join(repoRoot, 'dashboard')));
 
 // ---- Frontends -----------------------------------------------------------
 app.use('/arena', express.static(path.join(frontendDir, 'arena')));

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kairo — Ride & Delivery</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <h1>Kairo</h1>
+      <span class="fee-badge">1% platform fee</span>
+    </header>
+    <main class="layout">
+      <section class="map-panel">
+        <div id="map"></div>
+      </section>
+      <aside class="sidebar">
+        <div class="card">
+          <h2>Book a ride</h2>
+          <label>Pickup<input id="pickup" placeholder="Current location" /></label>
+          <label>Dropoff<input id="dropoff" placeholder="Destination" /></label>
+          <p class="estimate" id="fare-estimate">Est. fare: —</p>
+          <p class="fee-breakdown" id="fee-breakdown">Platform fee (1%): —</p>
+          <button id="book-btn" class="primary">Request ride</button>
+        </div>
+        <div class="card">
+          <h2>Driver earnings</h2>
+          <p class="stat" id="driver-pay">2× base pay</p>
+          <p class="sub" id="depin-rewards">DePIN rewards: loading…</p>
+        </div>
+        <div class="card">
+          <h2>Your contribution</h2>
+          <div id="contributions">Loading…</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
