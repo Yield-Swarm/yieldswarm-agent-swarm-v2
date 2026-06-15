@@ -1,0 +1,44 @@
+version: "2.0"
+
+services:
+  worker:
+    image: ghcr.io/yield-swarm/yieldswarm-worker:latest
+    env:
+      - PORT=3000
+      - NEXT_PUBLIC_API_BASE_URL
+    expose:
+      - port: 3000
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    worker:
+      resources:
+        cpu:
+          units: "2.0"
+        memory:
+          size: 8Gi
+        storage:
+          - size: 20Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia: "true"
+            model:
+              rtx3090: "true"
+
+  placement:
+    akash:
+      pricing:
+        worker:
+          denom: uakt
+          amount: 10000
+
+deployment:
+  worker:
+    akash:
+      profile: worker
+      count: 1

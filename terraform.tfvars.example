@@ -1,0 +1,27 @@
+tf_cloud_organization = "HelixChainProd"
+tf_workspace          = "Helixchainprod"
+
+akash_node           = "https://rpc.akashnet.net:443"
+akash_chain_id       = "akashnet-2"
+akash_key_name       = "yieldswarm-admin"
+akash_gpu_model_hint = "rtx3090"
+
+enable_azure_fallback = true
+azure_subscription_id = ""
+azure_tenant_id       = ""
+azure_client_id       = ""
+azure_client_secret   = ""
+azure_location        = "eastus"
+
+azure_resource_group_name = "yieldswarm-fallback-rg"
+azure_vmss_name           = "yieldswarm-fallback-vmss"
+azure_instance_count      = 1
+azure_vm_size             = "Standard_NC6s_v3"
+azure_admin_username      = "yieldswarm"
+azure_admin_ssh_public_key = "ssh-ed25519 REPLACE_WITH_YOUR_PUBLIC_KEY"
+
+runpod_api_key       = ""
+vultr_api_key        = ""
+digitalocean_token   = ""
+gcp_project_id       = ""
+gcp_service_account_json = ""

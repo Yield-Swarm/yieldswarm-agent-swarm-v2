@@ -1,0 +1,6 @@
+.env
+terraform.tfvars
+.akash/
+.terraform/
+*.tfstate
+*.tfstate.backup
