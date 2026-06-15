@@ -51,7 +51,6 @@ def generate_driver_identity(
         evm_address=evm,
         iotex_address=_iotex_address_from_evm(evm),
         public_key_hex=pub_hex,
-        device_fingerprint=device_fingerprint,
     )
     return identity, private_key
 
@@ -75,7 +74,8 @@ def register_driver(
     identity, private_key = generate_driver_identity(device_fingerprint, driver_id)
     registry = load_registry()
     registry[identity.driver_id] = {
-        **identity.to_dict(),
+        **identity.to_public_dict(),
+        "device_fingerprint": device_fingerprint,
         "key_fingerprint": hashlib.sha256(private_key.encode()).hexdigest()[:16],
     }
     save_registry(registry)

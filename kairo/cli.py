@@ -7,11 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-# Allow running from repo root without package install.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-from kairo.identity.wallet import register_driver
-from kairo.telemetry.ingest import ingest_signed_event, list_contributions
 
 
 def main() -> None:
@@ -26,23 +22,32 @@ def main() -> None:
         return
 
     if cmd == "register":
+        from kairo.identity.wallet import register_driver
         fp = sys.argv[2] if len(sys.argv) > 2 else None
         identity = register_driver(device_fingerprint=fp)
-        print(json.dumps(identity.to_dict()))
+        print(json.dumps(identity.to_public_dict()))
         return
 
     if cmd == "ingest":
+        from kairo.telemetry.ingest import ingest_signed_event
         raw = json.loads(sys.argv[2])
         event, err = ingest_signed_event(raw)
         if err:
             print(json.dumps({"ok": False, "error": err}))
             sys.exit(1)
-        print(json.dumps({"ok": True, "event": event.to_dict() if event else None}))
+        print(json.dumps({"ok": True, "event": event}))
         return
 
     if cmd == "contributions":
+        from kairo.services.mandelbrot_pipeline import MandelbrotPipeline
+        from pathlib import Path as P
+        pipeline = MandelbrotPipeline(P(__file__).resolve().parent / "data" / "pipeline")
         limit = int(sys.argv[2]) if len(sys.argv) > 2 else 50
-        items = [c.to_dict() for c in list_contributions(limit)]
+        items = []
+        for driver_id in list(pipeline._contributions.keys())[:limit]:
+            stats = pipeline.driver_stats(driver_id)
+            if stats:
+                items.append(stats)
         print(json.dumps({"contributions": items}))
         return
 
