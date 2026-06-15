@@ -1,0 +1,22 @@
+# Copy to terraform.tfvars (gitignored) and fill in.
+# Or export TF_VAR_* environment variables instead - safer for CI.
+
+vault_address = "https://vault.example.com:8200"
+
+# AppRole credentials for the yieldswarm-terraform role.
+# Get role_id from:    vault read -field=role_id auth/approle/role/yieldswarm-terraform/role-id
+# Get secret_id from:  VAULT_TOKEN=<wrapping_token> vault unwrap -field=secret_id
+vault_role_id   = "00000000-0000-0000-0000-000000000000"
+vault_secret_id = "REPLACE_ME_AT_APPLY_TIME"
+
+vault_kv_mount    = "kv"
+vault_secret_root = "yieldswarm"
+
+environment = "prod"
+
+enabled_clouds = {
+  azure        = true
+  runpod       = true
+  vultr        = true
+  digitalocean = true
+}

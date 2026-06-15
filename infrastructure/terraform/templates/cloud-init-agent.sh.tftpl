@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# cloud-init for YieldSwarm agent nodes.
+# Bootstraps the Vault Agent so every subsequent service on the box reads its
+# secrets through a local sink instead of holding them in environment vars.
+set -euo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+
+VAULT_VERSION="1.17.2"
+AKASH_VERSION="0.36.0"
+
+apt-get update -y
+apt-get install -y curl jq unzip ca-certificates gnupg
+
+# --- Install Vault CLI / Agent ----------------------------------------------
+curl -fsSL "https://releases.hashicorp.com/vault/$${VAULT_VERSION}/vault_$${VAULT_VERSION}_linux_amd64.zip" \
+  -o /tmp/vault.zip
+unzip -o /tmp/vault.zip -d /usr/local/bin/
+chmod +x /usr/local/bin/vault
+
+# --- Install Akash CLI ------------------------------------------------------
+curl -fsSL "https://github.com/akash-network/node/releases/download/v$${AKASH_VERSION}/akash_$${AKASH_VERSION}_linux_amd64.zip" \
+  -o /tmp/akash.zip
+unzip -o /tmp/akash.zip -d /usr/local/bin/
+chmod +x /usr/local/bin/akash || true
+
+# --- Vault Agent config -----------------------------------------------------
+mkdir -p /etc/vault-agent /var/run/vault-agent
+chmod 700 /etc/vault-agent /var/run/vault-agent
+
+cat >/etc/vault-agent/role-id <<EOF
+${role_id}
+EOF
+chmod 600 /etc/vault-agent/role-id
+
+# secret-id is fetched on first boot via wrapped token. The wrapping token is
+# pushed in by the orchestrator using the cloud provider metadata service /
+# user-data update mechanism; here we just record the path it lands in.
+touch /etc/vault-agent/secret-id
+chmod 600 /etc/vault-agent/secret-id
+
+cat >/etc/vault-agent/agent.hcl <<EOF
+pid_file = "/var/run/vault-agent/agent.pid"
+
+vault {
+  address = "${vault_addr}"
+}
+
+auto_auth {
+  method "approle" {
+    config = {
+      role_id_file_path                   = "/etc/vault-agent/role-id"
+      secret_id_file_path                 = "/etc/vault-agent/secret-id"
+      remove_secret_id_file_after_reading = false
+    }
+  }
+  sink "file" {
+    config = {
+      path = "/var/run/vault-agent/token"
+      mode = 0640
+    }
+  }
+}
+
+cache { use_auto_auth_token = true }
+
+listener "tcp" {
+  address     = "127.0.0.1:8100"
+  tls_disable = true
+}
+
+template_config { exit_on_retry_failure = false }
+EOF
+
+cat >/etc/systemd/system/vault-agent.service <<'EOF'
+[Unit]
+Description=HashiCorp Vault Agent (YieldSwarm)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/vault agent -config=/etc/vault-agent/agent.hcl
+Restart=on-failure
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now vault-agent.service || true
