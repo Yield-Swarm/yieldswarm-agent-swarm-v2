@@ -137,6 +137,13 @@ seed_secret_if_missing "akash" \
   agentswarm_master_key="REPLACE_ME" \
   gpu_cluster_keys='["REPLACE_ME"]'
 
+seed_secret_if_missing "kairo" \
+  api_signing_key="REPLACE_ME" \
+  bridge_webhook_secret="REPLACE_ME" \
+  wise_payout_email="" \
+  depin_helium_webhook="" \
+  depin_grass_webhook=""
+
 log "Bootstrap complete."
 log ""
 log "Next steps:"

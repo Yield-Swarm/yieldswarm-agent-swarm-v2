@@ -1,0 +1,8 @@
+# Kairo → YieldSwarm bridge API
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+pydantic-settings>=2.6.0
+eth-account>=0.13.0
+bech32>=1.2.0
+python-multipart>=0.0.12

@@ -23,7 +23,11 @@ vault-unseal-keys.txt
 *.role-id
 *.secret-id
 
-# Python
+.venv/
+venv/
+kairo/data/
+kairo_driver_key.json
+*.driver-key.json
 __pycache__/
 *.py[cod]
 .venv/

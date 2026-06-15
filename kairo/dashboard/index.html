@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kairo → YieldSwarm Driver Dashboard</title>
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --card: #121a2b;
+      --accent: #00d4aa;
+      --accent2: #7c5cff;
+      --text: #e8edf5;
+      --muted: #8b9bb4;
+      --warn: #ffb020;
+      --ok: #3dd68c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid #1e2a42;
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .card h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.75rem; }
+    .metric { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .metric small { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+    .tag { display: inline-block; background: #1a2540; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; margin: 0.15rem; }
+    .tag.shard { border: 1px solid var(--accent2); color: var(--accent2); }
+    .tag.tree { border: 1px solid var(--accent); color: var(--accent); }
+    .reward-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #1e2a42; }
+    .reward-row:last-child { border: none; }
+    .token { font-weight: 600; }
+    .pay-box { background: linear-gradient(135deg, #1a2540, #121a2b); border: 1px solid var(--accent); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; }
+    .pay-box .amount { font-size: 2.5rem; font-weight: 800; color: var(--ok); }
+    .multiplier { color: var(--warn); font-weight: 700; }
+    .multiplier.active { color: var(--ok); }
+    .search { margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    input {
+      background: var(--card);
+      border: 1px solid #1e2a42;
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      min-width: 320px;
+      font-size: 0.9rem;
+    }
+    button {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    .error { color: #ff6b6b; margin-top: 1rem; }
+    .addr { font-family: monospace; font-size: 0.75rem; color: var(--muted); word-break: break-all; }
+    ul.reasons { margin-top: 0.5rem; padding-left: 1.2rem; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <h1>Kairo → YieldSwarm</h1>
+  <p class="subtitle">Signed telemetry · Mandelbrot sharding · DePIN rewards · 2× driver pay</p>
+
+  <div class="search">
+    <input id="driverId" placeholder="Driver ID (UUID)" />
+    <button onclick="loadDashboard()">Load dashboard</button>
+  </div>
+
+  <div id="error" class="error" hidden></div>
+  <div id="content" hidden>
+    <div class="grid">
+      <div class="card">
+        <h2>Distance contributed</h2>
+        <div class="metric" id="distance">— <small>km</small></div>
+      </div>
+      <div class="card">
+        <h2>Signed packets</h2>
+        <div class="metric" id="packets">—</div>
+      </div>
+      <div class="card">
+        <h2>Verified</h2>
+        <div class="metric" id="verified">—</div>
+      </div>
+      <div class="card">
+        <h2>Active Mandelbrot shards</h2>
+        <div id="shards"></div>
+      </div>
+      <div class="card">
+        <h2>Tree of Life nodes</h2>
+        <div id="trees"></div>
+      </div>
+      <div class="card">
+        <h2>Identity</h2>
+        <p class="addr" id="evm"></p>
+        <p class="addr" id="iotex"></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1rem">
+      <h2>DePIN reward estimates</h2>
+      <div id="rewards"></div>
+    </div>
+
+    <div class="pay-box">
+      <h2 style="color:var(--muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Driver pay (2× when verified)</h2>
+      <div class="amount" id="totalPay">$0.00</div>
+      <p>Base: <span id="basePay">$0</span> · Multiplier: <span id="multiplier" class="multiplier">1×</span></p>
+      <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--muted)">Rail: <span id="rail"></span> → <span id="dest" class="addr"></span></p>
+      <ul class="reasons" id="reasons"></ul>
+    </div>
+  </div>
+
+  <script>
+    const API = window.location.origin + '/api/v1';
+
+    async function loadDashboard() {
+      const driverId = document.getElementById('driverId').value.trim();
+      const errEl = document.getElementById('error');
+      const content = document.getElementById('content');
+      errEl.hidden = true;
+      content.hidden = true;
+
+      if (!driverId) {
+        errEl.textContent = 'Enter a driver ID';
+        errEl.hidden = false;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/rewards/${driverId}/dashboard`);
+        if (!res.ok) throw new Error(await res.text());
+        const d = await res.json();
+        content.hidden = false;
+
+        document.getElementById('distance').innerHTML = `${d.total_distance_km} <small>km</small>`;
+        document.getElementById('packets').textContent = d.signed_packets;
+        document.getElementById('verified').textContent = d.verified_packets;
+        document.getElementById('evm').textContent = 'EVM: ' + d.evm_address;
+        document.getElementById('iotex').textContent = 'IoTeX: ' + d.iotex_address;
+
+        document.getElementById('shards').innerHTML = (d.active_shards || [])
+          .map(s => `<span class="tag shard">shard ${s}</span>`).join('') || '<span class="tag">none yet</span>';
+        document.getElementById('trees').innerHTML = (d.tree_nodes || [])
+          .map(t => `<span class="tag tree">${t}</span>`).join('') || '<span class="tag">none yet</span>';
+
+        document.getElementById('rewards').innerHTML = (d.depin_rewards || []).map(r => `
+          <div class="reward-row">
+            <span class="token">${r.token}</span>
+            <span>$${r.amount_usd.toFixed(4)}</span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem">${r.description}</div>
+        `).join('');
+
+        const q = d.pay_quote;
+        document.getElementById('totalPay').textContent = '$' + q.total_pay_usd.toFixed(2);
+        document.getElementById('basePay').textContent = '$' + q.base_pay_usd.toFixed(2);
+        const mult = document.getElementById('multiplier');
+        mult.textContent = q.multiplier + '×';
+        mult.className = 'multiplier' + (q.eligible_for_2x ? ' active' : '');
+        document.getElementById('rail').textContent = q.rail;
+        document.getElementById('dest').textContent = q.destination;
+        document.getElementById('reasons').innerHTML = (q.eligibility_reasons || [])
+          .map(r => `<li>${r}</li>`).join('');
+      } catch (e) {
+        errEl.textContent = e.message;
+        errEl.hidden = false;
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('driver_id')) {
+      document.getElementById('driverId').value = params.get('driver_id');
+      loadDashboard();
+    }
+  </script>
+</body>
+</html>

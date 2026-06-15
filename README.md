@@ -11,6 +11,13 @@ Unstoppable Domains integration
 - Vercel: https://v2-0-bay.vercel.app/
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
 
+## Kairo Bridge
+Turn Kairo drivers into YieldSwarm data nodes — see [KAIRO_BRIDGE.md](KAIRO_BRIDGE.md)
+
+```bash
+./kairo/run.sh   # API on :8090, dashboard at /dashboard
+```
+
 ## Setup
 1. Bootstrap HashiCorp Vault — see [SECRETS.md](SECRETS.md)
 2. Write cloud secrets to Vault (`azure`, `runpod`, `vultr`, `digitalocean`, `rpc`, `akash`)
