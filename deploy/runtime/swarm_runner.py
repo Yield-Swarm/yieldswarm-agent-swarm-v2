@@ -35,6 +35,36 @@ AGENT_FILES = [
 ]
 
 
+def _run_sovereign_cycle(tick: int) -> bool:
+    """Run the Iteration 100 sovereign controller once per swarm tick."""
+    sovereign_path = REPO_ROOT / "agents" / "iteration_100_sovereign_loops.py"
+    if not sovereign_path.exists():
+        return False
+    try:
+        spec = importlib.util.spec_from_file_location("iteration_100_sovereign_loops", sovereign_path)
+        if spec is None or spec.loader is None:
+            return False
+        module = importlib.util.module_from_spec(spec)
+        agents_dir = str(REPO_ROOT / "agents")
+        if agents_dir not in sys.path:
+            sys.path.insert(0, agents_dir)
+        if str(REPO_ROOT) not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT))
+        spec.loader.exec_module(module)
+        from pathlib import Path
+
+        controller = module.SovereignController(
+            state_path=Path(os.environ.get("SOVEREIGN_STATE_PATH", REPO_ROOT / "dashboard" / "state.json")),
+            dashboard_path=Path(REPO_ROOT / "dashboard" / "final-monitoring-dashboard-5m.md"),
+        )
+        report = controller.run_cycle()
+        print(f"[swarm] sovereign cycle {report.get('cycle', tick)} complete", flush=True)
+        return True
+    except Exception:  # noqa: BLE001
+        print(f"[swarm] sovereign cycle failed\n{traceback.format_exc()}", flush=True)
+        return False
+
+
 def _run_module(path: Path) -> bool:
     """Execute a standalone agent script in an isolated module namespace."""
     if not path.exists():
@@ -81,6 +111,7 @@ def _heartbeat(tick: int, ok_count: int, total: int) -> None:
 
 def tick(n: int) -> None:
     print(f"\n[swarm] ===== sovereign tick {n} @ {time.strftime('%Y-%m-%d %H:%M:%S')} =====", flush=True)
+    _run_sovereign_cycle(n)
     ok = sum(1 for f in AGENT_FILES if _run_module(f))
     _heartbeat(n, ok, len(AGENT_FILES))
     print(f"[swarm] tick {n} complete: {ok}/{len(AGENT_FILES)} agents ok", flush=True)

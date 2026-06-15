@@ -32,8 +32,8 @@ test('toOdysseusTelemetryPayload maps agent snapshot for static Arena', () => {
   assert.equal(payload.alerts.length, 1);
 });
 
-test('getVaultTelemetry reads sovereign state from dashboard/state.json', () => {
-  const vault = getVaultTelemetry();
-  assert.ok(vault.vaultTargetUsd >= 5_000_000);
-  assert.ok(typeof vault.progress === 'number');
+test('getVaultTelemetry reads sovereign state from dashboard/state.json', async () => {
+  const vault = await getVaultTelemetry();
+  assert.ok((vault.vault_target_usd ?? vault.vaultTargetUsd) >= 5_000_000);
+  assert.ok(typeof (vault.progress) === 'number');
 });

@@ -72,7 +72,7 @@ export const config = {
   },
 
   odysseus: {
-    brainUrl: (process.env.ODYSSEUS_BRAIN_URL || process.env.ODYSSEUS_URL || 'http://127.0.0.1:8080').replace(/\/$/, ''),
+    brainUrl: (process.env.ODYSSEUS_BRAIN_URL || process.env.ODYSSEUS_URL || 'http://127.0.0.1:8090').replace(/\/$/, ''),
     workspaceUrl: (process.env.ODYSSEUS_WORKSPACE_URL || 'http://127.0.0.1:7000').replace(/\/$/, ''),
     enabled: bool(process.env.ODYSSEUS_ENABLED, true),
   },

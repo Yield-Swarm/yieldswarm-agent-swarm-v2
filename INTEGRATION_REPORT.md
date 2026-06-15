@@ -1,120 +1,83 @@
-# YieldSwarm + Kairo Integration Report
+# INTEGRATION_REPORT.md — God Prompt 16-Prong Integration
 
-> Generated: June 15, 2026  
-> Branch: `cursor/god-prompt-full-integration-d1cd`  
-> Base: `development` (545+ files, 18 merged cursor/* branches)
-
----
-
-## Executive Summary
-
-The repository is a consolidated monorepo combining YieldSwarm AgentSwarm OS v2.0
-with the new **Kairo** driver-first marketplace layer. All 16 God Prompt prongs
-have been addressed at the code/documentation level; production deployment
-requires Vault bootstrap, Akash wallet funding, and domain wiring per runbooks.
-
----
+> Branch: `cursor/mega-round-integration-e512`  
+> Date: June 15, 2026
 
 ## Prong Status
 
-| # | Prong | Status | Key artifacts |
-|---|-------|--------|-----------------|
-| 1 | Merge & branch strategy | ✅ | `MERGE_STRATEGY.md`, `scripts/merge-to-main.sh` |
-| 2 | Akash production deployment | ✅ | `DEPLOY.md`, `deploy/deploy-swarm-monolith.yaml`, `scripts/akash-deploy.sh` |
-| 3 | Vault hardening | ✅ | `vault/`, `SECRETS.md`, `scripts/lib/vault-env.sh`, `vault/policies/kairo-runtime.hcl` |
-| 4 | Odysseus integration | ✅ | `docker-compose.yml`, `agents/odysseus_memory.py`, `services/odysseus/`, LiteLLM config |
-| 5 | Kairo crypto identity + pipeline | ✅ | `kairo/backend/`, Mandelbrot routing, contribution dashboard |
-| 6 | Unstoppable Domains + frontend | ✅ | `DOMAINS.md`, `kairo/frontend/`, `KAIRO_FRONTEND.md` |
-| 7 | Payment rails + wallet | ✅ | `src/app/payments/`, `src/lib/kairo/fees.ts`, Square/Wise/Web3 webhooks |
-| 8 | $5M vault telemetry dashboard | ✅ | `dashboard/sovereign-dashboard.html`, `iteration-100/` |
-| 9 | Multi-cloud fallback | ✅ | `terraform/`, `infra/terraform/`, `deploy/terraform/` |
-| 10 | Sovereign self-governed core | ✅ | `iteration-100/sovereign_core.py`, sovereign loops |
-| 11 | Great Delta emission router | ✅ | `contracts/GreatDeltaEmissionRouter.sol`, deploy scripts |
-| 12 | Arena live metrics | ✅ | `backend/src/routes/api.js` (+ telemetry alias routes) |
-| 13 | Production deploy scripts | ✅ | `Makefile`, `deploy.sh`, `scripts/merge-swarm.sh` |
-| 14 | Secrets management | ✅ | Vault-only pattern; no hardcoded production keys |
-| 15 | Documentation | ✅ | `DEPLOY.md`, `DOMAINS.md`, `MERGE_STRATEGY.md`, this file |
-| 16 | Integration + smoke tests | ✅ | `tests/integration/smoke_test.sh` |
+| # | Prong | Status | Key paths |
+|---|-------|--------|-----------|
+| 1 | Merge & branch strategy | ✅ Ready | `MERGE_STRATEGY.md`, `scripts/merge-swarm.sh` |
+| 2 | Akash production deploy | ✅ Ready | `DEPLOY.md`, `scripts/akash-deploy.sh`, `deploy/deploy-swarm-monolith.yaml` |
+| 3 | Vault hardening | ⚠️ Partial | `vault/`, `vault/setup/05-seed-secrets.sh` (odysseus/payments/kairo added) |
+| 4 | Odysseus integration | ✅ Wired | `services/odysseus/`, `backend/src/adapters/odysseus.js` |
+| 5 | Kairo crypto + pipeline | ✅ Complete | `kairo/` |
+| 6 | Domains + Kairo frontend | ✅ Complete | `DOMAINS.md`, `kairo/frontend/`, `KAiro_FRONTEND.md` |
+| 7 | Payment rails + wallet | ✅ Existing + Kairo fees | `src/app/payments/`, `kairo/services/earnings.py` |
+| 8 | $5M vault dashboard | ✅ Wired | `dashboard/sovereign-dashboard.html`, `/api/vault/telemetry` |
+| 9 | Multi-cloud fallback | ✅ Scaffold | `infra/terraform/`, `deploy/terraform/` |
+| 10 | Sovereign core | ⚠️ Partial | Single cycle in `deploy/runtime/swarm_runner.py`; live feeds TBD |
+| 11 | Great Delta emission router | ⚠️ Partial | `contracts/`, `foundry.toml` added; needs deploy + test |
+| 12 | Arena live metrics | ✅ Fixed | `/api/telemetry/akash`, `/api/telemetry/odysseus` shims |
+| 13 | Production deploy scripts | ✅ Ready | `make deploy`, `scripts/smoke-test.sh` |
+| 14 | Secrets management | ⚠️ Partial | Dev fallbacks gated; see `SECRETS_AUDIT.md` |
+| 15 | Documentation | ✅ Complete | This file + `DEPLOY.md`, `DOMAINS.md`, `MERGE_STRATEGY.md` |
+| 16 | Integration smoke tests | ✅ Script | `scripts/smoke-test.sh` |
 
----
+## Wiring completed this round
 
-## Component Map
+### Arena ↔ Backend
+- Added `/api/telemetry/akash` and `/api/telemetry/odysseus` matching `frontend/shared/telemetry.js`
+- Added `/api/auth/session` and `/api/auth/odysseus/handoff` stubs
+- Akash adapter output mapped to Arena field names (`gpuCount`, `monthlyCostUsd`, etc.)
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Kairo Frontend (kairo/frontend) — Mapbox, 1% fee, 2× pay   │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ signed telemetry
-┌──────────────────────────▼──────────────────────────────────┐
-│  Kairo API (kairo/backend) — IoTeX/EVM identity, Mandelbrot   │
-└──────────────────────────┬──────────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────────┐
-│  YieldSwarm Backend — Arena telemetry, Akash, on-chain        │
-│  (backend/, src/app/api/)                                    │
-└──────────┬───────────────────────────────┬──────────────────┘
-           │                               │
-┌──────────▼──────────┐         ┌──────────▼──────────┐
-│  Odysseus + ChromaDB │         │  Akash RTX 3090      │
-│  10,080 agents       │         │  Ollama + auto-heal  │
-└─────────────────────┘         └─────────────────────┘
-           │                               │
-           └───────────────┬───────────────┘
-                           │
-              ┌────────────▼────────────┐
-              │  HashiCorp Vault        │
-              │  (all runtime secrets)  │
-              └─────────────────────────┘
-```
+### Odysseus ↔ Backend
+- New `backend/src/adapters/odysseus.js` probes `ODYSSEUS_URL/healthz`
+- Health check includes Odysseus upstream
 
----
+### $5M Vault Dashboard
+- `/api/vault/telemetry` merges `dashboard/state.json` with live Akash + treasury data
+- `sovereign-dashboard.html` tries API first, falls back to static `state.json`
+- Served at `/vault-dashboard` via integration backend
 
-## Fixes Applied (this integration pass)
+### Sovereign loops
+- Fixed agent import path via `agents/_bootstrap.py`
+- Removed duplicate `SovereignController.run_cycle()` from three agents
+- Single sovereign cycle per tick in `deploy/runtime/swarm_runner.py` → writes `dashboard/state.json`
 
-1. **Arena telemetry URL mismatch** — Added `/api/telemetry/akash` and
-   `/api/telemetry/odysseus` routes to `backend/src/routes/api.js`.
-2. **Kairo scaffold** — Full `kairo/` directory with backend, frontend, models.
-3. **Payment fee integration** — `src/lib/kairo/fees.ts` + `/api/kairo/fare`.
-4. **Vault Kairo policy** — `vault/policies/kairo-runtime.hcl`.
-5. **Documentation** — `DOMAINS.md`, `KAIRO_FRONTEND.md`, `INTEGRATION_REPORT.md`.
+### Kairo
+- Full crypto identity + Mandelbrot pipeline (`kairo/`)
+- Customer frontend with Mapbox + 1% fee UX (`kairo/frontend/`)
+- Backend proxy at `/api/kairo/*`
 
-## Fixes Applied (final cross-component pass)
+### Vault
+- Extended `vault/setup/05-seed-secrets.sh` for odysseus, payments, kairo, UD
 
-6. **Odysseus telemetry empty agents** — Fixed `board.rows` mapping in odysseus route.
-7. **Great Delta 50/30/15/5 alignment** — Treasury + emission adapters + `great-delta.ts`.
-8. **$5M dashboard live data** — `/api/sovereign/state` + dashboard live-first load.
-9. **Backend serves vault dashboard** — `/dashboard/` + `/vault` redirect.
-10. **Live API verified** — Akash + Solana upstreams connected at runtime.
+## Remaining before MAINNET
 
----
+1. Merge PR to `main` and enable branch protection
+2. Close 25 duplicate Vault `cursor/*` PRs
+3. Run `vault/setup/bootstrap.sh` on production Vault cluster
+4. Deploy Odysseus GPU lease on Akash with Vault AppRole
+5. Foundry tests + deploy Great Delta router to target chain
+6. Replace auth stubs with Vault OIDC
+7. Wire payments Next.js app to load secrets from Vault at runtime
 
-## Remaining Manual Steps
-
-1. Run `scripts/merge-to-main.sh` to promote `development` → `main`.
-2. Bootstrap Vault: `vault/setup/bootstrap.sh`.
-3. Fund Akash wallet and run `make deploy`.
-4. Wire Unstoppable Domains per `DOMAINS.md`.
-5. Set `VITE_MAPBOX_TOKEN` and deploy Kairo frontend to Vercel/Netlify.
-6. Enable branch protection on `main`, `testnet`, `production`, `MAINNET`.
-7. Close 25 duplicate Vault PRs without merging.
-
----
-
-## Test Commands
+## Smoke test
 
 ```bash
-# Integration smoke tests
-bash tests/integration/smoke_test.sh
-
-# Backend unit tests
-cd backend && npm test
-
-# Python agent tests
-python3 -m pytest tests/ -q
-
-# Kairo backend (after pip install)
-cd kairo/backend && pip install -r requirements.txt
-python -c "from kairo.backend import identity; i,_=identity.create_driver_identity('test'); print(i.evm_address)"
+cd backend && npm install && npm start &
+python3 -m kairo.api.routes &
+./scripts/smoke-test.sh
 ```
 
-See `PRODUCTION_READINESS.md` for the full readiness checklist.
+## Component diagram
+
+```
+Kairo App (Vercel) ──► /api/kairo ──► Kairo Python API ──► Mandelbrot pipeline
+                                              │
+Arena UI ──► /api/telemetry/* ──► Backend ────┼──► Odysseus (GPU)
+Vault Dashboard ──► /api/vault/telemetry      │
+Payments App ──► Square/Wise/Web3             └──► Akash workers
+Sovereign loops ──► dashboard/state.json
+```

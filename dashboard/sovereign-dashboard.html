@@ -243,29 +243,28 @@ let history = [];
 
 async function load() {
   let data;
-  const liveApi = window.YIELDSWARM_CONFIG?.sovereignStateUrl || "/api/sovereign/state";
-  try {
-    const liveRes = await fetch(liveApi + "?_=" + Date.now(), { cache: "no-store" });
-    if (liveRes.ok) {
-      data = await liveRes.json();
+  const endpoints = [
+    window.YIELDSWARM_CONFIG?.sovereignStateUrl || "/api/sovereign/state",
+    "/api/vault/telemetry",
+    "state.json?_=" + Date.now(),
+  ];
+  for (const endpoint of endpoints) {
+    try {
+      const url = endpoint.includes("?") ? endpoint : endpoint + "?_=" + Date.now();
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      data = await res.json();
       $("error").innerHTML = "";
-      render(data);
+      break;
+    } catch (e) {
+      if (endpoint.startsWith("/api/")) continue;
+      $("error").innerHTML = '<div class="err">Could not load sovereign state. '
+        + 'Start the integration backend (<code>cd backend && npm start</code>) or run '
+        + '<code>python3 iteration-100/run.py</code>. (' + e.message + ')</div>';
       return;
     }
-  } catch (_) { /* fall through to static state.json */ }
-
-  try {
-    const res = await fetch("state.json?_=" + Date.now(), { cache: "no-store" });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    data = await res.json();
-    $("error").innerHTML = "";
-  } catch (e) {
-    $("error").innerHTML = '<div class="err">Could not load sovereign state. '
-      + 'Start the integration backend (<code>cd backend && npm start</code>) for live data at '
-      + '<code>/api/sovereign/state</code>, or run <code>python3 iteration-100/run.py</code> '
-      + 'to generate <code>state.json</code>. (' + e.message + ')</div>';
-    return;
   }
+  if (!data) return;
   render(data);
 }
 

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import json
 import os
-from pathlib import Path
 
-from iteration_100_sovereign_loops import SovereignController
+import _bootstrap  # noqa: F401
+
 from odysseus_memory import build_agent_id, get_memory
 
 
@@ -31,19 +31,13 @@ def main() -> int:
         },
     )
 
-    controller = SovereignController(
-        state_path=Path("dashboard/iteration_100_state.json"),
-        dashboard_path=Path("dashboard/final-monitoring-dashboard-5m.md"),
-    )
-    report = controller.run_cycle()
-
     print(
         json.dumps(
             {
-                "loop": "autonomous-agent-mutation",
-                "cycle": report["cycle"],
-                "mutated_agents": report["mutation_metrics"]["mutated_agents"],
-                "avg_fitness_delta": report["mutation_metrics"]["avg_fitness_delta"],
+                "loop": "openclaw-scaler",
+                "agent_id": agent_id,
+                "shard_id": shard_id,
+                "status": "registered",
             },
             indent=2,
         )

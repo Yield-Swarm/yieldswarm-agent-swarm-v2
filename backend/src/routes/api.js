@@ -15,7 +15,7 @@ import * as treasury from '../adapters/treasury.js';
 import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
 import * as odysseus from '../adapters/odysseus.js';
-import { getVaultTelemetry } from '../adapters/vault.js';
+import { getVaultTelemetry } from '../adapters/vaultTelemetry.js';
 import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
 
 const router = Router();
@@ -77,7 +77,8 @@ router.post('/auth/odysseus/handoff', asyncRoute(async (_req, res) => {
 }));
 
 router.get('/vault/telemetry', asyncRoute(async (_req, res) => {
-  res.json(getVaultTelemetry());
+  const data = await getVaultTelemetry();
+  res.json(data);
 }));
 
 router.get('/sovereign/state', asyncRoute(async (_req, res) => {
