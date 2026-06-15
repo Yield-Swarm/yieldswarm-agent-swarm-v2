@@ -35,11 +35,26 @@ fi
 source "${SCRIPT_DIR}/setup-auth.sh"
 configure_akash_auth
 
+render_sdl() {
+  local template="$1" output="$2"
+  if command -v envsubst >/dev/null 2>&1; then
+    envsubst '${VAULT_ADDR} ${VAULT_ROLE_ID} ${VAULT_SECRET_ID}' < "${template}" > "${output}"
+  else
+    python3 - "${template}" "${output}" <<'PY'
+import os, sys
+text = open(sys.argv[1]).read()
+for key in ("VAULT_ADDR", "VAULT_ROLE_ID", "VAULT_SECRET_ID"):
+    text = text.replace("${%s}" % key, os.environ.get(key, ""))
+open(sys.argv[2], "w").write(text)
+PY
+  fi
+}
+
 # Substitute deploy-time Vault credentials into SDL without writing secrets to disk.
 SDL_RENDERED="$(mktemp)"
 trap 'rm -f "${SDL_RENDERED}"' EXIT
 
-envsubst '${VAULT_ADDR} ${VAULT_ROLE_ID} ${VAULT_SECRET_ID}' < "${SDL}" > "${SDL_RENDERED}"
+render_sdl "${SDL}" "${SDL_RENDERED}"
 
 echo "Creating Akash deployment (auth=${AKASH_AUTH_METHOD}, account=${AKASH_ACCOUNT_ADDRESS})"
 provider-services tx deployment create "${SDL_RENDERED}" \

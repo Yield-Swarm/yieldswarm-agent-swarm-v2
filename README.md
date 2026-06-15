@@ -15,7 +15,7 @@ Unstoppable Domains integration
 1. Bootstrap HashiCorp Vault — see [SECRETS.md](SECRETS.md)
 2. Write cloud secrets to Vault (`azure`, `runpod`, `vultr`, `digitalocean`, `rpc`, `akash`)
 3. Run Terraform (`terraform/`) — credentials pulled from Vault at apply time
-4. Build and deploy Akash image (`deploy/akash/`) — secrets injected at runtime
+4. Build and deploy Akash image — see [DEPLOY.md](DEPLOY.md)
 5. Wire Unstoppable Domains via Cloudflare nameservers
 
 ## Secrets

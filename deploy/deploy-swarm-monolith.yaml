@@ -1,0 +1,57 @@
+---
+version: "2.0"
+
+# YieldSwarm AgentSwarm monolith — Vault-injected secrets at runtime.
+# Render with deploy-full.sh (envsubst) before submit. Never commit rendered SDL.
+
+services:
+  swarm:
+    image: ${DEPLOY_IMAGE}
+    expose:
+      - port: ${CONTAINER_PORT}
+        as: 80
+        to:
+          - global: true
+    env:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_KV_MOUNT=yieldswarm
+      - VAULT_SECRET_PATHS=akash,rpc,runpod
+      - VAULT_SKIP_VERIFY=${VAULT_SKIP_VERIFY}
+      - HEALTH_PORT=${CONTAINER_PORT}
+      - AGENT_SHARD_ID=0
+      - LOG_LEVEL=INFO
+    params:
+      storage:
+        data:
+          mount: /run/secrets
+          readOnly: false
+    count: 1
+    pricing:
+      denom: uakt
+      amount: 1000
+
+profiles:
+  compute:
+    swarm:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          - name: data
+            size: 1Gi
+  placement:
+    akash:
+      pricing:
+        swarm:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  swarm:
+    akash:
+      profile: swarm
+      count: 1

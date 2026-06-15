@@ -56,16 +56,31 @@ configure_akash_auth() {
   keyring_backend="$(echo "${secrets}" | jq -r '.keyring_backend // "test"')"
   mnemonic="$(echo "${secrets}" | jq -r '.wallet_mnemonic // empty')"
 
-  if [[ -z "${mnemonic}" || "${mnemonic}" == "REPLACE_ME" ]]; then
-    log "ERROR: wallet_mnemonic missing in Vault (yieldswarm/akash)"
-    return 1
+  # Env fallback for Codespaces / CI when Vault has placeholders
+  if [[ -z "${mnemonic}" || "${mnemonic}" == "REPLACE_ME" || "${mnemonic}" == "test mnemonic words" ]]; then
+    if [[ -n "${AKASH_WALLET_MNEMONIC:-}" ]]; then
+      mnemonic="${AKASH_WALLET_MNEMONIC}"
+      log "Using AKASH_WALLET_MNEMONIC from environment"
+    elif provider-services keys show "${AKASH_KEY_NAME:-yieldswarm-admin}" -a \
+        --keyring-backend "${AKASH_KEYRING_BACKEND:-test}" >/dev/null 2>&1; then
+      key_name="${AKASH_KEY_NAME:-yieldswarm-admin}"
+      keyring_backend="${AKASH_KEYRING_BACKEND:-test}"
+      log "Using existing keyring key '${key_name}'"
+      mnemonic=""
+    else
+      log "ERROR: wallet_mnemonic missing in Vault and AKASH_WALLET_MNEMONIC not set"
+      return 1
+    fi
   fi
 
+  auth_method="$(echo "${secrets}" | jq -r '.auth_method // "jwt"')"
+  key_name="${AKASH_KEY_NAME:-$(echo "${secrets}" | jq -r '.key_name // "yieldswarm-admin"')}"
+  keyring_backend="${AKASH_KEYRING_BACKEND:-$(echo "${secrets}" | jq -r '.keyring_backend // "test"')}"
   export AKASH_AUTH_METHOD="${auth_method}"
   export AKASH_KEY_NAME="${key_name}"
   export AKASH_KEYRING_BACKEND="${keyring_backend}"
-  export AKASH_CHAIN_ID="$(echo "${secrets}" | jq -r '.chain_id // "akashnet-2"')"
-  export AKASH_NODE="$(echo "${secrets}" | jq -r '.rpc_endpoint // "https://rpc.akash.network:443"')"
+  export AKASH_CHAIN_ID="${AKASH_CHAIN_ID:-$(echo "${secrets}" | jq -r '.chain_id // "akashnet-2"')}"
+  export AKASH_NODE="${AKASH_NODE:-$(echo "${secrets}" | jq -r '.rpc_endpoint // "https://rpc.akt.dev/rpc"')}"
   export AKASH_GAS_PRICES="$(echo "${secrets}" | jq -r '.gas_prices // "0.025uakt"')"
   export AKASH_GAS="${AKASH_GAS:-auto}"
   export AKASH_GAS_ADJUSTMENT="${AKASH_GAS_ADJUSTMENT:-1.5}"
@@ -73,16 +88,18 @@ configure_akash_auth() {
 
   case "${auth_method}" in
     jwt|keyring)
-      # provider-services v0.10+ uses JWT by default for provider API (AEP-64).
-      # The CLI signs requests with the keyring key and mints short-lived JWTs automatically.
-      import_key_from_mnemonic "${key_name}" "${mnemonic}" "${keyring_backend}"
+      if [[ -n "${mnemonic}" ]]; then
+        import_key_from_mnemonic "${key_name}" "${mnemonic}" "${keyring_backend}"
+      fi
       export AKASH_ACCOUNT_ADDRESS="$(
         provider-services keys show "${key_name}" -a --keyring-backend "${keyring_backend}"
       )"
       log "Auth: ${auth_method} (provider-services auto-JWT enabled)"
       ;;
     mtls)
-      import_key_from_mnemonic "${key_name}" "${mnemonic}" "${keyring_backend}"
+      if [[ -n "${mnemonic}" ]]; then
+        import_key_from_mnemonic "${key_name}" "${mnemonic}" "${keyring_backend}"
+      fi
       export AKASH_ACCOUNT_ADDRESS="$(
         provider-services keys show "${key_name}" -a --keyring-backend "${keyring_backend}"
       )"

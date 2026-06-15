@@ -1,0 +1,3 @@
+# Install provider-services here (not committed):
+#   curl -sfL https://raw.githubusercontent.com/akash-network/provider/main/install.sh | bash
+#   mv bin/provider-services ./bin/

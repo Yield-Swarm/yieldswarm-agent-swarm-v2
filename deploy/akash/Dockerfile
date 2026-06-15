@@ -21,7 +21,11 @@ USER agentswarm
 ENV VAULT_KV_MOUNT=yieldswarm \
     VAULT_SECRET_PATHS=akash,rpc,runpod \
     SECRETS_FILE=/run/secrets/app.env \
+    HEALTH_PORT=8080 \
     PYTHONUNBUFFERED=1
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl -sf "http://127.0.0.1:${HEALTH_PORT}/health" || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python", "agents/akash-optimizer.py"]

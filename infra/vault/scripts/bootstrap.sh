@@ -131,7 +131,7 @@ seed_secret_if_missing "akash" \
   console_api_key="" \
   certificate_path="/secrets/akash/cert.pem" \
   key_path="/secrets/akash/key.pem" \
-  rpc_endpoint="https://rpc.akash.network:443" \
+  rpc_endpoint="https://rpc.akt.dev/rpc" \
   chain_id="akashnet-2" \
   gas_prices="0.025uakt" \
   agentswarm_master_key="REPLACE_ME" \

@@ -1,4 +1,7 @@
-# Secrets and local state — never commit
+# Binaries (install via scripts — do not commit)
+bin/*
+!bin/.gitkeep
+provider-services
 .env
 .env.*
 !.env.example
@@ -13,7 +16,8 @@ override.tf.json
 *_override.tf.json
 
 # Vault runtime artifacts
-vault-token
+deploy/.akash-deployment.json
+/tmp/yieldswarm/
 vault-unseal-keys.txt
 .unseal-keys
 *.role-id

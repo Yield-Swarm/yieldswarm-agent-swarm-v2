@@ -142,6 +142,12 @@ main() {
   inject_secrets
   validate_no_placeholders
 
+  # Background health server for lease monitoring (/health, /healthz)
+  if [[ -n "${HEALTH_PORT:-}" ]]; then
+    log "Starting health server on :${HEALTH_PORT}"
+    python agents/health_server.py &
+  fi
+
   log "Starting workload: $*"
   exec "$@"
 }
