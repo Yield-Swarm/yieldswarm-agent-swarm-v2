@@ -54,7 +54,7 @@ cache {
 }
 
 template {
-  source        = "/etc/vault-agent/templates/agent.env.ctmpl"
+  source        = "/etc/vault-agent/templates/runtime.env.ctmpl"
   destination   = "/run/secrets/agent.env"
   perms         = "0400"
   exec {

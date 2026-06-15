@@ -11,6 +11,8 @@ VAULT_ADDR_ENV = "VAULT_ADDR"
 VAULT_TOKEN_ENV = "VAULT_TOKEN"
 VAULT_ROLE_ID_ENV = "VAULT_ROLE_ID"
 VAULT_SECRET_ID_ENV = "VAULT_SECRET_ID"
+VAULT_WRAPPED_SECRET_ID_ENV = "VAULT_WRAPPED_SECRET_ID"
+VAULT_SECRET_ID_WRAP_TOKEN_ENV = "VAULT_SECRET_ID_WRAP_TOKEN"
 KV_MOUNT_DEFAULT = "yieldswarm"
 
 
@@ -41,6 +43,55 @@ class RuntimeSecrets:
         return os.getenv(key, default)
 
 
+def _unwrap_secret_id(wrap_token: str) -> Optional[str]:
+    """Consume a one-shot response-wrapped SecretID and return the plaintext."""
+    try:
+        import hvac  # type: ignore
+    except ImportError:
+        return None
+
+    addr = os.getenv(VAULT_ADDR_ENV)
+    if not addr or not wrap_token:
+        return None
+
+    client = hvac.Client(url=addr)
+    try:
+        resp = client.sys.unwrap(wrap_token)
+        data = resp.get("data", resp)
+        if isinstance(data, dict):
+            return str(data.get("secret_id") or data.get("secretId") or "")
+    except Exception:
+        return None
+    return None
+
+
+def _approle_login() -> Optional[str]:
+    """Return a Vault token via AppRole, unwrapping SecretID when needed."""
+    role_id = os.getenv(VAULT_ROLE_ID_ENV)
+    secret_id = os.getenv(VAULT_SECRET_ID_ENV)
+    wrap = os.getenv(VAULT_WRAPPED_SECRET_ID_ENV) or os.getenv(VAULT_SECRET_ID_WRAP_TOKEN_ENV)
+    if not secret_id and wrap:
+        secret_id = _unwrap_secret_id(wrap)
+        if secret_id:
+            os.environ[VAULT_SECRET_ID_ENV] = secret_id
+
+    if not role_id or not secret_id:
+        return None
+
+    try:
+        import hvac  # type: ignore
+    except ImportError:
+        return None
+
+    addr = os.getenv(VAULT_ADDR_ENV)
+    if not addr:
+        return None
+
+    client = hvac.Client(url=addr)
+    resp = client.auth.approle.login(role_id=role_id, secret_id=secret_id)
+    return str(resp["auth"]["client_token"])
+
+
 def _vault_available() -> bool:
     return bool(os.getenv(VAULT_ADDR_ENV))
 
@@ -57,16 +108,13 @@ def _read_kv_path(mount: str, path: str) -> dict[str, str]:
 
     client = hvac.Client(url=addr)
     token = os.getenv(VAULT_TOKEN_ENV)
-    role_id = os.getenv(VAULT_ROLE_ID_ENV)
-    secret_id = os.getenv(VAULT_SECRET_ID_ENV)
-
     if token:
         client.token = token
-    elif role_id and secret_id:
-        resp = client.auth.approle.login(role_id=role_id, secret_id=secret_id)
-        client.token = resp["auth"]["client_token"]
     else:
-        return {}
+        token = _approle_login()
+        if not token:
+            return {}
+        client.token = token
 
     try:
         secret = client.secrets.kv.v2.read_secret_version(

@@ -24,6 +24,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # shellcheck source=scripts/lib/vault-env.sh
 source "${SCRIPT_DIR}/lib/vault-env.sh" 2>/dev/null || true
+# shellcheck source=scripts/lib/vault-akash-bootstrap.sh
+source "${SCRIPT_DIR}/lib/vault-akash-bootstrap.sh" 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
 # Configuration (override via deploy/akash.env, deploy/config.env, or .env)
@@ -78,7 +80,12 @@ HEALTH_POLL_INTERVAL="${HEALTH_POLL_INTERVAL:-10}"
 RUN_DIR="${RUN_DIR:-${REPO_ROOT}/.run}"
 STATE_FILE="${STATE_FILE:-${RUN_DIR}/akash-deploy.json}"
 
-# Vault (optional — load Akash key name + RPC from KV before deploy)
+# Vault runtime injection (wrapped SecretID → Akash deployment --env)
+VAULT_INJECT_RUNTIME_SECRETS="${VAULT_INJECT_RUNTIME_SECRETS:-auto}"
+VAULT_AKASH_ROLE="${VAULT_AKASH_ROLE:-akash-runtime}"
+VAULT_WRAP_TTL="${VAULT_WRAP_TTL:-600s}"
+
+# Vault deploy-host config (optional — load Akash wallet/RPC before deploy)
 VAULT_LOAD_AKASH="${VAULT_LOAD_AKASH:-false}"
 VAULT_AKASH_SECRET_PATH="${VAULT_AKASH_SECRET_PATH:-yieldswarm/data/runtime/akash}"
 
@@ -248,10 +255,19 @@ cmd_create_deployment() {
   resolve_owner
   ensure_auth
 
+  local vault_env_args=()
+  if vault_maybe_prepare_for_sdl "$sdl" "${VAULT_AKASH_ROLE}" 2>/dev/null; then
+    while IFS= read -r flag; do
+      [[ -n "$flag" ]] && vault_env_args+=("$flag")
+    done < <(vault_akash_env_flags)
+    vault_write_bootstrap_audit "${RUN_DIR}/vault-akash-bootstrap.json" 2>/dev/null || true
+  fi
+
   log "creating deployment from ${sdl}"
   local out dseq
   out="$(retry "${AKASH_BIN}" tx deployment create "${sdl}" \
     --deposit "${AKASH_DEPOSIT}" \
+    "${vault_env_args[@]}" \
     $(tx_flags))"
 
   dseq="$(printf '%s' "$out" | jq -r '

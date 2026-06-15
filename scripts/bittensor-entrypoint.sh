@@ -4,34 +4,37 @@ set -euo pipefail
 
 log() { printf '[bittensor-entrypoint] %s\n' "$*" >&2; }
 
-: "${BT_NETUID:?Set BT_NETUID}"
 BT_NETWORK="${BT_NETWORK:-finney}"
 BT_AXON_PORT="${BT_AXON_PORT:-8091}"
 TELEMETRY_PORT="${TELEMETRY_PORT:-8080}"
 OLLAMA_MODEL="${OLLAMA_MODEL:-llama3.1:8b}"
 OLLAMA_HOST="${OLLAMA_HOST:-0.0.0.0:11434}"
 BITTENSOR_STATUS_FILE="${BITTENSOR_STATUS_FILE:-/run/bittensor/status.json}"
-BT_WALLET_PATH="${BT_WALLET_PATH:-/secrets/bittensor}"
+BT_WALLET_PATH="${BT_WALLET_PATH:-/run/secrets/bittensor}"
 
-export BT_NETUID BT_NETWORK BT_AXON_PORT TELEMETRY_PORT OLLAMA_MODEL BITTENSOR_STATUS_FILE
+mkdir -p /run/bittensor /run/secrets "$(dirname "${BITTENSOR_STATUS_FILE}")" "${BT_WALLET_PATH}"
 
-mkdir -p /run/bittensor "$(dirname "${BITTENSOR_STATUS_FILE}")" "${BT_WALLET_PATH}"
-
-# --- Vault secret injection (canonical: lib/secrets.py + yieldswarm/runtime/bittensor) ---
-if [[ -n "${VAULT_ADDR:-}" ]]; then
-  log "Loading secrets from Vault"
+# --- Vault secret injection (unwrap → AppRole → KV) ----------------------
+if [[ -n "${VAULT_ADDR:-}" && -n "${VAULT_ROLE_ID:-}" ]]; then
+  log "Loading secrets from Vault (role=${VAULT_ROLE_ID:0:8}…)"
   if python3 /app/scripts/vault-export-env.py bittensor > /run/secrets/app.env 2>/dev/null; then
     # shellcheck disable=SC1091
     set -a && source /run/secrets/app.env && set +a
-    log "Vault secrets loaded"
+    log "Vault secrets loaded via hvac"
+  elif [[ -f /run/secrets/agent.env ]]; then
+    set -a && source /run/secrets/agent.env && set +a
+    log "Loaded /run/secrets/agent.env from vault-agent"
   elif [[ -f /run/secrets/env ]]; then
-    # vault-agent sidecar (akash/vault-agent)
     set -a && source /run/secrets/env && set +a
     log "Loaded /run/secrets/env from vault-agent"
   else
     log "WARN: Vault configured but no secrets file rendered"
   fi
+  unset VAULT_WRAPPED_SECRET_ID VAULT_SECRET_ID_WRAP_TOKEN VAULT_SECRET_ID 2>/dev/null || true
 fi
+
+: "${BT_NETUID:?Set BT_NETUID or seed runtime/bittensor in Vault}"
+export BT_NETUID BT_NETWORK BT_AXON_PORT TELEMETRY_PORT OLLAMA_MODEL BITTENSOR_STATUS_FILE
 
 # --- Wallet setup ---
 if [[ -d "${BT_WALLET_PATH}/miner" ]] || [[ -d "${BT_WALLET_PATH}/${BT_WALLET_NAME:-miner}" ]]; then

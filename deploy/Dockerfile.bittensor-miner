@@ -19,7 +19,7 @@ COPY deploy/requirements-bittensor.txt /tmp/requirements-bittensor.txt
 
 RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/requirements-bittensor.txt \
     && chmod 755 /app/scripts/bittensor-entrypoint.sh \
-    && mkdir -p /run/bittensor /secrets/bittensor /root/.ollama
+    && mkdir -p /run/bittensor /run/secrets /root/.ollama
 
 ENV TELEMETRY_PORT=8080 \
     BT_AXON_PORT=8091 \

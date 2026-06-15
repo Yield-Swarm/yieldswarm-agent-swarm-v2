@@ -48,6 +48,8 @@ services:
       - VAULT_ROLE_ID
       - VAULT_WRAPPED_SECRET_ID
       - AGENT_SHARD_ID
+      - VAULT_AGENT_CONFIG=/etc/vault-agent/vault-agent.hcl
+      - AGENT_ENV_FILE=/run/secrets/agent.env
 
       # ---- Non-sensitive workload tuning ------------------------------
       - LOG_LEVEL=INFO
