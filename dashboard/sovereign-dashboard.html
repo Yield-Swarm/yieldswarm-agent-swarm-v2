@@ -227,8 +227,8 @@
   </section>
 
   <div class="footer">
-    Iteration 100 — sovereign self-governed core. Data: <code>dashboard/state.json</code>
-    (regenerate with <code>python3 iteration-100/run.py</code>). Auto-refreshes every 4s.
+    Iteration 100 — sovereign self-governed core. Live: <code>/api/sovereign/state</code>
+    · static fallback: <code>dashboard/state.json</code>. Auto-refreshes every 4s.
     <span id="updated"></span>
   </div>
 </main>
@@ -243,28 +243,28 @@ let history = [];
 
 async function load() {
   let data;
+  const liveApi = window.YIELDSWARM_CONFIG?.sovereignStateUrl || "/api/sovereign/state";
   try {
-    const apiBase = window.YIELDSWARM_SOVEREIGN_API || "/api/sovereign/overview";
-    const res = await fetch(apiBase + "?_=" + Date.now(), { cache: "no-store" });
-    if (res.ok) {
-      const live = await res.json();
-      data = live.sovereignState || live;
-      if (live.vaultUsd) data.net_worth_usd = live.vaultUsd;
-    } else {
-      throw new Error("API unavailable");
-    }
-    $("error").innerHTML = "";
-  } catch (e) {
-    try {
-      const res = await fetch("state.json?_=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      data = await res.json();
+    const liveRes = await fetch(liveApi + "?_=" + Date.now(), { cache: "no-store" });
+    if (liveRes.ok) {
+      data = await liveRes.json();
       $("error").innerHTML = "";
-    } catch (e2) {
-      $("error").innerHTML = '<div class="err">Could not load sovereign data ('
-        + e2.message + '). Run backend on :8787 or <code>python3 iteration-100/run.py</code>.</div>';
+      render(data);
       return;
     }
+  } catch (_) { /* fall through to static state.json */ }
+
+  try {
+    const res = await fetch("state.json?_=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    data = await res.json();
+    $("error").innerHTML = "";
+  } catch (e) {
+    $("error").innerHTML = '<div class="err">Could not load sovereign state. '
+      + 'Start the integration backend (<code>cd backend && npm start</code>) for live data at '
+      + '<code>/api/sovereign/state</code>, or run <code>python3 iteration-100/run.py</code> '
+      + 'to generate <code>state.json</code>. (' + e.message + ')</div>';
+    return;
   }
   render(data);
 }

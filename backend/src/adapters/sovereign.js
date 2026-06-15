@@ -1,50 +1,73 @@
 /**
- * Sovereign $5M vault telemetry — reads iteration-100 state + live adapters.
+ * Sovereign state API — merges simulation state with live telemetry overlays.
  */
 
-import { readFile } from 'node:fs/promises';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import config from '../config.js';
 import * as akash from '../adapters/akash.js';
-import * as treasury from '../adapters/treasury.js';
 import * as emission from '../adapters/emissionRouter.js';
+import * as treasury from '../adapters/treasury.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
-const STATE_PATH = path.join(repoRoot, 'dashboard', 'state.json');
-const TARGET_USD = 5_000_000;
+const statePath = path.join(repoRoot, 'dashboard', 'state.json');
 
-async function loadSovereignState() {
+export async function getSovereignState() {
+  let base;
   try {
-    const raw = await readFile(STATE_PATH, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    return { net_worth_usd: 0, progress: 0, blended_apy: 0.08 };
+    const raw = await fs.readFile(statePath, 'utf8');
+    base = JSON.parse(raw);
+  } catch (err) {
+    base = {
+      tick: 0,
+      vault_usd: 0,
+      vault_target_usd: 5_000_000,
+      treasury_usd: 0,
+      net_worth_usd: 0,
+      progress: 0,
+      target_apy: 0.3,
+      blended_apy: 0,
+      counts: { workers: 0, agents: 0 },
+      events: [],
+      history: [],
+      updated_at: Date.now() / 1000,
+    };
   }
-}
 
-export async function getSovereignOverview() {
-  const [workers, splits, emissions, state] = await Promise.all([
+  const [workers, emissions, treasurySplits] = await Promise.all([
     akash.getWorkers(),
-    treasury.getTreasurySplits(),
     emission.getEmissions(),
-    loadSovereignState(),
+    treasury.getTreasurySplits(),
   ]);
 
-  const vaultUsd = Number(state.net_worth_usd ?? state.vault_usd ?? 0);
-  const progress = Math.min(100, (vaultUsd / TARGET_USD) * 100);
+  const liveWorkers = workers.workers?.length ?? 0;
+  const activeWorkers = workers.workers?.filter((w) =>
+    ['active', 'running'].includes(String(w.state || w.status || '').toLowerCase()),
+  ).length ?? 0;
 
   return {
-    generatedAt: new Date().toISOString(),
-    targetUsd: TARGET_USD,
-    vaultUsd,
-    progressPercent: progress,
-    blendedApy: state.blended_apy ?? 0,
-    projected90d: vaultUsd * (1 + (state.blended_apy ?? 0.08) * 0.25),
-    sovereignState: state,
-    akash: workers,
-    treasury: splits,
-    emissionRouter: emissions,
-    live: workers.live || splits.live,
+    ...base,
+    live_overlay: {
+      akash: { connected: workers.live, source: workers.source, workers: liveWorkers, active: activeWorkers },
+      emission: { connected: emissions.live, source: emissions.source, perEpoch: emissions.emissionPerEpoch },
+      treasury: { connected: treasurySplits.live, source: treasurySplits.source, totalSol: treasurySplits.totalSol },
+      generatedAt: new Date().toISOString(),
+    },
+    // Enrich counts when live Akash data is available
+    counts: {
+      ...(base.counts || {}),
+      workers: workers.live ? liveWorkers : (base.counts?.workers ?? 0),
+      active_workers: workers.live ? activeWorkers : (base.counts?.active_workers ?? 0),
+    },
+    fleet_net_hourly_usd: workers.live
+      ? Number((workers.workers || []).reduce((s, w) => s + (w.netHourlyUsd || 0), 0).toFixed(2))
+      : base.fleet_net_hourly_usd,
+    progress: base.vault_target_usd
+      ? Math.min(1, (base.net_worth_usd || 0) / base.vault_target_usd)
+      : base.progress,
   };
 }
+
+export default { getSovereignState };

@@ -14,8 +14,6 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import config from './config.js';
 import apiRouter from './routes/api.js';
-import kairoRouter from './routes/kairo.js';
-import sovereignRouter from './routes/sovereign.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -34,15 +32,11 @@ app.use((req, res, next) => {
 });
 
 app.use('/api', apiRouter);
-app.use('/api/kairo', kairoRouter);
-app.use('/api/sovereign', sovereignRouter);
 
-// Kairo + vault dashboards
-app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
-app.use('/kairo-app', express.static(path.join(repoRoot, 'kairo', 'app')));
+// ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------
 app.use('/dashboard', express.static(path.join(repoRoot, 'dashboard')));
-app.get('/vault-dashboard', (_req, res) =>
-  res.sendFile(path.join(repoRoot, 'dashboard', 'sovereign-dashboard.html')),
+app.get('/vault', (_req, res) =>
+  res.redirect('/dashboard/sovereign-dashboard.html'),
 );
 
 // ---- Frontends -----------------------------------------------------------
@@ -72,9 +66,8 @@ const server = app.listen(config.port, config.host, () => {
     `[yieldswarm] integration server listening on http://${config.host}:${config.port}\n` +
       `  Portal:  /portal/\n` +
       `  Arena:   /arena/\n` +
-      `  API:     /api/arena/overview\n` +
-      `  Kairo:   /kairo/  /kairo-app/  /api/kairo/*\n` +
-      `  Vault:   /vault-dashboard  /api/sovereign/overview`,
+      `  Vault:   /dashboard/sovereign-dashboard.html\n` +
+      `  API:     /api/arena/overview`,
   );
 });
 

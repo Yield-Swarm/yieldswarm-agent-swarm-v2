@@ -57,13 +57,12 @@ export const config = {
     enabled: bool(process.env.SOLANA_ENABLED, true),
   },
 
-  // Treasury split policy (basis points). Used to project on-chain balance into
-  // destination buckets when the on-chain split config is not directly readable.
+  // Great Delta Emission Router split (50/30/15/5) — matches GreatDeltaEmissionRouter.sol
   treasurySplitsBps: {
-    operations: int(process.env.SPLIT_OPERATIONS_BPS, 2000), // 20%
-    stakers: int(process.env.SPLIT_STAKERS_BPS, 3500), // 35%
-    buyback: int(process.env.SPLIT_BUYBACK_BPS, 2500), // 25%
-    treasuryReserve: int(process.env.SPLIT_RESERVE_BPS, 2000), // 20%
+    coreTreasury: int(process.env.SPLIT_CORE_BPS, 5000),       // 50%
+    growthTreasury: int(process.env.SPLIT_GROWTH_BPS, 3000),   // 30%
+    insuranceTreasury: int(process.env.SPLIT_INSURANCE_BPS, 1500), // 15%
+    opsTreasury: int(process.env.SPLIT_OPS_BPS, 500),          // 5%
   },
 
   // Agent fleet sizing (mirrors .env.example defaults) used for the leaderboard.
