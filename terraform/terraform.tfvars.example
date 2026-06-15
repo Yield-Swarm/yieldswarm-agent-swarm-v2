@@ -1,0 +1,15 @@
+# Copy to terraform.tfvars and fill AppRole credentials from your CI secret store.
+# NEVER commit terraform.tfvars with real secret_id values.
+
+environment = "prod"
+project_name = "yieldswarm"
+
+# vault_address           = "https://vault.yieldswarm.internal:8200"
+# vault_skip_tls_verify  = false
+# vault_approle_role_id  = "..."
+# vault_approle_secret_id = "..."
+
+azure_create_resource_group = false
+do_create_droplet           = false
+vultr_create_instance       = false
+runpod_create_pod           = false

@@ -1,0 +1,32 @@
+# Secrets and local state — never commit
+.env
+.env.*
+!.env.example
+*.auto.tfvars
+terraform.tfstate
+terraform.tfstate.*
+.terraform/
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Vault runtime artifacts
+vault-token
+vault-unseal-keys.txt
+.unseal-keys
+*.role-id
+*.secret-id
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
