@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "eta-yield",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-085",
+  "metal_skin": "mythril-alloy",
+  "mutation_affinity": 0.69,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "southeast"
+}
