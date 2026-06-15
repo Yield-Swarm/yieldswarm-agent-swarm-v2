@@ -12,14 +12,15 @@ Unstoppable Domains integration
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
 
 ## Setup
-1. Copy .env.example to .env
-2. Fill in values securely
-3. Deploy to Vercel or Azure
-4. Wire Unstoppable Domains via Cloudflare nameservers
+1. Bootstrap HashiCorp Vault and load secrets with `SECRETS.md`
+2. Run Terraform from `infra/terraform` so Azure, RunPod, Vultr, DigitalOcean, and RPC credentials are read from Vault
+3. Build the Akash image from `docker/akash/Dockerfile`
+4. Render `deploy/akash/deploy.tpl.yml` with a one-use wrapped Vault SecretID and deploy to Akash
+5. Wire Unstoppable Domains via Cloudflare nameservers
 
 ## Business
 Wise: cbrown03777@gmail.com
-UD API Key included in .env.example
+UD API keys and all runtime secrets are stored in Vault.
 
 ## Next
-Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+Follow `SECRETS.md` to rotate secrets and deploy without committing credentials.

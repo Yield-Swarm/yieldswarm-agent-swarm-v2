@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+
+# Terraform local state and plans can contain secret-derived values.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+
+# Rendered Akash manifests may contain short-lived wrapped Vault tokens.
+deploy/akash/deploy.yml
+deploy/akash/*.rendered.yml

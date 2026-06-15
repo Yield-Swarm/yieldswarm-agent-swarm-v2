@@ -1,0 +1,48 @@
+---
+version: "2.0"
+
+services:
+  agentswarm:
+    image: "${AKASH_IMAGE}"
+    command:
+      - python
+      - /app/agents/akash-optimizer.py
+    env:
+      - "VAULT_ADDR=${VAULT_ADDR}"
+      - "VAULT_NAMESPACE=${VAULT_NAMESPACE}"
+      - "VAULT_AUTH_MOUNT=${VAULT_AUTH_MOUNT}"
+      - "VAULT_KV_MOUNT=${VAULT_KV_MOUNT}"
+      - "VAULT_ROLE_ID=${VAULT_ROLE_ID}"
+      - "VAULT_WRAPPED_SECRET_ID=${AKASH_VAULT_WRAPPED_SECRET_ID}"
+      - "AKASH_VAULT_SECRET_PATHS=${AKASH_VAULT_SECRET_PATHS}"
+      - "VAULT_CONNECT_TIMEOUT=${VAULT_CONNECT_TIMEOUT}"
+      - "VAULT_MAX_TIME=${VAULT_MAX_TIME}"
+      - "LOG_LEVEL=${LOG_LEVEL}"
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: ${AKASH_CPU_UNITS}
+        memory:
+          size: ${AKASH_MEMORY_SIZE}
+        storage:
+          size: ${AKASH_STORAGE_SIZE}
+  placement:
+    dcloud:
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: ${AKASH_BID_PRICE_UAKT}
+
+deployment:
+  agentswarm:
+    dcloud:
+      profile: agentswarm
+      count: ${AKASH_REPLICA_COUNT}
