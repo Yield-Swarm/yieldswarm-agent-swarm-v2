@@ -1,0 +1,74 @@
+---
+# Light integration API on Akash — Arena telemetry, sovereign state, treasury.
+# Image: ghcr.io/yield-swarm/yieldswarm-backend (build from backend/)
+# Deploy: ./scripts/deploy-production.sh akash-backend
+version: "2.0"
+
+services:
+  api:
+    image: ${BACKEND_IMAGE}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - NODE_ENV=production
+      - PORT=8080
+      - HOST=0.0.0.0
+      # Vault bootstrap (values from deployment create --env)
+      - VAULT_ADDR
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - AGENT_SHARD_ID
+      - VAULT_AGENT_CONFIG=/etc/vault-agent/vault-agent.hcl
+      - AGENT_ENV_FILE=/run/secrets/agent.env
+    params:
+      storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
+    readiness_probe:
+      http_get:
+        path: /api/health
+        port: 8080
+      initial_delay_seconds: 15
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 4
+    liveness_probe:
+      http_get:
+        path: /api/health
+        port: 8080
+      initial_delay_seconds: 30
+      period_seconds: 15
+      timeout_seconds: 5
+      failure_threshold: 4
+
+profiles:
+  compute:
+    api:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 1Gi
+        storage:
+          - name: secrets
+            size: 8Mi
+            attributes:
+              persistent: false
+              class: ram
+          - size: 2Gi
+  placement:
+    akash:
+      pricing:
+        api:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  api:
+    akash:
+      profile: api
+      count: 1

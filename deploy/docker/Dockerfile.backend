@@ -1,0 +1,22 @@
+# YieldSwarm integration backend — Node API for Arena / sovereign telemetry
+FROM node:20-alpine
+
+RUN apk add --no-cache curl python3 py3-pip \
+ && pip3 install --break-system-packages hvac 2>/dev/null || pip3 install hvac
+
+WORKDIR /app
+COPY backend/package.json backend/package-lock.json ./
+RUN npm ci --omit=dev
+COPY backend/src ./src
+COPY lib ./lib
+COPY scripts/vault-export-env.py scripts/backend-entrypoint.sh ./scripts/
+RUN chmod +x /app/scripts/backend-entrypoint.sh
+
+ENV NODE_ENV=production PORT=8080 HOST=0.0.0.0
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:8080/api/health || exit 1
+
+ENTRYPOINT ["/app/scripts/backend-entrypoint.sh"]
+CMD ["node", "src/server.js"]
