@@ -193,6 +193,19 @@ Example route request:
 }
 ```
 
+## Frontend workspaces
+- Arena: `frontend/arena/index.html` provides a unified telemetry dashboard for Akash workers and the Odysseus agent/memory system.
+- Portal: `frontend/portal/index.html` embeds or links the Odysseus workspace for advanced agent interaction and deep research.
+- Shared modules in `frontend/shared/` resolve runtime config, request a YieldSwarm session, create Odysseus SSO handoff URLs, and normalize telemetry feeds.
+
+### Required backend contracts
+- `GET ${AKASH_TELEMETRY_URL:-/api/telemetry/akash}` returns Akash worker, lease, deployment, or node metrics.
+- `GET ${ODYSSEUS_TELEMETRY_URL:-/api/telemetry/odysseus}` returns Odysseus agents, research queue, and memory/vector metrics.
+- `GET ${YIELDSWARM_AUTH_SESSION_URL:-/api/auth/session}` returns the current YieldSwarm session when a user is signed in.
+- `POST ${YIELDSWARM_AUTH_HANDOFF_URL:-/api/auth/odysseus/handoff}` returns either `redirectUrl` or a short-lived `handoffToken`/`sessionId` accepted by Odysseus.
+
+Set matching meta tags or `window.YIELDSWARM_CONFIG` values when these endpoints are hosted somewhere other than the same origin.
+
 ## Business
 Wise: cbrown03777@gmail.com
 UD API Key included in .env.example

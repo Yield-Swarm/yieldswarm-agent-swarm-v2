@@ -1,41 +1,9 @@
 {
-  "name": "yieldswarm-payments",
-  "version": "1.0.0",
+  "name": "yieldswarm-agentswarm-os",
+  "version": "2.0.0",
   "private": true,
-  "description": "YieldSwarm payment rails: Square + Wise fiat plus unified Web3 (EVM/Solana/TON) on/off ramps",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "@solana/web3.js": "^1.95.3",
-    "@tonconnect/sdk": "^3.0.5",
-    "@tonconnect/ui-react": "^2.0.9",
-    "ethers": "^6.13.2",
-    "next": "14.2.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "square": "^37.0.0",
-    "viem": "^2.21.1",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@types/node": "^20.14.10",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.19",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.5",
-    "postcss": "^8.4.39",
-    "tailwindcss": "^3.4.6",
-    "typescript": "^5.5.3",
-    "vitest": "^2.0.5"
-  },
-  "engines": {
-    "node": ">=18.18.0"
+    "test": "node --test frontend/tests/*.test.js"
   }
 }

@@ -1,98 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YieldSwarm Portal</title>
-  <meta name="description" content="YieldSwarm Portal — gateway to the Arena live telemetry dashboard, council status, marketplace, and sales." />
-  <style>
-    :root { --bg:#07090d; --panel:#10141c; --border:#232c3b; --text:#e7edf5; --muted:#8a97ab; --accent:#25e6a5; --accent2:#4aa8ff; --bad:#ff5d6c; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,sans-serif; background:radial-gradient(1200px 600px at 50% -10%, #11202b 0%, var(--bg) 55%); color:var(--text); min-height:100vh; }
-    header { text-align:center; padding:54px 20px 24px; }
-    .logo { font-size:40px; color:var(--accent); filter:drop-shadow(0 0 12px rgba(37,230,165,.6)); }
-    h1 { margin:10px 0 6px; font-size:30px; letter-spacing:.4px; }
-    .tag { color:var(--muted); margin:0; font-size:14px; }
-    .status-line { margin-top:16px; display:inline-flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); border:1px solid var(--border); padding:8px 16px; border-radius:999px; }
-    .dot { width:9px; height:9px; border-radius:50%; background:var(--muted); }
-    .dot.ok { background:var(--accent); box-shadow:0 0 8px var(--accent); }
-    .dot.bad { background:var(--bad); box-shadow:0 0 8px var(--bad); }
-    main { max-width:1040px; margin:0 auto; padding:20px 24px 70px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px; }
-    a.card { display:block; text-decoration:none; color:var(--text); background:linear-gradient(180deg,var(--panel),#161c27); border:1px solid var(--border); border-radius:16px; padding:22px; transition:transform .12s ease, border-color .12s ease; }
-    a.card:hover { transform:translateY(-3px); border-color:var(--accent2); }
-    a.card.primary { border-color:var(--accent); }
-    .card h2 { margin:0 0 8px; font-size:17px; }
-    .card p { margin:0; color:var(--muted); font-size:13px; line-height:1.5; }
-    .chip { display:inline-block; margin-top:14px; font-size:11px; color:var(--accent2); border:1px solid var(--border); border-radius:999px; padding:4px 10px; }
-    .chip.live { color:var(--accent); border-color:var(--accent); }
-    footer { text-align:center; color:var(--muted); font-size:12px; padding:20px; border-top:1px solid var(--border); }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="logo">◆</div>
-    <h1>YieldSwarm Portal</h1>
-    <p class="tag">10,080 agents · 120 crons · Akash compute + on-chain $APN telemetry</p>
-    <div class="status-line"><span id="dot" class="dot"></span><span id="status-text">checking integration backend…</span></div>
-  </header>
-
-  <main>
-    <div class="grid">
-      <a class="card primary" href="/arena/">
-        <h2>Arena Dashboard →</h2>
-        <p>Live telemetry fused from Akash workers and on-chain sources: emission router, treasury splits, and the agent leaderboard.</p>
-        <span class="chip live" id="arena-chip">live data</span>
-      </a>
-      <a class="card" href="/council/status">
-        <h2>Council Status →</h2>
-        <p>DAO consensus council status, Akash hardware health, crons, and Helix Chain receipts.</p>
-        <span class="chip">governance</span>
-      </a>
-      <a class="card" href="/marketplace">
-        <h2>Marketplace →</h2>
-        <p>5-tier DePIN hardware marketplace with NFT license keys unlocking API access.</p>
-        <span class="chip">revenue</span>
-      </a>
-      <a class="card" href="/sales">
-        <h2>Z15 Sales →</h2>
-        <p>Antminer Z15 Pro bundles, mobile-optimized checkout, swarm optimization included.</p>
-        <span class="chip">revenue</span>
-      </a>
-      <a class="card" href="/api/arena/overview">
-        <h2>Telemetry API →</h2>
-        <p>Raw aggregated JSON powering the Arena dashboard. Per-source connection health included.</p>
-        <span class="chip">api</span>
-      </a>
-      <a class="card" href="/api/health">
-        <h2>Health Check →</h2>
-        <p>Upstream connectivity for Akash REST and Solana RPC. Used for monitoring/alerts.</p>
-        <span class="chip">ops</span>
-      </a>
-    </div>
-  </main>
-
-  <footer>YieldSwarm AgentSwarm OS v2.0 · Portal</footer>
-
-  <script>
-    async function checkHealth() {
-      const dot = document.getElementById('dot');
-      const text = document.getElementById('status-text');
-      try {
-        const res = await fetch('/api/health', { cache: 'no-store' });
-        const data = await res.json();
-        const ak = data.upstreams?.akash?.live;
-        const sol = data.upstreams?.solana?.live;
-        const liveCount = [ak, sol].filter(Boolean).length;
-        dot.className = 'dot ' + (data.status === 'ok' ? 'ok' : 'bad');
-        text.textContent = `backend ${data.status} · upstreams live: ${liveCount}/2 (Akash ${ak ? 'up' : 'fallback'}, Solana ${sol ? 'up' : 'fallback'})`;
-      } catch (e) {
-        dot.className = 'dot bad';
-        text.textContent = 'integration backend offline — start it with: npm start (in /backend)';
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YieldSwarm Portal | Odysseus Workspace</title>
+    <meta
+      name="description"
+      content="Portal shell for embedded or linked Odysseus advanced agent interaction and deep research."
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #060611;
+        --panel: #101324;
+        --panel-2: #171b31;
+        --text: #f8fbff;
+        --muted: #9aa9c4;
+        --accent: #8b5cf6;
+        --accent-2: #36f4a4;
+        --error: #fb7185;
+        --border: rgba(255, 255, 255, 0.12);
       }
-    }
-    checkHealth();
-    setInterval(checkHealth, 15000);
-  </script>
-</body>
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top right, rgba(139, 92, 246, 0.24), transparent 28rem),
+          radial-gradient(circle at bottom left, rgba(54, 244, 164, 0.14), transparent 30rem),
+          var(--bg);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      a {
+        color: var(--accent-2);
+      }
+
+      .shell {
+        width: min(1220px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar,
+      .hero,
+      .card,
+      .workspace-frame,
+      .status-strip {
+        border: 1px solid var(--border);
+        background: rgba(16, 19, 36, 0.88);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(18px);
+      }
+
+      .topbar {
+        position: sticky;
+        top: 16px;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        border-radius: 999px;
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        display: inline-grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        gap: 24px;
+        margin: 30px 0 18px;
+        padding: clamp(24px, 4vw, 48px);
+        border-radius: 28px;
+      }
+
+      .hero h1 {
+        margin: 0 0 16px;
+        font-size: clamp(2.1rem, 6vw, 4.8rem);
+        line-height: 0.96;
+      }
+
+      .hero p,
+      .card p,
+      .status-strip {
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      button,
+      .button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 18px;
+        background: var(--accent-2);
+        color: #00150c;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .button.secondary {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .card,
+      .status-strip {
+        border-radius: 22px;
+        padding: 20px;
+      }
+
+      .card h2,
+      .card h3 {
+        margin-top: 0;
+      }
+
+      .status-strip {
+        margin: 18px 0;
+      }
+
+      [data-state="ready"] {
+        color: var(--accent-2);
+      }
+
+      [data-state="error"] {
+        color: var(--error);
+      }
+
+      .workspace-frame {
+        width: 100%;
+        min-height: 680px;
+        border-radius: 28px;
+      }
+
+      .workspace-frame[hidden] {
+        display: none;
+      }
+
+      @media (max-width: 860px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">O</span> Portal</div>
+        <nav>
+          <a href="../arena/">Arena</a>
+          <a href="../../README.md">Docs</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div>
+          <h1>Odysseus deep research inside YieldSwarm Portal.</h1>
+          <p>
+            Launch advanced agent interaction, long-horizon research, and memory exploration from the same authenticated
+            workspace used by Arena telemetry.
+          </p>
+          <div class="actions">
+            <button type="button" data-open-embedded>Embed Odysseus workspace</button>
+            <a class="button secondary" href="/odysseus" data-open-external>Open linked workspace</a>
+          </div>
+        </div>
+
+        <aside class="card">
+          <h2>Shared auth</h2>
+          <p data-session-summary>Checking YieldSwarm session...</p>
+          <p>
+            Portal requests a short-lived Odysseus handoff token through
+            <code>/api/auth/odysseus/handoff</code> and keeps cookies credentialed for same-domain SSO.
+          </p>
+        </aside>
+      </section>
+
+      <section class="card-grid" aria-label="Odysseus integration features">
+        <article class="card">
+          <h3>Embedded workspace</h3>
+          <p>Use an iframe when Odysseus allows YieldSwarm as a frame ancestor.</p>
+        </article>
+        <article class="card">
+          <h3>Linked workspace</h3>
+          <p>Open Odysseus in a new tab with the same SSO handoff if embedding is disabled.</p>
+        </article>
+        <article class="card">
+          <h3>Memory-aware Arena</h3>
+          <p>Arena pulls Odysseus memory counts, vector index depth, and research queue health.</p>
+        </article>
+      </section>
+
+      <section class="status-strip" aria-live="polite">
+        Status: <strong data-portal-status data-state="loading">Waiting for workspace launch.</strong>
+      </section>
+
+      <iframe
+        class="workspace-frame"
+        title="Odysseus advanced agent workspace"
+        data-odysseus-frame
+        hidden
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="clipboard-read; clipboard-write; fullscreen"
+      ></iframe>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
 </html>
