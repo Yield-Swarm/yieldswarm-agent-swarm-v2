@@ -17,6 +17,19 @@ Unstoppable Domains integration
 3. Deploy to Vercel or Azure
 4. Wire Unstoppable Domains via Cloudflare nameservers
 
+## Secrets / Vault / Terraform / Akash
+All production secret management lives in **[SECRETS.md](SECRETS.md)**. The
+short version:
+
+- `vault/`     — Vault policies + bootstrap and seed scripts.
+- `terraform/` — Modules for Azure, RunPod, Vultr, DigitalOcean, RPC. All
+  credentials are read from Vault via AppRole.
+- `akash/`     — Dockerfile, `entrypoint.sh`, `vault-agent/`, and `deploy.yaml`.
+  Secrets are injected into the running container at runtime — never baked
+  into the image and never inlined in the SDL.
+
+Never commit real values to `.env` or `terraform.tfvars`.
+
 ## Business
 Wise: cbrown03777@gmail.com
 UD API Key included in .env.example
