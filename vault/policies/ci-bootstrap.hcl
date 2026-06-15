@@ -31,6 +31,33 @@ path "auth/approle/role/akash-runtime/role-id" {
   capabilities = ["read"]
 }
 
+path "auth/approle/role/integration-backend/secret-id" {
+  capabilities = ["update"]
+  min_wrapping_ttl    = "60s"
+  max_wrapping_ttl    = "600s"
+}
+path "auth/approle/role/integration-backend/role-id" {
+  capabilities = ["read"]
+}
+
+path "auth/approle/role/bittensor-runtime/secret-id" {
+  capabilities = ["update"]
+  min_wrapping_ttl    = "60s"
+  max_wrapping_ttl    = "600s"
+}
+path "auth/approle/role/bittensor-runtime/role-id" {
+  capabilities = ["read"]
+}
+
+path "auth/approle/role/odysseus-runtime/secret-id" {
+  capabilities = ["update"]
+  min_wrapping_ttl    = "60s"
+  max_wrapping_ttl    = "600s"
+}
+path "auth/approle/role/odysseus-runtime/role-id" {
+  capabilities = ["read"]
+}
+
 # Lookup own token only (so CI can renew/inspect itself)
 path "auth/token/lookup-self" {
   capabilities = ["read"]

@@ -6,6 +6,8 @@ Deploy YieldSwarm workers to Akash Network using `provider-services` with
 **Script:** `scripts/deploy-to-akash.sh`  
 **SDL:** `deploy/deploy-swarm-monolith.yaml` (3× RTX 3090)
 
+**Vault + SDL catalog:** [`docs/VAULT_AKASH_DEPLOY.md`](VAULT_AKASH_DEPLOY.md) — backend, Bittensor miner, Odysseus render-time secrets.
+
 ---
 
 ## Quick start

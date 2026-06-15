@@ -12,6 +12,10 @@ path "yieldswarm/data/akash/runtime" {
   capabilities = ["read"]
 }
 
+path "yieldswarm/data/runtime/+" {
+  capabilities = ["read"]
+}
+
 # Per-shard agent fan-out (read only the shard your DSEQ owns)
 path "yieldswarm/data/agents/shards/+" {
   capabilities = ["read"]
