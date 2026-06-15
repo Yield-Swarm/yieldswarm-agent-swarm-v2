@@ -104,6 +104,25 @@
 
 Run via: `scripts/merge-swarm.sh` (or merge the integration PR).
 
+### Promote to main (after validation on development)
+
+```bash
+# From a clean development branch:
+bash scripts/merge-to-main.sh
+
+# Or manually:
+git checkout main && git merge origin/development --no-edit
+git push origin main
+
+# Create/sync environment branches from main:
+for b in development testnet devnets production MAINNET; do
+  git checkout -B "$b" main && git push -u origin "$b"
+done
+```
+
+Enable branch protection on `main`, `testnet`, `devnets`, `production`, and `MAINNET`
+before the first merge to `main`.
+
 ### Known Conflict Resolutions
 
 | File | Resolution |
@@ -162,16 +181,16 @@ development → testnet → production → MAINNET
 
 ---
 
-## Kairo Integration (Future)
+## Kairo Integration
 
-Kairo (driver-first marketplace) should live **in this monorepo** under `kairo/` to share:
+Kairo (driver-first marketplace) lives in **`kairo/`** and shares:
 
 - `frontend/src/wallet` — unified wallet layer
-- `src/lib/payments` / payment rails — Square, Wise, Web3
-- Vault secret injection patterns
-- DePIN telemetry pipeline → Mandelbrot / Tree of Life
+- `src/lib/payments` / `src/lib/kairo/fees.ts` — Square, Wise, Web3 + 1%/2× fees
+- Vault secret injection (`vault/policies/kairo-runtime.hcl`)
+- DePIN telemetry pipeline → Mandelbrot / Tree of Life (`kairo/backend/mandelbrot.py`)
 
-Recommended path: scaffold `kairo/` on `development` after this merge lands on `main`.
+See `KAIRO_FRONTEND.md` for deploy instructions.
 
 ---
 

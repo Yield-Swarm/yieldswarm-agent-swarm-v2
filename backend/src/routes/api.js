@@ -44,6 +44,37 @@ router.get('/akash/workers', asyncRoute(async (_req, res) => {
   res.json(data);
 }));
 
+/** Alias consumed by frontend/shared/telemetry.js (Arena static dashboard). */
+router.get('/telemetry/akash', asyncRoute(async (_req, res) => {
+  const data = await cache.get('akash:workers', () => akash.getWorkers());
+  res.json({ ...data, source: data.source || 'akash', updatedAt: new Date().toISOString() });
+}));
+
+/** Odysseus agent/memory telemetry — aggregates arena overview when live mesh unavailable. */
+router.get('/telemetry/odysseus', asyncRoute(async (_req, res) => {
+  const [board, emissions] = await Promise.all([
+    cache.get('telemetry:leaderboard:default', () => leaderboard.getLeaderboard({ limit: 25 })),
+    cache.get('telemetry:emission', () => emission.getEmissions()),
+  ]);
+  const agents = (board.entries || board.leaderboard || []).map((entry, i) => ({
+    id: entry.address || entry.agentId || `agent-${i + 1}`,
+    name: entry.label || entry.name || `Odysseus agent ${i + 1}`,
+    status: board.live ? 'active' : 'degraded',
+    memoryItems: entry.score || entry.balance || 0,
+    vectorCount: Math.floor((entry.score || 0) / 10),
+  }));
+  res.json({
+    live: board.live || emissions.live,
+    source: board.live ? board.source : 'simulated',
+    agents,
+    activeResearchRuns: agents.filter((a) => a.status === 'active').length,
+    memoryItems: agents.reduce((s, a) => s + (a.memoryItems || 0), 0),
+    vectorCount: agents.reduce((s, a) => s + (a.vectorCount || 0), 0),
+    queueDepth: 0,
+    updatedAt: new Date().toISOString(),
+  });
+}));
+
 router.get('/telemetry/emission-router', asyncRoute(async (_req, res) => {
   const data = await cache.get('telemetry:emission', () => emission.getEmissions());
   res.json(data);

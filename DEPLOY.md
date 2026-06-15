@@ -27,6 +27,40 @@ The 5 steps, in order:
 
 ## 0. Prerequisites
 
+### HashiCorp Vault — runtime secret injection (do this first)
+
+All production secrets are pulled from Vault at deploy/runtime. No secrets are
+hardcoded in SDL manifests or Docker images.
+
+```bash
+# 1. Bootstrap Vault (once per environment)
+cd vault/setup && ./bootstrap.sh
+
+# 2. Load Akash runtime secrets before lease creation
+source scripts/lib/vault-env.sh
+vault_export_env kv/data/yieldswarm/akash/runtime
+
+# 3. Load Odysseus + Kairo secrets for monolith deploy
+vault_export_env kv/data/yieldswarm/odysseus/runtime
+vault_export_env kv/data/yieldswarm/kairo/runtime
+
+# 4. Deploy with secrets in environment
+make deploy
+```
+
+Vault paths (see `SECRETS.md`):
+
+| Path | Consumed by |
+|------|-------------|
+| `kv/yieldswarm/akash/runtime` | Akash worker, auto-heal, lease manager |
+| `kv/yieldswarm/odysseus/runtime` | Odysseus, LiteLLM router, ChromaDB |
+| `kv/yieldswarm/kairo/runtime` | Kairo driver API, Mapbox token |
+| `kv/yieldswarm/payments/runtime` | Square, Wise, Web3 hot wallet |
+| `kv/yieldswarm/domains/runtime` | UD API, Vercel/Netlify deploy tokens |
+
+Akash containers use Vault Agent sidecar (`akash/vault-agent.hcl`) for automatic
+injection. Local/Codespace deploys use `scripts/lib/vault-env.sh` before `make deploy`.
+
 ### Tooling
 
 | Tool | Used in | Install |
@@ -381,4 +415,3 @@ dashboard/                        # index.html + config.js (live worker view)
 | Terraform makes no fallback | Expected when `primary_healthy=true` or all `TF_ENABLE_*=false`. |
 | Grafana/Prometheus won't start | Ensure Docker is running and ports 9090/3001/9093 are free. |
 | Sovereign loop stalled alert | `deploy/scripts/start-sovereign-loops.sh start`; check `.run/sovereign-loop.log`. |
-```

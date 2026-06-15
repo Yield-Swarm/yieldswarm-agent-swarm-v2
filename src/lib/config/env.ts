@@ -23,7 +23,13 @@ export type SquareEnvironment = "sandbox" | "production";
 
 export const serverEnv = {
   appUrl: str("APP_URL", str("NEXT_PUBLIC_APP_URL", "http://localhost:3000")),
-  sessionSecret: str("SESSION_SECRET", "yieldswarm-dev-session-secret-change-me"),
+  sessionSecret: (() => {
+    const secret = str("SESSION_SECRET");
+    if (!secret && process.env.NODE_ENV === "production") {
+      throw new Error("SESSION_SECRET is required in production");
+    }
+    return secret || "yieldswarm-dev-session-secret-change-me";
+  })(),
 
   square: {
     accessToken: () => str("SQUARE_ACCESS_TOKEN"),
