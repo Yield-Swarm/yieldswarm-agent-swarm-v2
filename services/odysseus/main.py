@@ -56,6 +56,15 @@ class BrainHandler(BaseHTTPRequestHandler):
                 return self._send(HTTPStatus.OK, self.brain.telemetry())
             if path == "/api/models/routes":
                 return self._send(HTTPStatus.OK, self.brain.sync_model_routing())
+            if path == "/api/models/recommend":
+                qs = parse_qs(parsed.query)
+                task = (qs.get("task") or ["chat"])[0]
+                agent_id = (qs.get("agent_id") or [None])[0]
+                priority = float((qs.get("priority") or ["0.5"])[0])
+                return self._send(
+                    HTTPStatus.OK,
+                    self.brain.route_inference(task=task, agent_id=agent_id, priority=priority),
+                )
             if path == "/api/tools":
                 return self._send(
                     HTTPStatus.OK,
@@ -86,6 +95,13 @@ class BrainHandler(BaseHTTPRequestHandler):
             if path == "/api/models/sync":
                 routing = self.brain.sync_model_routing()
                 return self._send(HTTPStatus.OK, routing)
+            if path == "/api/infer/route":
+                result = self.brain.route_inference(
+                    task=str(body.get("task", "chat")),
+                    agent_id=str(body["agent_id"]) if body.get("agent_id") else None,
+                    priority=float(body.get("priority", 0.5)),
+                )
+                return self._send(HTTPStatus.OK, result)
             if path == "/odysseus/memory/sync":
                 reports = self.brain.memory.sync_with_peers()
                 return self._send(HTTPStatus.OK, {"reports": reports})

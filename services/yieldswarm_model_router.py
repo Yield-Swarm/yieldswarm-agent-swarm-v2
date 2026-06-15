@@ -750,20 +750,58 @@ def load_models_from_env() -> List[ModelProfile]:
 
 def load_workers_from_env() -> List[WorkerState]:
     raw = os.getenv("YIELDSWARM_AKASH_WORKERS")
-    if not raw:
-        return default_workers()
-    data = json.loads(raw)
-    return [WorkerState.from_mapping(item) for item in data]
+    if raw:
+        data = json.loads(raw)
+        return [WorkerState.from_mapping(item) for item in data]
+
+    # Prefer live Akash lease URLs when available.
+    if os.getenv("YIELDSWARM_SYNC_AKASH_WORKERS", "true").lower() in {"1", "true", "yes"}:
+        try:
+            from services.akash_worker_sync import sync_workers_from_akash
+
+            live = sync_workers_from_akash(probe=True)
+            if live:
+                return live
+        except Exception:
+            pass
+
+    return default_workers()
 
 
 def summarize_recommendations(
     router: YieldSwarmModelRouter,
     tasks: Iterable[str] = ("chat", "coding", "reasoning", "agent"),
 ) -> Dict[str, object]:
+    recommendations = {
+        task: router.recommend(task=task).to_dict() for task in tasks
+    }
+    preferred_models = sorted(
+        {decision["model_id"] for decision in recommendations.values()},
+        key=lambda mid: router.models[mid].emission_weight if mid in router.models else 0,
+        reverse=True,
+    )
+    litellm_aliases = {
+        "llama-3.1-8b-instruct-q5": "akash-ollama",
+        "mistral-7b-instruct-q5": "akash-ollama",
+        "phi-3.5-mini-instruct-q6": "akash-ollama",
+        "qwen2.5-coder-7b-q5": "akash-ollama",
+        "deepseek-r1-distill-llama-8b-q5": "akash-ollama",
+        "mixtral-8x7b-instruct-q4": "akash-ollama",
+    }
     return {
-        "recommendations": {
-            task: router.recommend(task=task).to_dict() for task in tasks
-        },
+        "recommendations": recommendations,
+        "preferred_models": preferred_models,
+        "litellm_routing": [
+            {
+                "model_id": mid,
+                "litellm_alias": litellm_aliases.get(mid, "akash-ollama"),
+                "task": next(
+                    (t for t, d in recommendations.items() if d["model_id"] == mid),
+                    "general",
+                ),
+            }
+            for mid in preferred_models
+        ],
         "workers": router.workers_snapshot(),
         "models": router.model_catalog_snapshot(),
     }
