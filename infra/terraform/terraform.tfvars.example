@@ -1,0 +1,74 @@
+# Order matters: the first cloud is treated as primary.
+active_clouds = ["azure", "gcp", "runpod", "vultr"]
+
+# true = deploy all targets simultaneously for hot fallback
+# false = deploy only the first cloud in active_clouds
+deploy_all_targets = true
+
+common_tags = {
+  workload = "helixchain"
+  env      = "prod"
+  owner    = "platform"
+}
+
+# ---------- Azure VMSS ----------
+azure_subscription_id       = "00000000-0000-0000-0000-000000000000"
+azure_tenant_id             = "00000000-0000-0000-0000-000000000000"
+azure_client_id             = "00000000-0000-0000-0000-000000000000"
+azure_client_secret         = "set-in-terraform-cloud-variable"
+azure_create_resource_group = true
+azure_resource_group_name   = "helixchain-prod-rg"
+azure_location              = "eastus"
+azure_vmss_name             = "helixchain-vmss"
+azure_subnet_id             = "/subscriptions/.../subnets/default"
+azure_vm_size               = "Standard_D4s_v5"
+azure_instance_count        = 2
+azure_admin_username        = "helix"
+azure_ssh_public_key        = "ssh-rsa AAAA..."
+azure_image_id              = "/subscriptions/.../images/helixchain-azure-20260615"
+
+# ---------- GCP MIG ----------
+gcp_project_id         = "my-gcp-project"
+gcp_credentials_json   = "set-in-terraform-cloud-variable"
+gcp_region             = "us-central1"
+gcp_zones              = ["us-central1-a", "us-central1-b"]
+gcp_mig_name           = "helixchain-mig"
+gcp_machine_type       = "e2-standard-4"
+gcp_instance_count     = 2
+gcp_network            = "default"
+gcp_subnetwork         = "default"
+gcp_image              = "projects/my-gcp-project/global/images/helixchain-gcp-20260615"
+gcp_enable_autoscaling = true
+gcp_min_replicas       = 2
+gcp_max_replicas       = 6
+gcp_cpu_target         = 0.6
+
+# ---------- RunPod ----------
+runpod_api_key              = "set-in-terraform-cloud-variable"
+runpod_pod_name             = "helixchain-prod"
+runpod_image_name           = "registry.example.com/helixchain/agent:prod"
+runpod_gpu_type_ids         = ["NVIDIA RTX A5000", "NVIDIA A40"]
+runpod_data_center_ids      = ["US-TX-3", "US-KS-2"]
+runpod_gpu_count            = 1
+runpod_cloud_type           = "ALL"
+runpod_support_public_ip    = true
+runpod_volume_in_gb         = 100
+runpod_container_disk_in_gb = 30
+runpod_ports                = ["22/tcp", "8080/http"]
+runpod_env = {
+  HELIXCHAIN_ENV = "prod"
+}
+
+# ---------- Vultr ----------
+vultr_api_key        = "set-in-terraform-cloud-variable"
+vultr_instance_count = 2
+vultr_label          = "helixchain-prod"
+vultr_hostname       = "helixchain"
+vultr_region         = "ewr"
+vultr_plan           = "vc2-2c-4gb"
+vultr_os_id          = "1743"
+# vultr_image_id     = "img-..." # optional custom snapshot image id
+vultr_ssh_key_ids    = ["sshkey-uuid"]
+vultr_enable_ipv6    = true
+vultr_backups        = "disabled"
+vultr_tags           = ["helixchain", "prod"]
