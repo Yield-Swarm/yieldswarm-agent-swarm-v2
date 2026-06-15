@@ -77,7 +77,11 @@
 | `PUMP_FUN_DEPLOY_KEY` | Pump.fun deploy |
 | `TON_API_KEY` | TON API |
 | `TAO_SUBNET_KEY` | Bittensor subnet |
-| `HELIX_CHAIN_BRIDGE_KEY` | Helix bridge |
+| `HELIX_CHAIN_BRIDGE_KEY` | Helix bridge signing key (Vault → Akash runtime) |
+| `HELIX_CHAIN_ENABLED` | Set `1` after `./scripts/activate-helix.sh` |
+| `YIELDSWARM_HELIX_EMISSION_ROUTER` | Helix emission router address for agent tools |
+| `HELIX_CONTROL_PLANE_URL` | Great Delta / Helix ingest control plane |
+| `YIELDSWARM_EMISSION_ROUTER_URL` | Backend URL for `yieldswarm_emission_router_query` tool |
 | `ZEC_SHIELDED_KEY` | Zcash shielded |
 | `ERC4337_BUNDLER_KEY` | Account abstraction bundler |
 | `INFURA_PROJECT_ID`, `INFURA_API_KEY`, `INFURA_SOL_MAINNET_RPC` | Infura RPC |

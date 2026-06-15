@@ -13,7 +13,8 @@ Parallel tracks for YieldSwarm / Kairo infrastructure activation.
 | **Infra** | Akash + multi-cloud | ✅ Scaffolded | `deploy/`, `akash/`, `infra/` |
 | **Secrets** | HashiCorp Vault | ✅ Scaffolded | `vault/`, `SECRETS.md`, `terraform/` |
 | **Merge** | Clean main + branch ladder | ✅ Documented | `BRANCHES.md` |
-| **Kairo** | Cryptographic identity | 🔜 Pending | `/kairo` folder (next PR) |
+| **Kairo** | Cryptographic identity | ✅ Scaffolded | `/kairo`, `KAIRO_IDENTITY.md` |
+| **Helix Chain** | Genesis + YSLR activation | ✅ Runnable | `./scripts/activate-helix.sh`, `/api/helix/status` |
 
 ---
 
@@ -147,6 +148,11 @@ git push origin v1.0-helix-launch milestone/helix-chain-activation
 ```bash
 # === DOMAINS (manual, UD dashboard) ===
 # See DOMAINS.md Section 2
+
+# === HELIX CHAIN ACTIVATION ===
+export HELIX_CHAIN_ENABLED=1
+./scripts/activate-helix.sh
+curl -sf http://127.0.0.1:8080/api/helix/status | jq .
 
 # === VAULT ===
 ./vault/scripts/bootstrap.sh && ./vault/scripts/seed-secrets.sh

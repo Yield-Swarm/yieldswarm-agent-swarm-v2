@@ -15,6 +15,7 @@ import config from './config.js';
 import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
+import helixRouter from './routes/helix.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -36,6 +37,7 @@ app.use((req, res, next) => {
 app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
 app.use('/api/sovereign', sovereignRouter);
+app.use('/api/helix', helixRouter);
 app.use('/', toolsRouter);
 
 // ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------
@@ -91,7 +93,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Vault:   /dashboard/sovereign-dashboard.html\n` +
       `  API:     /api/arena/overview\n` +
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
-      `  Great Delta: /api/great-delta/overview`,
+      `  Great Delta: /api/great-delta/overview\n` +
+      `  Helix:     /api/helix/status  /api/helix/activate`,
   );
 });
 

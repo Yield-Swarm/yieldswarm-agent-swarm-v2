@@ -1,0 +1,20 @@
+{
+  "activated": false,
+  "phase": "genesis-pending",
+  "genesisHash": null,
+  "activatedAt": null,
+  "activatedBy": null,
+  "yslr": {
+    "phase": "pending",
+    "signalsProcessed": 0,
+    "lastSignalAt": null
+  },
+  "tracks": {
+    "domains": "pending",
+    "akash": "pending",
+    "terraform": "pending",
+    "vault": "pending",
+    "sovereign": "pending"
+  },
+  "receipts": []
+}

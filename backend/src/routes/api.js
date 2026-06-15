@@ -19,6 +19,7 @@ import * as solana from '../adapters/solana.js';
 import * as odysseus from '../adapters/odysseus.js';
 import { getVaultTelemetry } from '../adapters/vaultTelemetry.js';
 import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
+import { getHelixStatus } from '../adapters/helix.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -60,6 +61,12 @@ router.get('/telemetry/akash', asyncRoute(async (_req, res) => {
 router.get('/telemetry/odysseus', asyncRoute(async (_req, res) => {
   const snapshot = await cache.get('odysseus:telemetry', () => odysseus.getTelemetry());
   res.json(toOdysseusTelemetryPayload(snapshot));
+}));
+
+/** Helix Chain genesis + YSLR activation telemetry */
+router.get('/telemetry/helix', asyncRoute(async (_req, res) => {
+  const data = await cache.get('telemetry:helix', () => getHelixStatus());
+  res.json(data);
 }));
 
 router.get('/brain/status', asyncRoute(async (_req, res) => {
@@ -165,13 +172,14 @@ router.get('/telemetry/leaderboard', asyncRoute(async (req, res) => {
  * Single aggregated payload that powers the Arena dashboard in one round-trip.
  */
 router.get('/arena/overview', asyncRoute(async (_req, res) => {
-  const [workers, emissions, treasurySplits, board, odysseusSnap, gd] = await Promise.all([
+  const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix] = await Promise.all([
     cache.get('akash:workers', () => akash.getWorkers()),
     cache.get('telemetry:emission', () => emission.getEmissions()),
     cache.get('telemetry:treasury', () => treasury.getTreasurySplits()),
     cache.get('telemetry:leaderboard:default', () => leaderboard.getLeaderboard({ limit: 10 })),
     cache.get('odysseus:telemetry', () => odysseus.getTelemetry()),
     cache.get('great-delta:overview', () => greatDelta.getGreatDeltaOverview()),
+    cache.get('telemetry:helix', () => getHelixStatus()),
   ]);
 
   const connections = {
@@ -181,6 +189,7 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     leaderboard: { connected: board.live, source: board.source },
     odysseus: { connected: odysseusSnap.live, source: odysseusSnap.source },
     greatDeltaEvm: { connected: gd.evm?.live ?? false, source: gd.evm?.source ?? 'disabled' },
+    helixChain: { connected: helix.activated, source: helix.phase },
   };
   const connectedCount = Object.values(connections).filter((c) => c.connected).length;
 
@@ -195,6 +204,7 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     greatDelta: gd,
     leaderboard: board,
     odysseus: odysseusSnap,
+    helix,
   });
 }));
 

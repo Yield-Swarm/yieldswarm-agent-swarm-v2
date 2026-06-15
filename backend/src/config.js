@@ -83,6 +83,20 @@ export const config = {
     workspaceUrl: (process.env.ODYSSEUS_WORKSPACE_URL || 'http://127.0.0.1:7000').replace(/\/$/, ''),
     enabled: bool(process.env.ODYSSEUS_ENABLED, true),
   },
+
+  // Helix Chain cross-execution layer (genesis + YSLR + emission bridge).
+  helix: {
+    enabled: bool(process.env.HELIX_CHAIN_ENABLED, false),
+    bridgeKey: process.env.HELIX_CHAIN_BRIDGE_KEY || '',
+    emissionRouter:
+      process.env.YIELDSWARM_HELIX_EMISSION_ROUTER ||
+      process.env.EMISSION_ROUTER_EVM_ADDRESS ||
+      '',
+    controlPlaneUrl:
+      process.env.HELIX_CONTROL_PLANE_URL ||
+      process.env.GREAT_DELTA_INGEST_URL ||
+      '',
+  },
 };
 
 export default config;
