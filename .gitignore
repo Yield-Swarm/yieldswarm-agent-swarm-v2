@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+
+data/
+logs/
+deploy/rendered/
+
+*.bak
+*.tmp
+__pycache__/

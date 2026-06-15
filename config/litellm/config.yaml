@@ -1,0 +1,39 @@
+model_list:
+  - model_name: yieldswarm-default
+    litellm_params:
+      model: os.environ/OPENROUTER_LITELLM_MODEL
+      api_key: os.environ/OPENROUTER_API_KEY
+      api_base: https://openrouter.ai/api/v1
+
+  - model_name: yieldswarm-fireworks
+    litellm_params:
+      model: os.environ/FIREWORKS_LITELLM_MODEL
+      api_key: os.environ/FIREWORKS_API_KEY
+
+  - model_name: akash-ollama
+    litellm_params:
+      model: os.environ/AKASH_OLLAMA_LITELLM_MODEL
+      api_base: os.environ/AKASH_OLLAMA_BASE_URL
+
+  - model_name: akash-ollama-embed
+    litellm_params:
+      model: os.environ/AKASH_OLLAMA_EMBED_LITELLM_MODEL
+      api_base: os.environ/AKASH_OLLAMA_BASE_URL
+
+  - model_name: local-ollama
+    litellm_params:
+      model: os.environ/LOCAL_OLLAMA_LITELLM_MODEL
+      api_base: os.environ/LOCAL_OLLAMA_BASE_URL
+
+router_settings:
+  routing_strategy: simple-shuffle
+  redis_host: null
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  request_timeout: 120
+  num_retries: 2
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

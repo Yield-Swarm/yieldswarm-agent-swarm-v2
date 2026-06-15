@@ -1,0 +1,54 @@
+{
+  "name": "YieldSwarm AgentSwarm OS",
+  "default_interface": "odysseus",
+  "agent_orchestration": {
+    "workspace": "Odysseus",
+    "agent_system": "Odysseus built-in agent loop",
+    "persistent_memory": "ChromaDB",
+    "total_mutated_agents": 10080,
+    "cron_shards": 120,
+    "agents_per_shard": 84
+  },
+  "council": {
+    "deity_count": 169,
+    "consensus_layer": "Kimiclaw Consensus Council",
+    "strategy_layer": "SuperGrok Strategy Layer"
+  },
+  "model_routing": {
+    "router": "LiteLLM OpenAI-compatible router",
+    "default_model_alias": "yieldswarm-default",
+    "providers": [
+      {
+        "name": "OpenRouter",
+        "alias": "yieldswarm-default",
+        "env": ["OPENROUTER_API_KEY", "OPENROUTER_MODEL"]
+      },
+      {
+        "name": "Fireworks",
+        "alias": "yieldswarm-fireworks",
+        "env": ["FIREWORKS_API_KEY", "FIREWORKS_MODEL"]
+      },
+      {
+        "name": "Akash Ollama RTX 3090 workers",
+        "alias": "akash-ollama",
+        "env": ["AKASH_OLLAMA_BASE_URL", "AKASH_OLLAMA_MODEL", "AKASH_OLLAMA_HOSTS"]
+      },
+      {
+        "name": "Local Ollama fallback",
+        "alias": "local-ollama",
+        "env": ["LOCAL_OLLAMA_BASE_URL", "LOCAL_OLLAMA_MODEL"]
+      }
+    ]
+  },
+  "operator_defaults": {
+    "primary_workspace_url": "http://localhost:7000",
+    "router_url": "http://localhost:4000/v1",
+    "memory_collection": "yieldswarm-swarm-memory",
+    "first_run_steps": [
+      "Open Odysseus and finish admin setup.",
+      "Add the LiteLLM router as an OpenAI-compatible provider using the router URL and YIELDSWARM_ROUTER_API_KEY.",
+      "Import this manifest and docs/odysseus-yieldswarm.md into Odysseus Memory.",
+      "Create default agent presets for swarm operator, shard auditor, deity council facilitator, and Akash GPU worker coordinator."
+    ]
+  }
+}
