@@ -49,7 +49,7 @@ vault_request() {
   if [[ -n "${VAULT_NAMESPACE}" ]]; then
     headers+=(-H "X-Vault-Namespace: ${VAULT_NAMESPACE}")
   fi
-  if [[ -n "${VAULT_TOKEN}" ]]; then
+  if [[ -n "${VAULT_TOKEN:-}" ]]; then
     headers+=(-H "X-Vault-Token: ${VAULT_TOKEN}")
   fi
 
