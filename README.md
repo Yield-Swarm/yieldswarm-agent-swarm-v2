@@ -18,8 +18,9 @@ Unstoppable Domains integration
 4. Wire Unstoppable Domains via Cloudflare nameservers
 
 ## Business
-Wise: cbrown03777@gmail.com
-UD API Key included in .env.example
+Configure billing/payment details via environment variables (see `.env.example`).
+Do NOT commit real secrets. The Unstoppable Domains API key must be supplied at
+runtime via your secret manager — see `DOMAINS.md`.
 
 ## Next
 Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
