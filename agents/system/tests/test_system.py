@@ -33,7 +33,7 @@ class ArenaSystemTests(unittest.TestCase):
         engine = MutatedChartingEngine(self.root)
         target = "chart-agent-00001"
         original_skin = engine.agents[target].metal_skin
-        engine.report_performance(target, arena_score=1.0, signal_precision=0.1, pnl_bps=-100)
+        engine.report_performance(target, arena_score=-100.0, signal_precision=0.1, pnl_bps=-100)
         result = engine.mutate_bottom_performers(ratio=0.01, batch_size=10)
         self.assertGreater(result["mutated_agents"], 0)
         self.assertNotEqual(original_skin, engine.agents[target].metal_skin)
