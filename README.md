@@ -16,6 +16,7 @@ Unstoppable Domains integration
 2. Fill in values securely
 3. Deploy to Vercel or Azure
 4. Wire Unstoppable Domains via Cloudflare nameservers
+5. For production secret management with Vault + Terraform + Akash runtime injection, follow `SECRETS.md`
 
 ## Business
 Wise: cbrown03777@gmail.com

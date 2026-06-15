@@ -1,0 +1,45 @@
+---
+version: "2.0"
+
+services:
+  optimizer:
+    image: ${AKASH_IMAGE}
+    command:
+      - /usr/local/bin/docker-entrypoint.sh
+      - python
+      - /app/agents/akash-optimizer.py
+    env:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_NAMESPACE=${VAULT_NAMESPACE}
+      - VAULT_AUTH_PATH=approle
+      - VAULT_SECRET_MOUNT=app-secrets
+      - VAULT_SECRET_PATH=akash/runtime
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    optimizer:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 2Gi
+  placement:
+    any:
+      pricing:
+        optimizer:
+          denom: uakt
+          amount: 1000
+  deployment:
+    optimizer:
+      any:
+        profile: optimizer
+        count: 1
