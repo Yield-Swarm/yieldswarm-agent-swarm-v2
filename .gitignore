@@ -88,3 +88,4 @@ __pycache__/
 yarn-debug.log*
 yarn-error.log*
 .odysseus/
+deploy/akash.env

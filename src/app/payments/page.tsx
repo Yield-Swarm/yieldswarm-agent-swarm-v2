@@ -14,8 +14,8 @@ export default function PaymentsPage() {
           Payments
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-swarm-muted">
-          Deposit via Square (card &amp; ACH) or Wise, or send from any connected Web3 wallet
-          (EVM, Solana, TON). Withdraw to a bank account or any wallet address.
+          Pay by card via Stripe (1% platform fee), Square, Wise, or Web3. Funds credit to your
+          unified balance for withdrawals and on-chain off-ramps.
         </p>
       </header>
       <PaymentsApp />

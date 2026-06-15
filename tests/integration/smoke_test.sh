@@ -34,6 +34,11 @@ check "Vault env loader" check_file scripts/lib/vault-env.sh
 check "Kairo identity module" check_file kairo/backend/identity.py
 check "Kairo frontend App" check_file kairo/frontend/src/App.tsx
 check "Payment kairo fees" check_file src/lib/kairo/fees.ts
+check "Stripe deposit route" check_file src/app/api/deposits/stripe/route.ts
+check "Stripe webhook route" check_file src/app/api/webhooks/stripe/route.ts
+check "Arena page (Next.js)" check_file src/app/arena/page.tsx
+check "Platform fee module" check_file src/lib/payments/fees.ts
+check "deploy-to-akash.sh" test -x scripts/deploy-to-akash.sh
 check "Arena telemetry routes" grep -q telemetry/akash backend/src/routes/api.js
 check "Odysseus memory" check_file agents/odysseus_memory.py
 check "Sovereign dashboard" check_file dashboard/sovereign-dashboard.html

@@ -15,7 +15,6 @@ import {
 } from "@/lib/db/models";
 import { addAmounts, gte, subAmounts, isPositive } from "@/lib/money";
 import { nowIso, reference, uuid } from "@/lib/ids";
-import { computeCustomerFee } from "@/lib/payments/fees";
 
 export interface CreateTxInput {
   userId: string;
@@ -102,30 +101,10 @@ export async function findByExternalId(
 function applyToBalance(db: DB, tx: Transaction): void {
   const userBalances = db.balances[tx.userId] ?? (db.balances[tx.userId] = {});
   const current = userBalances[tx.currency] ?? "0";
-  let amount = tx.amount;
-
-  // Apply 1% customer fee on deposits unless already netted in metadata.
-  if (
-    tx.direction === "deposit" &&
-    !tx.metadata?.grossAmount &&
-    !tx.metadata?.platformFee &&
-    !tx.metadata?.type?.toString().startsWith("kairo_")
-  ) {
-    const fee = computeCustomerFee(tx.amount);
-    amount = fee.netAmount;
-    tx.metadata = {
-      ...(tx.metadata ?? {}),
-      grossAmount: fee.grossAmount,
-      platformFee: fee.feeAmount,
-      feePercent: fee.feePercent,
-    };
-    tx.amount = amount;
-  }
-
   userBalances[tx.currency] =
     tx.direction === "deposit"
-      ? addAmounts(current, amount)
-      : subAmounts(current, amount);
+      ? addAmounts(current, tx.amount)
+      : subAmounts(current, tx.amount);
 }
 
 export async function getBalances(userId: string): Promise<Record<string, string>> {
