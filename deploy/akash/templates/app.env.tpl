@@ -1,6 +1,12 @@
 {{- /* Vault Agent template — renders KV secrets to a sourced env file */ -}}
 {{- with secret "yieldswarm/data/akash" -}}
+AKASH_AUTH_METHOD={{ .Data.data.auth_method }}
+AKASH_KEY_NAME={{ .Data.data.key_name }}
+AKASH_KEYRING_BACKEND={{ .Data.data.keyring_backend }}
 AKASH_WALLET_MNEMONIC={{ .Data.data.wallet_mnemonic }}
+AKASH_ACCOUNT_ADDRESS={{ .Data.data.account_address }}
+AKASH_JWT={{ .Data.data.provider_jwt }}
+AKASH_CONSOLE_API_KEY={{ .Data.data.console_api_key }}
 AKASH_CERTIFICATE_PATH={{ .Data.data.certificate_path }}
 AKASH_KEY_PATH={{ .Data.data.key_path }}
 AKASH_RPC_ENDPOINT={{ .Data.data.rpc_endpoint }}

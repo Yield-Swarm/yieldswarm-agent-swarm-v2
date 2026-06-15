@@ -122,7 +122,13 @@ seed_secret_if_missing "rpc" \
   jupiter_api_key="REPLACE_ME"
 
 seed_secret_if_missing "akash" \
+  auth_method="jwt" \
+  key_name="yieldswarm-admin" \
+  keyring_backend="test" \
   wallet_mnemonic="REPLACE_ME" \
+  account_address="REPLACE_ME" \
+  provider_jwt="" \
+  console_api_key="" \
   certificate_path="/secrets/akash/cert.pem" \
   key_path="/secrets/akash/key.pem" \
   rpc_endpoint="https://rpc.akash.network:443" \

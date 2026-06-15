@@ -156,19 +156,34 @@ vault kv put yieldswarm/rpc \
   raydium_api_key="YOUR_RAYDIUM_KEY"
 ```
 
-### Akash runtime
+### Akash runtime (JWT auth — AEP-63/64)
 
 ```bash
 vault kv put yieldswarm/akash \
-  wallet_mnemonic="YOUR_AKASH_WALLET_MNEMONIC" \
-  certificate_path="/secrets/akash/cert.pem" \
-  key_path="/secrets/akash/key.pem" \
+  auth_method="jwt" \
+  key_name="yieldswarm-admin" \
+  keyring_backend="test" \
+  wallet_mnemonic="YOUR 24-WORD MNEMONIC" \
+  account_address="akash1..." \
+  provider_jwt="" \
+  console_api_key="" \
   rpc_endpoint="https://rpc.akash.network:443" \
   chain_id="akashnet-2" \
   gas_prices="0.025uakt" \
   agentswarm_master_key="YOUR_MASTER_KEY" \
-  gpu_cluster_keys='["runpod_key_1","runpod_key_2"]'
+  gpu_cluster_keys='["runpod_key_1"]'
 ```
+
+| Field | Purpose |
+|-------|---------|
+| `auth_method` | `jwt` (default, recommended), `keyring`, or `mtls` |
+| `key_name` | Key name in provider-services keyring (`yieldswarm-admin`) |
+| `keyring_backend` | `test` for Codespaces/CI, `os` for local Mac |
+| `wallet_mnemonic` | Akash wallet seed — imported ephemerally at deploy/runtime |
+| `provider_jwt` | Optional pre-generated provider JWT (AEP-64); usually leave empty |
+| `console_api_key` | Optional Console REST API key (AEP-63) |
+
+> **JWT note:** `provider-services` v0.10+ auto-generates short-lived JWTs from your key at request time. You do **not** need to manually export `AKASH_JWT` unless using a pre-generated provider token.
 
 ### Validate
 
@@ -262,7 +277,40 @@ steps:
 
 ---
 
-## 7. Akash — Runtime Secret Injection
+## 7. Akash — JWT Authentication (AEP-63/64) + Runtime Injection
+
+Akash Mainnet 14+ supports **JWT-based authentication** for provider API access (AEP-64). The `provider-services` CLI (v0.10+) uses JWT by default — it signs requests with your key and mints short-lived tokens automatically. No manual `AKASH_JWT` export is required for normal deploys.
+
+### Auth modes (stored in `yieldswarm/akash`)
+
+| Mode | When to use | Codespace-friendly |
+|------|-------------|-------------------|
+| `jwt` (default) | Production, CI/CD, Codespaces | Yes |
+| `keyring` | Same as jwt, explicit legacy naming | Yes (`test` backend) |
+| `mtls` | Systems requiring X.509 certs | No (extra setup) |
+
+### Verify before deploy
+
+```bash
+export VAULT_ADDR=https://vault.yieldswarm.internal:8200
+export VAULT_ROLE_ID="${AKASH_VAULT_ROLE_ID}"
+export VAULT_SECRET_ID="${AKASH_VAULT_SECRET_ID}"
+
+chmod +x deploy/akash/*.sh deploy/akash/lib/*.sh
+./deploy/akash/verify-env.sh
+```
+
+This checks Vault connectivity, `provider-services` install, auth config, account balance (≥ 0.5 AKT), and secret paths.
+
+### Deploy to Akash
+
+```bash
+./deploy/akash/deploy.sh
+```
+
+`deploy.sh` pulls your wallet mnemonic from Vault, imports it into an ephemeral `test` keyring, and uses `provider-services tx deployment create` with auto-JWT.
+
+### Runtime container injection
 
 Secrets are **never** baked into the Docker image. The entrypoint authenticates to Vault at container start and injects environment variables.
 
@@ -367,7 +415,9 @@ yieldswarm/
 | `REPLACE_ME placeholders` | Run `vault kv put` for each path with real values |
 | `permission denied` on secret path | Verify AppRole policy matches the path |
 | Terraform can't reach Vault | Check `VAULT_ADDR`, TLS cert, and network ACLs |
-| Akash container exits immediately | Check `docker logs`; ensure Vault is reachable from provider network |
+| Akash JWT / auth errors | Run `./deploy/akash/verify-env.sh`; ensure `auth_method=jwt` in Vault |
+| `provider-services: command not found` | Install CLI — see Akash installation guide |
+| Balance below 0.5 AKT | Fund `AKASH_ACCOUNT_ADDRESS` shown by verify-env |
 
 ```bash
 # Test AppRole login manually

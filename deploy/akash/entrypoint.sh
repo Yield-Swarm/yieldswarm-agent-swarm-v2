@@ -65,6 +65,12 @@ map_secret_to_env() {
   local key="$1"
   case "${key}" in
     wallet_mnemonic)           echo "AKASH_WALLET_MNEMONIC" ;;
+    auth_method)               echo "AKASH_AUTH_METHOD" ;;
+    key_name)                  echo "AKASH_KEY_NAME" ;;
+    keyring_backend)           echo "AKASH_KEYRING_BACKEND" ;;
+    account_address)           echo "AKASH_ACCOUNT_ADDRESS" ;;
+    provider_jwt)              echo "AKASH_JWT" ;;
+    console_api_key)           echo "AKASH_CONSOLE_API_KEY" ;;
     certificate_path)          echo "AKASH_CERTIFICATE_PATH" ;;
     key_path)                  echo "AKASH_KEY_PATH" ;;
     rpc_endpoint)              echo "AKASH_RPC_ENDPOINT" ;;
