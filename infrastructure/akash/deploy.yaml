@@ -1,0 +1,98 @@
+---
+# Akash SDL for YieldSwarm AgentSwarm OS.
+#
+# Hard rule: this file MUST NOT contain a single secret value.
+# Every credential lands at runtime via the entrypoint pulling from Vault.
+# Only the bootstrap material (Vault address, role_id, and a *wrapping*
+# token that contains the secret_id) appears here, and the wrapping token
+# is single-use with a ~60s TTL: by the time anyone reads this manifest
+# off-leash, the token is dead.
+#
+# Required substitutions before `provider-services tx deployment create`:
+#   * %VAULT_ADDR%                 - public-DNS endpoint of your Vault.
+#   * %VAULT_ROLE_ID%              - terraform-deployer or akash-workload role_id.
+#                                     (non-secret on its own).
+#   * %VAULT_WRAPPED_SECRET_ID%    - response-wrapped secret_id token,
+#                                     freshly minted (<60s old).
+#   * %YIELDSWARM_IMAGE%           - container image:tag in DO/GHCR/etc.
+#
+# Render with: envsubst < deploy.yaml > deploy.rendered.yaml
+# (`envsubst` is part of the gettext-base apt package.)
+
+version: "2.0"
+
+services:
+  agentswarm:
+    image: "${YIELDSWARM_IMAGE}"
+    expose:
+      - port: 8080
+        as: 80
+        proto: tcp
+        to:
+          - global: true
+        accept:
+          - dashboard.yieldswarm.app
+
+    env:
+      # --- Vault bootstrap (NON-SECRET on their own) -----------------
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_NAMESPACE=
+      - VAULT_APPROLE_MOUNT=approle
+      - VAULT_KV_MOUNT=secret
+      - VAULT_SECRET_BASE=yieldswarm
+
+      # role_id is a public identifier; it is useless without a secret_id.
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+
+      # Wrapped, single-use secret_id. Container unwraps once at start.
+      # Token TTL ~60s - this manifest is safe to keep in git AFTER apply.
+      - VAULT_WRAPPED_SECRET_ID=${VAULT_WRAPPED_SECRET_ID}
+
+      # --- Workload tuning (non-secret) ------------------------------
+      - VAULT_TOKEN_RENEW_INTERVAL=600
+      - VAULT_BOOTSTRAP_TIMEOUT=45
+      - YIELDSWARM_RUN_AS=app
+      - AGENT_COUNT_TOTAL=10080
+      - AGENTS_PER_SHARD=84
+      - CRON_INTERVAL_MINUTES=15
+      - LOG_LEVEL=INFO
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 10Gi
+        # Optional GPU section - uncomment for inference workloads.
+        # gpu:
+        #   units: 1
+        #   attributes:
+        #     vendor:
+        #       nvidia:
+        #         - model: a100
+
+  placement:
+    akash-prod:
+      attributes:
+        host: akash
+        # Pin to providers that have published an audit attestation. The
+        # SDL spec does NOT support pulling secrets from a provider-side
+        # KMS, so we MUST rely on Vault for runtime credentials.
+        tier: community
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 1500
+
+deployment:
+  agentswarm:
+    akash-prod:
+      profile: agentswarm
+      count: 1
