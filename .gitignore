@@ -1,0 +1,16 @@
+ghcr.io/yieldswarm/agentswarm-akash
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+crash.log
+vault/data/
+vault/audit/
+*.pem
+*.key
+rendered-deploy-*.yaml

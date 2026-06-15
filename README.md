@@ -12,10 +12,11 @@ Unstoppable Domains integration
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
 
 ## Setup
-1. Copy .env.example to .env
-2. Fill in values securely
-3. Deploy to Vercel or Azure
-4. Wire Unstoppable Domains via Cloudflare nameservers
+1. **Production secrets:** Follow [SECRETS.md](SECRETS.md) to bootstrap HashiCorp Vault
+2. **Terraform:** `cd terraform && terraform init && terraform plan -var-file=environments/prod.tfvars`
+3. **Akash:** Build with `docker build -f akash/Dockerfile .` and deploy via `akash/scripts/deploy.sh`
+4. **Local dev:** Copy `.env.example` to `.env` for reference only (Vault preferred)
+5. Wire Unstoppable Domains via Cloudflare nameservers
 
 ## Business
 Wise: cbrown03777@gmail.com

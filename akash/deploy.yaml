@@ -1,0 +1,72 @@
+---
+# YieldSwarm Akash deployment — secrets injected at runtime via Vault AppRole.
+# Provider API keys are NEVER stored in this manifest.
+#
+# Before deploy:
+#   1. Build and push the image to your registry.
+#   2. Export VAULT_ROLE_ID / VAULT_SECRET_ID from bootstrap (akash-runtime AppRole).
+#   3. Run: provider-services run akash tx deployment create deploy.yaml --from <wallet>
+#
+version: "2.0"
+
+services:
+  akash-optimizer:
+    image: ghcr.io/yieldswarm/agentswarm-akash:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - VAULT_ADDR=https://vault.yieldswarm.internal:8200
+      - VAULT_KV_MOUNT=yieldswarm
+      - VAULT_SKIP_VERIFY=false
+      # Substituted by akash/scripts/deploy.sh from shell env — never commit real values
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+    params:
+      storage:
+        data:
+          mount: /app/data
+          readOnly: false
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+    count: 1
+
+profiles:
+  compute:
+    akash-optimizer:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi
+  placement:
+    akash-prod:
+      pricing:
+        amount: 1000000
+        denom: uakt
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4szfu5x68fdhdt9cz5n00feuqf0nfmfs"
+      attributes:
+        host: akash
+        tier: community
+  deployment:
+    akash-optimizer:
+      akash-prod:
+        profile: akash-optimizer
+        count: 1
+
+deployment:
+  akash-optimizer:
+    akash-prod:
+      profile: akash-optimizer
+      count: 1
