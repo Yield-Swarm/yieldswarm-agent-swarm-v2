@@ -29,9 +29,10 @@ export BT_WALLET_NAME=miner
 export BT_HOTKEY_NAME=default
 export VAULT_ADDR VAULT_ROLE_ID VAULT_SECRET_ID
 
-# 4. Deploy to Akash
+# 4. Deploy to Akash (full pipeline: create → bids → lease → manifest)
 chmod +x deploy/akash/deploy-bittensor.sh
 ./deploy/akash/deploy-bittensor.sh
+# State: deploy/.akash-bittensor-deployment.json
 ```
 
 ## Vault secrets (`yieldswarm/bittensor`)
