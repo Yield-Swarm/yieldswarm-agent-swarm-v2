@@ -1,0 +1,45 @@
+service: odysseus
+image: ${ODYSSEUS_IMAGE}
+vault:
+  address_env: VAULT_ADDR
+  namespace_env: VAULT_NAMESPACE
+  auth_method_env: VAULT_AUTH_METHOD
+  runtime_secret_path_env: ODYSSEUS_RUNTIME_VAULT_PATH
+  required_runtime_keys:
+    - ODYSSEUS_API_KEY
+    - ODYSSEUS_MODEL_HOST
+    - ODYSSEUS_MODEL_API_KEY
+runtime:
+  port: 8080
+  health_check_path: /healthz
+  agent_count: 84
+  shard_id_env: AGENT_SHARD_ID
+resources:
+  cpu_units: 8
+  memory: 32Gi
+  storage: 80Gi
+  gpu:
+    count: 1
+    vendor: nvidia
+    preferred_models:
+      - h100
+      - a100
+      - rtx4090
+targets:
+  akash:
+    sdl: deploy/akash/odysseus.sdl.yml
+    placement: akash-gpu
+  azure_container_apps:
+    min_replicas: 1
+    max_replicas: 3
+    workload_profile: gpu-dedicated
+    secret_source: hashicorp_vault
+  gcp_cloud_run:
+    min_instances: 1
+    max_instances: 3
+    accelerator: nvidia-l4
+    secret_source: hashicorp_vault
+  aws_ecs:
+    launch_type: ec2
+    capacity_provider: gpu
+    secret_source: hashicorp_vault
