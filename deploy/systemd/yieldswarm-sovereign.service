@@ -1,0 +1,21 @@
+# YieldSwarm sovereign loop — systemd unit (production host supervision).
+# Install:
+#   sudo cp deploy/systemd/yieldswarm-sovereign.service /etc/systemd/system/
+#   sudo sed -i "s#__REPO__#$(pwd)#g" /etc/systemd/system/yieldswarm-sovereign.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now yieldswarm-sovereign
+[Unit]
+Description=YieldSwarm sovereign loop (agent orchestrator)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=__REPO__
+EnvironmentFile=-__REPO__/deploy/config.env
+EnvironmentFile=-__REPO__/.env
+ExecStart=/usr/bin/python3 __REPO__/deploy/runtime/swarm_runner.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

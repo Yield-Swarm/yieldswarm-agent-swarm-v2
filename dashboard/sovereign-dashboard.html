@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YieldSwarm · Iteration 100 · Sovereign Core → $5M Vault</title>
+<meta name="description" content="Live monitoring dashboard for the YieldSwarm Iteration 100 sovereign self-governed core: autonomous agent mutation, self-healing Akash leases, dynamic treasury rebalancing, and the Great Delta Grid marketplace — tracking progress toward the $5,000,000 vault." />
+<style>
+  :root {
+    --bg: #04060a; --panel: #0a0f16; --panel2: #0d141d; --line: #14e08a;
+    --line-dim: #0c7a4b; --txt: #d7ffe9; --muted: #6f8c7f; --amber: #ffcf4d;
+    --red: #ff5470; --blue: #4dd2ff; --violet: #b388ff; --grid: #0f2a20;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background:
+      radial-gradient(1200px 600px at 80% -10%, #0a241a 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, #07172a 0%, transparent 55%),
+      var(--bg);
+    color: var(--txt); font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    -webkit-font-smoothing: antialiased; line-height: 1.45;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  header {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px;
+    padding: 18px 24px; border-bottom: 1px solid var(--grid);
+    position: sticky; top: 0; z-index: 20; backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(4,6,10,.92), rgba(4,6,10,.7));
+  }
+  header h1 { font-size: 16px; margin: 0; letter-spacing: .5px; color: var(--line); }
+  header .tag { color: var(--muted); font-size: 12px; }
+  .live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line);
+    display: inline-block; box-shadow: 0 0 10px var(--line); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+  main { padding: 22px; max-width: 1500px; margin: 0 auto; }
+  .grid { display: grid; gap: 16px; }
+  .cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .cols-2 { grid-template-columns: 1.6fr 1fr; }
+  @media (max-width: 1080px){ .cols-4{grid-template-columns:repeat(2,1fr)} .cols-3,.cols-2{grid-template-columns:1fr} }
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    border: 1px solid var(--grid); border-radius: 14px; padding: 16px 18px;
+    position: relative; overflow: hidden;
+  }
+  .card h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  .stat { font-size: 28px; font-weight: 700; color: var(--txt); letter-spacing: .5px; }
+  .stat.small { font-size: 20px; }
+  .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .pos { color: var(--line); } .neg { color: var(--red); } .warn { color: var(--amber); }
+  .blue { color: var(--blue); } .violet { color: var(--violet); }
+
+  /* hero vault progress */
+  .hero { padding: 22px 24px; }
+  .hero .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; }
+  .hero .big { font-size: 44px; font-weight: 800; color: var(--line); text-shadow: 0 0 22px rgba(20,224,138,.35); }
+  .hero .target { color: var(--muted); font-size: 15px; }
+  .bar { margin-top: 16px; height: 26px; border-radius: 13px; background: #06120c;
+    border: 1px solid var(--grid); overflow: hidden; position: relative; }
+  .bar > span { display:block; height:100%; width:0%;
+    background: linear-gradient(90deg, #0c7a4b, #14e08a 70%, #7dffc4);
+    box-shadow: 0 0 24px rgba(20,224,138,.5); transition: width .8s cubic-bezier(.2,.8,.2,1); }
+  .bar .pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #02160d; mix-blend-mode: screen; }
+  .milestones { display:flex; justify-content: space-between; margin-top: 6px; color: var(--muted); font-size: 11px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #0c1a14; white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: .8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .scroll { max-height: 320px; overflow: auto; }
+  .scroll::-webkit-scrollbar { width: 8px; } .scroll::-webkit-scrollbar-thumb { background: #143; border-radius: 4px; }
+
+  .pill { display:inline-block; padding: 1px 7px; border-radius: 9px; font-size: 10px; border:1px solid; }
+  .pill.active { color: var(--line); border-color: var(--line-dim); }
+  .pill.degraded { color: var(--amber); border-color: #6b5410; }
+  .pill.failed { color: var(--red); border-color: #6b1525; }
+
+  .feed { font-size: 12px; max-height: 360px; overflow:auto; }
+  .feed .ev { display:flex; gap:10px; padding:5px 0; border-bottom: 1px solid #0a1610; }
+  .feed .ev .k { color: var(--muted); min-width: 132px; }
+  .feed .ev.mutation .k { color: var(--violet); }
+  .feed .ev.healing .k { color: var(--blue); }
+  .feed .ev.treasury .k { color: var(--line); }
+  .feed .ev.marketplace .k { color: var(--amber); }
+  .feed .ev.core .k { color: #fff; }
+  .gauge-wrap { display:flex; align-items:center; gap: 16px; }
+  canvas { width: 100%; display:block; }
+  .legend { display:flex; gap:14px; font-size:11px; color: var(--muted); margin-top: 6px; flex-wrap: wrap; }
+  .legend i { display:inline-block; width:10px; height:3px; vertical-align: middle; margin-right:5px; }
+  .footer { color: var(--muted); font-size: 11px; padding: 18px 24px 40px; text-align:center; }
+  .err { background:#1a0a10; border:1px solid #6b1525; color:#ffb3c1; padding:12px 16px; border-radius:10px; margin-bottom:16px; }
+  .dim { color: var(--muted); }
+  .bars-mini { display:flex; gap:3px; align-items:flex-end; height: 34px; }
+  .bars-mini > i { flex:1; background: var(--line-dim); border-radius: 2px 2px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <span class="live-dot"></span>
+  <h1>YIELDSWARM · ITERATION 100 · SOVEREIGN CORE</h1>
+  <span class="tag">autonomous mutation · self-healing leases · dynamic treasury · Great Delta Grid</span>
+  <span class="tag" style="margin-left:auto" id="clock">—</span>
+</header>
+
+<main>
+  <div id="error"></div>
+
+  <!-- HERO: progress to $5M -->
+  <section class="card hero">
+    <h2>Sovereign Objective · Net Worth → $5,000,000 Vault</h2>
+    <div class="row">
+      <div>
+        <div class="big" id="networth">$—</div>
+        <div class="target">of <span id="target">$5,000,000</span> target
+          · vault <span class="pos" id="vault">$—</span>
+          · treasury <span class="blue" id="treasury">$—</span>
+          · lease credits <span class="violet" id="credits">$—</span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="stat" id="progress">—%</div>
+        <div class="sub">day <span id="tick">—</span> of the sovereign run</div>
+      </div>
+    </div>
+    <div class="bar"><span id="barfill"></span><div class="pct" id="barpct"></div></div>
+    <div class="milestones"><span>$0</span><span>$1.25M</span><span>$2.5M</span><span>$3.75M</span><span>$5M</span></div>
+  </section>
+
+  <!-- KPI ROW -->
+  <section class="grid cols-4" style="margin-top:16px">
+    <div class="card">
+      <h2>Blended Treasury APY</h2>
+      <div class="gauge-wrap">
+        <canvas id="apyGauge" width="120" height="120" style="width:96px;height:96px;flex:none"></canvas>
+        <div>
+          <div class="stat" id="apy">—%</div>
+          <div class="sub">mandate ≥ <span id="targetApy">30%</span>
+            <span id="apyState" class="pos">· holding</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Akash Fleet</h2>
+      <div class="stat" id="fleet">—</div>
+      <div class="sub"><span class="pos" id="fleetActive">—</span> active ·
+        <span class="warn" id="fleetDegraded">—</span> degraded ·
+        <span id="fleetHealth">—%</span> healthy</div>
+      <div class="bars-mini" id="gpuBars" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <h2>Autonomous Agents</h2>
+      <div class="stat" id="agents">—</div>
+      <div class="sub">gen <span class="violet" id="gen">—</span> ·
+        best fitness <span class="pos" id="fitness">—</span></div>
+      <div class="sub">evolving against live worker ROI</div>
+    </div>
+    <div class="card">
+      <h2>Fleet Net Yield</h2>
+      <div class="stat" id="netHourly">$—<span style="font-size:13px" class="dim">/h</span></div>
+      <div class="sub">Delta Grid: <span class="warn" id="ordersOpen">—</span> open ·
+        <span class="pos" id="ordersSettled">—</span> settled</div>
+    </div>
+  </section>
+
+  <!-- CHART + STRATEGIES -->
+  <section class="grid cols-2" style="margin-top:16px">
+    <div class="card">
+      <h2>Treasury Growth Trajectory → $5M</h2>
+      <canvas id="chart" width="900" height="320" style="height:320px"></canvas>
+      <div class="legend">
+        <span><i style="background:#14e08a"></i>net worth</span>
+        <span><i style="background:#4dd2ff"></i>treasury</span>
+        <span><i style="background:#b388ff"></i>fleet size</span>
+        <span><i style="background:#ffcf4d"></i>$5M target</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Dynamic Treasury Allocation</h2>
+      <div class="scroll">
+        <table id="stratTable">
+          <thead><tr><th>Venue</th><th class="num">Alloc</th><th class="num">APY</th><th class="num">Risk</th><th class="num">Weight</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLEET BY GPU + TOP AGENTS -->
+  <section class="grid cols-2" style="margin-top:16px">
+    <div class="card">
+      <h2>Self-Healing Fleet · by GPU Class</h2>
+      <div class="scroll">
+        <table id="gpuTable">
+          <thead><tr><th>GPU</th><th class="num">Leases</th><th class="num">Active</th><th class="num">Net $/h</th><th class="num">Avg ROI</th><th class="num">Credits</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Top Mutated Agents · Genome</h2>
+      <div class="scroll">
+        <table id="agentTable">
+          <thead><tr><th>Agent</th><th class="num">Fit</th><th class="num">Gen</th><th class="num">Aggr</th><th class="num">Risk</th><th class="num">PnL</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- DELTA GRID + ACTIVITY -->
+  <section class="grid cols-2" style="margin-top:16px">
+    <div class="card">
+      <h2>Great Delta Grid · Recent Routes (compute + talent)</h2>
+      <div class="scroll">
+        <table id="orderTable">
+          <thead><tr><th>Order</th><th>Kind</th><th>Spec</th><th class="num">Budget</th><th>Status</th><th class="num">Fee</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Sovereign Activity Feed</h2>
+      <div class="feed" id="feed"></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    Iteration 100 — sovereign self-governed core. Data: <code>dashboard/state.json</code>
+    (regenerate with <code>python3 iteration-100/run.py</code>). Auto-refreshes every 4s.
+    <span id="updated"></span>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const fmtUSD = (n) => "$" + Math.round(n).toLocaleString("en-US");
+const fmtUSDk = (n) => n >= 1e6 ? "$"+(n/1e6).toFixed(2)+"M" : n>=1e3 ? "$"+(n/1e3).toFixed(0)+"k" : "$"+Math.round(n);
+const pct = (x) => (x*100).toFixed(1) + "%";
+
+let history = [];
+
+async function load() {
+  let data;
+  try {
+    const res = await fetch("state.json?_=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    data = await res.json();
+    $("error").innerHTML = "";
+  } catch (e) {
+    $("error").innerHTML = '<div class="err">Could not load <b>state.json</b> ('
+      + e.message + '). Serve this folder over HTTP (e.g. <code>python3 -m http.server</code> '
+      + 'inside <code>dashboard/</code>) and run <code>python3 iteration-100/run.py</code> to generate data.</div>';
+    return;
+  }
+  render(data);
+}
+
+function render(d) {
+  // hero
+  $("networth").textContent = fmtUSD(d.net_worth_usd);
+  $("target").textContent = fmtUSD(d.vault_target_usd);
+  $("vault").textContent = fmtUSD(d.vault_usd);
+  $("treasury").textContent = fmtUSD(d.treasury_usd);
+  $("credits").textContent = fmtUSD(d.fleet_credits_usd || 0);
+  $("progress").textContent = pct(d.progress);
+  $("tick").textContent = d.tick.toLocaleString();
+  const p = Math.max(0, Math.min(1, d.progress));
+  $("barfill").style.width = (p*100).toFixed(2) + "%";
+  $("barpct").textContent = pct(d.progress) + " → $5M";
+
+  // APY
+  $("apy").textContent = pct(d.blended_apy);
+  $("targetApy").textContent = pct(d.target_apy);
+  const holding = d.blended_apy >= d.target_apy;
+  const st = $("apyState");
+  st.textContent = holding ? "· holding mandate" : "· rebalancing";
+  st.className = holding ? "pos" : "warn";
+  drawGauge(d.blended_apy, d.target_apy);
+
+  // fleet
+  const c = d.counts || {};
+  $("fleet").textContent = (c.workers||0).toLocaleString();
+  $("fleetActive").textContent = (c.active_workers||0).toLocaleString();
+  $("fleetDegraded").textContent = (c.degraded_workers||0).toLocaleString();
+  $("fleetHealth").textContent = pct(d.healthy_worker_ratio||0);
+  $("netHourly").innerHTML = fmtUSD(d.fleet_net_hourly_usd) + '<span style="font-size:13px" class="dim">/h</span>';
+  $("ordersOpen").textContent = (c.open_orders||0);
+  $("ordersSettled").textContent = (c.settled_orders||0);
+
+  // agents
+  $("agents").textContent = (c.agents||0).toLocaleString();
+  const agents = d.agents || [];
+  const bestGen = agents.reduce((m,a)=>Math.max(m,a.generation),0);
+  $("gen").textContent = bestGen;
+  $("fitness").textContent = agents.length ? agents[0].fitness.toFixed(4) : "—";
+
+  // gpu mini bars + table
+  const gpus = d.fleet_by_gpu || [];
+  const maxNet = Math.max(1, ...gpus.map(g=>g.net_hourly_usd));
+  $("gpuBars").innerHTML = gpus.slice(0,6).map(g =>
+    `<i title="${g.gpu_model}: ${g.count} leases" style="height:${Math.max(6,(g.net_hourly_usd/maxNet)*100)}%"></i>`).join("");
+  fillTable("gpuTable", gpus.map(g => [
+    g.gpu_model, g.count, g.active,
+    {t:fmtUSD(g.net_hourly_usd), c:g.net_hourly_usd>=0?"pos":"neg", num:true},
+    {t:pct(g.avg_roi), c:g.avg_roi>=0?"pos":"neg", num:true},
+    {t:fmtUSDk(g.credits_usd), num:true},
+  ]));
+
+  // strategies
+  const strat = d.strategies || [];
+  const tot = strat.reduce((s,x)=>s+x.allocation_usd,0) || 1;
+  fillTable("stratTable", strat.map(s => [
+    s.name,
+    {t:fmtUSDk(s.allocation_usd), num:true},
+    {t:pct(s.apy), c:s.apy>=d.target_apy?"pos":"warn", num:true},
+    {t:(s.risk*100).toFixed(0), c:s.risk>0.6?"neg":"dim", num:true},
+    {t:pct(s.allocation_usd/tot), num:true},
+  ]));
+
+  // agents table
+  fillTable("agentTable", agents.slice(0,16).map(a => [
+    a.agent_id,
+    {t:a.fitness.toFixed(3), c:a.fitness>=0?"pos":"neg", num:true},
+    {t:a.generation, c:"violet", num:true},
+    {t:(a.genome.aggression*100).toFixed(0), num:true},
+    {t:(a.genome.risk_appetite*100).toFixed(0), num:true},
+    {t:fmtUSDk(a.realized_pnl_usd), num:true},
+  ]));
+
+  // orders
+  const orders = (d.orders||[]).slice().reverse();
+  fillTable("orderTable", orders.slice(0,18).map(o => [
+    o.order_id.replace("ord-",""),
+    {t:o.kind, c:o.kind==="compute"?"blue":"violet"},
+    o.spec,
+    {t:fmtUSD(o.budget_usd), num:true},
+    {t:o.status, c:o.status==="settled"?"pos":(o.status==="unfilled"?"dim":"warn")},
+    {t:o.fee_usd?fmtUSD(o.fee_usd):"—", c:"pos", num:true},
+  ]));
+
+  // feed
+  $("feed").innerHTML = (d.events||[]).slice().reverse().slice(0,40).map(e =>
+    `<div class="ev ${e.subsystem}"><span class="k">d${e.tick} · ${e.subsystem}</span><span>${escapeHtml(e.detail)}</span></div>`
+  ).join("");
+
+  // chart
+  history = d.history || [];
+  drawChart(history, d.vault_target_usd);
+
+  $("clock").textContent = "day " + d.tick;
+  if (d.updated_at) $("updated").textContent = "· snapshot " + new Date(d.updated_at*1000).toLocaleString();
+}
+
+function fillTable(id, rows) {
+  const tb = $(id).querySelector("tbody");
+  tb.innerHTML = rows.map(r => "<tr>" + r.map(cell => {
+    if (typeof cell === "object") {
+      const cls = (cell.num?"num ":"") + (cell.c||"");
+      return `<td class="${cls.trim()}">${cell.t}</td>`;
+    }
+    return `<td>${cell}</td>`;
+  }).join("") + "</tr>").join("");
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));}
+
+function drawGauge(apy, target) {
+  const cv = $("apyGauge"), ctx = cv.getContext("2d");
+  const W = cv.width, cx = W/2, cy = W/2, r = W/2 - 14;
+  ctx.clearRect(0,0,W,W);
+  const frac = Math.max(0, Math.min(1, apy / (target*1.8)));
+  ctx.lineWidth = 12; ctx.lineCap = "round";
+  ctx.strokeStyle = "#0f2a20";
+  ctx.beginPath(); ctx.arc(cx,cy,r, Math.PI*0.75, Math.PI*2.25); ctx.stroke();
+  // target tick
+  const tg = 0.75*Math.PI + (1.5*Math.PI)*Math.min(1, target/(target*1.8));
+  // value arc
+  ctx.strokeStyle = apy>=target ? "#14e08a" : "#ffcf4d";
+  ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = 12;
+  ctx.beginPath(); ctx.arc(cx,cy,r, Math.PI*0.75, Math.PI*0.75 + (1.5*Math.PI)*frac); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // target marker
+  ctx.strokeStyle = "#ffcf4d"; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx,cy,r, tg-0.02, tg+0.02); ctx.stroke();
+}
+
+function drawChart(hist, target) {
+  const cv = $("chart"), ctx = cv.getContext("2d");
+  const rect = cv.getBoundingClientRect();
+  const W = cv.width = rect.width * (window.devicePixelRatio||1);
+  const H = cv.height = 320 * (window.devicePixelRatio||1);
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+  const w = rect.width, h = 320, padL = 54, padR = 14, padB = 22, padT = 10;
+  ctx.clearRect(0,0,W,H);
+  if (!hist.length) { ctx.fillStyle="#6f8c7f"; ctx.font="12px monospace"; ctx.fillText("no history yet",padL,h/2); return; }
+  const xs = hist.map(p=>p.tick);
+  const x0 = xs[0], x1 = xs[xs.length-1] || 1;
+  const yMax = target * 1.05;
+  const X = t => padL + (w-padL-padR) * ((t-x0)/Math.max(1,(x1-x0)));
+  const Y = v => padT + (h-padT-padB) * (1 - v/yMax);
+  // grid + y labels
+  ctx.strokeStyle = "#0c1a14"; ctx.fillStyle = "#476"; ctx.font = "10px monospace";
+  for (let i=0;i<=5;i++){ const v=yMax*i/5, y=Y(v);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    ctx.fillText(fmtUSDk(v), 6, y+3); }
+  // target line
+  ctx.strokeStyle = "#ffcf4d"; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(padL,Y(target)); ctx.lineTo(w-padR,Y(target)); ctx.stroke();
+  ctx.setLineDash([]);
+  const fleetMax = Math.max(1, ...hist.map(p=>p.workers||0));
+  const line = (key, color, scale) => {
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+    hist.forEach((p,i) => { const v = scale ? (p[key]/fleetMax)*target : p[key];
+      const x=X(p.tick), y=Y(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.stroke();
+  };
+  line("treasury_usd", "#4dd2ff", false);
+  line("workers", "#b388ff", true);
+  // net worth with glow + fill
+  ctx.strokeStyle = "#14e08a"; ctx.lineWidth = 2.5; ctx.shadowColor="#14e08a"; ctx.shadowBlur=10;
+  ctx.beginPath();
+  hist.forEach((p,i)=>{const x=X(p.tick),y=Y(p.net_worth_usd); i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+  ctx.stroke(); ctx.shadowBlur=0;
+  const last = hist[hist.length-1];
+  ctx.fillStyle = "#14e08a"; ctx.beginPath(); ctx.arc(X(last.tick),Y(last.net_worth_usd),3.5,0,7); ctx.fill();
+}
+
+window.addEventListener("resize", () => drawChart(history, 5000000));
+load();
+setInterval(load, 4000);
+</script>
+</body>
+</html>

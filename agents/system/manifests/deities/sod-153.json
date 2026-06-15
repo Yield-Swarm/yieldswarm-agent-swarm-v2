@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "kappa-sentiment",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-153",
+  "metal_skin": "helium-ceramic",
+  "mutation_affinity": 0.89,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "west-southwest"
+}

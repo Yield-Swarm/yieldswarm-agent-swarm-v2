@@ -1,0 +1,101 @@
+---
+# =========================================================================
+# Akash SDL for YieldSwarm agent shards.
+#
+# ZERO application secrets live in this file. The only sensitive values
+# passed to the deployment are:
+#   - VAULT_ROLE_ID: non-secret on its own (acts like a username).
+#   - VAULT_WRAPPED_SECRET_ID: a single-use, ~10-min response-wrap token
+#                              minted by the CI/admin AppRole at deploy time.
+#
+# The workload pulls every other secret (cloud, RPC, LLM, per-shard) from
+# Vault via the in-container Vault Agent. See ../akash/entrypoint.sh and
+# ../akash/vault-agent.hcl for the runtime mechanics.
+#
+# Operator workflow:
+#   1. WRAP=$(vault write -wrap-ttl=600s -force -format=json \
+#               auth/approle/role/akash-runtime/secret-id \
+#               | jq -r '.wrap_info.token')
+#   2. ROLE_ID=$(vault read -field=role_id \
+#               auth/approle/role/akash-runtime/role-id)
+#   3. SHARD_ID=<0..119>
+#   4. provider-services tx deployment create deploy.yaml \
+#        --from <wallet> \
+#        --env VAULT_ROLE_ID="${ROLE_ID}" \
+#        --env VAULT_WRAPPED_SECRET_ID="${WRAP}" \
+#        --env AGENT_SHARD_ID="${SHARD_ID}"
+# =========================================================================
+version: "2.0"
+
+services:
+  agent:
+    image: ghcr.io/yield-swarm/yieldswarm-agent:1.0.0
+    expose:
+      - port: 8080
+        as: 80
+        proto: tcp
+        to:
+          - global: true
+        accept:
+          - dashboard.yieldswarm.io
+    env:
+      # ---- Vault wiring (no secrets, just bootstrap data) --------------
+      - VAULT_ADDR=https://vault.yieldswarm.io:8200
+      # role_id, wrapped_secret_id, and shard_id are injected at
+      # `deployment create` time via `--env` flags (see comment above).
+      # They are intentionally NOT enumerated here so the manifest is
+      # safe to commit to git and reuse across shards.
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - AGENT_SHARD_ID
+
+      # ---- Non-sensitive workload tuning ------------------------------
+      - LOG_LEVEL=INFO
+      - AGENT_COUNT_TOTAL=10080
+      - AGENTS_PER_SHARD=84
+      - CRON_SHARD_COUNT=120
+      - CRON_INTERVAL_MINUTES=15
+
+    # /run/secrets is a tmpfs so rendered env never touches the host disk.
+    # Akash respects size_units; we cap at 4Mi which is far above what
+    # the rendered env file needs.
+    params:
+      storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
+
+profiles:
+  compute:
+    agent:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 1Gi
+        storage:
+          - name: default
+            size: 2Gi
+          - name: secrets
+            size: 8Mi
+            attributes:
+              persistent: false
+              class: ram
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      pricing:
+        agent:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  agent:
+    akash:
+      profile: agent
+      count: 1

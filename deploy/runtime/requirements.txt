@@ -1,0 +1,6 @@
+# YieldSwarm runtime dependencies.
+# Kept intentionally lean — the worker and sovereign loop run on the Python
+# stdlib so the container image stays small and starts fast. Add agent-specific
+# SDKs (akash, solana, web3, anthropic, ...) here as the agents graduate from
+# placeholders to live integrations.
+prometheus-client==0.20.0

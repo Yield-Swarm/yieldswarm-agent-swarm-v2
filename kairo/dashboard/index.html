@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kairo Driver Contributions</title>
+  <style>
+    :root { --bg: #0b0f14; --card: #141a22; --accent: #3dd68c; --text: #e8eef4; --muted: #8b9aab; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    header { padding: 1.5rem 2rem; border-bottom: 1px solid #1f2933; }
+    h1 { margin: 0; font-size: 1.4rem; }
+    p { color: var(--muted); margin: 0.4rem 0 0; }
+    main { padding: 1.5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat { background: var(--card); border-radius: 10px; padding: 1rem; }
+    .stat strong { display: block; font-size: 1.6rem; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #1f2933; font-size: 0.9rem; }
+    th { color: var(--muted); font-weight: 600; }
+    .addr { font-family: ui-monospace, monospace; font-size: 0.8rem; }
+    .badge { background: #1a3d2e; color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kairo → YieldSwarm Data Contributions</h1>
+    <p>Signed driver telemetry routed into the Mandelbrot / Tree of Life architecture</p>
+  </header>
+  <main>
+    <div class="stats" id="stats"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Driver</th>
+          <th>EVM Address</th>
+          <th>Events</th>
+          <th>Miles</th>
+          <th>Mandelbrot</th>
+          <th>Est. Rewards</th>
+          <th>DePIN</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+  <script>
+    const apiBase = window.location.origin.replace(/:\d+$/, ':8787') + '/api/kairo';
+
+    async function load() {
+      const res = await fetch(apiBase + '/contributions?limit=25');
+      const data = await res.json();
+      const rows = data.contributions || [];
+      const totalMiles = rows.reduce((s, r) => s + (r.total_miles || 0), 0);
+      const totalRewards = rows.reduce((s, r) => s + (r.estimated_rewards_usd || 0), 0);
+      const totalDepin = rows.reduce((s, r) => s + (r.depin_rewards_usd || 0), 0);
+
+      document.getElementById('stats').innerHTML = `
+        <div class="stat"><span>Active Drivers</span><strong>${rows.length}</strong></div>
+        <div class="stat"><span>Total Miles</span><strong>${totalMiles.toFixed(1)}</strong></div>
+        <div class="stat"><span>Est. Rewards</span><strong>$${totalRewards.toFixed(2)}</strong></div>
+        <div class="stat"><span>DePIN Rewards</span><strong>$${totalDepin.toFixed(2)}</strong></div>
+      `;
+
+      document.getElementById('rows').innerHTML = rows.map(r => `
+        <tr>
+          <td><span class="badge">${r.driver_id}</span></td>
+          <td class="addr">${r.evm_address}</td>
+          <td>${r.event_count}</td>
+          <td>${(r.total_miles || 0).toFixed(1)}</td>
+          <td>${(r.mandelbrot_points || 0).toFixed(2)}</td>
+          <td>$${(r.estimated_rewards_usd || 0).toFixed(2)}</td>
+          <td>$${(r.depin_rewards_usd || 0).toFixed(2)}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="7">No contributions yet — register a driver via POST /api/kairo/drivers/register</td></tr>';
+    }
+    load().catch(console.error);
+    setInterval(load, 15000);
+  </script>
+</body>
+</html>

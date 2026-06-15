@@ -1,0 +1,77 @@
+#cloud-config
+# Cloud-init template rendered by Terraform for any VM (Vultr droplet,
+# DO droplet, Azure VM) that needs to bootstrap a Vault Agent loop.
+#
+# The wrapped SecretID baked into this user-data is good for ONE unwrap
+# only and expires in minutes. After first boot the workload runs Vault
+# Agent which keeps its token alive via renewal.
+
+write_files:
+  - path: /etc/vault.d/vault-agent.hcl
+    permissions: '0640'
+    owner: root:vault
+    content: |
+      pid_file = "/run/vault-agent.pid"
+
+      vault {
+        address = "${vault_addr}"
+        retry { num_retries = 10 }
+      }
+
+      auto_auth {
+        method "approle" {
+          mount_path = "auth/approle"
+          config = {
+            role_id_file_path                   = "/etc/vault.d/role-id"
+            secret_id_file_path                 = "/etc/vault.d/secret-id"
+            remove_secret_id_file_after_reading = true
+            secret_id_response_wrapping_path    = "auth/approle/role/agent-runtime/secret-id"
+          }
+        }
+        sink "file" {
+          config = { path = "/run/vault-token" }
+        }
+      }
+
+      cache { use_auto_auth_token = true }
+
+      template {
+        source      = "/etc/vault.d/templates/agent.env.ctmpl"
+        destination = "/run/agent.env"
+        perms       = "0640"
+        command     = "systemctl restart yieldswarm-agent.service"
+      }
+
+  - path: /etc/vault.d/role-id
+    permissions: '0640'
+    owner: root:vault
+    content: "${vault_role_id}"
+
+  - path: /etc/vault.d/secret-id
+    permissions: '0600'
+    owner: root:vault
+    content: "${vault_wrapped_secret_id}"
+
+  - path: /etc/vault.d/templates/agent.env.ctmpl
+    permissions: '0640'
+    owner: root:vault
+    content: |
+      AGENT_SHARD_ID=${shard_id}
+      {{- with secret "yieldswarm/data/agents/shards/${shard_id}" }}
+      AGENT_API_KEY={{ .Data.data.api_key }}
+      AGENT_SIGNING_KEY={{ .Data.data.signing_key }}
+      {{- end }}
+      {{- with secret "yieldswarm/data/rpc/helius" }}
+      HELIUS_API_KEY={{ .Data.data.api_key }}
+      {{- end }}
+      {{- with secret "yieldswarm/data/rpc/solana" }}
+      SOLANA_RPC_URL={{ .Data.data.http_url }}
+      SOLANA_WS_URL={{ .Data.data.ws_url }}
+      {{- end }}
+
+runcmd:
+  - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
+  - apt-get update -y && apt-get install -y vault
+  - groupadd -f vault && chown -R root:vault /etc/vault.d && chmod 750 /etc/vault.d
+  - systemctl enable --now vault-agent@vault-agent.service || /usr/bin/vault agent -config=/etc/vault.d/vault-agent.hcl &
