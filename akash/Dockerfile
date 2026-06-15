@@ -59,11 +59,13 @@ RUN mkdir -p /etc/vault-agent/templates /run/secrets \
  && chown -R yieldswarm:yieldswarm /etc/vault-agent /run/secrets \
  && chmod 0750 /etc/vault-agent /run/secrets
 
-COPY akash/vault-agent.hcl           /etc/vault-agent/vault-agent.hcl
-COPY akash/templates/agent.env.ctmpl /etc/vault-agent/templates/agent.env.ctmpl
-COPY akash/entrypoint.sh             /usr/local/bin/entrypoint.sh
+COPY akash/vault-agent.hcl              /etc/vault-agent/vault-agent.hcl
+COPY akash/templates/runtime.env.ctmpl  /etc/vault-agent/templates/runtime.env.ctmpl
+COPY akash/templates/agent.env.ctmpl    /etc/vault-agent/templates/agent.env.ctmpl
+COPY akash/entrypoint.sh                /usr/local/bin/entrypoint.sh
 RUN chmod 0755 /usr/local/bin/entrypoint.sh \
  && chmod 0640 /etc/vault-agent/vault-agent.hcl \
+                /etc/vault-agent/templates/runtime.env.ctmpl \
                 /etc/vault-agent/templates/agent.env.ctmpl
 
 # /run/secrets is a tmpfs mount in the Akash SDL so it never touches disk.

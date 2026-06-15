@@ -190,4 +190,11 @@ put_if_set runtime/bittensor \
   network=BT_NETWORK \
   ollama_model=OLLAMA_MODEL
 
+# ---- Akash deploy operator config (deploy host, not container) ---------
+put_if_set runtime/akash \
+  key_name=AKASH_KEY_NAME \
+  mnemonic=AKASH_WALLET_MNEMONIC \
+  node=AKASH_NODE \
+  chain_id=AKASH_CHAIN_ID
+
 log "done"

@@ -70,6 +70,18 @@ create_or_update_role ci-bootstrap \
   secret_id_num_uses=1 \
   bind_secret_id=true
 
+# Bittensor miner on Akash (Ollama + axon) — same CIDR binding as akash-runtime.
+create_or_update_role bittensor-runtime \
+  token_policies="bittensor-runtime" \
+  token_ttl="1h" \
+  token_max_ttl="24h" \
+  token_num_uses=0 \
+  secret_id_ttl="30m" \
+  secret_id_num_uses=1 \
+  bind_secret_id=true \
+  secret_id_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}" \
+  token_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}"
+
 # ---- (Optional) OIDC for human admins ----------------------------------
 if [ "${ENABLE_OIDC:-false}" = "true" ]; then
   ensure_auth oidc

@@ -4,7 +4,10 @@ version: "2.0"
 # Akash SDL — Dual-purpose Bittensor worker (RTX 3090 class GPU)
 # Port 8080: telemetry → Vercel Arena dashboard
 # Port 8091: Bittensor axon for validator challenges
-# Render with: deploy/akash/deploy-bittensor.sh
+#
+# Vault bootstrap env vars (VAULT_ROLE_ID, VAULT_WRAPPED_SECRET_ID) are
+# injected at `deployment create` via --env flags from deploy-bittensor.sh.
+# The entrypoint unwraps the SecretID once and loads runtime/bittensor via hvac.
 
 services:
   bittensor-miner:
@@ -19,31 +22,20 @@ services:
         to:
           - global: true
     env:
-      # Bittensor subnet targeting
-      - BT_NETUID=${BT_NETUID}
-      - BT_NETWORK=${BT_NETWORK}
       - BT_AXON_PORT=8091
-      - BT_WALLET_NAME=${BT_WALLET_NAME}
-      - BT_HOTKEY_NAME=${BT_HOTKEY_NAME}
-      - BT_WALLET_PATH=/secrets/bittensor
-      # Ollama inference
-      - OLLAMA_MODEL=${OLLAMA_MODEL}
       - OLLAMA_HOST=0.0.0.0:11434
-      # Telemetry
       - TELEMETRY_PORT=8080
-      - AKASH_DSEQ=${AKASH_DSEQ}
-      - AKASH_PROVIDER=${AKASH_PROVIDER}
-      # Vault runtime secrets (wallet json injected at deploy — never hardcode)
-      - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
-      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - BT_WALLET_PATH=/run/secrets/bittensor
+      # Vault runtime bootstrap (values from deployment create --env)
+      - VAULT_ADDR
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
       - VAULT_KV_MOUNT=yieldswarm
       - VAULT_SECRET_PATHS=runtime/bittensor,runtime/akash,rpc/bittensor
-      - VAULT_SKIP_VERIFY=${VAULT_SKIP_VERIFY}
     params:
       storage:
-        data:
-          mount: /secrets
+        secrets:
+          mount: /run/secrets
           readOnly: false
         ollama-cache:
           mount: /root/.ollama
@@ -62,8 +54,11 @@ profiles:
         memory:
           size: 32Gi
         storage:
-          - name: data
-            size: 10Gi
+          - name: secrets
+            size: 8Mi
+            attributes:
+              persistent: false
+              class: ram
           - name: ollama-cache
             size: 50Gi
         gpu:

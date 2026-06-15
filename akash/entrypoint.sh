@@ -34,8 +34,11 @@ die()  { printf '\033[1;31m[entrypoint]\033[0m %s\n' "$*" >&2; exit 1; }
 # ---- Required env from Akash SDL ---------------------------------------
 : "${VAULT_ADDR:?VAULT_ADDR must be set by the Akash SDL}"
 : "${VAULT_ROLE_ID:?VAULT_ROLE_ID must be set by the Akash SDL}"
-: "${VAULT_WRAPPED_SECRET_ID:?VAULT_WRAPPED_SECRET_ID must be set by the Akash SDL}"
 : "${AGENT_SHARD_ID:?AGENT_SHARD_ID must be set by the Akash SDL (0..119)}"
+
+# Accept either name for the one-shot wrap token (deploy scripts use both).
+WRAP_TOKEN="${VAULT_WRAPPED_SECRET_ID:-${VAULT_SECRET_ID_WRAP_TOKEN:-}}"
+[ -n "${WRAP_TOKEN}" ] || die "VAULT_WRAPPED_SECRET_ID (or VAULT_SECRET_ID_WRAP_TOKEN) must be set by the Akash SDL"
 
 export VAULT_ADDR AGENT_SHARD_ID
 
@@ -49,12 +52,12 @@ chmod 0400 "${SECRETS_DIR}/role-id"
 
 # ---- Step 2: unwrap the SecretID once and write to tmpfs ---------------
 log "Unwrapping SecretID for AppRole akash-runtime"
-if ! UNWRAPPED=$(VAULT_TOKEN="${VAULT_WRAPPED_SECRET_ID}" \
+if ! UNWRAPPED=$(VAULT_TOKEN="${WRAP_TOKEN}" \
         vault unwrap -format=json 2>/tmp/unwrap.err); then
   cat /tmp/unwrap.err >&2 || true
   die "Failed to unwrap VAULT_WRAPPED_SECRET_ID. Has it expired or been used already?"
 fi
-unset VAULT_WRAPPED_SECRET_ID
+unset VAULT_WRAPPED_SECRET_ID VAULT_SECRET_ID_WRAP_TOKEN WRAP_TOKEN
 
 SECRET_ID=$(printf '%s' "${UNWRAPPED}" | jq -er '.data.secret_id' || true)
 [ -n "${SECRET_ID:-}" ] || die "Unwrap succeeded but no .data.secret_id present."

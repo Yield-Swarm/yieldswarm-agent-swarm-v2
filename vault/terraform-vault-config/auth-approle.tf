@@ -57,3 +57,16 @@ resource "vault_approle_auth_backend_role" "ci_bootstrap" {
   secret_id_bound_cidrs = var.ci_egress_cidrs
   token_bound_cidrs     = var.ci_egress_cidrs
 }
+
+resource "vault_approle_auth_backend_role" "bittensor_runtime" {
+  backend               = vault_auth_backend.approle.path
+  role_name             = "bittensor-runtime"
+  token_policies        = [vault_policy.managed["bittensor-runtime"].name]
+  token_ttl             = 3600  # 1h
+  token_max_ttl         = 86400 # 24h
+  secret_id_ttl         = 1800  # 30m
+  secret_id_num_uses    = 1
+  bind_secret_id        = true
+  secret_id_bound_cidrs = var.akash_egress_cidrs
+  token_bound_cidrs     = var.akash_egress_cidrs
+}

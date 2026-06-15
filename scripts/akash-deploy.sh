@@ -4,6 +4,8 @@ set -Eeuo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 source "${HERE}/lib/akash-auth.sh"
+# shellcheck disable=SC1091
+source "${HERE}/lib/vault-akash-bootstrap.sh"
 
 timestamp() {
   date -u +"%Y-%m-%dT%H:%M:%SZ"
@@ -52,12 +54,20 @@ json_tmp() {
 create_deployment() {
   local sdl_file="$1"
   local output_file="$2"
+  local vault_env_args=()
+
+  if vault_maybe_prepare_for_sdl "$sdl_file" "${VAULT_AKASH_ROLE:-akash-runtime}" 2>/dev/null; then
+    while IFS= read -r flag; do
+      [[ -n "$flag" ]] && vault_env_args+=("$flag")
+    done < <(vault_akash_env_flags)
+  fi
 
   log "creating deployment from ${sdl_file}"
   # shellcheck disable=SC2046
   provider-services tx deployment create "${sdl_file}" \
     $(akash_tx_flags) \
     --deposit "${AKASH_DEPOSIT}" \
+    "${vault_env_args[@]}" \
     --yes \
     --output json > "${output_file}"
 }
