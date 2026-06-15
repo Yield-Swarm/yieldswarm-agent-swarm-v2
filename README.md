@@ -39,16 +39,16 @@ See `docs/odysseus-yieldswarm.md` for model aliases, memory bootstrap steps,
 and Akash Ollama worker requirements.
 
 ## Deployment
-- Odysseus stack: `docker-compose.yml`
-- Akash SDL: `deploy/akash-odysseus.sdl.yml`
+- Full production: [`DEPLOY.md`](DEPLOY.md) — `make deploy` or `scripts/deploy-vault-production.sh`
+- Domains: [`DOMAINS.md`](DOMAINS.md) · Merge strategy: [`MERGE_STRATEGY.md`](MERGE_STRATEGY.md)
+- Odysseus full stack: `docker-compose.odysseus-full.yml` (ChromaDB + LiteLLM + Odysseus)
+- Akash monolith: `deploy/deploy-swarm-monolith.yaml` (RTX 3090 + Vault runtime)
 - Vercel: https://v2-0-bay.vercel.app/
-- Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
-- Odysseus GPU service:
-  - Akash SDL: `deploy/akash/odysseus.sdl.yml`
-  - Docker: `Dockerfile`, `docker-compose.yml`, `docker/entrypoint-odysseus.sh`
-  - Build workflow: `.github/workflows/build-odysseus.yml`
-  - Vault Terraform: `terraform/odysseus/`
-  - Production deploy: `scripts/deploy-production-odysseus.sh`
+
+## Kairo (Driver DePIN)
+- Register identity: `POST /api/kairo/drivers/register` (IoTeX + EVM)
+- Signed telemetry: `POST /api/kairo/telemetry` → Mandelbrot / Tree of Life
+- Dashboard: `/kairo` · Fees: 1% customer · 2× driver pay · Wise cashout
 
 ## Setup
 1. Copy .env.example to .env

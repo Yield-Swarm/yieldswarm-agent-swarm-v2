@@ -1,3 +1,6 @@
+# YieldSwarm production monolith — RTX 3090 workers + Odysseus + Vault runtime injection.
+# ZERO application secrets in this file. Vault AppRole bootstrap via --env at deploy time.
+# See akash/vault-agent.hcl and scripts/deploy-vault-production.sh
 version: "2.0"
 
 services:
@@ -8,6 +11,11 @@ services:
       - WORKER_ENV=production
       - WORKER_PORT=8080
       - HEALTHCHECK_PATH=/healthz
+      - VAULT_ADDR
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - AGENT_SHARD_ID
+      - ODYSSEUS_RUNTIME_VAULT_PATH=kv/data/yieldswarm/odysseus/runtime
     expose:
       - port: 8080
         as: 80
@@ -39,6 +47,45 @@ services:
           mount: /var/cache/yieldswarm
         worker-logs:
           mount: /var/log/yieldswarm
+        secrets:
+          mount: /run/secrets
+          readOnly: false
+
+  odysseus:
+    image: ghcr.io/yieldswarm/agent-swarm-odysseus:stable
+    expose:
+      - port: 8080
+        as: 81
+        to:
+          - global: true
+    env:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - VAULT_ADDR
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - ODYSSEUS_RUNTIME_VAULT_PATH=kv/data/yieldswarm/odysseus/runtime
+      - AGENT_SHARD_ID
+      - ODYSSEUS_AGENT_COUNT=84
+      - CHROMADB_URL
+      - LITELLM_URL
+    readiness_probe:
+      http_get:
+        path: /healthz
+        port: 8080
+      initial_delay_seconds: 30
+      period_seconds: 15
+    liveness_probe:
+      http_get:
+        path: /healthz
+        port: 8080
+      initial_delay_seconds: 60
+      period_seconds: 20
+    params:
+      storage:
+        odysseus-secrets:
+          mount: /run/secrets
+          readOnly: false
 
 profiles:
   compute:
@@ -71,6 +118,30 @@ profiles:
             attributes:
               persistent: "true"
               class: beta3
+          - name: secrets
+            size: 8Mi
+            attributes:
+              persistent: false
+              class: ram
+    odysseus-gpu:
+      resources:
+        cpu:
+          units: "4.0"
+        memory:
+          size: 16Gi
+        gpu:
+          units: "1"
+          attributes:
+            vendor:
+              nvidia
+            model:
+              - rtx3090
+        storage:
+          - name: odysseus-secrets
+            size: 8Mi
+            attributes:
+              persistent: false
+              class: ram
   placement:
     rtx3090-production:
       attributes:
@@ -81,9 +152,16 @@ profiles:
         worker:
           denom: uakt
           amount: "700000"
+        odysseus:
+          denom: uakt
+          amount: "500000"
 
 deployment:
   worker:
     rtx3090-production:
       profile: worker
       count: 3
+  odysseus:
+    rtx3090-production:
+      profile: odysseus-gpu
+      count: 1

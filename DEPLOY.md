@@ -381,4 +381,56 @@ dashboard/                        # index.html + config.js (live worker view)
 | Terraform makes no fallback | Expected when `primary_healthy=true` or all `TF_ENABLE_*=false`. |
 | Grafana/Prometheus won't start | Ensure Docker is running and ports 9090/3001/9093 are free. |
 | Sovereign loop stalled alert | `deploy/scripts/start-sovereign-loops.sh start`; check `.run/sovereign-loop.log`. |
+
+---
+
+## Vault-first production deploy (Codespaces + CI)
+
+For deployments where **all secrets live in HashiCorp Vault** (no `.env` on disk):
+
+### Codespaces quick start
+
+```bash
+# 1. Clone and open in GitHub Codespaces
+gh codespace create -r Yield-Swarm/yieldswarm-agent-swarm-v2
+
+# 2. Authenticate to Vault (use your org's OIDC or token)
+export VAULT_ADDR=https://vault.yieldswarm.io:8200
+vault login -method=oidc   # or: vault login <token>
+
+# 3. Bootstrap Vault engines/policies (first time only)
+./vault/setup/bootstrap.sh
+
+# 4. Load deploy secrets and run full production deploy
+chmod +x scripts/deploy-vault-production.sh
+./scripts/deploy-vault-production.sh
+
+# 5. Verify Odysseus + Akash health
+curl -fsS http://localhost:7000/healthz | jq .
+curl -fsS http://localhost:7000/api/swarm/status | jq .
+cat .run/akash-lease.env 2>/dev/null || true
 ```
+
+### Vault paths
+
+| Path | Contents |
+|------|----------|
+| `kv/data/yieldswarm/deploy` | GHCR tokens, Akash wallet name, Terraform toggles |
+| `kv/data/yieldswarm/odysseus/deploy` | Odysseus image refs, Akash chain config |
+| `kv/data/yieldswarm/odysseus/runtime` | API keys, OpenRouter/Fireworks, Ollama URLs |
+| `kv/data/yieldswarm/payments` | Square, Wise webhook secrets |
+
+Akash workers receive secrets via **Vault Agent** sidecar (`akash/vault-agent.hcl`).
+AppRole `akash-runtime` gets a response-wrapped SecretID at deploy time — see
+`scripts/deploy-vault-production.sh`.
+
+### Odysseus full stack (local / staging)
+
+```bash
+# Pull runtime secrets from Vault, then start ChromaDB + LiteLLM + Odysseus
+vault_export_env() { . scripts/lib/vault-env.sh; vault_export_env "$1"; }
+vault_export_env kv/data/yieldswarm/odysseus/runtime
+docker compose -f docker-compose.odysseus-full.yml up -d --build
+```
+
+See also: [`SECRETS.md`](SECRETS.md), [`docs/odysseus-yieldswarm.md`](docs/odysseus-yieldswarm.md).
