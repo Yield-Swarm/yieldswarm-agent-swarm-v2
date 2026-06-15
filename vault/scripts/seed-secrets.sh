@@ -134,6 +134,45 @@ put_if_set integrations/stripe \
 put_if_set integrations/mapbox \
   token=MAPBOX_TOKEN
 
+# ---- Council Wishlist (optional — enable when integrations are wired) ----
+put_if_set integrations/quicknode \
+  api_key=QUICKNODE_API_KEY \
+  solana_rpc=QUICKNODE_SOLANA_RPC \
+  ethereum_rpc=QUICKNODE_ETHEREUM_RPC
+
+put_if_set integrations/tenderly \
+  api_key=TENDERLY_API_KEY \
+  account_slug=TENDERLY_ACCOUNT_SLUG \
+  project_slug=TENDERLY_PROJECT_SLUG
+
+put_if_set integrations/sentry \
+  dsn=SENTRY_DSN \
+  auth_token=SENTRY_AUTH_TOKEN \
+  org=SENTRY_ORG \
+  project=SENTRY_PROJECT
+
+put_if_set integrations/cloudflare \
+  api_token=CLOUDFLARE_API_TOKEN \
+  account_id=CLOUDFLARE_ACCOUNT_ID \
+  client_id=CLOUDFLARE_CLIENT_ID \
+  client_secret=CLOUDFLARE_CLIENT_SECRET \
+  r2_access_key_id=CLOUDFLARE_R2_ACCESS_KEY_ID \
+  r2_secret_access_key=CLOUDFLARE_R2_SECRET_ACCESS_KEY \
+  r2_bucket=CLOUDFLARE_R2_BUCKET
+
+put_if_set integrations/pinata \
+  api_key=PINATA_API_KEY \
+  secret=PINATA_SECRET \
+  jwt=PINATA_JWT
+
+put_if_set integrations/livepeer \
+  api_key=LIVEPEER_API_KEY \
+  webhook_secret=LIVEPEER_WEBHOOK_SECRET
+
+put_if_set rpc/ankr \
+  api_key=ANKR_API_KEY \
+  mainnet_rpc=ANKR_RPC_MAINNET
+
 # ---- Odysseus orchestration ----
 put_if_set runtime/odysseus \
   api_key=ODYSSEUS_API_KEY \

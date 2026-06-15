@@ -475,7 +475,16 @@ yieldswarm/
     ├── linear             { api_key }
     ├── github             { token }
     ├── vercel             { token }
-    └── telegram           { bot_token }
+    ├── telegram           { bot_token }
+    ├── unstoppable        { api_key }          # UD_API_KEY
+    ├── stripe             { secret_key, webhook_secret, publishable_key }
+    ├── mapbox             { token }
+    ├── quicknode          { api_key, solana_rpc, ethereum_rpc }   # Council Wishlist
+    ├── tenderly           { api_key, account_slug, project_slug }
+    ├── sentry             { dsn, auth_token, org, project }
+    ├── cloudflare         { api_token, client_id, client_secret, r2_* }
+    ├── pinata             { api_key, secret, jwt }
+    └── livepeer           { api_key, webhook_secret }
 ```
 
 Policy → path matrix:
