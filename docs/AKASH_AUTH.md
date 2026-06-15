@@ -14,6 +14,8 @@ JWT tokens are **cryptographically signed with your private key**. This repo can
 
 **Recommendation for GitHub Codespaces:** Start with **Option A** (`AKASH_KEYRING_BACKEND=test`).
 
+> **Codespace JWT workflow:** See [`docs/AKASH_CODESPACE_JWT.md`](AKASH_CODESPACE_JWT.md) for secure generate → export → expiry → keyring fallback.
+
 ---
 
 ## Option A — Keyring only (simplest)

@@ -3,8 +3,11 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "${HERE}/.." && pwd)"
 # shellcheck disable=SC1091
-source "${HERE}/akash-env.sh"
+source "${HERE}/akash-env.sh" >/dev/null 2>&1
+# shellcheck disable=SC1091
+source "${HERE}/lib/jwt-utils.sh"
 
 command -v provider-services >/dev/null 2>&1 || {
   echo "ERROR: provider-services not installed" >&2
@@ -12,50 +15,43 @@ command -v provider-services >/dev/null 2>&1 || {
   exit 1
 }
 
-mkdir -p "${HERE}/../.run"
+JWT_FILE="${ROOT}/.run/akash-jwt.txt"
+ENV_FILE="${ROOT}/.run/akash-jwt.env"
+META_FILE="${ROOT}/.run/akash-jwt.meta.json"
 
-echo "Generating JWT (signed with key '${AKASH_KEY_NAME}' — you will confirm the tx)..."
+echo "Generating JWT (signed with key '${AKASH_KEY_NAME}' — confirms on-chain)..."
 OUT="$(mktemp)"
 trap 'rm -f "${OUT}"' EXIT
 
-# Akash mainnet 14+ / provider-services v0.10+
-if provider-services tx auth generate-jwt --help >/dev/null 2>&1; then
-  provider-services tx auth generate-jwt \
-    --from "${AKASH_KEY_NAME}" \
-    --chain-id "${AKASH_CHAIN_ID}" \
-    --node "${AKASH_NODE}" \
-    --keyring-backend "${AKASH_KEYRING_BACKEND}" \
-    --gas "${AKASH_GAS}" \
-    --gas-adjustment "${AKASH_GAS_ADJUSTMENT}" \
-    --yes \
-    --output json > "${OUT}" 2>&1 || {
-      cat "${OUT}" >&2
-      exit 1
-    }
-  TOKEN="$(jq -r '.token // .jwt // .data.token // empty' "${OUT}" 2>/dev/null || true)"
-  if [[ -z "${TOKEN}" ]]; then
-    # Some builds print the raw JWT to stdout
-    TOKEN="$(grep -oE 'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "${OUT}" | head -1 || true)"
-  fi
-else
-  echo "WARN: tx auth generate-jwt not available — provider-services auto-signs JWT when using --from" >&2
-  echo "For CI, upgrade provider-services or use keyring auth (AKASH_AUTH_METHOD=keyring)" >&2
+if ! provider-services tx auth generate-jwt --help >/dev/null 2>&1; then
+  echo "ERROR: tx auth generate-jwt not available in this provider-services build" >&2
+  echo "Use keyring fallback: export AKASH_AUTH_METHOD=keyring" >&2
   exit 1
 fi
 
+provider-services tx auth generate-jwt \
+  --from "${AKASH_KEY_NAME}" \
+  --chain-id "${AKASH_CHAIN_ID}" \
+  --node "${AKASH_NODE}" \
+  --keyring-backend "${AKASH_KEYRING_BACKEND}" \
+  --gas "${AKASH_GAS}" \
+  --gas-adjustment "${AKASH_GAS_ADJUSTMENT}" \
+  --yes \
+  --output json > "${OUT}" 2>&1 || {
+    cat "${OUT}" >&2
+    exit 1
+  }
+
+TOKEN="$(jq -r '.token // .jwt // .data.token // empty' "${OUT}" 2>/dev/null || true)"
+if [[ -z "${TOKEN}" ]]; then
+  TOKEN="$(grep -oE 'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' "${OUT}" | head -1 || true)"
+fi
 [[ -n "${TOKEN}" ]] || { echo "ERROR: could not parse JWT from CLI output" >&2; cat "${OUT}" >&2; exit 1; }
 
-JWT_FILE="${HERE}/../.run/akash-jwt.txt"
-echo "${TOKEN}" > "${JWT_FILE}"
-cat > "${HERE}/../.run/akash-jwt.env" <<EOF
-export AKASH_JWT="${TOKEN}"
-export AKASH_JWT_FILE="${JWT_FILE}"
-export AKASH_AUTH_METHOD=jwt
-EOF
+akash_jwt_secure_write "${TOKEN}" "${JWT_FILE}" "${ENV_FILE}" "${META_FILE}"
 
 echo ""
-echo "JWT generated (short-lived — regenerate every few hours)."
-echo "  export AKASH_JWT=\"\$(cat ${JWT_FILE})\""
-echo "  source ${HERE}/../.run/akash-jwt.env"
-echo ""
-echo "Token prefix: ${TOKEN:0:20}..."
+echo "JWT stored securely in .run/ (gitignored, mode 600)"
+echo "  bash scripts/akash-jwt-status.sh     # check expiry"
+echo "  source scripts/akash-jwt-export.sh   # load into session"
+echo "  token_prefix=${TOKEN:0:16}..."
