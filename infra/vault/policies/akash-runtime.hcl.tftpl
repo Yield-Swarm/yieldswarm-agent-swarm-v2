@@ -1,0 +1,25 @@
+%{ for path in secret_paths ~}
+path "${kv_mount_path}/data/${path}" {
+  capabilities = ["read"]
+}
+
+path "${kv_mount_path}/metadata/${path}" {
+  capabilities = ["read"]
+}
+
+%{ endfor ~}
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+path "auth/token/renew-self" {
+  capabilities = ["update"]
+}
+
+path "${transit_mount_path}/encrypt/akash-runtime-env" {
+  capabilities = ["update"]
+}
+
+path "${transit_mount_path}/decrypt/akash-runtime-env" {
+  capabilities = ["update"]
+}

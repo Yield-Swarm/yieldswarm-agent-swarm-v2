@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+!.env.example
+
+.terraform
+terraform.tfstate
+terraform.tfstate.*
+
+deploy/akash/*.rendered.yaml
+deploy/akash/*.rendered.yml
