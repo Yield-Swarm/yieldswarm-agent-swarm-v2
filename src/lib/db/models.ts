@@ -2,7 +2,7 @@
 
 export type Chain = "evm" | "solana" | "ton";
 
-export type PaymentRail = "square" | "wise" | "web3";
+export type PaymentRail = "stripe" | "square" | "wise" | "web3";
 
 export type TxDirection = "deposit" | "withdrawal";
 

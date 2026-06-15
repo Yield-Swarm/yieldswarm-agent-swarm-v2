@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",
+    "@stripe/react-stripe-js": "^2.8.0",
+    "@stripe/stripe-js": "^4.5.0",
     "@tonconnect/sdk": "^3.0.5",
     "@tonconnect/ui-react": "^2.0.9",
     "ethers": "^6.13.2",
@@ -20,6 +22,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "square": "^37.0.0",
+    "stripe": "^16.12.0",
     "viem": "^2.21.1",
     "zod": "^3.23.8"
   },

@@ -25,6 +25,11 @@ export const serverEnv = {
   appUrl: str("APP_URL", str("NEXT_PUBLIC_APP_URL", "http://localhost:3000")),
   sessionSecret: str("SESSION_SECRET", "yieldswarm-dev-session-secret-change-me"),
 
+  stripe: {
+    secretKey: () => str("STRIPE_SECRET_KEY"),
+    webhookSecret: () => str("STRIPE_WEBHOOK_SECRET"),
+  },
+
   square: {
     accessToken: () => str("SQUARE_ACCESS_TOKEN"),
     locationId: () => str("SQUARE_LOCATION_ID"),
@@ -98,9 +103,16 @@ export const publicConfig = {
     locationId: str("NEXT_PUBLIC_SQUARE_LOCATION_ID"),
     environment: str("NEXT_PUBLIC_SQUARE_ENVIRONMENT", "sandbox"),
   },
+  stripe: {
+    publishableKey: str("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"),
+  },
+  platformFeeRate: str("NEXT_PUBLIC_PLATFORM_FEE_RATE", "0.01"),
 };
 
-export function railConfigured(rail: "square" | "wise" | "web3"): boolean {
+export function railConfigured(rail: "stripe" | "square" | "wise" | "web3"): boolean {
+  if (rail === "stripe") {
+    return Boolean(serverEnv.stripe.secretKey());
+  }
   if (rail === "square") {
     return Boolean(serverEnv.square.accessToken() && serverEnv.square.locationId());
   }

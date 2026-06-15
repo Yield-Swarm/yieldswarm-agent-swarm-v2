@@ -2,6 +2,10 @@
 .env
 deploy/config.env
 
+# Node
+node_modules/
+.next/
+
 # Runtime state
 deploy/akash.env
 .run/

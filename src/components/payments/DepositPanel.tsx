@@ -5,9 +5,10 @@ import { api } from "@/lib/api";
 import { useWallet } from "@/components/wallet/WalletProvider";
 import { useTon } from "@/components/wallet/useTon";
 import { SquarePaymentForm } from "./SquarePaymentForm";
+import { StripePaymentForm } from "./StripePaymentForm";
 import type { ChainKind, PublicConfig } from "./types";
 
-type Tab = "square" | "wise" | "web3";
+type Tab = "stripe" | "square" | "wise" | "web3";
 
 const SQUARE_APP_CONFIGURED = Boolean(
   process.env.NEXT_PUBLIC_SQUARE_APP_ID && process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID,
@@ -20,12 +21,22 @@ export function DepositPanel({
   config: PublicConfig;
   onChange: () => void;
 }) {
-  const [tab, setTab] = useState<Tab>(config.rails.square ? "square" : config.rails.wise ? "wise" : "web3");
+  const [tab, setTab] = useState<Tab>(
+    config.rails.stripe ? "stripe" : config.rails.square ? "square" : config.rails.wise ? "wise" : "web3",
+  );
 
   return (
     <section className="panel p-5">
       <h2 className="text-lg font-semibold text-white">Deposit</h2>
+      <p className="mt-1 text-xs text-swarm-muted">
+        Card payments include a flat 1% platform fee added to your credit amount.
+      </p>
       <div className="mt-3 flex gap-1 rounded-xl border border-swarm-border bg-black/30 p-1">
+        {config.rails.stripe && (
+          <button className={`tab flex-1 ${tab === "stripe" ? "tab-active" : ""}`} onClick={() => setTab("stripe")}>
+            Stripe
+          </button>
+        )}
         <button className={`tab flex-1 ${tab === "square" ? "tab-active" : ""}`} onClick={() => setTab("square")}>
           Square
         </button>
@@ -38,6 +49,7 @@ export function DepositPanel({
       </div>
 
       <div className="mt-4">
+        {tab === "stripe" && <StripeDeposit config={config} onChange={onChange} />}
         {tab === "square" && <SquareDeposit config={config} onChange={onChange} />}
         {tab === "wise" && <WiseDeposit config={config} onChange={onChange} />}
         {tab === "web3" && <Web3Deposit config={config} onChange={onChange} />}
@@ -75,6 +87,32 @@ function AmountFields({
           ))}
         </select>
       </div>
+    </div>
+  );
+}
+
+function StripeDeposit({ config, onChange }: { config: PublicConfig; onChange: () => void }) {
+  const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState(config.fiatCurrencies[0] ?? "USD");
+
+  if (!config.rails.stripe) {
+    return (
+      <Notice>
+        Stripe is not configured on the server (set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET).
+      </Notice>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <AmountFields
+        amount={amount}
+        setAmount={setAmount}
+        currency={currency}
+        setCurrency={setCurrency}
+        currencies={config.fiatCurrencies}
+      />
+      <StripePaymentForm amount={amount} currency={currency} onChange={onChange} />
     </div>
   );
 }

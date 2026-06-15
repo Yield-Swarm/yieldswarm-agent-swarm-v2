@@ -1,6 +1,7 @@
 export interface PublicConfig {
-  rails: { square: boolean; wise: boolean; web3: boolean };
+  rails: { stripe: boolean; square: boolean; wise: boolean; web3: boolean };
   fiatCurrencies: string[];
+  platformFeeRate: string;
   chains: {
     evm: { id: number; name: string; shortName: string; nativeSymbol: string; assets: string[] }[];
     solana: { name: string; assets: string[] };
@@ -14,7 +15,7 @@ export interface PublicConfig {
 export interface Transaction {
   id: string;
   direction: "deposit" | "withdrawal";
-  rail: "square" | "wise" | "web3";
+  rail: "stripe" | "square" | "wise" | "web3";
   status: string;
   amount: string;
   currency: string;
