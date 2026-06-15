@@ -96,6 +96,22 @@ render:
 production:
 	bash scripts/deploy-production.sh all
 
+## deploy-all: full multi-platform stack (Vercel + Render + Akash + monitoring)
+deploy-all:
+	bash scripts/deploy-all.sh
+
+deploy-vercel:
+	bash scripts/deploy-all.sh vercel
+
+deploy-render:
+	bash scripts/deploy-all.sh render
+
+deploy-akash:
+	bash scripts/deploy-all.sh akash
+
+deploy-akash-bittensor:
+	bash scripts/deploy-all.sh akash-bittensor
+
 # ---- STEP 1: images -------------------------------------------------------
 ## login: docker login to GHCR (uses GHCR_TOKEN/GHCR_USER)
 login:

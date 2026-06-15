@@ -33,6 +33,9 @@ export const config = {
   // Polling / cache behaviour
   cacheTtlMs: int(process.env.TELEMETRY_CACHE_TTL_MS, 15_000),
   upstreamTimeoutMs: int(process.env.UPSTREAM_TIMEOUT_MS, 6_000),
+  httpRetries: int(process.env.HTTP_RETRIES, 2),
+  httpRetryDelayMs: int(process.env.HTTP_RETRY_DELAY_MS, 400),
+  cronJobsEnabled: bool(process.env.CRON_JOBS_ENABLED, true),
 
   akash: {
     // Akash Console indexer API — live network capacity + provider health and
