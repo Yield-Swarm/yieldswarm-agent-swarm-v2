@@ -1,0 +1,80 @@
+---
+# akash/deploy.yaml
+#
+# Akash SDL for the YieldSwarm agent runtime.
+#
+# Secrets are NOT in this file. The deployment receives only:
+#   * VAULT_ADDR                       — public Vault endpoint URL
+#   * VAULT_ROLE_ID                    — non-secret AppRole role_id
+#   * VAULT_SECRET_ID_WRAP_TOKEN       — one-shot response-wrap token; the
+#                                        container unwraps it in entrypoint.sh
+#                                        to obtain the real secret_id. After
+#                                        unwrap, the wrap token is dead.
+#
+# Issue a fresh wrap token PER DEPLOYMENT with:
+#   eval "$(./vault/scripts/issue-secret-id.sh akash-runtime 10m)"
+#   # exports VAULT_ROLE_ID and VAULT_SECRET_ID_WRAP_TOKEN
+#   provider-services tx deployment create akash/deploy.yaml \
+#       --from <key> --gas-prices 0.025uakt --gas auto --gas-adjustment 1.4 \
+#       --env "VAULT_ADDR=$VAULT_ADDR" \
+#       --env "VAULT_ROLE_ID=$VAULT_ROLE_ID" \
+#       --env "VAULT_SECRET_ID_WRAP_TOKEN=$VAULT_SECRET_ID_WRAP_TOKEN"
+#
+# DO NOT inline the wrap token into this YAML. DO NOT commit it. DO NOT log it.
+
+version: "2.0"
+
+services:
+  yieldswarm:
+    # Pin to an immutable digest in production. The CI publish job updates this
+    # value automatically; never use `:latest`.
+    image: ghcr.io/yieldswarm/agent-runtime:2.0.0@sha256:REPLACE_WITH_PUBLISHED_DIGEST
+
+    env:
+      # Vault endpoint (public DNS or Akash-routable). Non-secret.
+      - VAULT_ADDR=https://vault.yieldswarm.io:8200
+      # Role ID is non-secret. The matching wrap token is delivered out-of-band
+      # via `--env` flags at deployment time and is NEVER stored in this file.
+      - VAULT_ROLE_ID=__SET_VIA_DEPLOY_TIME_ENV__
+      - VAULT_SECRET_ID_WRAP_TOKEN=__SET_VIA_DEPLOY_TIME_ENV__
+      # Optional knobs.
+      - VAULT_AGENT_LOG_LEVEL=info
+      - LOG_LEVEL=INFO
+      - PORT=8080
+
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+        accept:
+          - api.yieldswarm.io
+
+profiles:
+  compute:
+    yieldswarm:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 8Gi
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        yieldswarm:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  yieldswarm:
+    akash:
+      profile: yieldswarm
+      count: 1

@@ -1,0 +1,12 @@
+**/__pycache__
+**/*.pyc
+**/*.pyo
+.env
+.env.*
+*.tfstate
+*.tfstate.*
+.terraform
+node_modules
+.git
+.gitignore
+README.md
