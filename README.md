@@ -23,3 +23,22 @@ UD API Key included in .env.example
 
 ## Next
 Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+
+## Trident / Layer-35 Foundation Scaffold (2026-06-15)
+
+This repository now includes an executable monorepo scaffold for the v2 control-plane rollout:
+
+- `docs/YieldSwarm_v1_v2_Trident_Layer35_Blueprint.md`
+- `infra/akash/openclaw-worker-r3090.sdl.yml`
+- `depin/docker/Dockerfile.worker`
+- `src/pages/api/great-delta/*`
+- `contracts/quadrant-iv/GreatDeltaEmissionRouter.sol`
+- `scripts/multicloud/*`
+- `telemetry/great-delta/*`
+- `agents/mutated-swarm/10k-identities/seed-manifest.json`
+
+### Runtime invariants
+
+- Latency guardrail: `80ms`
+- Heartbeat interval: `420s`
+- Treasury split: `50/30/15/5`

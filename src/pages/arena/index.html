@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YieldSwarm Arena</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; background: #05070d; color: #dce7ff; }
+      .card { border: 1px solid #2d3d63; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; background: #0c1222; }
+      .ok { color: #59d38a; }
+      .warn { color: #f3c65b; }
+      code { color: #8ac6ff; }
+    </style>
+  </head>
+  <body>
+    <h1>YieldSwarm Arena Hydration</h1>
+    <p>This replaces static "Coming Soon" posture with live Great Delta status.</p>
+    <div class="card">
+      <h2>Control Plane Health</h2>
+      <div id="health">Loading...</div>
+    </div>
+    <div class="card">
+      <h2>Treasury Rail</h2>
+      <p><code>50 / 30 / 15 / 5</code> (vault / operations / ecosystem / sovereign reserve)</p>
+    </div>
+    <script>
+      async function hydrate() {
+        const target = document.getElementById("health");
+        try {
+          const resp = await fetch("/api/great-delta/health");
+          const data = await resp.json();
+          const statusClass = data.status === "ok" ? "ok" : "warn";
+          target.innerHTML = `<span class="${statusClass}">${data.status.toUpperCase()}</span><br/>
+            Guardrail: ${data.guardrailMs}ms<br/>
+            Heartbeat: ${data.heartbeatSeconds}s<br/>
+            Time: ${data.timestamp}`;
+        } catch (error) {
+          target.innerHTML = `<span class="warn">UNAVAILABLE</span><br/>${String(error)}`;
+        }
+      }
+      hydrate();
+      setInterval(hydrate, 30000);
+    </script>
+  </body>
+</html>

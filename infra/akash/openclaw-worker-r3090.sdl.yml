@@ -1,0 +1,62 @@
+version: "2.0"
+
+services:
+  openclaw-worker:
+    image: ghcr.io/yield-swarm/openclaw-worker:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      - port: 9090
+        as: 9090
+        to:
+          - global: true
+    env:
+      - NODE_ENV=production
+      - WORKER_ROLE=openclaw-gpu
+      - HEARTBEAT_INTERVAL_SECONDS=420
+      - LATENCY_GUARDRAIL_MS=80
+      - TREASURY_SPLIT=50,30,15,5
+      - OLLAMA_PRIMARY_MODEL=llama3.1:8b
+      - OLLAMA_SECONDARY_MODEL=qwen2.5:7b
+    command:
+      - /usr/local/bin/entrypoint.sh
+    params:
+      storage:
+        data:
+          mount: /var/lib/yieldswarm
+
+profiles:
+  compute:
+    openclaw-worker:
+      resources:
+        cpu:
+          units: 6
+        memory:
+          size: 24Gi
+        storage:
+          - size: 40Gi
+          - name: data
+            size: 120Gi
+            attributes:
+              persistent: true
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+  placement:
+    westcoast:
+      pricing:
+        openclaw-worker:
+          denom: uakt
+          amount: 250000
+      signedBy:
+        anyOf:
+          - "akash1w4x9z5jlm8pl6w5yn3mcmx0example"
+  deployment:
+    openclaw-worker:
+      westcoast:
+        profile: openclaw-worker
+        count: 1
