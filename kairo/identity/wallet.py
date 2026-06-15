@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import secrets
 import uuid
 from pathlib import Path
@@ -78,7 +79,12 @@ def register_driver(
         "key_fingerprint": hashlib.sha256(private_key.encode()).hexdigest()[:16],
     }
     save_registry(registry)
-    # Operator must store private_key in Vault: yieldswarm/kairo/drivers/<id>
+    if os.environ.get("VAULT_ADDR") and os.environ.get("VAULT_TOKEN"):
+        try:
+            from kairo.identity.vault_store import store_driver_key
+            store_driver_key(identity.driver_id, private_key)
+        except Exception:
+            pass  # operator stores manually if Vault unavailable
     return identity
 
 

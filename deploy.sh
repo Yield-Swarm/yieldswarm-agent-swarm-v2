@@ -4,6 +4,7 @@
 # =============================================================================
 # Runs the full production deployment, in order:
 #
+#   0. Vault health check (optional, when VAULT_ADDR set)
 #   1. Build & push Docker images to GHCR
 #   2. Create the Akash lease  (+ start auto-heal)
 #   3. Apply Terraform multi-cloud fallback
@@ -63,11 +64,24 @@ EOF
   log "Dry run:      ${DRY_RUN}"
 }
 
+step0() {
+  if [[ -z "${VAULT_ADDR:-}" ]]; then
+    warn "VAULT_ADDR unset — skipping Vault preflight"
+    return 0
+  fi
+  step "STEP 0 — Vault health check"
+  vault status >/dev/null
+  ok "Vault reachable at ${VAULT_ADDR}"
+}
 step1() { step "STEP 1/5 — Build & push images to GHCR"; bash "${REPO_ROOT}/deploy/scripts/build-and-push.sh"; }
 step2() {
   step "STEP 2/5 — Akash lease creation + auto-heal setup"
-  bash "${REPO_ROOT}/deploy/akash/create-lease.sh"
-  bash "${REPO_ROOT}/deploy/akash/auto-heal.sh" --daemon
+  if [[ -n "${USE_VAULT_AKASH:-}" ]] && [[ -f "${REPO_ROOT}/deploy/scripts/akash-production-deploy.sh" ]]; then
+    bash "${REPO_ROOT}/deploy/scripts/akash-production-deploy.sh"
+  else
+    bash "${REPO_ROOT}/deploy/akash/create-lease.sh"
+    bash "${REPO_ROOT}/deploy/akash/auto-heal.sh" --daemon
+  fi
 }
 step3() { step "STEP 3/5 — Terraform multi-cloud fallback";    bash "${REPO_ROOT}/deploy/scripts/apply-terraform.sh" apply; }
 step4() { step "STEP 4/5 — Update frontend with worker URLs";  bash "${REPO_ROOT}/deploy/scripts/update-frontend-urls.sh"; }
@@ -88,6 +102,7 @@ run_step() {
 main() {
   banner
   local t0; t0="$(date +%s)"
+  if [[ -z "$ONLY_STEP" ]] && (( FROM_STEP <= 1 )); then step0 || true; fi
   for n in 1 2 3 4 5; do
     if should_run "$n"; then run_step "$n"; else log "skipping step $n"; fi
   done
