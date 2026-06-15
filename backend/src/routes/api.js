@@ -16,6 +16,9 @@ import * as treasury from '../adapters/treasury.js';
 import * as greatDelta from '../adapters/greatDelta.js';
 import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
+import * as odysseus from '../adapters/odysseus.js';
+import { getVaultTelemetry } from '../adapters/vault.js';
+import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -31,7 +34,7 @@ function asyncRoute(fn) {
 
 router.get('/health', asyncRoute(async (_req, res) => {
   const [akashPing, solanaPing] = await Promise.all([akash.ping(), solana.ping()]);
-  const ok = akashPing.live || solanaPing.live; // service is up even if one upstream is down
+  const ok = akashPing.live || solanaPing.live;
   res.status(ok ? 200 : 503).json({
     status: ok ? 'ok' : 'degraded',
     time: new Date().toISOString(),
@@ -47,41 +50,37 @@ router.get('/akash/workers', asyncRoute(async (_req, res) => {
   res.json(data);
 }));
 
-/** Alias consumed by frontend/shared/telemetry.js (Arena static dashboard). */
+/** Static Arena/Portal contract — see frontend/shared/telemetry.js */
 router.get('/telemetry/akash', asyncRoute(async (_req, res) => {
-  const data = await cache.get('akash:workers', () => akash.getWorkers());
-  res.json({ ...data, source: data.source || 'akash', updatedAt: new Date().toISOString() });
+  const snapshot = await cache.get('akash:workers', () => akash.getWorkers());
+  res.json(toAkashTelemetryPayload(snapshot));
 }));
 
-/** Odysseus agent/memory telemetry — maps leaderboard rows to agent metrics. */
 router.get('/telemetry/odysseus', asyncRoute(async (_req, res) => {
-  const [board, emissions] = await Promise.all([
-    cache.get('telemetry:leaderboard:default', () => leaderboard.getLeaderboard({ limit: 25 })),
-    cache.get('telemetry:emission', () => emission.getEmissions()),
-  ]);
-  const rows = board.rows || board.entries || board.leaderboard || [];
-  const agents = rows.map((entry, i) => ({
-    id: entry.agentId || entry.address || `agent-${i + 1}`,
-    name: entry.shard ? `${entry.shard} · ${entry.agentId}` : (entry.label || entry.name || `Odysseus agent ${i + 1}`),
-    role: entry.shard || 'research',
-    status: board.live ? 'healthy' : 'degraded',
-    activeResearchRuns: entry.tasksCompleted ? Math.min(5, Math.floor(entry.tasksCompleted / 1000)) : 1,
-    memoryWrites: entry.rewardsApn ? Math.floor(entry.rewardsApn / 10) : 0,
-    rewardsApn: entry.rewardsApn ?? 0,
-  }));
-  const memoryItems = agents.reduce((s, a) => s + (a.memoryWrites || 0), 0);
+  const snapshot = await cache.get('odysseus:telemetry', () => odysseus.getTelemetry());
+  res.json(toOdysseusTelemetryPayload(snapshot));
+}));
+
+router.get('/vault/telemetry', asyncRoute(async (_req, res) => {
+  res.json(getVaultTelemetry());
+}));
+
+/** Portal SSO stubs — returns anonymous session until Odysseus auth is wired. */
+router.get('/auth/session', asyncRoute(async (_req, res) => {
   res.json({
-    source: 'odysseus',
-    live: board.live || emissions.live,
-    status: board.live ? 'active' : 'degraded',
-    agents,
-    activeResearchRuns: agents.reduce((s, a) => s + (a.activeResearchRuns || 0), 0),
-    memoryItems,
-    memory: { items: memoryItems, vectors: memoryItems * 4 },
-    vectorCount: memoryItems * 4,
-    queueDepth: board.live ? 0 : 1,
-    completedResearchRuns: agents.length * 10,
-    updatedAt: new Date().toISOString(),
+    authenticated: false,
+    provider: null,
+    user: null,
+    odysseusLinked: false,
+    timestamp: new Date().toISOString(),
+  });
+}));
+
+router.post('/auth/odysseus/handoff', asyncRoute(async (req, res) => {
+  res.status(501).json({
+    error: 'Odysseus SSO handoff requires Odysseus runtime',
+    hint: 'Start docker-compose.odysseus.yml and configure ODYSSEUS_ADMIN_* in Vault',
+    received: Boolean(req.body?.token || req.body?.session),
   });
 }));
 
@@ -151,8 +150,6 @@ router.get('/telemetry/leaderboard', asyncRoute(async (req, res) => {
 
 /**
  * Single aggregated payload that powers the Arena dashboard in one round-trip.
- * Each section is fetched in parallel and resolves independently so one slow or
- * failing upstream never blocks the rest of the dashboard.
  */
 router.get('/arena/overview', asyncRoute(async (_req, res) => {
   const [workers, emissions, treasurySplits, board, gd] = await Promise.all([

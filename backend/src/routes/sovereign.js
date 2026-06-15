@@ -16,7 +16,7 @@ function asyncRoute(fn) {
 }
 
 router.get('/overview', asyncRoute(async (_req, res) => {
-  const data = await sovereign.getSovereignOverview();
+  const data = await sovereign.getSovereignState();
   res.json(data);
 }));
 
@@ -27,7 +27,7 @@ router.get('/stream', asyncRoute(async (req, res) => {
   res.flushHeaders();
 
   const push = async () => {
-    const data = await sovereign.getSovereignOverview();
+    const data = await sovereign.getSovereignState();
     res.write(`data: ${JSON.stringify(data)}\n\n`);
   };
 

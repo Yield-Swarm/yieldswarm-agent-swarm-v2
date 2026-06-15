@@ -1,49 +1,122 @@
 # Production Readiness Report — YieldSwarm + Kairo
 
 > **Final integration pass:** June 15, 2026  
-> **Branch merged to:** `main`  
-> **Integration agent:** cross-component pass + live API verification
+> **Branch:** `main`  
+> **Verdict:** **PRODUCTION READY (STAGED DEPLOY)**
 
 ---
 
-## Overall Status: **PRODUCTION READY (STAGED DEPLOY)**
+## Executive Summary
 
-All cross-component connections have been verified. The system is ready for
-operator-led deployment: Vault bootstrap → Akash lease → domain wiring → Kairo frontend.
+All cross-component connections have been verified end-to-end. The monorepo is ready for operator-led staging deployment: Vault bootstrap → Akash lease → integration backend → Arena/sovereign dashboards → Kairo frontend.
+
+| Area | Status |
+|------|--------|
+| Integration backend (:8080) | **Ready** — all telemetry, Great Delta, Kairo proxy, auth stubs |
+| React wallet frontend (Vite) | **Ready** — Arena wired to `/api/arena/overview` with Great Delta splits |
+| Payments app (Next.js) | **Ready** — build passes; needs production secrets + durable store |
+| Great Delta 50/30/15/5 | **Ready** — shared split module, on-chain contract, payment metadata |
+| Agent swarm (Python) | **Ready** — smoke + unit tests pass |
+| HashiCorp Vault | **Ready** — bootstrap scripts; requires live Vault instance |
+| Akash / Odysseus | **Needs credentials** — SDL + compose ready; wallet + Vault required |
+| Kairo driver DePIN | **Alpha** — identity + telemetry scaffold; not mainnet-hardened |
+
+**Block mainnet until:** payment persistence (Postgres), EVM router deployed, live sovereign feeds, security audit on webhooks.
 
 ---
 
-## Integration Pass Results
-
-### Connections fixed in this pass
+## Integration Fixes (Final Pass)
 
 | Issue | Fix | Verified |
 |-------|-----|----------|
-| Odysseus telemetry returned empty agents | Map `board.rows` with correct field names in `/api/telemetry/odysseus` | ✅ 25 agents returned live |
-| Treasury split mismatch vs Great Delta contract | Aligned to **50/30/15/5** in config, emission adapter, payment lib | ✅ Unit tests pass |
-| $5M dashboard isolated from live data | Added `/api/sovereign/state` + dashboard tries live API first | ✅ Live overlay works |
-| Backend didn't serve vault dashboard | Added `/dashboard/` static + `/vault` redirect | ✅ |
-| Arena telemetry port mismatch in smoke tests | Corrected to `:8080` | ✅ |
-| Payment rails disconnected from emission router | Added `src/lib/payments/great-delta.ts` | ✅ |
+| Kairo routes unreachable (`/api/kairo/*`) | Mounted `kairoRouter` + static `/kairo/` in `server.js` | ✅ |
+| Sovereign SSE/overview 502 (`getSovereignOverview`) | Aliased to `getSovereignState()` | ✅ |
+| Kairo dashboard 404 on `/contributions` | Added alias route in `kairo.js` | ✅ |
+| `list_contributions` AttributeError (`_contributions`) | Uses `all_driver_stats()` | ✅ |
+| Arena React app pointed at dead port `:8787` | Uses `useArenaTelemetry` → `/api/arena/overview` via Vite proxy `:8080` | ✅ |
+| Portal auth handoff 404 | Added `/api/auth/session` stub + `/odysseus` workspace shell | ✅ |
+| Great Delta split schism (canonical vs legacy) | `great-delta-split.js` + legacy aliases in config/telemetry | ✅ |
+| Payment fees disconnected from emission router | `emissionBreakdownWithLegacy()` in ledger + Kairo bridge | ✅ |
+| Sovereign dashboard missing live splits | `live_overlay` + Great Delta section in HTML | ✅ |
+| CI frontend test script missing | Added `test` script to `frontend/package.json` | ✅ |
+| Odysseus telemetry empty agents | `odysseus.js` adapter + format normalizers | ✅ |
+| Static Arena contract mismatch | `/api/telemetry/akash`, `/api/telemetry/odysseus`, `/api/vault/telemetry` | ✅ |
 
-### Live API verification (integration backend on :8080)
+---
+
+## Component Connection Map
 
 ```
-GET /api/health              → ok (Akash + Solana upstreams live)
-GET /api/telemetry/akash     → Akash Console indexer connected
-GET /api/telemetry/odysseus  → 25 agents from leaderboard rows
-GET /api/sovereign/state     → state.json + live_overlay merged
-GET /api/arena/overview      → aggregated dashboard payload
-GET /dashboard/sovereign-dashboard.html → $5M vault UI
+┌─────────────────────────────────────────────────────────────────┐
+│  Vercel / Next.js (:3000)                                       │
+│  /payments — Square, Wise, Web3                                 │
+│  /api/great-delta/* — DePIN worker health (Pages API)             │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+┌───────────────────────────▼─────────────────────────────────────┐
+│  Integration Backend (:8080)                                      │
+│  /api/arena/overview      ← React Arena + static Arena            │
+│  /api/great-delta/*       ← emission router + telemetry ingest    │
+│  /api/telemetry/akash     ← static Arena/Portal contract        │
+│  /api/telemetry/odysseus  ← Odysseus adapter                    │
+│  /api/vault/telemetry     ← $5M sovereign snapshot              │
+│  /api/sovereign/state     ← sovereign dashboard live overlay    │
+│  /api/kairo/*             ← proxy to Kairo Python API (:8091)   │
+│  /api/auth/session        ← Portal SSO stub                       │
+│  /arena/, /portal/, /kairo/ ← static dashboards                 │
+└───────┬──────────────┬──────────────┬───────────────────────────┘
+        │              │              │
+   Akash Console   Solana RPC    Kairo API (:8091)
+   Indexer API                    Odysseus (compose)
+        │
+   Akash leases (when AKASH_OWNER_ADDRESS set)
 ```
 
-### Test summary
+### Great Delta treasury split (canonical)
+
+| Bucket | BPS | Legacy alias |
+|--------|-----|--------------|
+| `coreTreasury` | 5000 (50%) | `vault` |
+| `growthTreasury` | 3000 (30%) | `operations` |
+| `insuranceTreasury` | 1500 (15%) | `ecosystem` |
+| `opsTreasury` | 500 (5%) | `sovereignReserve` |
+
+On-chain: `contracts/GreatDeltaEmissionRouter.sol`  
+Off-chain: `backend/src/lib/great-delta-split.js`, `src/lib/payments/great-delta.ts`
+
+---
+
+## Live API Verification
+
+```
+GET /api/health                    → ok (Akash + Solana upstreams)
+GET /api/arena/overview            → aggregated dashboard + Great Delta
+GET /api/great-delta/overview      → 50/30/15/5 emission + treasury splits
+GET /api/great-delta/health        → split BPS validation
+POST /api/great-delta/telemetry    → worker ingest (80ms guardrail)
+GET /api/telemetry/akash           → Akash Console indexer
+GET /api/telemetry/odysseus        → agent/memory telemetry
+GET /api/vault/telemetry           → sovereign state snapshot
+GET /api/sovereign/state           → state.json + live_overlay
+GET /api/kairo/health              → proxy (degraded if Kairo API down)
+GET /api/kairo/contributions       → leaderboard alias
+GET /api/auth/session              → Portal SSO stub
+GET /dashboard/sovereign-dashboard.html → $5M vault UI with live splits
+```
+
+---
+
+## Test Summary
 
 | Suite | Result |
 |-------|--------|
-| `tests/integration/smoke_test.sh` | **21/21 pass** (with backend running) |
-| `backend/` unit tests | **3/3 pass** |
-| Kairo Python syntax | **3/3 pass** |
+| `bash tests/integration/smoke_test.sh` | **31/31 pass** (with backend on :8080) |
+| `cd backend && npm test` | **10/10 pass** |
+| `cd frontend && npm test` | **6/6 pass** |
+| `python3 tests/test_smoke_integration.py` | **OK** |
+| `python3 -m unittest discover -s tests` | **12/12 pass** (with requirements.txt) |
+| `npm run build` (payments) | **Pass** |
+| `cd frontend && npm run build` | **Pass** |
 
 ---
 
@@ -51,20 +124,20 @@ GET /dashboard/sovereign-dashboard.html → $5M vault UI
 
 | Component | Status | Blocker |
 |-----------|--------|---------|
-| HashiCorp Vault | ✅ Ready | Operator must run `vault/setup/bootstrap.sh` |
-| Akash deploy SDL + scripts | ✅ Ready | `provider-services` + funded wallet required |
-| Odysseus + ChromaDB | ✅ Ready | GPU host + Vault secrets |
+| HashiCorp Vault | ✅ Ready | Operator runs `vault/setup/bootstrap.sh` |
+| Akash deploy SDL + scripts | ✅ Ready | `provider-services` + funded wallet |
+| Odysseus + ChromaDB | ✅ Ready | `docker-compose.odysseus.yml` + Vault secrets |
 | Integration backend | ✅ **Live-tested** | `cd backend && npm install && npm start` |
+| Great Delta emission router | ✅ Ready | Deploy EVM contract; set `EMISSION_ROUTER_EVM_ADDRESS` |
 | Kairo crypto identity | ✅ Ready | `pip install -r kairo/backend/requirements.txt` |
-| Kairo frontend | ✅ Ready | Mapbox token + Vercel/Netlify deploy |
+| Kairo frontend | ✅ Ready | `VITE_MAPBOX_TOKEN` + Vercel deploy |
 | Payment rails | ⚠️ Config needed | Production Square/Wise keys in Vault |
-| Great Delta emission router | ✅ Ready | Deploy contract before MAINNET |
-| Unstoppable Domains | ✅ Documented | Manual UD dashboard steps in `DOMAINS.md` |
+| Unstoppable Domains | ✅ Documented | Manual UD steps in `DOMAINS.md` |
 | Branch structure | ✅ Ready | `main`, `development`, `testnet`, `devnets`, `production`, `MAINNET` |
 
 ---
 
-## Deploy Commands (copy-paste)
+## Deploy Commands
 
 ```bash
 # 1. Vault bootstrap
@@ -77,16 +150,25 @@ vault_export_env kv/data/yieldswarm/akash/runtime
 # 3. Full infrastructure deploy
 make preflight && make deploy
 
-# 4. Start integration backend (Arena + $5M dashboard)
+# 4. Integration backend (Arena + sovereign + Kairo proxy)
 cd backend && npm install && npm start
 # → http://localhost:8080/dashboard/sovereign-dashboard.html
+# → http://localhost:8080/api/arena/overview
 
-# 5. Start Kairo API
+# 5. React wallet frontend (dev)
+cd frontend && npm install && npm run dev
+# → http://localhost:5173 (proxies /api → :8080)
+
+# 6. Payments app
+npm install && npm run dev
+# → http://localhost:3000/payments
+
+# 7. Kairo Python API (stdlib server)
+python3 -m kairo.api.routes  # default :8091
+
+# 8. Kairo FastAPI (alternate)
 cd kairo/backend && pip install -r requirements.txt
-python -m kairo.backend.server
-
-# 6. Start Kairo frontend
-cd kairo/frontend && npm install && npm run dev
+python -m kairo.backend.server  # default :8100
 ```
 
 ---
@@ -95,10 +177,10 @@ cd kairo/frontend && npm install && npm run dev
 
 | Check | Result |
 |-------|--------|
-| No hardcoded API keys in repo | ✅ Pass |
+| No hardcoded API keys in repo | ✅ Pass (`scripts/secrets-audit.sh`) |
 | SESSION_SECRET required in production | ✅ Enforced |
 | Vault policies for all runtimes | ✅ akash, agent, kairo, ci-bootstrap |
-| UD API key rotation documented | ✅ See DOMAINS.md |
+| UD API key rotation documented | ✅ See `DOMAINS.md` |
 
 ---
 
@@ -107,9 +189,24 @@ cd kairo/frontend && npm install && npm run dev
 1. Install `provider-services` in Codespace (`$HOME/bin`)
 2. Import/fund Akash wallet `yieldswarm-admin`
 3. Execute Akash lease against preferred provider
-4. Wire Unstoppable Domains per `DOMAINS.md`
-5. Enable GitHub branch protection on `main` + env branches
-6. Close 25 duplicate Vault PRs
+4. Deploy `GreatDeltaEmissionRouter.sol` and set env addresses
+5. Wire Unstoppable Domains per `DOMAINS.md`
+6. Set `VITE_MAPBOX_TOKEN` for Kairo app
+7. Enable GitHub branch protection on `main` + env branches
+8. Close 25 duplicate Vault PRs
+9. Replace in-memory payment store with Postgres before mainnet
+
+---
+
+## Known Technical Debt
+
+| Issue | Severity | Mitigation |
+|-------|----------|------------|
+| Two Kairo Python servers (8091 stdlib vs 8100 FastAPI) | Medium | Integration proxy uses 8091; FastAPI for new frontends |
+| Two Arena UIs (static + React Vite) | Low | React primary; static at `/arena/` for compat |
+| Odysseus SSO returns 501 until runtime live | Expected | Stub allows Portal to load; wire when Odysseus up |
+| `dashboard/state.json` is large seed data | Low | Move to object storage / generated artifact |
+| quadrant-IV GreatDelta contract duplicate | Low | Deprecated; use root canonical contract |
 
 ---
 
@@ -119,9 +216,10 @@ cd kairo/frontend && npm install && npm run dev
 |------|--------|
 | Code integration complete | ✅ |
 | Cross-component API wiring | ✅ |
+| Great Delta 50/30/15/5 connected | ✅ |
 | Documentation complete | ✅ |
 | Smoke tests passing | ✅ |
 | Merged to `main` | ✅ |
 | Live Akash lease running | ⏳ Operator action |
 
-**The helix is wired. Ship when Vault + Akash wallet are live.**
+**The helix is wired. Ship to staging when Vault + Akash wallet are live.**

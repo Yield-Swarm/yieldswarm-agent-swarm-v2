@@ -22,4 +22,12 @@ export default defineConfig({
     target: "es2021",
     sourcemap: false,
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: process.env.VITE_BACKEND_URL || "http://127.0.0.1:8080",
+        changeOrigin: true,
+      },
+    },
+  },
 });

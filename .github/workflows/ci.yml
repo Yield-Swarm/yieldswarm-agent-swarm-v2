@@ -25,5 +25,7 @@ jobs:
         run: cd backend && npm ci && npm test
       - name: Frontend tests
         run: cd frontend && npm ci && npm test
+      - name: Payments build
+        run: npm ci && npm run build
       - name: Secrets audit
         run: bash scripts/secrets-audit.sh

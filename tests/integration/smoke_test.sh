@@ -40,6 +40,9 @@ check "Sovereign dashboard" check_file dashboard/sovereign-dashboard.html
 check "Emission router contract" check_file contracts/GreatDeltaEmissionRouter.sol
 check "Great Delta split module" check_file backend/src/lib/great-delta-split.js
 check "Great Delta overview route" grep -q great-delta/overview backend/src/routes/api.js
+check "Kairo routes mounted" grep -q "api/kairo" backend/src/server.js
+check "Sovereign routes mounted" grep -q "api/sovereign" backend/src/server.js
+check "Portal auth session route" grep -q auth/session backend/src/routes/api.js
 check "Merge to main script" check_file scripts/merge-to-main.sh
 
 echo ""
@@ -65,6 +68,8 @@ if curl -sf http://127.0.0.1:8080/api/health >/dev/null 2>&1; then
   check "Sovereign state API" curl -sf http://127.0.0.1:8080/api/sovereign/state
   check "Great Delta health" curl -sf http://127.0.0.1:8080/api/great-delta/health
   check "Great Delta overview" curl -sf http://127.0.0.1:8080/api/great-delta/overview
+  check "Kairo proxy health" curl -sf http://127.0.0.1:8080/api/kairo/health
+  check "Auth session stub" curl -sf http://127.0.0.1:8080/api/auth/session
   if curl -sf http://127.0.0.1:8080/api/telemetry/odysseus | grep -q '"agents"'; then
     echo "[PASS] Odysseus telemetry returns agents"
     PASS=$((PASS + 1))

@@ -86,4 +86,7 @@ export async function getSovereignState() {
   };
 }
 
-export default { getSovereignState };
+/** Alias for sovereign router clients expecting overview naming. */
+export const getSovereignOverview = getSovereignState;
+
+export default { getSovereignState, getSovereignOverview };

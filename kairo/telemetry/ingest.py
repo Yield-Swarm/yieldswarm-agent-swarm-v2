@@ -33,9 +33,6 @@ def list_contributions(limit: int = 50) -> list[dict[str, Any]]:
     from kairo.services.mandelbrot_pipeline import MandelbrotPipeline
 
     pipeline = MandelbrotPipeline(_PIPELINE)
-    out = []
-    for driver_id in list(pipeline._contributions.keys())[:limit]:
-        stats = pipeline.driver_stats(driver_id)
-        if stats:
-            out.append(stats)
-    return out
+    rows = pipeline.all_driver_stats()
+    rows.sort(key=lambda row: row.get("reward_weight", 0.0), reverse=True)
+    return rows[:limit]

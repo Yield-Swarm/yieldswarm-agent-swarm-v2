@@ -22,7 +22,7 @@ async function loadContributions() {
     const depin = rows.reduce((s, r) => s + (r.depin_rewards_usd || 0), 0);
     document.getElementById("depin-rewards").textContent = `DePIN rewards: $${depin.toFixed(2)}`;
   } catch {
-    el.textContent = "Connect backend at :8787";
+    el.textContent = "Connect integration backend at :8080";
   }
 }
 
