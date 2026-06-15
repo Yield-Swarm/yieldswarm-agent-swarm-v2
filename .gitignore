@@ -1,0 +1,8 @@
+# Terraform local state and plans
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Rendered deployment artifacts with runtime credentials
+deploy/akash/deployment.rendered.yaml

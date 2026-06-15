@@ -1,0 +1,38 @@
+---
+version: "2.0"
+
+services:
+  akash-optimizer:
+    image: ghcr.io/yieldswarm/akash-optimizer:${IMAGE_TAG}
+    env:
+      - PYTHONUNBUFFERED=1
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_KV_MOUNT=kv-runtime
+      - VAULT_SECRET_PATH=akash/runtime
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+    command:
+      - python
+      - /app/agents/akash-optimizer.py
+
+profiles:
+  compute:
+    akash-optimizer:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 1Gi
+        storage:
+          - size: 2Gi
+  placement:
+    dcloud:
+      pricing:
+        akash-optimizer:
+          denom: uakt
+          amount: 10000
+  deployment:
+    akash-optimizer:
+      dcloud:
+        profile: akash-optimizer
+        count: 1

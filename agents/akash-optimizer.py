@@ -9,4 +9,18 @@ import os
 # Monitor DSEQ, top-up critical leases (OpenClaw, high-ROI GPU)
 # Collaborate with Vercel/Azure playgrounds for new instances
 
-print('Akash Optimizer Agent active - connecting to leases and optimizing for profit')
+required_secret_env = [
+    "RUNPOD_API_KEY",
+    "VULTR_API_KEY",
+    "DIGITALOCEAN_TOKEN",
+    "PRIMARY_RPC_URL",
+]
+
+missing = [key for key in required_secret_env if not os.getenv(key)]
+
+if missing:
+    raise RuntimeError(
+        "Missing runtime secrets from Vault injection: " + ", ".join(missing)
+    )
+
+print("Akash Optimizer Agent active - runtime secrets loaded from Vault")
