@@ -1,0 +1,84 @@
+# Odysseus full stack — local development and staging parity with Akash SDL.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.odysseus.yml up -d
+#
+services:
+  llm-router:
+    build:
+      context: .
+      dockerfile: docker/litellm-router/Dockerfile
+    image: ${LITELLM_IMAGE:-ghcr.io/yieldswarm/litellm-router:local}
+    ports:
+      - "${LITELLM_PORT:-4000}:4000"
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      FIREWORKS_API_KEY: ${FIREWORKS_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    profiles:
+      - gpu
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "${CHROMADB_PORT:-8000}:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      IS_PERSISTENT: "TRUE"
+    restart: unless-stopped
+
+  searxng:
+    image: searxng/searxng:latest
+    ports:
+      - "${SEARXNG_PORT:-8081}:8080"
+    volumes:
+      - ./config/searxng:/etc/searxng:ro
+    restart: unless-stopped
+
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    command: serve --cache-file /var/cache/ntfy/cache.db
+    ports:
+      - "${NTFY_PORT:-8090}:80"
+    volumes:
+      - ntfy-cache:/var/cache/ntfy
+    restart: unless-stopped
+
+  odysseus-sync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${ODYSSEUS_SYNC_IMAGE:-ghcr.io/yieldswarm/odysseus-sync:local}
+    command: python agents/odysseus-sync-service.py
+    environment:
+      CHROMADB_URL: http://chromadb:8000
+      ODYSSEUS_SYNC_PORT: "8091"
+      AGENT_SHARD_ID: ${AGENT_SHARD_ID:-0}
+    ports:
+      - "${ODYSSEUS_SYNC_PORT:-8091}:8091"
+    depends_on:
+      - chromadb
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
+  chroma-data:
+  ntfy-cache:

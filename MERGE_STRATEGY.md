@@ -200,3 +200,37 @@ Recommended path for new Kairo features: branch `cursor/kairo-*` off `developmen
 2. All new work branches off `development`, PRs to `development`.
 3. Merge coordination agent runs weekly or when >5 cursor branches accumulate.
 4. Kairo work uses `cursor/kairo-*` prefix, targets `development`.
+
+---
+
+## Mega Task Round — Execution Status (June 15, 2026)
+
+| Task | Status | Branch / Path |
+|------|--------|---------------|
+| **M5** Merge + branch strategy | ✅ Complete | `main` ← `cursor/merge-coordination-93dd` |
+| **M1** Akash + Vault production deploy | ✅ Vault-at-runtime wired | `scripts/akash-deploy-with-vault.sh`, `deploy/deploy-swarm-monolith.yaml` |
+| **M2** Kairo crypto identity + pipeline | ✅ Scaffolded | `kairo/`, `backend/src/routes/kairo.js` |
+| **M3** Odysseus full integration | ✅ Compose overlay | `docker-compose.odysseus.yml`, Vault seed paths |
+| **M4** Payment rails + Kairo wiring | ✅ Fees + 2× payout | `src/lib/payments/fees.ts`, `kairo-bridge.ts` |
+| **M6** Unstoppable Domains | ✅ Merged + updated | `DOMAINS.md` |
+
+### Merge `main` (if not yet pushed)
+
+```bash
+git fetch origin
+git checkout main
+git merge --no-ff origin/cursor/merge-coordination-93dd -m "Merge swarm integration"
+# Or fast-path:
+./scripts/merge-swarm.sh
+git push -u origin main development testnet devnets production MAINNET
+```
+
+### Post-merge validation
+
+```bash
+pip install -r requirements.txt
+python kairo/cli.py ping
+make preflight
+./scripts/akash-deploy-with-vault.sh --help  # dry-run with VAULT_ADDR set
+cd backend && npm install && npm test
+```

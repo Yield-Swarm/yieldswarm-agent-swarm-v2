@@ -35,6 +35,11 @@ app.use((req, res, next) => {
 app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
 app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
+app.use('/kairo-app', express.static(path.join(repoRoot, 'kairo', 'frontend')));
+app.use('/vault', express.static(path.join(repoRoot, 'dashboard')));
+app.get('/vault-dashboard', (_req, res) =>
+  res.sendFile(path.join(repoRoot, 'dashboard', 'sovereign-dashboard.html')),
+);
 
 // ---- Frontends -----------------------------------------------------------
 app.use('/arena', express.static(path.join(frontendDir, 'arena')));
@@ -64,7 +69,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Portal:  /portal/\n` +
       `  Arena:   /arena/\n` +
       `  API:     /api/arena/overview\n` +
-      `  Kairo:   /kairo/contribution.html  /api/kairo/*`,
+      `  Kairo:   /kairo/contribution.html  /api/kairo/*\n` +
+      `  Vault:   /vault-dashboard  /api/vault/telemetry`,
   );
 });
 

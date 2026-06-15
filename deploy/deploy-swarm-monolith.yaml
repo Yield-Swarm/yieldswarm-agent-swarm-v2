@@ -2,12 +2,18 @@ version: "2.0"
 
 services:
   worker:
-    image: ghcr.io/yieldswarm/swarm-worker:stable
+    # Vault-hardened worker image; secrets rendered at runtime via Vault Agent.
+    image: ghcr.io/yield-swarm/yieldswarm-agent:1.0.0
     env:
       - NODE_ENV=production
       - WORKER_ENV=production
       - WORKER_PORT=8080
       - HEALTHCHECK_PATH=/healthz
+      # Vault bootstrap (injected at `deployment create` via --env flags)
+      - VAULT_ADDR=https://vault.yieldswarm.io:8200
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - AGENT_SHARD_ID
     expose:
       - port: 8080
         as: 80
@@ -33,6 +39,9 @@ services:
       failure_threshold: 5
     params:
       storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
         worker-state:
           mount: /var/lib/yieldswarm
         model-cache:
@@ -56,6 +65,11 @@ profiles:
             model:
               - rtx3090
         storage:
+          - name: secrets
+            size: 8Mi
+            attributes:
+              persistent: false
+              class: ram
           - name: worker-state
             size: 200Gi
             attributes:

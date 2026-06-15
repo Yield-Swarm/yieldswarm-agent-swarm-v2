@@ -89,5 +89,31 @@ put integrations/linear   api_key="$(val LINEAR_API_KEY)"
 put integrations/github   token="$(val GITHUB_TOKEN)"
 put integrations/vercel   token="$(val VERCEL_API_TOKEN)"
 put integrations/telegram bot_token="$(val TELEGRAM_BOT_TOKEN)"
+put integrations/unstoppable api_key="$(val UD_API_KEY)"
+
+# ---- Odysseus runtime + deploy ----------------------------------------
+put odysseus/runtime \
+  api_key="$(val ODYSSEUS_API_KEY)" \
+  model_host="$(val ODYSSEUS_MODEL_HOST)" \
+  model_api_key="$(val ODYSSEUS_MODEL_API_KEY)" \
+  chromadb_url="$(val CHROMADB_URL)"
+
+put odysseus/deploy \
+  openrouter_api_key="$(val OPENROUTER_API_KEY)" \
+  fireworks_api_key="$(val FIREWORKS_API_KEY)" \
+  ollama_base_url="$(val OLLAMA_BASE_URL)"
+
+# ---- Payment rails -----------------------------------------------------
+put payments/square \
+  access_token="$(val SQUARE_ACCESS_TOKEN)" \
+  location_id="$(val SQUARE_LOCATION_ID)" \
+  webhook_signature_key="$(val SQUARE_WEBHOOK_SIGNATURE_KEY)"
+
+put payments/wise \
+  api_token="$(val WISE_API_TOKEN)" \
+  profile_id="$(val WISE_PROFILE_ID)" \
+  webhook_public_key="$(val WISE_WEBHOOK_PUBLIC_KEY)"
+
+put payments/kairo webhook_secret="$(val KAIRO_WEBHOOK_SECRET)"
 
 log "Seed complete. Verify with: vault kv list yieldswarm/"
