@@ -1,0 +1,47 @@
+# ── Secrets — never commit ────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.tfvars
+!*.tfvars.example
+/terraform/.generated/
+
+# ── Terraform ────────────────────────────────────────────────
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfstate.backup
+**/*.tfplan
+**/.terraform.lock.hcl
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# ── Vault rendered secrets (container runtime artifacts) ──────
+vault/rendered/
+/vault/approle/
+
+# ── OS / editor ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.iml
+
+# ── Docker build cache ────────────────────────────────────────
+docker/*.tar
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/

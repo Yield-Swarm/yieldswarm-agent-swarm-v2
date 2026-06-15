@@ -1,0 +1,53 @@
+# ============================================================
+# terraform.tfvars.example — YieldSwarm AgentSwarm OS
+#
+# Copy this file to terraform.tfvars for local development.
+# NEVER commit terraform.tfvars to source control.
+#
+# Sensitive variables (vault_role_id, vault_secret_id) must
+# be supplied via environment variables, NOT in this file:
+#
+#   export TF_VAR_vault_role_id="<role-id>"
+#   export TF_VAR_vault_secret_id="<secret-id>"
+#
+# All cloud-provider credentials come from Vault automatically.
+# ============================================================
+
+# ── Vault connection ──────────────────────────────────────────
+vault_address         = "https://vault.yieldswarm.internal:8200"
+vault_skip_tls_verify = false  # set true only in dev/staging
+
+# ── Project metadata ──────────────────────────────────────────
+project_name = "yieldswarm"
+environment  = "prod"  # dev | staging | prod
+
+# ── Azure ─────────────────────────────────────────────────────
+azure_location               = "eastus"
+azure_resource_group         = "yieldswarm-prod"
+azure_container_registry_sku = "Standard"
+
+# ── DigitalOcean ──────────────────────────────────────────────
+do_region         = "nyc3"
+do_droplet_size   = "s-2vcpu-4gb"
+do_droplet_count  = 2
+do_operator_cidrs = ["10.0.0.0/8"]  # restrict to VPN/operator IPs
+
+# ── Vultr ─────────────────────────────────────────────────────
+vultr_region                = "ewr"
+vultr_plan                  = "vc2-2c-4gb"
+vultr_instance_count        = 1
+vultr_operator_ssh_pubkey   = "ssh-ed25519 AAAA... operator@yieldswarm"
+vultr_block_storage_gb      = 40
+
+# ── RunPod ────────────────────────────────────────────────────
+runpod_gpu_type        = "NVIDIA RTX A4000"
+runpod_pod_count       = 1
+runpod_datacenter_id   = "US-TX-3"
+runpod_volume_size_gb  = 50
+runpod_container_image = "yieldswarm/agentswarm:latest"
+runpod_use_spot        = false
+
+# ── Agent swarm capacity ──────────────────────────────────────
+agent_count_total = 10080
+agents_per_shard  = 84
+cron_shard_count  = 120

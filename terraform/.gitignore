@@ -1,0 +1,26 @@
+# Terraform state and lock files
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Variable files with real values
+terraform.tfvars
+*.auto.tfvars
+
+# Generated files that may contain secrets
+.generated/
+*.generated
+
+# Plan files (may contain sensitive values in binary form)
+*.tfplan
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# macOS
+.DS_Store

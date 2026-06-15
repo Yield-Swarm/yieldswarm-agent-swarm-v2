@@ -1,0 +1,45 @@
+#cloud-config
+# DigitalOcean cloud-init for YieldSwarm agent nodes.
+# Installs Docker, fetches secrets from Vault, and starts the agent container.
+# Variables are substituted by Terraform's templatefile() function.
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - docker.io
+  - docker-compose
+  - curl
+  - jq
+  - unzip
+
+write_files:
+  - path: /etc/yieldswarm/vault.env
+    permissions: "0600"
+    content: |
+      VAULT_ADDR=${vault_addr}
+      VAULT_ROLE_ID=${vault_role_id}
+      VAULT_SECRET_ID=${vault_secret_id}
+      ENVIRONMENT=${environment}
+
+  - path: /usr/local/bin/start-agentswarm.sh
+    permissions: "0750"
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+      source /etc/yieldswarm/vault.env
+      docker pull yieldswarm/agentswarm:latest
+      docker run -d \
+        --name agentswarm \
+        --restart unless-stopped \
+        -e VAULT_ADDR \
+        -e VAULT_ROLE_ID \
+        -e VAULT_SECRET_ID \
+        -e ENVIRONMENT \
+        -p 8080:8080 \
+        yieldswarm/agentswarm:latest
+
+runcmd:
+  - systemctl enable docker
+  - systemctl start docker
+  - /usr/local/bin/start-agentswarm.sh

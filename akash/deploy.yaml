@@ -1,0 +1,96 @@
+---
+# ============================================================
+# Akash Network SDL — YieldSwarm AgentSwarm OS v2.0
+#
+# Deploy with:
+#   akash tx deployment create akash/deploy.yaml \
+#     --from <wallet-key-name> \
+#     --chain-id akashnet-2 \
+#     --node https://rpc.akash.forbole.com:443 \
+#     --fees 5000uakt
+#
+# The container pulls ALL runtime secrets from Vault at
+# startup via akash/entrypoint.sh. Only the two Vault
+# bootstrap credentials (VAULT_ROLE_ID, VAULT_SECRET_ID)
+# are injected here — nothing else.
+#
+# To rotate secrets: update Vault, then restart the
+# deployment (new container will re-fetch on boot).
+# ============================================================
+
+version: "2.0"
+
+services:
+  agentswarm:
+    image: yieldswarm/agentswarm:latest
+    # Override the default CMD to run the full swarm
+    command:
+      - python
+      - /app/agents/akash-optimizer.py
+    env:
+      # ── Vault bootstrap (the only two non-Vault env vars) ──
+      # Replace with real values obtained from:
+      #   vault read auth/approle/role/yieldswarm-akash/role-id
+      #   vault write -f auth/approle/role/yieldswarm-akash/secret-id
+      - VAULT_ADDR=https://vault.yieldswarm.internal:8200
+      - VAULT_ROLE_ID=<INSERT_ROLE_ID>
+      - VAULT_SECRET_ID=<INSERT_SECRET_ID>
+      # ── Static runtime config (non-sensitive) ──
+      - ENVIRONMENT=prod
+      - AGENT_COUNT_TOTAL=10080
+      - AGENTS_PER_SHARD=84
+      - CRON_SHARD_COUNT=120
+      - LOG_LEVEL=INFO
+      - NETWORK_LOCKDOWN_MODE=true
+      - SLIPPAGE_TOLERANCE=0.005
+      - MAX_FEE_PERCENT=0.01
+      - MAYHEM_MODE_ENABLED=true
+    expose:
+      - port: 8080
+        as: 8080
+        to:
+          - global: false  # internal health-check only
+      - port: 9090
+        as: 9090
+        to:
+          - global: false  # Prometheus metrics endpoint
+    params:
+      storage:
+        data:
+          mount: /workspace/data
+          readOnly: false
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi          # ephemeral root
+          - name: data
+            size: 20Gi          # persistent workspace
+            attributes:
+              persistent: true
+              class: beta3
+
+  placement:
+    yieldswarm-akash:
+      # Target providers with sufficient reliability
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"  # Akash Network
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 1000           # bid price in uakt per block
+
+deployment:
+  agentswarm:
+    yieldswarm-akash:
+      profile: agentswarm
+      count: 1

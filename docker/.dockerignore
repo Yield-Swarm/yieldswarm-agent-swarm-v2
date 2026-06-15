@@ -1,0 +1,16 @@
+# Never include secrets or build artifacts in the Docker context
+.env
+.env.*
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform/.generated/
+terraform/terraform.tfvars
+**/*.tfvars
+.git/
+.github/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+*.log
+node_modules/
