@@ -1,0 +1,36 @@
+version: "2.0"
+
+services:
+  akash-optimizer:
+    image: ghcr.io/your-org/yieldswarm-akash-optimizer:latest
+    env:
+      - PYTHONUNBUFFERED=1
+      - VAULT_ADDR=https://vault.example.com:8200
+      - VAULT_NAMESPACE=admin
+      - VAULT_AUTH_METHOD=kubernetes
+      - VAULT_K8S_AUTH_PATH=kubernetes
+      - VAULT_K8S_ROLE=akash-runtime
+      - VAULT_SECRET_EXPORTS=RUNPOD_API_KEY=cloud/runpod#api_key,VULTR_API_KEY=cloud/vultr#api_key,DIGITALOCEAN_TOKEN=cloud/digitalocean#token,AZURE_CLIENT_ID=cloud/azure#client_id,AZURE_CLIENT_SECRET=cloud/azure#client_secret,AZURE_TENANT_ID=cloud/azure#tenant_id,AZURE_SUBSCRIPTION_ID=cloud/azure#subscription_id,SOLANA_RPC_URL=rpc/rpc#solana_primary_url,ETH_RPC_URL=rpc/rpc#ethereum_primary_url
+
+profiles:
+  compute:
+    akash-optimizer:
+      resources:
+        cpu:
+          units: "1"
+        memory:
+          size: 2Gi
+        storage:
+          - size: 4Gi
+  placement:
+    dcloud:
+      pricing:
+        akash-optimizer:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  akash-optimizer:
+    dcloud:
+      profile: akash-optimizer
+      count: 1

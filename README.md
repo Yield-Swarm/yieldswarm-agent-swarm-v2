@@ -19,7 +19,7 @@ Unstoppable Domains integration
 
 ## Business
 Wise: cbrown03777@gmail.com
-UD API Key included in .env.example
+UD API Key must be injected from Vault
 
 ## Next
 Fill .env on iPhone, push to GitHub, Vercel auto-deploys.

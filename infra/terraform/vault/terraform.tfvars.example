@@ -1,0 +1,16 @@
+vault_addr      = "https://vault.example.com:8200"
+vault_token     = "replace-me"
+vault_namespace = null
+
+cloud_mount_path      = "cloud"
+rpc_mount_path        = "rpc"
+kubernetes_auth_path  = "kubernetes"
+akash_namespace       = "default"
+akash_service_accounts = [
+  "default",
+]
+read_runtime_secrets = true
+
+# Optional bootstrap write-through; leave empty to manage secrets only with `vault kv put`.
+cloud_bootstrap_secrets = {}
+rpc_bootstrap_secrets   = {}
