@@ -9,6 +9,7 @@ import config from '../config.js';
 import * as akash from '../adapters/akash.js';
 import * as emission from '../adapters/emissionRouter.js';
 import * as treasury from '../adapters/treasury.js';
+import { BUCKET_LABELS } from '../lib/great-delta-split.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
@@ -51,8 +52,23 @@ export async function getSovereignState() {
     ...base,
     live_overlay: {
       akash: { connected: workers.live, source: workers.source, workers: liveWorkers, active: activeWorkers },
-      emission: { connected: emissions.live, source: emissions.source, perEpoch: emissions.emissionPerEpoch },
-      treasury: { connected: treasurySplits.live, source: treasurySplits.source, totalSol: treasurySplits.totalSol },
+      emission: {
+        connected: emissions.live,
+        source: emissions.source,
+        perEpoch: emissions.emissionPerEpoch,
+        splitPolicy: emissions.splitPolicy || '50/30/15/5',
+        routes: emissions.routes || [],
+      },
+      treasury: {
+        connected: treasurySplits.live,
+        source: treasurySplits.source,
+        totalSol: treasurySplits.totalSol,
+        splitPolicy: treasurySplits.splitPolicy || '50/30/15/5',
+        splits: (treasurySplits.splits || []).map((row) => ({
+          ...row,
+          label: row.label || BUCKET_LABELS[row.bucket] || row.bucket,
+        })),
+      },
       generatedAt: new Date().toISOString(),
     },
     // Enrich counts when live Akash data is available

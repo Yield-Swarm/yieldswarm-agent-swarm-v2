@@ -16,6 +16,7 @@ import {
 import { addAmounts, gte, subAmounts, isPositive } from "@/lib/money";
 import { nowIso, reference, uuid } from "@/lib/ids";
 import { computeCustomerFee } from "@/lib/payments/fees";
+import { emissionBreakdownWithLegacy } from "@/lib/payments/great-delta";
 
 export interface CreateTxInput {
   userId: string;
@@ -118,6 +119,7 @@ function applyToBalance(db: DB, tx: Transaction): void {
       grossAmount: fee.grossAmount,
       platformFee: fee.feeAmount,
       feePercent: fee.feePercent,
+      greatDeltaEmission: emissionBreakdownWithLegacy(fee.feeAmount),
     };
     tx.amount = amount;
   }

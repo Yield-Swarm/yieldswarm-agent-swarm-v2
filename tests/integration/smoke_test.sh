@@ -38,6 +38,8 @@ check "Arena telemetry routes" grep -q telemetry/akash backend/src/routes/api.js
 check "Odysseus memory" check_file agents/odysseus_memory.py
 check "Sovereign dashboard" check_file dashboard/sovereign-dashboard.html
 check "Emission router contract" check_file contracts/GreatDeltaEmissionRouter.sol
+check "Great Delta split module" check_file backend/src/lib/great-delta-split.js
+check "Great Delta overview route" grep -q great-delta/overview backend/src/routes/api.js
 check "Merge to main script" check_file scripts/merge-to-main.sh
 
 echo ""
@@ -61,6 +63,8 @@ fi
 if curl -sf http://127.0.0.1:8080/api/health >/dev/null 2>&1; then
   check "Backend API health" curl -sf http://127.0.0.1:8080/api/health
   check "Sovereign state API" curl -sf http://127.0.0.1:8080/api/sovereign/state
+  check "Great Delta health" curl -sf http://127.0.0.1:8080/api/great-delta/health
+  check "Great Delta overview" curl -sf http://127.0.0.1:8080/api/great-delta/overview
   if curl -sf http://127.0.0.1:8080/api/telemetry/odysseus | grep -q '"agents"'; then
     echo "[PASS] Odysseus telemetry returns agents"
     PASS=$((PASS + 1))

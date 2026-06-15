@@ -57,6 +57,13 @@ export const config = {
     enabled: bool(process.env.SOLANA_ENABLED, true),
   },
 
+  // Optional EVM GreatDeltaEmissionRouter.sol read adapter (eth_call previewSplit/treasuries).
+  evm: {
+    rpcUrl: process.env.EVM_RPC_URL || process.env.MAINNET_RPC_URL || '',
+    emissionRouter: process.env.EMISSION_ROUTER_EVM_ADDRESS || '',
+    enabled: bool(process.env.EVM_ENABLED, false),
+  },
+
   // Great Delta Emission Router split (50/30/15/5) — matches GreatDeltaEmissionRouter.sol
   treasurySplitsBps: {
     coreTreasury: int(process.env.SPLIT_CORE_BPS, 5000),       // 50%

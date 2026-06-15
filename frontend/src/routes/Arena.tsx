@@ -5,13 +5,25 @@ import { ConnectGate } from "../components/ConnectGate";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8787/api";
 
+type SplitRow = {
+  bucket?: string;
+  label?: string;
+  destination?: string;
+  pct?: number;
+  bps?: number;
+  perEpoch?: number;
+  sol?: number;
+  amount?: number;
+};
+
 type ArenaOverview = {
   generatedAt?: string;
   connectionsHealthy?: number;
   connectionsTotal?: number;
   akash?: { live?: boolean; workers?: unknown[] };
-  emissionRouter?: { live?: boolean };
-  treasury?: { live?: boolean };
+  emissionRouter?: { live?: boolean; emissionPerEpoch?: number; routes?: SplitRow[] };
+  treasury?: { live?: boolean; totalSol?: number; splits?: SplitRow[] };
+  greatDelta?: { policy?: string; buckets?: SplitRow[] };
   leaderboard?: { entries?: unknown[] };
 };
 
@@ -26,6 +38,35 @@ export function Arena() {
     >
       <ArenaInner />
     </ConnectGate>
+  );
+}
+
+function SplitTable({ title, rows, valueKey }: { title: string; rows: SplitRow[]; valueKey: "perEpoch" | "sol" }) {
+  if (!rows.length) return null;
+  return (
+    <div className="panel" style={{ marginTop: 12 }}>
+      <h3>{title}</h3>
+      <table className="ysw-table" style={{ width: "100%", fontSize: 13 }}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: "left" }}>Bucket</th>
+            <th style={{ textAlign: "right" }}>Share</th>
+            <th style={{ textAlign: "right" }}>{valueKey === "sol" ? "SOL" : "APN / epoch"}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.bucket || row.destination}>
+              <td>{row.label || row.bucket || row.destination}</td>
+              <td style={{ textAlign: "right" }}>{row.pct ?? (row.bps ? row.bps / 100 : "—")}%</td>
+              <td style={{ textAlign: "right" }} className="ysw-mono">
+                {(row[valueKey] ?? row.amount ?? 0).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -53,6 +94,8 @@ function ArenaInner() {
   }, []);
 
   const workers = (overview?.akash as { workers?: unknown[] })?.workers ?? [];
+  const emissionRoutes = overview?.emissionRouter?.routes ?? [];
+  const treasurySplits = overview?.treasury?.splits ?? [];
 
   return (
     <section className="page">
@@ -69,7 +112,7 @@ function ArenaInner() {
         <div className="card">
           <div className="card__label">Connections</div>
           <div className="card__value">
-            {overview?.connectionsHealthy ?? 0}/{overview?.connectionsTotal ?? 4}
+            {overview?.connectionsHealthy ?? 0}/{overview?.connectionsTotal ?? 5}
           </div>
         </div>
         <div className="card">
@@ -79,21 +122,37 @@ function ArenaInner() {
           </div>
         </div>
         <div className="card">
-          <div className="card__label">Chain / Balance</div>
-          <div className="card__value">{chain?.name ?? "—"}</div>
-          <div className="ysw-muted">{balance ? `${balance.formatted} ${balance.symbol}` : "—"}</div>
+          <div className="card__label">Emission / epoch</div>
+          <div className="card__value">
+            {overview?.emissionRouter?.emissionPerEpoch?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? "—"}
+          </div>
+          <div className="ysw-muted">{overview?.emissionRouter?.live ? "on-chain" : "simulated"}</div>
         </div>
         <div className="card">
-          <div className="card__label">Wallet</div>
-          <div className="ysw-mono ysw-muted">{wallet.address?.slice(0, 10)}…</div>
+          <div className="card__label">Treasury SOL</div>
+          <div className="card__value">
+            {overview?.treasury?.totalSol?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? "—"}
+          </div>
+          <div className="ysw-muted">{overview?.treasury?.live ? "live balance" : "fallback"}</div>
         </div>
       </div>
 
       <div className="panel">
-        <h3>Emission router</h3>
+        <h3>Great Delta Emission Router</h3>
         <p className="ysw-muted">
-          Treasury split 50/30/15/5 — {overview?.emissionRouter?.live ? "connected" : "simulated"}
+          Treasury split {overview?.greatDelta?.policy ?? "50/30/15/5"} —{" "}
+          {overview?.emissionRouter?.live ? "connected" : "simulated"}
         </p>
+      </div>
+
+      <SplitTable title="Emission routes (per epoch)" rows={emissionRoutes} valueKey="perEpoch" />
+      <SplitTable title="Treasury allocation (SOL)" rows={treasurySplits} valueKey="sol" />
+
+      <div className="panel" style={{ marginTop: 12 }}>
+        <h3>Chain / Wallet</h3>
+        <p className="ysw-muted">{chain?.name ?? "—"}</p>
+        <p className="ysw-mono ysw-muted">{balance ? `${balance.formatted} ${balance.symbol}` : "—"}</p>
+        <p className="ysw-mono ysw-muted">{wallet.address ?? "—"}</p>
       </div>
     </section>
   );
