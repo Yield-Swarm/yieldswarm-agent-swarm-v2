@@ -3,24 +3,19 @@ terraform {
 
   required_providers {
     vault = {
-      source  = "hashicorp/vault"
-      version = "~> 4.4"
+      source = "hashicorp/vault"
     }
     azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 4.0"
+      source = "hashicorp/azurerm"
     }
     digitalocean = {
-      source  = "digitalocean/digitalocean"
-      version = "~> 2.46"
+      source = "digitalocean/digitalocean"
     }
     vultr = {
-      source  = "vultr/vultr"
-      version = "~> 2.27"
+      source = "vultr/vultr"
     }
     runpod = {
-      source  = "runpod/runpod"
-      version = "~> 1.5"
+      source = "runpod/runpod"
     }
   }
 }

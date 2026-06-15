@@ -4,5 +4,9 @@
 *.tfstate.*
 *.tfplan
 
+# Python build artifacts
+__pycache__/
+*.pyc
+
 # Rendered deployment artifacts with runtime credentials
 deploy/akash/deployment.rendered.yaml
