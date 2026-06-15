@@ -76,7 +76,45 @@ put_if_set rpc/solana \
 put_if_set rpc/ethereum \
   url=ETHEREUM_RPC_URL \
   alchemy_api_key=ALCHEMY_API_KEY \
-  infura_project_id=INFURA_PROJECT_ID
+  infura_project_id=INFURA_PROJECT_ID \
+  infura_api_key=INFURA_API_KEY
+
+put_if_set rpc/infura \
+  project_id=INFURA_PROJECT_ID \
+  api_key=INFURA_API_KEY \
+  sol_mainnet_rpc=INFURA_SOL_MAINNET_RPC
+
+put_if_set rpc/ankr \
+  api_key=ANKR_API_KEY \
+  multichain_rpc=ANKR_RPC_MULTICHAIN
+
+put_if_set integrations/quicknode \
+  api_key=QUICKNODE_API_KEY \
+  rpc_url=QUICKNODE_RPC_URL
+
+put_if_set integrations/tenderly \
+  api_key=TENDERLY_API_KEY \
+  account=TENDERLY_ACCOUNT \
+  project=TENDERLY_PROJECT
+
+put_if_set integrations/sentry \
+  dsn=SENTRY_DSN \
+  environment=SENTRY_ENVIRONMENT \
+  traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE
+
+put_if_set integrations/cloudflare \
+  api_token=CLOUDFLARE_API_TOKEN \
+  client_id=CLOUDFLARE_CLIENT_ID \
+  client_secret=CLOUDFLARE_CLIENT_SECRET \
+  zone_id=CLOUDFLARE_ZONE_ID
+
+put_if_set integrations/pinata \
+  api_key=PINATA_API_KEY \
+  secret=PINATA_SECRET \
+  jwt=PINATA_JWT
+
+put_if_set integrations/livepeer \
+  api_key=LIVEPEER_API_KEY
 
 put_if_set rpc/ton \
   api_key=TON_API_KEY
@@ -94,7 +132,9 @@ put_if_set runtime/llm \
   openai_api_key=OPENAI_API_KEY \
   anthropic_api_key=ANTHROPIC_API_KEY \
   grok_api_key=GROK_API_KEY \
-  gemini_api_key=GEMINI_API_KEY
+  gemini_api_key=GEMINI_API_KEY \
+  openrouter_api_key=OPENROUTER_API_KEY \
+  fireworks_api_key=FIREWORKS_API_KEY
 
 put_if_set runtime/wallets \
   wallet_encryption_key=WALLET_ENCRYPTION_KEY \

@@ -25,7 +25,18 @@
 | `yieldswarm/payments/runtime` | ✅ (added) | Next.js payments (manual inject) |
 | `yieldswarm/kairo/runtime` | ✅ (added) | Kairo identity, Mapbox |
 | `yieldswarm/integrations/unstoppable` | ✅ (added) | UD API |
+| `yieldswarm/integrations/quicknode` | ✅ (added) | Multi-chain RPC |
+| `yieldswarm/integrations/tenderly` | ✅ (added) | Contract simulation |
+| `yieldswarm/integrations/sentry` | ✅ (added) | Error tracking |
+| `yieldswarm/integrations/cloudflare` | ✅ (added) | CDN / Access |
+| `yieldswarm/integrations/pinata` | ✅ (added) | IPFS pinning |
+| `yieldswarm/integrations/livepeer` | ✅ (added) | Video streaming |
+| `yieldswarm/rpc/infura`, `yieldswarm/rpc/ankr` | ✅ (added) | RPC fallback |
 | `yieldswarm/agents/shards/<id>` | ⚠️ Policy only | Per-shard cron overrides |
+
+## Incident — keys pasted in chat (June 2026)
+
+Production API keys were pasted into an agent chat session (OpenAI, Anthropic, Grok, OpenRouter, QuickNode, Tenderly, Cloudflare, Pinata, Infura, Ankr, Notion, Kimiclaw, etc.). **Rotate all affected keys immediately** in each provider dashboard, then re-seed Vault. Do not paste secrets into chat, email, or git.
 
 ## Operator actions
 
