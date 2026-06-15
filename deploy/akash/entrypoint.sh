@@ -64,13 +64,14 @@ vault_request() {
 
 export_secret_json() {
   secret_json="$1"
-  printf '%s' "$secret_json" | jq -r '
-    to_entries[]
-    | select(.key | test("^[A-Z0-9_]+$"))
-    | "\(.key)=\(.value|tostring)"' \
-    | while IFS='=' read -r k v; do
-      export "${k}=${v}"
-    done
+  while IFS='=' read -r k v; do
+    export "${k}=${v}"
+  done <<EOF
+$(printf '%s' "$secret_json" | jq -r '
+  to_entries[]
+  | select(.key | test("^[A-Z0-9_]+$"))
+  | "\(.key)=\(.value|tostring)"')
+EOF
 }
 
 cleanup() {
@@ -91,6 +92,8 @@ cleanup() {
 require_env "VAULT_ADDR"
 require_env "VAULT_ROLE_ID"
 require_env "VAULT_SECRET_ID"
+command -v curl >/dev/null 2>&1 || { log "curl is required"; exit 1; }
+command -v jq >/dev/null 2>&1 || { log "jq is required"; exit 1; }
 
 VAULT_NAMESPACE="${VAULT_NAMESPACE:-}"
 VAULT_AUTH_PATH="${VAULT_AUTH_PATH:-approle}"

@@ -16,11 +16,6 @@ services:
       - VAULT_RPC_SECRET_PATH=${VAULT_RPC_SECRET_PATH}
       - VAULT_ROLE_ID=${VAULT_ROLE_ID}
       - VAULT_SECRET_ID=${VAULT_SECRET_ID}
-    expose:
-      - port: 8080
-        as: 80
-        to:
-          - global: true
 
 profiles:
   compute:
