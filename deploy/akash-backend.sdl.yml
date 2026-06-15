@@ -1,0 +1,64 @@
+# Lightweight integration backend + Arena telemetry API.
+# Budget: ~4 vCPU / 8Gi RAM / 20Gi storage → ~$45–75/month per instance.
+version: "2.0"
+
+services:
+  backend:
+    image: "${YIELDSWARM_BACKEND_IMAGE:-ghcr.io/yieldswarm/yieldswarm-backend:latest}"
+    expose:
+      - port: 8080
+        as: 8080
+        to:
+          - global: true
+    env:
+      - "PORT=8080"
+      - "HOST=0.0.0.0"
+      - "AKASH_OWNER_ADDRESS=${AKASH_OWNER_ADDRESS}"
+      - "AKASH_ENABLED=true"
+      - "SOLANA_ENABLED=true"
+      - "ODYSSEUS_ENABLED=true"
+      - "ODYSSEUS_BRAIN_URL=${ODYSSEUS_BRAIN_URL:-http://yieldswarm-brain:8080}"
+      - "KAIRO_API_BASE=${KAIRO_API_BASE:-http://kairo:8091}"
+      - "VAULT_ADDR=${VAULT_ADDR}"
+      - "VAULT_TARGET_USD=${VAULT_TARGET_USD:-5000000}"
+    readiness_probe:
+      http_get:
+        path: /api/health
+        port: 8080
+      initial_delay_seconds: 10
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 3
+    params:
+      storage:
+        backend-cache:
+          mount: /tmp/yieldswarm
+
+profiles:
+  compute:
+    backend:
+      resources:
+        cpu:
+          units: 4.0
+        memory:
+          size: 8Gi
+        storage:
+          - size: 4Gi
+          - name: backend-cache
+            size: 20Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+  placement:
+    akash:
+      pricing:
+        backend:
+          denom: uakt
+          amount: 1500
+
+deployment:
+  backend:
+    akash:
+      profile: backend
+      count: 1

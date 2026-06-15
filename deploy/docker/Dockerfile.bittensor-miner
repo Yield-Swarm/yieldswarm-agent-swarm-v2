@@ -1,0 +1,37 @@
+# Dual-purpose Akash worker: Kairo DePIN API (:8091) + telemetry/health (:8080).
+# Optional Bittensor miner when BITTENSOR_* env + coldkey are injected from Vault.
+# ghcr.io/<owner>/yieldswarm-bittensor-miner:<tag>
+FROM python:3.12-slim
+
+LABEL org.opencontainers.image.title="yieldswarm-bittensor-miner" \
+      org.opencontainers.image.description="YieldSwarm Bittensor miner + Kairo telemetry worker"
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    KAIRO_API_PORT=8091 \
+    KAIRO_API_HOST=0.0.0.0 \
+    WORKER_PORT=8080
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY kairo/ /app/kairo/
+COPY deploy/runtime/worker.py /app/deploy/runtime/worker.py
+COPY deploy/runtime/requirements.txt /app/deploy/runtime/requirements.txt
+COPY scripts/bittensor-entrypoint.sh /app/scripts/bittensor-entrypoint.sh
+
+RUN chmod +x /app/scripts/bittensor-entrypoint.sh \
+    && useradd --create-home --uid 10001 swarm \
+    && chown -R swarm:swarm /app
+
+USER swarm
+EXPOSE 8080 8091
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD python -c "import urllib.request,sys; \
+u=urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=3); \
+sys.exit(0 if u.status==200 else 1)"
+
+CMD ["/app/scripts/bittensor-entrypoint.sh"]

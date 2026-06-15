@@ -1,0 +1,30 @@
+# YieldSwarm integration backend — Arena telemetry API + static dashboards.
+# ghcr.io/<owner>/yieldswarm-backend:<tag>
+FROM node:20-alpine
+
+LABEL org.opencontainers.image.title="yieldswarm-backend" \
+      org.opencontainers.image.description="YieldSwarm integration backend (telemetry API, Arena, vault dashboard)"
+
+WORKDIR /app
+
+COPY backend/package.json backend/package-lock.json* ./backend/
+RUN cd backend && npm ci --omit=dev 2>/dev/null || (cd backend && npm install --omit=dev)
+
+COPY backend/ ./backend/
+COPY dashboard/ ./dashboard/
+COPY frontend/arena/ ./frontend/arena/
+COPY frontend/portal/ ./frontend/portal/
+COPY council/ ./council/
+COPY redesign/ ./redesign/
+
+ENV NODE_ENV=production \
+    PORT=8080 \
+    HOST=0.0.0.0
+
+WORKDIR /app/backend
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8080/api/health >/dev/null 2>&1 || exit 1
+
+CMD ["npm", "start"]

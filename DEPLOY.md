@@ -57,7 +57,12 @@ scripts/deploy-production-odysseus.sh akash
 # 6. Monolith SDL deploy (hardened worker + health probes)
 AKASH_KEY_NAME=yieldswarm AUTO_SELECT_BID=1 scripts/akash-deploy.sh deploy/deploy-swarm-monolith.yaml
 
-# 7. Kairo driver API (cryptographic identity + telemetry pipeline)
+# 7. Akash SDL tiers — see docs/AKASH_SDL_BUDGETS.md
+# scripts/deploy-akash-tier.sh bittensor
+# scripts/deploy-akash-tier.sh backend
+# scripts/deploy-akash-tier.sh odysseus
+
+# 8. Kairo driver API (cryptographic identity + telemetry pipeline)
 pip install -r requirements.txt
 python -m kairo.api.routes &
 cd backend && npm install && npm start

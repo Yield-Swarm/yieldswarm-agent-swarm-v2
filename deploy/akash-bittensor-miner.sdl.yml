@@ -1,0 +1,76 @@
+# Dual-purpose Bittensor miner + Kairo telemetry worker (RTX 3090 class).
+# Budget: ~6 vCPU / 24Gi RAM / 80Gi storage + 1× RTX 3090 → ~$230–350/month.
+# Inject BITTENSOR_MINER_COLDKEY_HEX from Vault — never commit to SDL.
+version: "2.0"
+
+services:
+  bittensor-miner:
+    image: "${YIELDSWARM_BITTENSOR_IMAGE:-ghcr.io/yieldswarm/yieldswarm-bittensor-miner:latest}"
+    expose:
+      - port: 8091
+        as: 8091
+        to:
+          - global: true
+      - port: 8080
+        as: 8080
+        to:
+          - global: true
+    env:
+      - "KAIRO_API_PORT=8091"
+      - "KAIRO_API_HOST=0.0.0.0"
+      - "WORKER_PORT=8080"
+      - "BT_NETUID=${BT_NETUID:-1}"
+      - "BT_NETWORK=${BT_NETWORK:-finney}"
+      - "BITTENSOR_MINER_COLDKEY_HEX=${BITTENSOR_MINER_COLDKEY_HEX}"
+      - "KAIRO_DEPIN_REWARD_RATE=${KAIRO_DEPIN_REWARD_RATE:-0.02}"
+      - "AGENT_SHARD_ID=${AGENT_SHARD_ID:-0}"
+      - "AGENT_COUNT_TOTAL=${AGENT_COUNT_TOTAL:-10080}"
+      - "VAULT_ADDR=${VAULT_ADDR}"
+    readiness_probe:
+      http_get:
+        path: /healthz
+        port: 8080
+      initial_delay_seconds: 25
+      period_seconds: 15
+      timeout_seconds: 5
+      failure_threshold: 4
+    params:
+      storage:
+        miner-state:
+          mount: /app/.data
+
+profiles:
+  compute:
+    bittensor-miner:
+      resources:
+        cpu:
+          units: 6.0
+        memory:
+          size: 24Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+                  ram: 24GB
+        storage:
+          - size: 8Gi
+          - name: miner-state
+            size: 80Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+  placement:
+    akash:
+      pricing:
+        bittensor-miner:
+          denom: uakt
+          amount: 7800
+
+deployment:
+  bittensor-miner:
+    akash:
+      profile: bittensor-miner
+      count: 1

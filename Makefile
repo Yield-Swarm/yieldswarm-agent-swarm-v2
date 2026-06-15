@@ -21,7 +21,7 @@ S := deploy/scripts
 A := deploy/akash
 
 .PHONY: help deploy all preflight vault-check akash-deploy-vault \
-        login build push images \
+        login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy \
         frontend \
@@ -65,7 +65,7 @@ login:
 	@echo "$$GHCR_TOKEN" | docker login ghcr.io -u "$$GHCR_USER" --password-stdin
 
 ## build: STEP 1 — build & push all images to GHCR
-build images:
+build images build-ghcr:
 	bash $(S)/build-and-push.sh
 
 ## push: build & push only (alias of build)

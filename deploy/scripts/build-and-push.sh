@@ -19,11 +19,13 @@ declare -A DOCKERFILES=(
   [worker]="deploy/docker/Dockerfile.worker"
   [agents]="deploy/docker/Dockerfile.agents"
   [dashboard]="deploy/docker/Dockerfile.dashboard"
+  [backend]="deploy/docker/Dockerfile.backend"
+  [bittensor-miner]="deploy/docker/Dockerfile.bittensor-miner"
 )
 
 COMPONENTS=("$@")
 if [[ ${#COMPONENTS[@]} -eq 0 ]]; then
-  COMPONENTS=(worker agents dashboard)
+  COMPONENTS=(worker agents dashboard backend bittensor-miner)
 fi
 
 run() {
@@ -63,7 +65,7 @@ main() {
   local c ref df
   for c in "${COMPONENTS[@]}"; do
     df="${DOCKERFILES[$c]:-}"
-    [[ -n "$df" ]] || die "unknown component: $c (valid: worker agents dashboard)"
+    [[ -n "$df" ]] || die "unknown component: $c (valid: worker agents dashboard backend bittensor-miner)"
     ref="$(image_ref "$c")"
     step "Building ${c} -> ${ref}"
 
