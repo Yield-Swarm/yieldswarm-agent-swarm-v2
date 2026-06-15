@@ -84,6 +84,17 @@ export const serverEnv = {
     driver: () => str("PAYMENTS_STORE_DRIVER", "memory"),
     fileDir: () => str("PAYMENTS_STORE_DIR", ".data"),
   },
+
+  payments: {
+    /** Flat customer fee (default 1%). */
+    customerFeePercent: () => Number(str("MAX_FEE_PERCENT", "0.01")) || 0.01,
+    /** Driver pay multiplier (default 2×). */
+    driverPayMultiplier: () => Number(str("DRIVER_PAY_MULTIPLIER", "2")) || 2,
+    /** Instant cashout fee when driver opts in (default 1.5%). */
+    instantCashoutFeePercent: () =>
+      Number(str("INSTANT_CASHOUT_FEE_PERCENT", "0.015")) || 0.015,
+    kairoWebhookSecret: () => str("KAIRO_WEBHOOK_SECRET"),
+  },
 };
 
 /** Config safe to send to the browser. */

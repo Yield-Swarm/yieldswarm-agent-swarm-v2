@@ -38,6 +38,28 @@ are written under `deploy/rendered/` and ignored by Git.
 See `docs/odysseus-yieldswarm.md` for model aliases, memory bootstrap steps,
 and Akash Ollama worker requirements.
 
+Full local Odysseus stack (LiteLLM + ChromaDB + SearXNG + ntfy):
+```bash
+docker compose -f docker-compose.yml -f docker-compose.odysseus.yml up -d
+```
+
+## Kairo (Driver → YieldSwarm DePIN Node)
+
+Every Kairo driver gets a persistent IoTeX + EVM compatible cryptographic identity.
+Signed telemetry routes into the Mandelbrot / Tree of Life architecture.
+
+```bash
+pip install -r requirements.txt
+python kairo/cli.py register
+# Dashboard: http://localhost:8787/kairo/ (via backend integration server)
+```
+
+API: `POST /api/kairo/drivers/register`, `POST /api/kairo/telemetry/ingest`
+
+## Domains
+
+See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo subdomains).
+
 ## Deployment
 - Odysseus stack: `docker-compose.yml`
 - Akash SDL: `deploy/akash-odysseus.sdl.yml`

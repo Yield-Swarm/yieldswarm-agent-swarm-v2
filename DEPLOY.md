@@ -381,4 +381,26 @@ dashboard/                        # index.html + config.js (live worker view)
 | Terraform makes no fallback | Expected when `primary_healthy=true` or all `TF_ENABLE_*=false`. |
 | Grafana/Prometheus won't start | Ensure Docker is running and ports 9090/3001/9093 are free. |
 | Sovereign loop stalled alert | `deploy/scripts/start-sovereign-loops.sh start`; check `.run/sovereign-loop.log`. |
+
+---
+
+## Vault-at-runtime Akash deploy (production)
+
+For production, use the Vault-wrapped deploy path instead of plain `akash-deploy.sh`:
+
+```bash
+# Prerequisites: VAULT_ADDR, VAULT_TOKEN (admin), funded AKASH_KEY_NAME
+export VAULT_ADDR=https://vault.yieldswarm.io:8200
+export VAULT_TOKEN=<admin-token>
+export AKASH_KEY_NAME=yieldswarm
+
+# Mints single-use wrapped SecretID, deploys monolith SDL with Vault Agent
+./scripts/akash-deploy-with-vault.sh deploy/deploy-swarm-monolith.yaml
 ```
+
+The monolith SDL (`deploy/deploy-swarm-monolith.yaml`) expects:
+- `VAULT_ROLE_ID` + `VAULT_WRAPPED_SECRET_ID` injected at deployment create
+- `ghcr.io/yield-swarm/yieldswarm-agent:1.0.0` image with Vault Agent sidecar
+- tmpfs `/run/secrets` for rendered env (never touches host disk)
+
+Seed Vault paths first: `vault/setup/05-seed-secrets.sh` (see `SECRETS.md`).

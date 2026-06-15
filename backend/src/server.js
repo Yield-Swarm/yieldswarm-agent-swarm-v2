@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import config from './config.js';
 import apiRouter from './routes/api.js';
+import kairoRouter from './routes/kairo.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -32,9 +33,11 @@ app.use((req, res, next) => {
 });
 
 app.use('/api', apiRouter);
+app.use('/api/kairo', kairoRouter);
 
 // ---- Frontends -----------------------------------------------------------
 app.use('/arena', express.static(path.join(frontendDir, 'arena')));
+app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
 app.use('/portal', express.static(path.join(frontendDir, 'portal')));
 
 // Resolve the legacy/static links that existed in the repo's HTML files.
