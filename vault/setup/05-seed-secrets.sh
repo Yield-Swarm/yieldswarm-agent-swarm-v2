@@ -90,4 +90,37 @@ put integrations/github   token="$(val GITHUB_TOKEN)"
 put integrations/vercel   token="$(val VERCEL_API_TOKEN)"
 put integrations/telegram bot_token="$(val TELEGRAM_BOT_TOKEN)"
 
+# ---- Odysseus runtime + deploy ----------------------------------------
+put odysseus/runtime \
+  api_key="$(val ODYSSEUS_API_KEY)" \
+  model_host="$(val ODYSSEUS_MODEL_HOST)" \
+  model_api_key="$(val ODYSSEUS_MODEL_API_KEY)" \
+  openrouter_api_key="$(val OPENROUTER_API_KEY)" \
+  fireworks_api_key="$(val FIREWORKS_API_KEY)"
+
+put odysseus/deploy \
+  image_repository="$(val ODYSSEUS_IMAGE)" \
+  ghcr_owner="$(val GHCR_OWNER)" \
+  ghcr_token="$(val GHCR_TOKEN)"
+
+# ---- Payments + Kairo -------------------------------------------------
+put payments/runtime \
+  session_secret="$(val SESSION_SECRET)" \
+  square_access_token="$(val SQUARE_ACCESS_TOKEN)" \
+  square_location_id="$(val SQUARE_LOCATION_ID)" \
+  square_webhook_signature_key="$(val SQUARE_WEBHOOK_SIGNATURE_KEY)" \
+  wise_api_token="$(val WISE_API_TOKEN)" \
+  wise_profile_id="$(val WISE_PROFILE_ID)" \
+  treasury_evm_address="$(val TREASURY_EVM_ADDRESS)" \
+  treasury_solana_address="$(val TREASURY_SOLANA_ADDRESS)" \
+  hot_wallet_evm_private_key="$(val HOT_WALLET_EVM_PRIVATE_KEY)"
+
+put kairo/runtime \
+  identity_encryption_key="$(val KAIRO_IDENTITY_ENCRYPTION_KEY)" \
+  mapbox_token="$(val MAPBOX_TOKEN)" \
+  customer_fee_rate="$(val KAIRO_CUSTOMER_FEE_RATE)" \
+  driver_pay_multiplier="$(val KAIRO_DRIVER_PAY_MULTIPLIER)"
+
+put integrations/unstoppable api_key="$(val UD_API_KEY)"
+
 log "Seed complete. Verify with: vault kv list yieldswarm/"

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kairo — Rides & Delivery</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #070b14; color: #eef3ff; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid #1a2540;
+      background: rgba(7,11,20,.92); backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header h1 { margin: 0; font-size: 1.1rem; letter-spacing: .04em; }
+    .badge { background: #1f3fff; color: #fff; font-size: .72rem; padding: 3px 8px; border-radius: 999px; }
+    main { display: grid; grid-template-columns: 1.2fr .8fr; min-height: calc(100vh - 56px); }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } #map { min-height: 50vh; } }
+    #map { width: 100%; min-height: calc(100vh - 56px); }
+    .panel { padding: 18px; border-left: 1px solid #1a2540; background: #0b1220; }
+    .card { background: #111a2e; border: 1px solid #243055; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+    .card h2 { margin: 0 0 8px; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #8ea8ff; }
+    label { display: block; font-size: .82rem; color: #9db0d9; margin: 8px 0 4px; }
+    input, select, button {
+      width: 100%; border-radius: 8px; border: 1px solid #243055;
+      background: #0a1020; color: #eef3ff; padding: 10px 12px; font-size: .95rem;
+    }
+    button { cursor: pointer; background: #3358ff; border-color: #3358ff; font-weight: 600; margin-top: 10px; }
+    button.secondary { background: #15203a; border-color: #243055; }
+    .fee { display: flex; justify-content: space-between; font-size: .9rem; margin: 6px 0; }
+    .fee strong { color: #7dffc4; }
+    .status { font-size: .85rem; color: #9db0d9; min-height: 1.2em; }
+    .error { color: #ff8f8f; }
+    .ok { color: #7dffc4; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kairo <span class="badge">1% platform fee</span></h1>
+    <div id="driverMeta" class="status">Driver node: not registered</div>
+  </header>
+  <main>
+    <div id="map"></div>
+    <section class="panel">
+      <div class="card">
+        <h2>Book a ride</h2>
+        <label>Pickup</label>
+        <input id="pickup" placeholder="123 Main St, Denver CO" value="Union Station, Denver CO" />
+        <label>Dropoff</label>
+        <input id="dropoff" placeholder="Airport" value="DEN Airport, Denver CO" />
+        <label>Estimated fare (USD)</label>
+        <input id="fare" type="number" step="0.01" value="24.50" />
+        <div class="fee"><span>Platform fee (1%)</span><strong id="platformFee">$0.25</strong></div>
+        <div class="fee"><span>Driver pay (2×)</span><strong id="driverPay">$49.00</strong></div>
+        <button id="bookBtn">Request ride</button>
+      </div>
+      <div class="card">
+        <h2>Driver telemetry</h2>
+        <p class="status">Signed GPS packets feed YieldSwarm Mandelbrot rewards.</p>
+        <button id="telemetryBtn" class="secondary">Submit signed telemetry</button>
+        <p id="telemetryStatus" class="status"></p>
+      </div>
+      <div class="card">
+        <h2>Earnings breakdown</h2>
+        <div class="fee"><span>App earnings</span><span id="appEarnings">—</span></div>
+        <div class="fee"><span>DePIN rewards</span><span id="depinRewards">—</span></div>
+        <div class="fee"><span>Total estimated</span><strong id="totalEst">—</strong></div>
+        <button id="refreshEarnings" class="secondary">Refresh</button>
+      </div>
+    </section>
+  </main>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+  <script>
+    const config = window.KAIRO_CONFIG || {};
+    const apiBase = config.apiBase || window.KAIRO_API_BASE || '/api/kairo';
+    const mapboxToken = config.mapboxToken || window.MAPBOX_TOKEN || '';
+    const driverId = localStorage.getItem('kairo_driver_id') || 'kairo-driver-1';
+
+    function money(v) { return '$' + Number(v).toFixed(2); }
+
+    function updateFees() {
+      const fare = Number(document.getElementById('fare').value || 0);
+      document.getElementById('platformFee').textContent = money(fare * 0.01);
+      document.getElementById('driverPay').textContent = money(fare * 2);
+    }
+
+    async function api(path, options) {
+      const res = await fetch(`${apiBase}${path}`, {
+        headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
+        ...options,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      return data;
+    }
+
+    async function ensureDriver() {
+      try {
+        const existing = await api(`/drivers/${encodeURIComponent(driverId)}/contribution?trip_fare_usd=0`);
+        document.getElementById('driverMeta').textContent = `Driver: ${driverId}`;
+        return existing.data || existing;
+      } catch {
+        const created = await api('/drivers', {
+          method: 'POST',
+          body: JSON.stringify({ driver_id: driverId }),
+        });
+        localStorage.setItem('kairo_driver_id', driverId);
+        document.getElementById('driverMeta').textContent = `Driver: ${driverId} (registered)`;
+        return created.data || created;
+      }
+    }
+
+    async function refreshEarnings() {
+      const fare = Number(document.getElementById('fare').value || 0);
+      const res = await api(`/drivers/${encodeURIComponent(driverId)}/contribution?trip_fare_usd=${fare}`);
+      const row = res.data || res;
+      document.getElementById('appEarnings').textContent = money(row.app_earnings_usd || 0);
+      document.getElementById('depinRewards').textContent = money(row.depin_rewards_usd || 0);
+      document.getElementById('totalEst').textContent = money(row.estimated_total_usd || 0);
+    }
+
+    function initMap() {
+      if (!mapboxToken) {
+        document.getElementById('map').innerHTML =
+          '<div style="padding:2rem;color:#9db0d9">Set <code>MAPBOX_TOKEN</code> or <code>KAIRO_CONFIG.mapboxToken</code> to enable live tracking.</div>';
+        return;
+      }
+      mapboxgl.accessToken = mapboxToken;
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [-104.9903, 39.7392],
+        zoom: 11,
+      });
+      new mapboxgl.Marker({ color: '#3358ff' }).setLngLat([-104.9903, 39.7392]).addTo(map);
+      new mapboxgl.Marker({ color: '#7dffc4' }).setLngLat([-104.6737, 39.8561]).addTo(map);
+      map.addControl(new mapboxgl.NavigationControl());
+    }
+
+    document.getElementById('fare').addEventListener('input', updateFees);
+    document.getElementById('bookBtn').addEventListener('click', async () => {
+      try {
+        await ensureDriver();
+        await refreshEarnings();
+        document.getElementById('telemetryStatus').textContent = 'Ride booked — 1% fee applied.';
+        document.getElementById('telemetryStatus').className = 'status ok';
+      } catch (err) {
+        document.getElementById('telemetryStatus').textContent = err.message;
+        document.getElementById('telemetryStatus').className = 'status error';
+      }
+    });
+    document.getElementById('telemetryBtn').addEventListener('click', async () => {
+      const status = document.getElementById('telemetryStatus');
+      try {
+        await ensureDriver();
+        await api('/telemetry', {
+          method: 'POST',
+          body: JSON.stringify({
+            driver_id: driverId,
+            payload: {
+              latitude: 39.7392 + (Math.random() - 0.5) * 0.05,
+              longitude: -104.9903 + (Math.random() - 0.5) * 0.05,
+              speed_kmh: 30 + Math.random() * 25,
+              distance_km: 1.2 + Math.random() * 3,
+              duration_seconds: 120 + Math.floor(Math.random() * 300),
+            },
+          }),
+        });
+        status.textContent = 'Signed telemetry accepted by YieldSwarm pipeline.';
+        status.className = 'status ok';
+        await refreshEarnings();
+      } catch (err) {
+        status.textContent = err.message;
+        status.className = 'status error';
+      }
+    });
+    document.getElementById('refreshEarnings').addEventListener('click', refreshEarnings);
+
+    updateFees();
+    initMap();
+    ensureDriver().then(refreshEarnings).catch(() => {});
+  </script>
+</body>
+</html>

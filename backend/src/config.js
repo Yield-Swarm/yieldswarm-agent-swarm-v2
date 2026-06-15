@@ -57,19 +57,29 @@ export const config = {
     enabled: bool(process.env.SOLANA_ENABLED, true),
   },
 
-  // Treasury split policy (basis points). Used to project on-chain balance into
-  // destination buckets when the on-chain split config is not directly readable.
+  // Treasury split policy (basis points).
+  // Great Delta EVM router uses 50/30/15/5; Solana $APN adapter defaults below
+  // until EMISSION_ROUTER_ADDRESS is wired — override via env.
   treasurySplitsBps: {
-    operations: int(process.env.SPLIT_OPERATIONS_BPS, 2000), // 20%
-    stakers: int(process.env.SPLIT_STAKERS_BPS, 3500), // 35%
-    buyback: int(process.env.SPLIT_BUYBACK_BPS, 2500), // 25%
-    treasuryReserve: int(process.env.SPLIT_RESERVE_BPS, 2000), // 20%
+    operations: int(process.env.SPLIT_OPERATIONS_BPS, 5000), // 50%
+    stakers: int(process.env.SPLIT_STAKERS_BPS, 3000), // 30%
+    buyback: int(process.env.SPLIT_BUYBACK_BPS, 1500), // 15%
+    treasuryReserve: int(process.env.SPLIT_RESERVE_BPS, 500), // 5%
   },
 
   // Agent fleet sizing (mirrors .env.example defaults) used for the leaderboard.
   fleet: {
     totalAgents: int(process.env.AGENT_COUNT_TOTAL, 10080),
     cronShardCount: int(process.env.CRON_SHARD_COUNT, 120),
+  },
+
+  odysseus: {
+    url: (process.env.ODYSSEUS_URL || 'http://127.0.0.1:8080').replace(/\/$/, ''),
+    enabled: bool(process.env.ODYSSEUS_ENABLED, true),
+  },
+
+  vault: {
+    targetUsd: Number(process.env.VAULT_TARGET_USD || '5000000'),
   },
 };
 
