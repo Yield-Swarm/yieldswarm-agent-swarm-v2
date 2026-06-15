@@ -1,0 +1,89 @@
+version: "2.0"
+
+services:
+  worker:
+    image: ghcr.io/yieldswarm/swarm-worker:stable
+    env:
+      - NODE_ENV=production
+      - WORKER_ENV=production
+      - WORKER_PORT=8080
+      - HEALTHCHECK_PATH=/healthz
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    readiness_probe:
+      http_get:
+        path: /healthz
+        port: 8080
+      initial_delay_seconds: 20
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 6
+    liveness_probe:
+      http_get:
+        path: /healthz
+        port: 8080
+      initial_delay_seconds: 45
+      period_seconds: 15
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 5
+    params:
+      storage:
+        worker-state:
+          mount: /var/lib/yieldswarm
+        model-cache:
+          mount: /var/cache/yieldswarm
+        worker-logs:
+          mount: /var/log/yieldswarm
+
+profiles:
+  compute:
+    worker:
+      resources:
+        cpu:
+          units: "8.0"
+        memory:
+          size: 32Gi
+        gpu:
+          units: "1"
+          attributes:
+            vendor:
+              nvidia
+            model:
+              - rtx3090
+        storage:
+          - name: worker-state
+            size: 200Gi
+            attributes:
+              persistent: "true"
+              class: beta3
+          - name: model-cache
+            size: 500Gi
+            attributes:
+              persistent: "true"
+              class: beta3
+          - name: worker-logs
+            size: 50Gi
+            attributes:
+              persistent: "true"
+              class: beta3
+  placement:
+    rtx3090-production:
+      attributes:
+        host: akash
+        gpu.nvidia.model: rtx3090
+        purpose: production
+      pricing:
+        worker:
+          denom: uakt
+          amount: "700000"
+
+deployment:
+  worker:
+    rtx3090-production:
+      profile: worker
+      count: 3
