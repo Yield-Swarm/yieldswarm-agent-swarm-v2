@@ -65,17 +65,47 @@ services:
   odysseus-sync:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: ${ODYSSEUS_SYNC_IMAGE:-ghcr.io/yieldswarm/odysseus-sync:local}
+      dockerfile: docker/Dockerfile.odysseus-brain
+    image: ${ODYSSEUS_SYNC_IMAGE:-ghcr.io/yieldswarm/odysseus-brain:local}
     command: python agents/odysseus-sync-service.py
     environment:
-      CHROMADB_URL: http://chromadb:8000
-      ODYSSEUS_SYNC_PORT: "8091"
+      ODYSSEUS_CHROMA_MODE: http
+      ODYSSEUS_CHROMA_HOST: chromadb
+      ODYSSEUS_CHROMA_PORT: "8000"
+      ODYSSEUS_SYNC_HOST: 0.0.0.0
+      ODYSSEUS_SYNC_PORT: "8097"
       AGENT_SHARD_ID: ${AGENT_SHARD_ID:-0}
     ports:
-      - "${ODYSSEUS_SYNC_PORT:-8091}:8091"
+      - "${ODYSSEUS_SYNC_PORT:-8097}:8097"
     depends_on:
       - chromadb
+    restart: unless-stopped
+
+  yieldswarm-brain:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.odysseus-brain
+    image: ${YIELDSWARM_BRAIN_IMAGE:-ghcr.io/yieldswarm/odysseus-brain:local}
+    environment:
+      PORT: "8080"
+      LITELLM_URL: http://llm-router:4000
+      ODYSSEUS_WORKSPACE_URL: http://host.docker.internal:7000
+      ODYSSEUS_CHROMA_MODE: http
+      ODYSSEUS_CHROMA_HOST: chromadb
+      ODYSSEUS_CHROMA_PORT: "8000"
+      ODYSSEUS_SYNC_PEERS: http://odysseus-sync:8097
+      YIELDSWARM_AKASH_API_URL: http://host.docker.internal:8080
+      YIELDSWARM_TELEMETRY_URL: http://yieldswarm-brain:8080
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      FIREWORKS_API_KEY: ${FIREWORKS_API_KEY:-}
+      YIELDSWARM_ROUTER_API_KEY: ${YIELDSWARM_ROUTER_API_KEY:-dev-router-key}
+      ODYSSEUS_API_KEY: ${ODYSSEUS_API_KEY:-dev-odysseus-key}
+    ports:
+      - "${ODYSSEUS_BRAIN_PORT:-8080}:8080"
+    depends_on:
+      - chromadb
+      - llm-router
+      - odysseus-sync
     restart: unless-stopped
 
 volumes:

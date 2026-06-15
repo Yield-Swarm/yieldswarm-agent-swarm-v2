@@ -25,7 +25,8 @@ load_deploy_config() {
   echo "Loading Odysseus deployment configuration from HashiCorp Vault path ${ODYSSEUS_DEPLOY_VAULT_PATH}" >&2
   vault_export_env "${ODYSSEUS_DEPLOY_VAULT_PATH}"
 
-  export ODYSSEUS_IMAGE="${ODYSSEUS_IMAGE:-${image_repository:-ghcr.io/yieldswarm/agent-swarm-odysseus:latest}}"
+  export ODYSSEUS_IMAGE="${ODYSSEUS_IMAGE:-${image_repository:-ghcr.io/yieldswarm/odysseus:main}}"
+  export YIELDSWARM_BRAIN_IMAGE="${YIELDSWARM_BRAIN_IMAGE:-ghcr.io/yieldswarm/odysseus-brain:latest}"
   export AKASH_NET="${AKASH_NET:-https://raw.githubusercontent.com/akash-network/net/main/mainnet}"
   export AKASH_CHAIN_ID="${AKASH_CHAIN_ID:-akashnet-2}"
   export AKASH_NODE="${AKASH_NODE:-https://rpc.akashnet.net:443}"
@@ -65,9 +66,20 @@ push_image() {
 }
 
 render_akash_sdl() {
+  local template="${ODYSSEUS_SDL_TEMPLATE:-${ROOT_DIR}/deploy/akash-odysseus.sdl.yml}"
   local output="${ROOT_DIR}/build/akash/odysseus.sdl.rendered.yml"
-  render_template "${ROOT_DIR}/deploy/akash/odysseus.sdl.yml" "${output}"
+  render_template "${template}" "${output}"
   printf '%s\n' "${output}"
+}
+
+build_brain_image() {
+  docker build -f "${ROOT_DIR}/docker/Dockerfile.odysseus-brain" \
+    -t "${YIELDSWARM_BRAIN_IMAGE:-ghcr.io/yieldswarm/odysseus-brain:latest}" \
+    "${ROOT_DIR}"
+}
+
+push_brain_image() {
+  docker push "${YIELDSWARM_BRAIN_IMAGE:-ghcr.io/yieldswarm/odysseus-brain:latest}"
 }
 
 deploy_akash() {
@@ -120,10 +132,10 @@ case "${TARGET}" in
     ;;
   akash)
     if [ "${BUILD_IMAGE:-true}" = "true" ]; then
-      build_image
+      build_brain_image
     fi
     if [ "${PUSH_IMAGE:-true}" = "true" ]; then
-      push_image
+      push_brain_image
     fi
     deploy_akash
     ;;

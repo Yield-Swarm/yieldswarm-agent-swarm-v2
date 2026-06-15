@@ -70,6 +70,12 @@ export const config = {
     totalAgents: int(process.env.AGENT_COUNT_TOTAL, 10080),
     cronShardCount: int(process.env.CRON_SHARD_COUNT, 120),
   },
+
+  odysseus: {
+    brainUrl: (process.env.ODYSSEUS_BRAIN_URL || process.env.ODYSSEUS_URL || 'http://127.0.0.1:8080').replace(/\/$/, ''),
+    workspaceUrl: (process.env.ODYSSEUS_WORKSPACE_URL || 'http://127.0.0.1:7000').replace(/\/$/, ''),
+    enabled: bool(process.env.ODYSSEUS_ENABLED, true),
+  },
 };
 
 export default config;

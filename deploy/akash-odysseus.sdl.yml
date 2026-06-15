@@ -58,7 +58,9 @@ services:
     expose:
       - port: 4000
         to:
+          - global: true
           - service: odysseus
+          - service: yieldswarm-brain
     env:
       - "LITELLM_MASTER_KEY=${YIELDSWARM_ROUTER_API_KEY}"
       - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
@@ -67,14 +69,81 @@ services:
       - "FIREWORKS_API_KEY=${FIREWORKS_API_KEY}"
       - "FIREWORKS_MODEL=${FIREWORKS_MODEL:-accounts/fireworks/models/llama-v3p1-70b-instruct}"
       - "FIREWORKS_LITELLM_MODEL=fireworks_ai/${FIREWORKS_MODEL:-accounts/fireworks/models/llama-v3p1-70b-instruct}"
-      - "AKASH_OLLAMA_BASE_URL=${AKASH_OLLAMA_BASE_URL}"
+      - "AKASH_OLLAMA_BASE_URL=http://ollama:11434"
       - "AKASH_OLLAMA_MODEL=${AKASH_OLLAMA_MODEL:-llama3.1:8b}"
       - "AKASH_OLLAMA_LITELLM_MODEL=ollama/${AKASH_OLLAMA_MODEL:-llama3.1:8b}"
       - "AKASH_OLLAMA_EMBED_MODEL=${AKASH_OLLAMA_EMBED_MODEL:-nomic-embed-text}"
       - "AKASH_OLLAMA_EMBED_LITELLM_MODEL=ollama/${AKASH_OLLAMA_EMBED_MODEL:-nomic-embed-text}"
-      - "LOCAL_OLLAMA_BASE_URL=${LOCAL_OLLAMA_BASE_URL:-http://ollama:11434}"
+      - "LOCAL_OLLAMA_BASE_URL=http://ollama:11434"
       - "LOCAL_OLLAMA_MODEL=${LOCAL_OLLAMA_MODEL:-llama3.1:8b}"
       - "LOCAL_OLLAMA_LITELLM_MODEL=ollama/${LOCAL_OLLAMA_MODEL:-llama3.1:8b}"
+      - "ODYSSEUS_DEFAULT_MODEL=akash-ollama"
+
+  ollama:
+    image: docker.io/ollama/ollama:latest
+    expose:
+      - port: 11434
+        to:
+          - service: llm-router
+          - service: odysseus
+          - service: yieldswarm-brain
+    env:
+      - "OLLAMA_HOST=0.0.0.0:11434"
+      - "OLLAMA_MODELS=${AKASH_OLLAMA_MODEL:-llama3.1:8b}"
+    params:
+      storage:
+        ollama-models:
+          mount: /root/.ollama
+
+  yieldswarm-brain:
+    image: "${YIELDSWARM_BRAIN_IMAGE:-ghcr.io/yieldswarm/odysseus-brain:main}"
+    expose:
+      - port: 8080
+        as: 8080
+        to:
+          - global: true
+    env:
+      - "PORT=8080"
+      - "HOST=0.0.0.0"
+      - "ODYSSEUS_API_KEY=${ODYSSEUS_API_KEY}"
+      - "YIELDSWARM_ROUTER_API_KEY=${YIELDSWARM_ROUTER_API_KEY}"
+      - "LITELLM_URL=http://llm-router:4000"
+      - "ODYSSEUS_WORKSPACE_URL=http://odysseus:7000"
+      - "ODYSSEUS_CHROMA_MODE=http"
+      - "ODYSSEUS_CHROMA_HOST=chromadb"
+      - "ODYSSEUS_CHROMA_PORT=8000"
+      - "ODYSSEUS_SYNC_PEERS=http://odysseus-sync:8097"
+      - "YIELDSWARM_AKASH_API_URL=http://yieldswarm-brain:8080"
+      - "YIELDSWARM_TELEMETRY_URL=http://yieldswarm-brain:8080"
+      - "YIELDSWARM_EMISSION_ROUTER_URL=http://yieldswarm-brain:8080"
+      - "AGENT_COUNT_TOTAL=${AGENT_COUNT_TOTAL:-10080}"
+      - "YIELDSWARM_DEITY_COUNT=${YIELDSWARM_DEITY_COUNT:-169}"
+      - "AGENT_SHARD_ID=${AGENT_SHARD_ID:-0}"
+      - "ODYSSEUS_ROUTER_SYNC_ENABLED=true"
+      - "ODYSSEUS_ROUTER_SYNC_SECONDS=300"
+    params:
+      storage:
+        brain-state:
+          mount: /app/.run
+
+  odysseus-sync:
+    image: "${YIELDSWARM_BRAIN_IMAGE:-ghcr.io/yieldswarm/odysseus-brain:main}"
+    command:
+      - "python"
+    args:
+      - "agents/odysseus-sync-service.py"
+    expose:
+      - port: 8097
+        to:
+          - service: yieldswarm-brain
+          - service: odysseus
+    env:
+      - "ODYSSEUS_CHROMA_MODE=http"
+      - "ODYSSEUS_CHROMA_HOST=chromadb"
+      - "ODYSSEUS_CHROMA_PORT=8000"
+      - "ODYSSEUS_SYNC_HOST=0.0.0.0"
+      - "ODYSSEUS_SYNC_PORT=8097"
+      - "AGENT_SHARD_ID=${AGENT_SHARD_ID:-0}"
 
   chromadb:
     image: docker.io/chromadb/chroma:latest
@@ -182,6 +251,50 @@ profiles:
               persistent: true
               class: beta3
 
+    ollama:
+      resources:
+        cpu:
+          units: 4.0
+        memory:
+          size: 16Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+                  ram: 24GB
+        storage:
+          - size: 8Gi
+          - name: ollama-models
+            size: 200Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+    yieldswarm-brain:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 4Gi
+          - name: brain-state
+            size: 20Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+    odysseus-sync:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 2Gi
+
     llm-router:
       resources:
         cpu:
@@ -239,6 +352,15 @@ profiles:
         odysseus:
           denom: uakt
           amount: 10000
+        ollama:
+          denom: uakt
+          amount: 8000
+        yieldswarm-brain:
+          denom: uakt
+          amount: 2000
+        odysseus-sync:
+          denom: uakt
+          amount: 500
         llm-router:
           denom: uakt
           amount: 1000
@@ -256,6 +378,18 @@ deployment:
   odysseus:
     akash:
       profile: odysseus
+      count: 1
+  ollama:
+    akash:
+      profile: ollama
+      count: 1
+  yieldswarm-brain:
+    akash:
+      profile: yieldswarm-brain
+      count: 1
+  odysseus-sync:
+    akash:
+      profile: odysseus-sync
       count: 1
   llm-router:
     akash:

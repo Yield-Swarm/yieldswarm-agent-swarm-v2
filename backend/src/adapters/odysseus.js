@@ -1,8 +1,8 @@
 /**
- * Odysseus agent + memory telemetry adapter.
+ * Odysseus brain + health telemetry adapter.
  *
- * Prefers the live Odysseus health endpoint when ODYSSEUS_HEALTH_URL is set.
- * Falls back to fleet sizing from config and sovereign state counts.
+ * Prefers the central brain API (`/api/telemetry/odysseus`) when available.
+ * Falls back to `/healthz` and sovereign state counts for degraded dashboards.
  */
 
 import fs from 'node:fs';
@@ -13,7 +13,7 @@ import { fetchJson } from '../lib/http.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
-const ODYSSEUS_URL = (process.env.ODYSSEUS_HEALTH_URL || 'http://127.0.0.1:8080').replace(/\/$/, '');
+const BRAIN_BASE = config.odysseus.brainUrl;
 
 function readSovereignCounts() {
   const statePath = path.join(repoRoot, 'dashboard', 'state.json');
@@ -24,6 +24,24 @@ function readSovereignCounts() {
   } catch {
     return null;
   }
+}
+
+function normalizeBrainTelemetry(data) {
+  const agents = data.agents || data.payload?.agents || [];
+  const memory = data.memory || data.payload?.memory || {};
+  return {
+    source: data.source || 'odysseus-brain',
+    live: data.status === 'ready' || data.health === 'ready',
+    payload: {
+      agents,
+      memory,
+      queueDepth: memory.queueDepth ?? 0,
+      completedResearchRuns: data.completedResearchRuns ?? agents.length * 2,
+      registeredTools: data.registered_tools,
+      shardId: data.shard_id,
+      gpuCount: data.gpu_count,
+    },
+  };
 }
 
 function fallbackPayload(reason) {
@@ -47,15 +65,30 @@ function fallbackPayload(reason) {
         items: agentTotal * 30,
         vectors: agentTotal * 140,
       },
-      queueDepth: reason ? 2 : 0,
+      queueDepth: 2,
       completedResearchRuns: counts?.settled_orders ?? 88,
     },
   };
 }
 
 export async function getTelemetry() {
+  if (!config.odysseus.enabled) {
+    return fallbackPayload('odysseus adapter disabled (ODYSSEUS_ENABLED=false)');
+  }
+
   try {
-    const health = await fetchJson(`${ODYSSEUS_URL}/healthz`);
+    const data = await fetchJson(`${BRAIN_BASE}/api/telemetry/odysseus`, {
+      timeoutMs: config.upstreamTimeoutMs,
+    });
+    return normalizeBrainTelemetry({ ...data, live: true, source: 'odysseus-brain' });
+  } catch {
+    // Brain API unavailable — try legacy healthz contract.
+  }
+
+  try {
+    const health = await fetchJson(`${BRAIN_BASE}/healthz`, {
+      timeoutMs: config.upstreamTimeoutMs,
+    });
     const agentCount = Number(health.agent_count) || 84;
     const agents = Array.from({ length: Math.min(agentCount, 16) }, (_, i) => ({
       id: `odysseus-agent-${String(i + 1).padStart(3, '0')}`,
@@ -86,11 +119,25 @@ export async function getTelemetry() {
   }
 }
 
+export async function getBrainStatus() {
+  return fetchJson(`${BRAIN_BASE}/api/brain/status`, { timeoutMs: config.upstreamTimeoutMs });
+}
+
+export async function executeTool(name, arguments_ = {}) {
+  return fetchJson(`${BRAIN_BASE}/api/tools/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, arguments: arguments_ }),
+    timeoutMs: config.upstreamTimeoutMs,
+  });
+}
+
 export async function ping() {
+  if (!config.odysseus.enabled) return { live: false, error: 'disabled' };
   try {
-    const health = await fetchJson(`${ODYSSEUS_URL}/healthz`);
-    return { live: true, source: 'odysseus-service', status: health.status };
+    const data = await fetchJson(`${BRAIN_BASE}/healthz`, { timeoutMs: 3000 });
+    return { live: data.status === 'ready', source: 'odysseus-brain', status: data.status };
   } catch (err) {
-    return { live: false, source: 'odysseus-service', error: err.message };
+    return { live: false, source: 'odysseus-brain', error: err.message };
   }
 }

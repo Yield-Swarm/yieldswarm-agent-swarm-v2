@@ -26,8 +26,10 @@ model_list:
       api_base: os.environ/LOCAL_OLLAMA_BASE_URL
 
 router_settings:
-  routing_strategy: simple-shuffle
+  routing_strategy: latency-based-routing
   redis_host: null
+  model_group_alias:
+    yieldswarm-brain-default: akash-ollama
 
 litellm_settings:
   drop_params: true
