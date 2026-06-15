@@ -1,0 +1,41 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "schemaVersion": 39,
+  "title": "YieldSwarm Overview",
+  "uid": "yieldswarm-overview",
+  "tags": ["yieldswarm"],
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Workers Up",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "targets": [{ "expr": "sum(up{job=\"yieldswarm-workers\"})", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Agents Served",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "sum(yieldswarm_worker_agents)", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Worker Uptime (s)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [{ "expr": "yieldswarm_worker_uptime_seconds", "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Rate",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [{ "expr": "rate(yieldswarm_worker_requests_total[5m])", "refId": "A" }]
+    },
+    {
+      "type": "stat",
+      "title": "Sovereign Loop Tick",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [{ "expr": "yieldswarm_sovereign_tick", "refId": "A" }]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# YieldSwarm agents — the sovereign loop / agent orchestrator container.
+# Built and pushed as ghcr.io/<owner>/yieldswarm-agents:<tag>
+FROM python:3.12-slim AS base
+
+LABEL org.opencontainers.image.title="yieldswarm-agents" \
+      org.opencontainers.image.description="YieldSwarm sovereign loop (Akash optimizer, OpenClaw scaler, vault manager, miners)" \
+      org.opencontainers.image.source="https://github.com/your-github-username/yieldswarm"
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    REPO_ROOT=/app \
+    SOVEREIGN_LOOP_INTERVAL=900
+
+WORKDIR /app
+
+COPY deploy/runtime/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Agent source + runtime entrypoint.
+COPY agents/ /app/agents/
+COPY mining/ /app/mining/
+COPY crons/ /app/crons/
+COPY deploy/runtime/swarm_runner.py /app/swarm_runner.py
+
+RUN useradd --create-home --uid 10001 swarm && chown -R swarm:swarm /app
+USER swarm
+
+CMD ["python", "/app/swarm_runner.py"]

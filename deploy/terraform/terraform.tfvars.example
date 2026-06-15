@@ -1,0 +1,18 @@
+# Copy to terraform.tfvars (git-ignored) or pass with -var-file.
+# deploy.sh auto-generates these values from deploy/config.env + the Akash lease.
+
+ghcr_owner   = "your-github-username"
+image_prefix = "yieldswarm"
+image_tag    = "latest"
+
+# Primary Akash worker health endpoint. When healthy, no fallback is created.
+primary_health_url = "https://your-akash-worker.example.akash.network/healthz"
+
+# Fallbacks (preference order: fly -> render -> hetzner).
+enable_fly     = false
+enable_render  = false
+enable_hetzner = false
+
+# fly_api_token  = "..."
+# render_api_key = "..."
+# hcloud_token   = "..."

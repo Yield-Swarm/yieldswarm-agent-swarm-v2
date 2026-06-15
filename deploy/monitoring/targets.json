@@ -1,0 +1,6 @@
+[
+  {
+    "labels": { "service": "yieldswarm-worker" },
+    "targets": []
+  }
+]
