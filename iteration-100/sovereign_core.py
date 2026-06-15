@@ -33,7 +33,7 @@ import self_healing_leases
 import treasury_rebalancer
 from core import VAULT_TARGET_USD
 from core.akash_feed import AkashFeed
-from core.state import Event, SovereignState, persist
+from core.state import Event, SovereignState, load, persist
 
 
 @dataclass
@@ -55,10 +55,14 @@ class CoreConfig:
 
 
 class SovereignCore:
-    def __init__(self, config: Optional[CoreConfig] = None):
+    def __init__(self, config: Optional[CoreConfig] = None, *, resume: bool = True):
         self.cfg = config or CoreConfig()
         self.feed = AkashFeed()
-        self.state = self._bootstrap()
+        if resume:
+            restored = load(self.cfg.state_path)
+            self.state = restored if restored is not None else self._bootstrap()
+        else:
+            self.state = self._bootstrap()
 
     # ------------------------------------------------------------------ #
 

@@ -36,29 +36,20 @@ AGENT_FILES = [
 
 
 def _run_sovereign_cycle(tick: int) -> bool:
-    """Run the Iteration 100 sovereign controller once per swarm tick."""
-    sovereign_path = REPO_ROOT / "agents" / "iteration_100_sovereign_loops.py"
-    if not sovereign_path.exists():
-        return False
+    """Run the unified sovereign runtime once per swarm tick."""
     try:
-        spec = importlib.util.spec_from_file_location("iteration_100_sovereign_loops", sovereign_path)
-        if spec is None or spec.loader is None:
-            return False
-        module = importlib.util.module_from_spec(spec)
-        agents_dir = str(REPO_ROOT / "agents")
-        if agents_dir not in sys.path:
-            sys.path.insert(0, agents_dir)
-        if str(REPO_ROOT) not in sys.path:
-            sys.path.insert(0, str(REPO_ROOT))
-        spec.loader.exec_module(module)
-        from pathlib import Path
+        from services.sovereign_runtime import run_cycle
 
-        controller = module.SovereignController(
+        report = run_cycle(
             state_path=Path(os.environ.get("SOVEREIGN_STATE_PATH", REPO_ROOT / "dashboard" / "state.json")),
             dashboard_path=Path(REPO_ROOT / "dashboard" / "final-monitoring-dashboard-5m.md"),
         )
-        report = controller.run_cycle()
-        print(f"[swarm] sovereign cycle {report.get('cycle', tick)} complete", flush=True)
+        print(
+            f"[swarm] sovereign cycle {report.get('cycle', tick)} complete "
+            f"(tick={report.get('tick')}, apy={report.get('blended_apy')}, "
+            f"healthy={report.get('healthy_worker_ratio')})",
+            flush=True,
+        )
         return True
     except Exception:  # noqa: BLE001
         print(f"[swarm] sovereign cycle failed\n{traceback.format_exc()}", flush=True)

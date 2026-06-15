@@ -265,3 +265,58 @@ def persist(state: SovereignState, path: str) -> None:
     with open(tmp, "w", encoding="utf-8") as fh:
         fh.write(state.to_json())
     os.replace(tmp, path)
+
+
+def load(path: str) -> Optional[SovereignState]:
+    """Restore a :class:`SovereignState` from a persisted dashboard snapshot."""
+    path = os.path.abspath(path)
+    if not os.path.isfile(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as fh:
+            snap = json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return None
+    return from_snapshot(snap)
+
+
+def from_snapshot(snap: Dict[str, Any]) -> SovereignState:
+    """Rebuild runtime state from a dashboard snapshot dict."""
+    workers = []
+    for row in snap.get("workers", []):
+        data = {k: v for k, v in row.items() if k != "roi"}
+        workers.append(AkashWorker(**data))
+
+    agents = []
+    for row in snap.get("agents", []):
+        assigned = row.get("assigned_workers", [])
+        if isinstance(assigned, int):
+            assigned = []
+        agents.append(Agent(
+            agent_id=row["agent_id"],
+            genome=row.get("genome") or {},
+            fitness=float(row.get("fitness", 0.0)),
+            generation=int(row.get("generation", 0)),
+            lineage=row.get("lineage", "genesis"),
+            assigned_workers=list(assigned),
+            realized_pnl_usd=float(row.get("realized_pnl_usd", 0.0)),
+        ))
+
+    strategies = [YieldStrategy(**row) for row in snap.get("strategies", [])]
+    orders = [MarketOrder(**row) for row in snap.get("orders", [])]
+    events = [Event(**row) for row in snap.get("events", [])]
+
+    return SovereignState(
+        tick=int(snap.get("tick", 0)),
+        started_at=float(snap.get("started_at", snap.get("updated_at", time.time()))),
+        updated_at=float(snap.get("updated_at", time.time())),
+        vault_usd=float(snap.get("vault_usd", 0.0)),
+        vault_target_usd=float(snap.get("vault_target_usd", VAULT_TARGET_USD)),
+        target_apy=float(snap.get("target_apy", 0.30)),
+        workers=workers,
+        agents=agents,
+        strategies=strategies,
+        orders=orders,
+        events=events,
+        history=list(snap.get("history", [])),
+    )
