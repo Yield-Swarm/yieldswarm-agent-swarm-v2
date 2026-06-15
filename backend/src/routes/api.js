@@ -6,12 +6,14 @@
  * upstreams from the dashboard's auto-refresh polling.
  */
 
-import { Router } from 'express';
+import express, { Router } from 'express';
 import config from '../config.js';
 import TtlCache from '../lib/cache.js';
+import { validateSplitBps, LEGACY_SPLIT_PCT } from '../lib/great-delta-split.js';
 import * as akash from '../adapters/akash.js';
 import * as emission from '../adapters/emissionRouter.js';
 import * as treasury from '../adapters/treasury.js';
+import * as greatDelta from '../adapters/greatDelta.js';
 import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
 import * as odysseus from '../adapters/odysseus.js';
@@ -20,6 +22,7 @@ import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
+router.use(express.json({ limit: '32kb' }));
 
 function asyncRoute(fn) {
   return (req, res) => {
@@ -110,6 +113,46 @@ router.get('/telemetry/treasury', asyncRoute(async (_req, res) => {
   res.json(data);
 }));
 
+router.get('/great-delta/health', asyncRoute(async (_req, res) => {
+  validateSplitBps(config.treasurySplitsBps);
+  res.json({
+    status: 'ok',
+    service: 'great-delta',
+    policy: '50/30/15/5',
+    splitBps: config.treasurySplitsBps,
+    legacySplitPct: LEGACY_SPLIT_PCT,
+    timestamp: new Date().toISOString(),
+  });
+}));
+
+router.get('/great-delta/overview', asyncRoute(async (_req, res) => {
+  const data = await cache.get('great-delta:overview', () => greatDelta.getGreatDeltaOverview());
+  res.json(data);
+}));
+
+router.post('/great-delta/telemetry', asyncRoute(async (req, res) => {
+  const started = Date.now();
+  const event = greatDelta.ingestTelemetryEvent({
+    event: req.body?.event || 'heartbeat',
+    source: req.body?.source || 'worker',
+    sentAt: req.body?.sentAt || null,
+    ...(req.body?.agentId ? { agentId: req.body.agentId } : {}),
+    ...(req.body?.latencyMs !== undefined ? { latencyMs: req.body.latencyMs } : {}),
+  });
+  const elapsedMs = Date.now() - started;
+  res.json({
+    accepted: true,
+    event: event.event,
+    source: event.source,
+    receivedAt: event.receivedAt,
+    guardrail: {
+      maxMs: 80,
+      elapsedMs,
+      withinGuardrail: elapsedMs <= 80,
+    },
+  });
+}));
+
 router.get('/telemetry/leaderboard', asyncRoute(async (req, res) => {
   const limit = req.query.limit;
   const data = await cache.get(`telemetry:leaderboard:${limit || 'default'}`, () =>
@@ -122,12 +165,13 @@ router.get('/telemetry/leaderboard', asyncRoute(async (req, res) => {
  * Single aggregated payload that powers the Arena dashboard in one round-trip.
  */
 router.get('/arena/overview', asyncRoute(async (_req, res) => {
-  const [workers, emissions, treasurySplits, board, odysseusSnap] = await Promise.all([
+  const [workers, emissions, treasurySplits, board, odysseusSnap, gd] = await Promise.all([
     cache.get('akash:workers', () => akash.getWorkers()),
     cache.get('telemetry:emission', () => emission.getEmissions()),
     cache.get('telemetry:treasury', () => treasury.getTreasurySplits()),
     cache.get('telemetry:leaderboard:default', () => leaderboard.getLeaderboard({ limit: 10 })),
     cache.get('odysseus:telemetry', () => odysseus.getTelemetry()),
+    cache.get('great-delta:overview', () => greatDelta.getGreatDeltaOverview()),
   ]);
 
   const connections = {
@@ -136,6 +180,7 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     treasury: { connected: treasurySplits.live, source: treasurySplits.source },
     leaderboard: { connected: board.live, source: board.source },
     odysseus: { connected: odysseusSnap.live, source: odysseusSnap.source },
+    greatDeltaEvm: { connected: gd.evm?.live ?? false, source: gd.evm?.source ?? 'disabled' },
   };
   const connectedCount = Object.values(connections).filter((c) => c.connected).length;
 
@@ -147,6 +192,7 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     akash: workers,
     emissionRouter: emissions,
     treasury: treasurySplits,
+    greatDelta: gd,
     leaderboard: board,
     odysseus: odysseusSnap,
   });

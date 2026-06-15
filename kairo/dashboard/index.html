@@ -45,7 +45,7 @@
     </table>
   </main>
   <script>
-    const apiBase = window.location.origin.replace(/:\d+$/, ':8787') + '/api/kairo';
+    const apiBase = window.KAIRO_API_BASE || (window.location.origin + '/api/kairo');
 
     async function load() {
       const res = await fetch(apiBase + '/contributions?limit=25');

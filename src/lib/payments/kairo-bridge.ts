@@ -5,6 +5,7 @@
 import { createTransaction, updateTransactionStatus } from "@/lib/ledger";
 import { computeCustomerFee } from "@/lib/payments/fees";
 import { computeDriverPayout } from "@/lib/payments/driver-payout";
+import { emissionBreakdownWithLegacy } from "@/lib/payments/great-delta";
 
 export interface KairoOrderSettlement {
   orderId: string;
@@ -36,6 +37,7 @@ export async function settleKairoOrder(input: KairoOrderSettlement) {
       type: "kairo_fare",
       feeAmount: fee.feeAmount,
       feePercent: fee.feePercent,
+      greatDeltaEmission: emissionBreakdownWithLegacy(fee.feeAmount),
     },
   });
 
@@ -81,6 +83,7 @@ export async function creditDepositWithFee(input: {
       grossAmount: fee.grossAmount,
       platformFee: fee.feeAmount,
       feePercent: fee.feePercent,
+      greatDeltaEmission: emissionBreakdownWithLegacy(fee.feeAmount),
     },
   });
   return { tx, fee };

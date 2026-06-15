@@ -1,14 +1,34 @@
 import { useCallback, useEffect, useState } from "react";
 
+export type SplitRow = {
+  bucket?: string;
+  label?: string;
+  destination?: string;
+  pct?: number;
+  bps?: number;
+  perEpoch?: number;
+  sol?: number;
+  amount?: number;
+};
+
 export type ArenaOverview = {
   generatedAt: string;
   connectionsHealthy: number;
   connectionsTotal: number;
   connections: Record<string, { connected: boolean; source: string }>;
-  akash?: { activeWorkers?: number; totalWorkers?: number; live?: boolean };
-  emissionRouter?: { live?: boolean; totalEmittedApn?: number };
-  treasury?: { live?: boolean; balanceUsd?: number };
-  leaderboard?: { live?: boolean; rows?: Array<{ rank: number; agentId: string; rewardsApn: number }> };
+  akash?: { activeWorkers?: number; totalWorkers?: number; live?: boolean; workers?: unknown[] };
+  emissionRouter?: {
+    live?: boolean;
+    totalEmittedApn?: number;
+    emissionPerEpoch?: number;
+    routes?: SplitRow[];
+  };
+  treasury?: { live?: boolean; balanceUsd?: number; totalSol?: number; splits?: SplitRow[] };
+  greatDelta?: { policy?: string; buckets?: SplitRow[] };
+  leaderboard?: {
+    live?: boolean;
+    rows?: Array<{ rank: number; agentId: string; rewardsApn: number }>;
+  };
 };
 
 const OVERVIEW_URL =

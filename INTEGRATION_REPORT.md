@@ -45,6 +45,16 @@ flowchart TB
 | Backend `:8080` | Arena + dashboard | Live Akash/Odysseus aggregation |
 | Vault | All runtimes | `scripts/lib/vault-env.sh` |
 
+## Fixes Applied (final production pass — June 15, 2026)
+
+11. **Kairo routes mounted** — `/api/kairo/*` + static `/kairo/` on integration backend.
+12. **Sovereign overview fixed** — `getSovereignOverview` aliased to `getSovereignState`.
+13. **Portal auth stubs** — `/api/auth/session`, `/odysseus` workspace shell.
+14. **Great Delta full wiring** — overview API, telemetry ingest, payment metadata, dashboard splits.
+15. **Port standardization** — removed stale `:8787` references; integration API on `:8080`.
+16. **Kairo contributions bug** — `list_contributions` uses `all_driver_stats()`.
+17. **CI unblocked** — frontend test script + payments build in workflow.
+
 ---
 
 ## Prong completion (16/16)

@@ -1,6 +1,8 @@
-# Quadrant IV Contracts
+# Quadrant IV Contracts (DEPRECATED)
 
-## GreatDeltaEmissionRouter
+> **Use the canonical router at [`../GreatDeltaEmissionRouter.sol`](../GreatDeltaEmissionRouter.sol) and [`../DEPLOYED.md`](../DEPLOYED.md) for all new deployments.**
+
+## GreatDeltaEmissionRouter (legacy stub)
 
 - File: `GreatDeltaEmissionRouter.sol`
 - Split invariant (basis points):

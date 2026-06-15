@@ -209,6 +209,24 @@
     </div>
   </section>
 
+  <!-- GREAT DELTA LIVE OVERLAY -->
+  <section class="grid cols-4" style="margin-top:16px" id="greatDeltaSection" hidden>
+    <div class="card">
+      <h2>Great Delta · Emission / Epoch</h2>
+      <div class="stat small" id="gdEmission">—</div>
+      <div class="sub" id="gdEmissionSrc">—</div>
+    </div>
+    <div class="card" style="grid-column: span 3">
+      <h2>50/30/15/5 Treasury Split (live)</h2>
+      <div class="scroll">
+        <table id="gdSplitTable">
+          <thead><tr><th>Bucket</th><th class="num">Share</th><th class="num">Emission</th><th class="num">Treasury SOL</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- DELTA GRID + ACTIVITY -->
   <section class="grid cols-2" style="margin-top:16px">
     <div class="card">
@@ -362,6 +380,41 @@ function render(d) {
 
   $("clock").textContent = "day " + d.tick;
   if (d.updated_at) $("updated").textContent = "· snapshot " + new Date(d.updated_at*1000).toLocaleString();
+
+  renderGreatDelta(d.live_overlay);
+}
+
+function renderGreatDelta(overlay) {
+  const section = $("greatDeltaSection");
+  if (!overlay) {
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+  const emission = overlay.emission || {};
+  const treasury = overlay.treasury || {};
+  $("gdEmission").textContent = emission.perEpoch != null
+    ? emission.perEpoch.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    : "—";
+  $("gdEmissionSrc").textContent = emission.connected
+    ? "live · " + (emission.source || "solana-rpc")
+    : "simulated · " + (emission.source || "fallback");
+
+  const routes = emission.routes || [];
+  const splits = treasury.splits || [];
+  const byBucket = {};
+  routes.forEach(r => { byBucket[r.destination || r.bucket] = { emission: r.perEpoch, label: r.label }; });
+  splits.forEach(s => {
+    const key = s.bucket;
+    byBucket[key] = { ...(byBucket[key] || {}), sol: s.sol, label: s.label || key, pct: s.pct };
+  });
+  const rows = Object.entries(byBucket).map(([bucket, v]) => [
+    v.label || bucket,
+    { t: v.pct != null ? (Number(v.pct).toFixed(1) + "%") : "—", num: true },
+    { t: v.emission != null ? v.emission.toFixed(2) : "—", num: true },
+    { t: v.sol != null ? v.sol.toFixed(4) : "—", num: true },
+  ]);
+  fillTable("gdSplitTable", rows.length ? rows : [["—", "—", "—", "—"]]);
 }
 
 function fillTable(id, rows) {

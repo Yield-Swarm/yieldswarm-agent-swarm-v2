@@ -8,6 +8,7 @@
  */
 
 import config from '../config.js';
+import { splitAmount } from '../lib/great-delta-split.js';
 import { getTokenSupply, getSolBalance } from './solana.js';
 
 const EPOCH_SECONDS = 60 * 60; // hourly emission epoch
@@ -41,12 +42,14 @@ export async function getEmissions() {
     emissionPerEpoch: Number(emissionPerEpoch.toFixed(4)),
     emissionPerDay: Number((emissionPerEpoch * (24 * 3600 / EPOCH_SECONDS)).toFixed(4)),
     // Great Delta 50/30/15/5 emission routing (matches on-chain router)
-    routes: [
-      { destination: 'coreTreasury', share: 0.5, bps: 5000, perEpoch: Number((emissionPerEpoch * 0.5).toFixed(4)) },
-      { destination: 'growthTreasury', share: 0.3, bps: 3000, perEpoch: Number((emissionPerEpoch * 0.3).toFixed(4)) },
-      { destination: 'insuranceTreasury', share: 0.15, bps: 1500, perEpoch: Number((emissionPerEpoch * 0.15).toFixed(4)) },
-      { destination: 'opsTreasury', share: 0.05, bps: 500, perEpoch: Number((emissionPerEpoch * 0.05).toFixed(4)) },
-    ],
+    routes: splitAmount(emissionPerEpoch).map((row) => ({
+      destination: row.bucket,
+      label: row.label,
+      share: row.pct / 100,
+      bps: row.bps,
+      perEpoch: row.amount,
+    })),
+    splitPolicy: '50/30/15/5',
     error: live ? null : supply.error,
   };
 }

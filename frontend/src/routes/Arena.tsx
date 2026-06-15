@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { useBalance, useChain, useWallet } from "@/wallet";
 import { ConnectGate } from "../components/ConnectGate";
-import { useArenaTelemetry } from "../hooks/useArenaTelemetry";
+import { useArenaTelemetry, type SplitRow } from "../hooks/useArenaTelemetry";
 
 /**
  * Arena — live telemetry from Akash, emission router, treasury, leaderboard.
@@ -18,6 +18,43 @@ export function Arena() {
   );
 }
 
+function SplitTable({
+  title,
+  rows,
+  valueKey,
+}: {
+  title: string;
+  rows: SplitRow[];
+  valueKey: "perEpoch" | "sol";
+}) {
+  if (!rows.length) return null;
+  return (
+    <div className="panel" style={{ marginTop: 12 }}>
+      <h3>{title}</h3>
+      <table className="ysw-table" style={{ width: "100%", fontSize: 13 }}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: "left" }}>Bucket</th>
+            <th style={{ textAlign: "right" }}>Share</th>
+            <th style={{ textAlign: "right" }}>{valueKey === "sol" ? "SOL" : "APN / epoch"}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.bucket || row.destination}>
+              <td>{row.label || row.bucket || row.destination}</td>
+              <td style={{ textAlign: "right" }}>{row.pct ?? (row.bps ? row.bps / 100 : "—")}%</td>
+              <td style={{ textAlign: "right" }} className="ysw-mono">
+                {(row[valueKey] ?? row.amount ?? 0).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function ArenaInner() {
   const wallet = useWallet();
   const { chain } = useChain();
@@ -28,9 +65,18 @@ function ArenaInner() {
   const [authing, setAuthing] = useState(false);
 
   const workers = (overview?.akash as { workers?: unknown[] } | undefined)?.workers ?? [];
-  const treasuryData = overview?.treasury as { live?: boolean; balanceUsd?: number; totalSol?: number } | undefined;
-  const emissionData = overview?.emissionRouter as { live?: boolean } | undefined;
-  const board = overview?.leaderboard as { rows?: Array<{ agentId: string; rewardsApn: number }> } | undefined;
+  const treasuryData = overview?.treasury as
+    | { live?: boolean; balanceUsd?: number; totalSol?: number; splits?: SplitRow[] }
+    | undefined;
+  const emissionData = overview?.emissionRouter as
+    | { live?: boolean; emissionPerEpoch?: number; routes?: SplitRow[] }
+    | undefined;
+  const board = overview?.leaderboard as
+    | { rows?: Array<{ agentId: string; rewardsApn: number }> }
+    | undefined;
+
+  const emissionRoutes = emissionData?.routes ?? [];
+  const treasurySplits = treasuryData?.splits ?? [];
 
   const handleAuth = async () => {
     setAuthing(true);
@@ -38,7 +84,7 @@ function ArenaInner() {
     try {
       const nonce = Math.random().toString(36).slice(2);
       const sig = await wallet.signMessage(`Sign in to YieldSwarm Arena\nNonce: ${nonce}`);
-      setAuthToken(sig.slice(0, 24) + "…");
+      setAuthToken(`${sig.slice(0, 24)}…`);
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : "Signature failed");
     } finally {
@@ -71,7 +117,7 @@ function ArenaInner() {
         <div className="card">
           <div className="card__label">Connections</div>
           <div className="card__value">
-            {overview?.connectionsHealthy ?? 0}/{overview?.connectionsTotal ?? 4}
+            {overview?.connectionsHealthy ?? 0}/{overview?.connectionsTotal ?? 5}
           </div>
         </div>
         <div className="card">
@@ -79,6 +125,13 @@ function ArenaInner() {
           <div className="card__value" style={{ color: overview?.akash?.live ? "#3ddc97" : "#ff5470" }}>
             {workers.length} {overview?.akash?.live ? "live" : "fallback"}
           </div>
+        </div>
+        <div className="card">
+          <div className="card__label">Emission / epoch</div>
+          <div className="card__value">
+            {emissionData?.emissionPerEpoch?.toLocaleString(undefined, { maximumFractionDigits: 2 }) ?? "—"}
+          </div>
+          <div className="ysw-muted">{emissionData?.live ? "on-chain" : "simulated"}</div>
         </div>
         <div className="card">
           <div className="card__label">Treasury</div>
@@ -89,7 +142,7 @@ function ArenaInner() {
                 ? `${treasuryData.totalSol} SOL`
                 : "—"}
           </div>
-          <div className="ysw-muted">{treasuryData?.live ? "on-chain" : "projected"}</div>
+          <div className="ysw-muted">{treasuryData?.live ? "live balance" : "projected"}</div>
         </div>
         <div className="card">
           <div className="card__label">Top agent</div>
@@ -101,14 +154,11 @@ function ArenaInner() {
           </div>
         </div>
         <div className="card">
-          <div className="card__label">Chain / Balance</div>
-          <div className="card__value">{chain?.name ?? "—"}</div>
-          <div className="ysw-muted">{balance ? `${balance.formatted} ${balance.symbol}` : "—"}</div>
-        </div>
-        <div className="card">
           <div className="card__label">Session</div>
           {authToken ? (
-            <div className="card__value" style={{ color: "#3ddc97" }}>Authenticated</div>
+            <div className="card__value" style={{ color: "#3ddc97" }}>
+              Authenticated
+            </div>
           ) : (
             <button className="ysw-btn" onClick={handleAuth} disabled={authing}>
               {authing ? "Signing…" : "Sign in to trade"}
@@ -120,14 +170,29 @@ function ArenaInner() {
       </div>
 
       <div className="panel">
-        <h3>Emission router</h3>
+        <h3>Great Delta Emission Router</h3>
         <p className="ysw-muted">
-          Treasury split 50/30/15/5 — {emissionData?.live ? "connected" : "simulated"}
+          Treasury split {overview?.greatDelta?.policy ?? "50/30/15/5"} —{" "}
+          {emissionData?.live ? "connected" : "simulated"}
         </p>
         <div className="ticket">
-          <button className="ysw-btn" disabled={!authToken}>Buy $APN</button>
-          <button className="ysw-btn ysw-btn--ghost" disabled={!authToken}>Sell $APN</button>
+          <button className="ysw-btn" disabled={!authToken}>
+            Buy $APN
+          </button>
+          <button className="ysw-btn ysw-btn--ghost" disabled={!authToken}>
+            Sell $APN
+          </button>
         </div>
+      </div>
+
+      <SplitTable title="Emission routes (per epoch)" rows={emissionRoutes} valueKey="perEpoch" />
+      <SplitTable title="Treasury allocation (SOL)" rows={treasurySplits} valueKey="sol" />
+
+      <div className="panel" style={{ marginTop: 12 }}>
+        <h3>Chain / Wallet</h3>
+        <p className="ysw-muted">{chain?.name ?? "—"}</p>
+        <p className="ysw-mono ysw-muted">{balance ? `${balance.formatted} ${balance.symbol}` : "—"}</p>
+        <p className="ysw-mono ysw-muted">{wallet.address ?? "—"}</p>
       </div>
     </section>
   );

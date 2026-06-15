@@ -35,6 +35,18 @@ router.get('/contribution/leaderboard', asyncRoute(async (_req, res) => {
   res.json(result);
 }));
 
+/** Alias consumed by kairo/dashboard and kairo/app clients. */
+router.get('/contributions', asyncRoute(async (req, res) => {
+  const result = await kairo.getLeaderboard();
+  const limit = Number(req.query.limit || 25);
+  const drivers = result.data?.drivers || result.data || [];
+  res.json({
+    live: result.live,
+    source: result.source,
+    contributions: Array.isArray(drivers) ? drivers.slice(0, limit) : [],
+  });
+}));
+
 router.post('/telemetry', asyncRoute(async (req, res) => {
   const result = await kairo.submitTelemetry(req.body || {});
   res.status(202).json(result);

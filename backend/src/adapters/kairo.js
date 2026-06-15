@@ -2,7 +2,7 @@
  * Kairo adapter — proxies to the Python Kairo API or returns cached summaries.
  */
 
-const DEFAULT_BASE = process.env.KAIRO_API_BASE || 'http://127.0.0.1:8091';
+const DEFAULT_BASE = process.env.KAIRO_API_BASE || process.env.KAIRO_API_URL || 'http://127.0.0.1:8091';
 
 async function kairoFetch(path, options = {}) {
   const url = `${DEFAULT_BASE.replace(/\/$/, '')}${path}`;

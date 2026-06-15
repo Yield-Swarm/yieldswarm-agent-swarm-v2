@@ -51,7 +51,7 @@ Signed telemetry routes into the Mandelbrot / Tree of Life architecture.
 ```bash
 pip install -r requirements.txt
 python kairo/cli.py register
-# Dashboard: http://localhost:8787/kairo/ (via backend integration server)
+# Dashboard: http://localhost:8080/kairo/ (via integration backend)
 ```
 
 API: `POST /api/kairo/drivers/register`, `POST /api/kairo/telemetry/ingest`
