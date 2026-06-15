@@ -1,0 +1,16 @@
+vault_addr      = "https://vault.yieldswarm.internal:8200"
+vault_role_id   = "REPLACE_WITH_TERRAFORM_APPROLE_ROLE_ID"
+vault_secret_id = "REPLACE_WITH_TERRAFORM_APPROLE_SECRET_ID"
+environment     = "prod"
+
+azure_resource_group_name = ""
+azure_location            = ""
+do_region                 = "nyc3"
+vultr_region              = "ewr"
+runpod_gpu_type           = "NVIDIA RTX 4090"
+
+tags = {
+  project     = "yieldswarm"
+  managed_by  = "terraform"
+  environment = "prod"
+}

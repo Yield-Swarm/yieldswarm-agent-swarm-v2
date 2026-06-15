@@ -1,0 +1,91 @@
+---
+# Akash SDL v2 — YieldSwarm AgentSwarm OS
+# VAULT_SECRET_ID is injected at deploy time via environment — never commit it.
+version: "2.0"
+
+services:
+  yieldswarm:
+    image: yieldswarm/agentswarm:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - VAULT_ADDR=https://vault.yieldswarm.internal:8200
+      - VAULT_ROLE_ID
+      - VAULT_SECRET_ID
+      - AGENT_SHARD_ID=0
+      - LOG_LEVEL=INFO
+    params:
+      storage:
+        data:
+          mount: /opt/yieldswarm
+          readOnly: false
+
+  yieldswarm-gpu:
+    image: yieldswarm/agentswarm:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - VAULT_ADDR=https://vault.yieldswarm.internal:8200
+      - VAULT_ROLE_ID
+      - VAULT_SECRET_ID
+      - AGENT_SHARD_ID=0
+      - LOG_LEVEL=INFO
+    params:
+      storage:
+        data:
+          mount: /opt/yieldswarm
+          readOnly: false
+
+profiles:
+  compute:
+    yieldswarm:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 10Gi
+    yieldswarm-gpu:
+      resources:
+        cpu:
+          units: 4.0
+        memory:
+          size: 16Gi
+        storage:
+          - size: 50Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia: []
+  placement:
+    yieldswarm:
+      attributes:
+        host: akash
+    yieldswarm-gpu:
+      attributes:
+        host: akash
+  pricing:
+    yieldswarm:
+      denom: uakt
+      amount: 5000
+    yieldswarm-gpu:
+      denom: uakt
+      amount: 25000
+
+deployment:
+  yieldswarm:
+    akash:
+      profile: yieldswarm
+      count: 1
+  yieldswarm-gpu:
+    akash:
+      profile: yieldswarm-gpu
+      count: 1
