@@ -1,0 +1,11 @@
+.env
+.env.local
+
+infra/akash/rendered/
+
+infra/terraform/**/.terraform/
+infra/terraform/**/*.tfstate
+infra/terraform/**/*.tfstate.*
+infra/terraform/**/*.auto.tfvars
+infra/terraform/**/*.auto.tfvars.json
+infra/terraform/**/backend.tf

@@ -12,14 +12,13 @@ Unstoppable Domains integration
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
 
 ## Setup
-1. Copy .env.example to .env
-2. Fill in values securely
-3. Deploy to Vercel or Azure
+1. Copy `.env.example` to `.env` for local development only
+2. Follow `SECRETS.md` for the production Vault setup, Terraform auth flow, and Akash deployment process
+3. Deploy to Vercel, Azure, or Akash with secrets injected at runtime
 4. Wire Unstoppable Domains via Cloudflare nameservers
 
 ## Business
 Wise: cbrown03777@gmail.com
-UD API Key included in .env.example
 
 ## Next
-Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+Populate Vault using `SECRETS.md`, then deploy with runtime secret injection.
