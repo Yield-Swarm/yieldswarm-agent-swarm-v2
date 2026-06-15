@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "theta-liquidity",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-164",
+  "metal_skin": "adamant-bronze",
+  "mutation_affinity": 0.77,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "west"
+}

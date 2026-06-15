@@ -1,0 +1,91 @@
+name: Build Odysseus Container
+
+on:
+  push:
+    branches:
+      - main
+      - "cursor/**"
+    paths:
+      - ".github/workflows/build-odysseus.yml"
+      - "Dockerfile"
+      - "docker/**"
+      - "scripts/lib/vault-env.sh"
+      - "services/odysseus/**"
+  pull_request:
+    paths:
+      - ".github/workflows/build-odysseus.yml"
+      - "Dockerfile"
+      - "docker/**"
+      - "scripts/lib/vault-env.sh"
+      - "services/odysseus/**"
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+env:
+  ODYSSEUS_CI_VAULT_PATH: ${{ vars.ODYSSEUS_CI_VAULT_PATH || 'kv/data/yieldswarm/odysseus/ci' }}
+  ODYSSEUS_RUNTIME_VAULT_PATH: ${{ vars.ODYSSEUS_RUNTIME_VAULT_PATH || 'kv/data/yieldswarm/odysseus/runtime' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Read Odysseus deployment metadata from Vault
+        id: vault
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ vars.VAULT_ADDR }}
+          namespace: ${{ vars.VAULT_NAMESPACE }}
+          method: jwt
+          role: ${{ vars.VAULT_GITHUB_ROLE || 'yieldswarm-odysseus-github-actions' }}
+          secrets: |
+            ${{ env.ODYSSEUS_CI_VAULT_PATH }} image_repository | ODYSSEUS_IMAGE_REPOSITORY ;
+            ${{ env.ODYSSEUS_RUNTIME_VAULT_PATH }} ODYSSEUS_MODEL_HOST | ODYSSEUS_MODEL_HOST ;
+            ${{ env.ODYSSEUS_RUNTIME_VAULT_PATH }} ODYSSEUS_API_KEY | ODYSSEUS_API_KEY ;
+            ${{ env.ODYSSEUS_RUNTIME_VAULT_PATH }} ODYSSEUS_MODEL_API_KEY | ODYSSEUS_MODEL_API_KEY ;
+
+      - name: Verify required Vault keys are present
+        run: |
+          set -euo pipefail
+          test -n "${ODYSSEUS_MODEL_HOST}"
+          test -n "${ODYSSEUS_API_KEY}"
+          test -n "${ODYSSEUS_MODEL_API_KEY}"
+
+      - name: Resolve image repository
+        id: image
+        run: |
+          set -euo pipefail
+          image="${ODYSSEUS_IMAGE_REPOSITORY:-ghcr.io/${GITHUB_REPOSITORY_OWNER}/agent-swarm-odysseus}"
+          echo "image=${image}" >> "${GITHUB_OUTPUT}"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.image }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and publish Odysseus image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

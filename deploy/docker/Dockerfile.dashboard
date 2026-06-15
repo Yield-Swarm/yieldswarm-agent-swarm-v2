@@ -1,0 +1,20 @@
+# YieldSwarm dashboard — static site (council status, redesign, revenue pages)
+# served by nginx. Built and pushed as ghcr.io/<owner>/yieldswarm-dashboard:<tag>
+FROM nginx:1.27-alpine
+
+LABEL org.opencontainers.image.title="yieldswarm-dashboard" \
+      org.opencontainers.image.description="YieldSwarm OpenClaw admin dashboard + revenue/redesign pages" \
+      org.opencontainers.image.source="https://github.com/your-github-username/yieldswarm"
+
+# Static assets. The generated runtime config (dashboard/config.js) is produced
+# by deploy/scripts/update-frontend-urls.sh before the image is built.
+COPY dashboard/ /usr/share/nginx/html/
+COPY council/ /usr/share/nginx/html/council/
+COPY redesign/ /usr/share/nginx/html/redesign/
+COPY revenue/ /usr/share/nginx/html/revenue/
+COPY deploy/docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/healthz >/dev/null 2>&1 || exit 1

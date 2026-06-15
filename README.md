@@ -7,19 +7,299 @@ Helix Chain + Hydrogen Particle Accelerated Shading Tree
 $APN on Pump.fun
 Unstoppable Domains integration
 
+## Core AI Workspace
+Odysseus is integrated as the central self-hosted YieldSwarm workspace and
+agent-orchestration layer. It is the default interface for the 10,080 mutated
+agents and 169 deities, backed by ChromaDB persistent memory and the
+OpenAI-compatible LiteLLM router for Fireworks, OpenRouter, and Akash RTX 3090
+Ollama workers.
+
+Local stack:
+```bash
+cp .env.example .env
+# Fill router/provider keys and Akash Ollama endpoints.
+scripts/deploy-odysseus-stack.sh up
+```
+
+Open Odysseus at `http://localhost:7000`, then add the LiteLLM router as an
+OpenAI-compatible provider using `http://localhost:4000/v1` and
+`YIELDSWARM_ROUTER_API_KEY`.
+
+Akash stack:
+```bash
+scripts/build-odysseus-images.sh
+PUSH=true scripts/build-odysseus-images.sh
+scripts/deploy-odysseus-stack.sh render-akash
+```
+
+The Akash SDL template is at `deploy/akash-odysseus.sdl.yml`; rendered SDL files
+are written under `deploy/rendered/` and ignored by Git.
+
+See `docs/odysseus-yieldswarm.md` for model aliases, memory bootstrap steps,
+and Akash Ollama worker requirements.
+
 ## Deployment
+- Odysseus stack: `docker-compose.yml`
+- Akash SDL: `deploy/akash-odysseus.sdl.yml`
 - Vercel: https://v2-0-bay.vercel.app/
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
+- Odysseus GPU service:
+  - Akash SDL: `deploy/akash/odysseus.sdl.yml`
+  - Docker: `Dockerfile`, `docker-compose.yml`, `docker/entrypoint-odysseus.sh`
+  - Build workflow: `.github/workflows/build-odysseus.yml`
+  - Vault Terraform: `terraform/odysseus/`
+  - Production deploy: `scripts/deploy-production-odysseus.sh`
 
 ## Setup
 1. Copy .env.example to .env
-2. Fill in values securely
-3. Deploy to Vercel or Azure
-4. Wire Unstoppable Domains via Cloudflare nameservers
+2. Fill in non-secret values securely
+3. Store API keys, model hosts, model API keys, and deploy credentials in HashiCorp Vault
+4. Deploy to Vercel, Azure, or Akash
+5. Wire Unstoppable Domains via Cloudflare nameservers
+
+## HashiCorp Vault
+Odysseus deployment artifacts use Vault as the secret source of truth. Keep only
+Vault coordinates and workload identity settings in environment variables.
+
+Expected runtime path:
+- `kv/data/yieldswarm/odysseus/runtime`
+  - `ODYSSEUS_API_KEY`
+  - `ODYSSEUS_MODEL_HOST`
+  - `ODYSSEUS_MODEL_API_KEY`
+
+Expected deployment path:
+- `kv/data/yieldswarm/odysseus/deploy`
+  - `image_repository`
+  - `AKASH_KEY_NAME`
+  - `AKASH_CHAIN_ID`
+  - `AKASH_NODE`
+  - `AKASH_FEES`
+
+Initialize Vault policy and JWT roles with:
+```bash
+cd terraform/odysseus
+terraform init
+terraform apply \
+  -var='vault_addr=https://vault.example.com' \
+  -var='github_repository=owner/repo'
+```
+
+Render or deploy Odysseus with:
+```bash
+scripts/deploy-production-odysseus.sh render-akash
+scripts/deploy-production-odysseus.sh akash
+```
+
+## Odysseus YieldSwarm Tools
+YieldSwarm tool definitions live in `agents/yieldswarm_tools/` and cover:
+- Akash lease management
+- Treasury 50/30/15/5 rebalancing
+- On-chain emission router queries
+- Multi-chain wallet operations through the unified wallet SDK
+- Real-time Akash worker telemetry
+
+Odysseus can consume them as native function tools:
+
+```python
+from agents.yieldswarm_tools.odysseus import register_yieldswarm_tools
+
+register_yieldswarm_tools(
+    function_tool_schemas=FUNCTION_TOOL_SCHEMAS,
+    tool_handlers=TOOL_HANDLERS,
+    tool_tags=TOOL_TAGS,
+    builtin_tool_descriptions=BUILTIN_TOOL_DESCRIPTIONS,
+)
+```
+
+Or register the built-in MCP server:
+
+```python
+"yieldswarm": ("mcp_servers/yieldswarm_server.py", "Built-in: YieldSwarm")
+```
+
+Mutating operations default to `dry_run=true`. Configure the adapter endpoints and
+wallet SDK module in `.env` before enabling live lease, wallet, or treasury actions.
+
+## Odysseus Cookbook Model Routing
+
+YieldSwarm now includes an Akash RTX 3090 model router for Odysseus
+Cookbook inference placement.
+
+### Updated routing logic
+
+The router lives in `services/yieldswarm_model_router.py` and is exposed by
+`api/yieldswarm_model_routing.py`.
+
+1. Read Akash RTX 3090 worker state from `YIELDSWARM_AKASH_WORKERS`, or create
+   `YIELDSWARM_RTX3090_WORKER_COUNT` default workers with 24GB VRAM and a 2GB
+   runtime reserve.
+2. Read `YIELDSWARM_MODEL_CATALOG`, or use the built-in RTX 3090 catalog:
+   Phi 3.5 Mini Q6, Mistral 7B Q5, Llama 3.1 8B Q5, Qwen2.5 Coder 7B Q5,
+   DeepSeek R1 Distill 8B Q5, and Mixtral 8x7B Q4.
+3. Score every task-compatible model/worker route using:
+   - available VRAM after load,
+   - model quality and throughput,
+   - current worker queue and active request pressure,
+   - Great Delta emission score (`GreatDeltaEmissionLogic`),
+   - agent mutation fit (`AgentMutationScorer`),
+   - a loaded-model bonus and eviction/load penalties.
+4. Recommend the highest-scoring route. If the model is already resident, the
+   route action is `serve`. If it fits in free VRAM, the action is `load`. If
+   idle models must be removed first, the action is `evict_then_load` with
+   `unload_before_load` populated.
+5. `route_request(..., autoload=True)` dynamically loads the recommended model,
+   unloads idle lower-value models when needed, marks the request active, and
+   returns the worker/model provider route.
+6. `rebalance()` accepts current swarm workload weights and worker pressure,
+   preloads models for hot tasks, and unloads idle models from saturated
+   workers.
+
+Run the optimizer recommendation snapshot:
+
+```bash
+python agents/akash-optimizer.py
+```
+
+Run the local routing API:
+
+```bash
+python api/yieldswarm_model_routing.py
+```
+
+### New API endpoints
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Health check for the model routing API. |
+| `GET` | `/api/yieldswarm/models` | Return the active model catalog and VRAM budgets. |
+| `GET` | `/api/yieldswarm/workers` | Return Akash RTX 3090 worker VRAM, queue, health, and loaded models. |
+| `GET` | `/api/yieldswarm/models/recommend?task=chat&agent_id=a1&priority=0.7&mutation_score=0.6` | Recommend the best model route without mutating load state. |
+| `GET` | `/api/yieldswarm/models/routes?task=coding` | Return all scored candidate routes for a task. |
+| `POST` | `/api/yieldswarm/infer/route` | Select and optionally autoload the best route for an inference request. |
+| `POST` | `/api/yieldswarm/infer/complete` | Mark a routed request complete so active counts can drain. |
+| `POST` | `/api/yieldswarm/models/load` | Explicitly load a model on a selected or best-fit worker. |
+| `POST` | `/api/yieldswarm/models/unload` | Unload an idle model from a selected worker or all workers. |
+| `POST` | `/api/yieldswarm/workload/rebalance` | Adjust loaded models based on current swarm task weights and worker pressure. |
+
+Example route request:
+
+```json
+{
+  "task": "coding",
+  "agent_id": "deity-agent-17",
+  "priority": 0.8,
+  "mutation_score": 0.72,
+  "autoload": true
+}
+```
+
+## Frontend workspaces
+- Arena: `frontend/arena/index.html` provides a unified telemetry dashboard for Akash workers and the Odysseus agent/memory system.
+- Portal: `frontend/portal/index.html` embeds or links the Odysseus workspace for advanced agent interaction and deep research.
+- Shared modules in `frontend/shared/` resolve runtime config, request a YieldSwarm session, create Odysseus SSO handoff URLs, and normalize telemetry feeds.
+
+### Required backend contracts
+- `GET ${AKASH_TELEMETRY_URL:-/api/telemetry/akash}` returns Akash worker, lease, deployment, or node metrics.
+- `GET ${ODYSSEUS_TELEMETRY_URL:-/api/telemetry/odysseus}` returns Odysseus agents, research queue, and memory/vector metrics.
+- `GET ${YIELDSWARM_AUTH_SESSION_URL:-/api/auth/session}` returns the current YieldSwarm session when a user is signed in.
+- `POST ${YIELDSWARM_AUTH_HANDOFF_URL:-/api/auth/odysseus/handoff}` returns either `redirectUrl` or a short-lived `handoffToken`/`sessionId` accepted by Odysseus.
+
+Set matching meta tags or `window.YIELDSWARM_CONFIG` values when these endpoints are hosted somewhere other than the same origin.
 
 ## Business
 Wise: cbrown03777@gmail.com
 UD API Key included in .env.example
 
+## Frontend & Unified Wallet
+The `frontend/` app is a Vite + React + TypeScript dApp with a production-grade,
+custom multi-chain wallet layer (`frontend/src/wallet`) supporting EVM
+(viem + wagmi), Solana, TON, and basic Bitcoin. It is the default wallet layer
+used across Arena, Portal, and Payments. See `frontend/README.md` for details.
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
 ## Next
 Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+
+---
+
+# Payments App
+
+A full payment-rails application (Next.js App Router + TypeScript + Tailwind) lives at the
+repo root. It exposes a single **Payments page** (`/payments`) plus backend API routes that let
+users deposit and withdraw across fiat and crypto rails:
+
+- **Square** — fiat deposits via **card** (hosted Square Checkout or embedded Web Payments SDK)
+  and **ACH** bank transfer, settled by a signature-verified webhook.
+- **Wise** — fiat **payouts/transfers** (off-ramp: quote → recipient → transfer → fund) and
+  inbound **payment requests** (on-ramp), with RSA-verified webhooks.
+- **Web3 on/off ramps** — a unified wallet-connect system using **viem** + **ethers.js** (EVM),
+  **@solana/web3.js** (Solana), and **@tonconnect** (TON). Deposits are detected on-chain;
+  withdrawals send to any wallet address.
+
+## Run
+
+```bash
+npm install
+cp .env.example .env        # fill in the PAYMENT RAILS APP section
+npm run dev                 # http://localhost:3000/payments
+```
+
+Scripts: `npm run dev | build | start | lint | typecheck | test`.
+
+## Architecture
+
+```
+src/
+  app/
+    payments/page.tsx              # the single Payments page
+    api/
+      config, balance              # public config + user balances/activity
+      wallets, wallets/nonce       # link a wallet by signing a challenge
+      deposits/square              # card (checkout|payment) + ACH
+      deposits/wise                # inbound payment request
+      deposits/web3, .../verify    # start intent + on-chain detection/credit
+      withdrawals/bank             # Wise off-ramp to a bank account
+      withdrawals/web3             # send crypto to any wallet
+      webhooks/square, webhooks/wise  # signature-verified settlement
+  lib/
+    payments/square.ts, wise.ts    # rail SDKs + webhook verification
+    web3/                          # chains, deposit-detection, withdraw, signatures
+    ledger.ts                      # atomic balance + transaction ledger
+    db/store.ts                    # pluggable store (memory|file → Neon/Postgres)
+    auth/                          # anonymous HMAC session + wallet nonces
+```
+
+## How money flows
+
+- **Deposit (Square)**: create a pending tx → hosted checkout or tokenized card/ACH payment →
+  Square webhook (`payment.updated`) is HMAC-verified → balance credited once on `COMPLETED`.
+- **Deposit (Wise)**: create a Wise payment request → user pays → `balances#credit` webhook
+  (RSA-verified) credits the balance.
+- **Deposit (Web3)**: `POST /api/deposits/web3` returns the treasury address + an intent →
+  user sends from a connected wallet (or pastes a tx hash) → `/verify` independently confirms
+  the transfer to treasury and credits once it has `ONCHAIN_MIN_CONFIRMATIONS`.
+- **Withdraw (bank)**: funds are atomically reserved, then a Wise payout is created and funded;
+  on failure the reservation is refunded.
+- **Withdraw (wallet)**: funds are reserved, then sent via ethers (EVM) / @solana/web3.js
+  (Solana) to the destination address; refunded on failure.
+
+## Webhook verification
+
+- **Square**: `x-square-hmacsha256-signature` validated with `WebhooksHelper` over the raw body
+  and notification URL (`SQUARE_WEBHOOK_SIGNATURE_KEY`).
+- **Wise**: `X-Signature-SHA256` validated as RSA-SHA256 over the raw body using
+  `WISE_WEBHOOK_PUBLIC_KEY`.
+
+Both handlers are idempotent (dedupe on the provider event id).
+
+## Notes / production hardening
+
+- The default store is in-memory (per-process). Implement the `Store` interface in
+  `src/lib/db/store.ts` against Neon/Postgres for durable, multi-instance persistence.
+- Set dedicated EVM RPC URLs (Alchemy/Infura) — public RPCs may rate-limit or block.
+- Configure `TREASURY_*` and `HOT_WALLET_*` for on/off-ramp; SPL-token and TON sends require
+  additional libs (`@solana/spl-token`, `@ton/ton`) and are gated with clear errors.
+- Auth is an anonymous signed-cookie session; swap `getCurrentUser` for a real auth provider.

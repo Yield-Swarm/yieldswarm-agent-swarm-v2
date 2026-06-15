@@ -1,0 +1,89 @@
+---
+# YieldSwarm AgentSwarm OS — Akash SDL deployment manifest.
+# Deploys the worker (frontend-facing), the sovereign-loop agents, and the
+# dashboard onto the Akash decentralized cloud. Image refs are templated by
+# deploy/scripts/create-lease.sh (it substitutes GHCR_REF_* before deploy).
+version: "2.0"
+
+services:
+  worker:
+    # __WORKER_IMAGE__ is replaced with ghcr.io/<owner>/yieldswarm-worker:<tag>
+    image: __WORKER_IMAGE__
+    env:
+      - WORKER_PORT=8080
+      - CRON_SHARD_COUNT=120
+      - AGENTS_PER_SHARD=84
+      - AGENT_COUNT_TOTAL=10080
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+
+  agents:
+    image: __AGENTS_IMAGE__
+    env:
+      - SOVEREIGN_LOOP_INTERVAL=900
+      - CRON_SHARD_COUNT=120
+
+  dashboard:
+    image: __DASHBOARD_IMAGE__
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    worker:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 512Mi
+    agents:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 1Gi
+        storage:
+          size: 1Gi
+    dashboard:
+      resources:
+        cpu:
+          units: 0.25
+        memory:
+          size: 256Mi
+        storage:
+          size: 256Mi
+
+  placement:
+    akash:
+      pricing:
+        worker:
+          denom: uakt
+          amount: 1000
+        agents:
+          denom: uakt
+          amount: 1500
+        dashboard:
+          denom: uakt
+          amount: 500
+
+deployment:
+  worker:
+    akash:
+      profile: worker
+      count: 1
+  agents:
+    akash:
+      profile: agents
+      count: 1
+  dashboard:
+    akash:
+      profile: dashboard
+      count: 1

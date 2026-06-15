@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(34, 211, 238, 0.08), transparent),
+    radial-gradient(900px 500px at -10% 10%, rgba(52, 211, 153, 0.06), transparent),
+    #05070a;
+  color: #e6edf3;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-swarm-border bg-swarm-panel/80 backdrop-blur;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-swarm-accent text-black hover:brightness-110;
+  }
+  .btn-ghost {
+    @apply btn border border-swarm-border bg-transparent text-swarm-accent hover:bg-white/5;
+  }
+  .btn-muted {
+    @apply btn border border-swarm-border bg-white/5 text-slate-200 hover:bg-white/10;
+  }
+  .input {
+    @apply w-full rounded-xl border border-swarm-border bg-black/40 px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-swarm-muted focus:border-swarm-accent;
+  }
+  .label {
+    @apply mb-1 block text-xs font-medium uppercase tracking-wide text-swarm-muted;
+  }
+  .tab {
+    @apply rounded-lg px-3 py-1.5 text-sm font-medium text-swarm-muted hover:text-slate-200;
+  }
+  .tab-active {
+    @apply bg-white/10 text-slate-100;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-swarm-border px-2.5 py-0.5 text-xs;
+  }
+}

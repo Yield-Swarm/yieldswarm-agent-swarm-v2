@@ -15,6 +15,10 @@
 - v1: 8,600+ agents, 521 monetizing, Metal Skins (24K/18K/14K/10K Gold + Bronze), Agent Marketplace
 - v2 Supercharge: Scale to 10,080+ agents across 120 crons + OpenClaw local admin dashboard + Immunefi bug bounty
 - Add: Metal Skins valuation into agent spawning + Runic-triggered harvesting
+- Odysseus: central self-hosted AI workspace and default operator interface for
+  the 10,080 mutated agents and 169-deity council. Its built-in agent system is
+  paired with ChromaDB as the persistent memory layer for swarm decisions,
+  shard notes, and council context.
 
 ### 3. Revenue Streams
 - v1: 22 Z15 Pro mining ($25.2K/mo), Arena Trading (+11.21%), Bounty Hunter, 6 DeFi Vaults (32.3% APY), Bittensor, Affiliate Program
@@ -32,12 +36,17 @@
 ### 5. Tech & Blockchain
 - v1: HELIX L1, YSLR signals, 4-chain wallets, 15 LLM providers
 - v2 Supercharge: Chainlink API Vault + Runic execution + dynamic sharding + Helix Chain cross-execution
+- Multi-LLM routing: Odysseus connects to the YieldSwarm LiteLLM router, which
+  fronts OpenRouter, Fireworks, Akash RTX 3090 Ollama workers, and local Ollama
+  fallback endpoints through a single OpenAI-compatible provider surface.
 
 ## Action Items Completed
 - Pushed v1 elements into v2 repo as architecture reference
 - Integrated Runic + Sharding + OpenClaw + Immunefi + GEOD
 - Wallet routing for Akash miners to 0x9505578Bd5b32468E3cEa632664F7b8d2e46128c
 - Optimal pool: pool.woolypooly.com:3112 (Kaspa)
+- Added Odysseus stack definition, LiteLLM router config, ChromaDB memory, and
+  Akash SDL template for RTX 3090 worker deployments
 
 ## Next
 - Full migration of v1 dashboards and revenue models into v2 OpenClaw admin

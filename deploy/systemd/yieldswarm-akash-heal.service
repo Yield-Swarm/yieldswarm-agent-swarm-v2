@@ -1,0 +1,21 @@
+# YieldSwarm Akash auto-heal — systemd unit (production host supervision).
+# Install:
+#   sudo cp deploy/systemd/yieldswarm-akash-heal.service /etc/systemd/system/
+#   sudo sed -i "s#__REPO__#$(pwd)#g" /etc/systemd/system/yieldswarm-akash-heal.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now yieldswarm-akash-heal
+[Unit]
+Description=YieldSwarm Akash lease auto-heal loop
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=__REPO__
+EnvironmentFile=-__REPO__/deploy/config.env
+EnvironmentFile=-__REPO__/.env
+ExecStart=/usr/bin/env bash __REPO__/deploy/akash/auto-heal.sh
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target

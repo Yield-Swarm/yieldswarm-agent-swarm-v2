@@ -1,0 +1,28 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.terraform.lock.hcl
+
+# Packer
+packer_cache/
+*.box
+manifest.json
+crash.log
+*.pkrvars.hcl
+!*.pkrvars.hcl.example
+
+# Build artifacts / secrets
+*.pem
+*.auto.tfvars

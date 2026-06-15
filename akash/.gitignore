@@ -1,0 +1,12 @@
+# Runtime artifacts created by lease-manager.py
+.env
+state/
+*.log
+*.pid
+*.tmp
+__pycache__/
+*.pyc
+
+# Telemetry is regenerated at runtime; keep the committed defaults but ignore
+# locally-produced churn if you prefer (uncomment to ignore live updates):
+# telemetry/telemetry.json

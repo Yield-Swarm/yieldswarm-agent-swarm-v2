@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "zeta-volatility",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-006",
+  "metal_skin": "nickel-plasma",
+  "mutation_affinity": 0.89,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "north"
+}

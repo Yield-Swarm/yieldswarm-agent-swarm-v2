@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YieldSwarm Portal | Odysseus Workspace</title>
+    <meta
+      name="description"
+      content="Portal shell for embedded or linked Odysseus advanced agent interaction and deep research."
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #060611;
+        --panel: #101324;
+        --panel-2: #171b31;
+        --text: #f8fbff;
+        --muted: #9aa9c4;
+        --accent: #8b5cf6;
+        --accent-2: #36f4a4;
+        --error: #fb7185;
+        --border: rgba(255, 255, 255, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top right, rgba(139, 92, 246, 0.24), transparent 28rem),
+          radial-gradient(circle at bottom left, rgba(54, 244, 164, 0.14), transparent 30rem),
+          var(--bg);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      a {
+        color: var(--accent-2);
+      }
+
+      .shell {
+        width: min(1220px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar,
+      .hero,
+      .card,
+      .workspace-frame,
+      .status-strip {
+        border: 1px solid var(--border);
+        background: rgba(16, 19, 36, 0.88);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(18px);
+      }
+
+      .topbar {
+        position: sticky;
+        top: 16px;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        border-radius: 999px;
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+
+      .brand-mark {
+        display: inline-grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        gap: 24px;
+        margin: 30px 0 18px;
+        padding: clamp(24px, 4vw, 48px);
+        border-radius: 28px;
+      }
+
+      .hero h1 {
+        margin: 0 0 16px;
+        font-size: clamp(2.1rem, 6vw, 4.8rem);
+        line-height: 0.96;
+      }
+
+      .hero p,
+      .card p,
+      .status-strip {
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      button,
+      .button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 18px;
+        background: var(--accent-2);
+        color: #00150c;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .button.secondary {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .card,
+      .status-strip {
+        border-radius: 22px;
+        padding: 20px;
+      }
+
+      .card h2,
+      .card h3 {
+        margin-top: 0;
+      }
+
+      .status-strip {
+        margin: 18px 0;
+      }
+
+      [data-state="ready"] {
+        color: var(--accent-2);
+      }
+
+      [data-state="error"] {
+        color: var(--error);
+      }
+
+      .workspace-frame {
+        width: 100%;
+        min-height: 680px;
+        border-radius: 28px;
+      }
+
+      .workspace-frame[hidden] {
+        display: none;
+      }
+
+      @media (max-width: 860px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">O</span> Portal</div>
+        <nav>
+          <a href="../arena/">Arena</a>
+          <a href="../../README.md">Docs</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div>
+          <h1>Odysseus deep research inside YieldSwarm Portal.</h1>
+          <p>
+            Launch advanced agent interaction, long-horizon research, and memory exploration from the same authenticated
+            workspace used by Arena telemetry.
+          </p>
+          <div class="actions">
+            <button type="button" data-open-embedded>Embed Odysseus workspace</button>
+            <a class="button secondary" href="/odysseus" data-open-external>Open linked workspace</a>
+          </div>
+        </div>
+
+        <aside class="card">
+          <h2>Shared auth</h2>
+          <p data-session-summary>Checking YieldSwarm session...</p>
+          <p>
+            Portal requests a short-lived Odysseus handoff token through
+            <code>/api/auth/odysseus/handoff</code> and keeps cookies credentialed for same-domain SSO.
+          </p>
+        </aside>
+      </section>
+
+      <section class="card-grid" aria-label="Odysseus integration features">
+        <article class="card">
+          <h3>Embedded workspace</h3>
+          <p>Use an iframe when Odysseus allows YieldSwarm as a frame ancestor.</p>
+        </article>
+        <article class="card">
+          <h3>Linked workspace</h3>
+          <p>Open Odysseus in a new tab with the same SSO handoff if embedding is disabled.</p>
+        </article>
+        <article class="card">
+          <h3>Memory-aware Arena</h3>
+          <p>Arena pulls Odysseus memory counts, vector index depth, and research queue health.</p>
+        </article>
+      </section>
+
+      <section class="status-strip" aria-live="polite">
+        Status: <strong data-portal-status data-state="loading">Waiting for workspace launch.</strong>
+      </section>
+
+      <iframe
+        class="workspace-frame"
+        title="Odysseus advanced agent workspace"
+        data-odysseus-frame
+        hidden
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="clipboard-read; clipboard-write; fullscreen"
+      ></iframe>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
