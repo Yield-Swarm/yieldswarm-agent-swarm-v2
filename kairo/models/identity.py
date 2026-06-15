@@ -1,13 +1,16 @@
-"""Persistent cryptographic driver identity — IoTeX + EVM compatible."""
+"""Persistent cryptographic driver identity — delegates to canonical services layer."""
 
 from __future__ import annotations
 
-import hashlib
-import json
-import secrets
-from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
 from typing import Any, Optional
+
+from kairo.models.driver import DriverIdentity
+from kairo.services.identity import (
+    DEFAULT_DERIVATION_PATH,
+    identity_from_mnemonic,
+    register_driver,
+    recover_driver,
+)
 
 try:
     from eth_account import Account  # type: ignore
@@ -17,58 +20,27 @@ except ImportError:
     encode_defunct = None  # type: ignore
 
 
-@dataclass(frozen=True)
-class DriverIdentity:
-    """Cross-chain driver identity derived from a single master seed."""
-
-    driver_id: str
-    evm_address: str
-    iotex_address: str
-    public_key_hex: str
-    created_at: str
-    derivation_path: str = "m/44'/60'/0'/0/0"
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "DriverIdentity":
-        return cls(**{k: data[k] for k in cls.__dataclass_fields__})
-
-
-def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def _derive_iotex_address(evm_address: str) -> str:
-    """IoTeX uses io prefix over the same secp256k1 key material."""
-    return f"io1{evm_address[2:42].lower()}"
-
-
 def create_identity(seed_hex: Optional[str] = None) -> DriverIdentity:
-    """Create a new driver identity from a random or supplied seed."""
-    if Account is None:
-        raise RuntimeError("eth-account required: pip install eth-account")
+    """Create identity from optional hex seed or fresh BIP39 mnemonic."""
+    if seed_hex:
+        from kairo.services.identity import _identity_from_private_hex
 
-    seed = seed_hex or secrets.token_hex(32)
-    account = Account.from_key(seed)
-    driver_id = hashlib.sha256(account.address.encode()).hexdigest()[:16]
+        return _identity_from_private_hex(seed_hex)
 
-    return DriverIdentity(
-        driver_id=driver_id,
-        evm_address=account.address,
-        iotex_address=_derive_iotex_address(account.address),
-        public_key_hex=account.key.hex(),
-        created_at=_utc_now(),
-    )
+    result = register_driver(mirror_vault=False)
+    return result.identity
 
 
 def sign_message(identity_seed: str, message: str) -> dict[str, str]:
-    """Sign an arbitrary message with the driver's EVM key."""
+    """Sign message with private key hex or mnemonic."""
     if Account is None or encode_defunct is None:
         raise RuntimeError("eth-account required")
 
-    account = Account.from_key(identity_seed)
+    key = identity_seed.strip()
+    if " " in key:
+        account = Account.from_mnemonic(key, account_path=DEFAULT_DERIVATION_PATH)
+    else:
+        account = Account.from_key(key)
     signed = account.sign_message(encode_defunct(text=message))
     return {
         "address": account.address,
@@ -78,13 +50,14 @@ def sign_message(identity_seed: str, message: str) -> dict[str, str]:
 
 
 def verify_identity_payload(payload: dict[str, Any], signature: str) -> bool:
-    """Verify a signed identity attestation."""
     if Account is None or encode_defunct is None:
         return False
 
     address = payload.get("evm_address")
     if not address:
         return False
+
+    import json
 
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     try:
@@ -95,3 +68,15 @@ def verify_identity_payload(payload: dict[str, Any], signature: str) -> bool:
         return recovered.lower() == str(address).lower()
     except Exception:
         return False
+
+
+__all__ = [
+    "DriverIdentity",
+    "DEFAULT_DERIVATION_PATH",
+    "create_identity",
+    "identity_from_mnemonic",
+    "recover_driver",
+    "register_driver",
+    "sign_message",
+    "verify_identity_payload",
+]
