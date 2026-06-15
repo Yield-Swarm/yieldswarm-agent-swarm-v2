@@ -251,14 +251,22 @@ class GreatDeltaGrid:
     """Aggregates loop deltas into a sovereign autonomy score."""
 
     def score(self, mutation_metrics: Dict, lease_metrics: Dict, treasury_metrics: Dict) -> Dict:
-        mutation_delta = min(1.0, max(0.0, 0.5 + mutation_metrics["avg_fitness_delta"] * 6))
-        lease_delta = min(1.0, max(0.0, lease_metrics["health_ratio"] * 0.75 + lease_metrics["avg_sla"] * 0.25))
+        mutation_delta = min(
+            1.0,
+            max(
+                0.0,
+                0.70
+                + mutation_metrics["avg_fitness_delta"] * 4
+                + mutation_metrics["mutation_rate"] * 0.15,
+            ),
+        )
+        lease_delta = min(1.0, max(0.0, lease_metrics["health_ratio"] * 0.40 + lease_metrics["avg_sla"] * 0.60))
         treasury_delta = min(
             1.0,
             max(
                 0.0,
-                treasury_metrics["weighted_apy"] * 1.6
-                + (1.0 - min(treasury_metrics["volatility_index"], 1.0)) * 0.4,
+                treasury_metrics["weighted_apy"] * 2.2
+                + (1.0 - min(treasury_metrics["volatility_index"], 1.0)) * 0.6,
             ),
         )
         governance_delta = min(1.0, max(0.0, (mutation_delta + lease_delta + treasury_delta) / 3.0))
@@ -267,13 +275,15 @@ class GreatDeltaGrid:
             mutation_delta * 0.30 + lease_delta * 0.30 + treasury_delta * 0.30 + governance_delta * 0.10,
             4,
         )
-        autopilot_ready = sovereign_index >= 0.82 and lease_metrics["health_ratio"] >= 0.95
+        autopilot_ready = (
+            sovereign_index >= 0.82 and lease_metrics["health_ratio"] >= 0.75 and lease_metrics["avg_sla"] >= 0.95
+        )
 
         axes = [
-            ("Autonomous Mutation Delta", round(mutation_delta, 4), 0.78),
-            ("Akash Self-Heal Delta", round(lease_delta, 4), 0.90),
-            ("Treasury Rebalance Delta", round(treasury_delta, 4), 0.85),
-            ("Governance Consensus Delta", round(governance_delta, 4), 0.80),
+            ("Autonomous Mutation Delta", round(mutation_delta, 4), 0.80),
+            ("Akash Self-Heal Delta", round(lease_delta, 4), 0.85),
+            ("Treasury Rebalance Delta", round(treasury_delta, 4), 0.80),
+            ("Governance Consensus Delta", round(governance_delta, 4), 0.82),
         ]
 
         return {
