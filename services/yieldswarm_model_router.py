@@ -541,6 +541,7 @@ class YieldSwarmModelRouter:
                 )
                 headroom = _clamp(headroom_after_load / max(worker.usable_vram_gb, 1.0))
                 throughput = _clamp(model.tokens_per_second / 64.0)
+                task_specificity = 1.0 if task in model.tasks else 0.0
                 loaded_bonus = 0.08 if is_loaded else 0.0
                 load_penalty = 0.04 if not is_loaded else 0.0
                 eviction_penalty = 0.05 * len(evictions)
@@ -552,6 +553,7 @@ class YieldSwarmModelRouter:
                     + headroom * 0.13
                     + emission * 0.15
                     + mutation * 0.09
+                    + task_specificity * 0.08
                     + loaded_bonus
                     - load_penalty
                     - eviction_penalty
