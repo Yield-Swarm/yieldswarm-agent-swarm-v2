@@ -1,0 +1,61 @@
+---
+# =============================================================================
+# YieldSwarm — Akash SDL (Stack Definition Language) v2.0
+# -----------------------------------------------------------------------------
+# Secrets are injected AT RUNTIME by the container entrypoint via Vault AppRole.
+# The only Vault-related values in this manifest are NON-SECRET coordinates
+# (address, role_id) plus a SHORT-LIVED, single-use response-wrapped secret_id
+# token. The actual secret_id and all application secrets never appear here.
+#
+# Render the placeholders below at deploy time (CI / templating) — do NOT
+# commit real values:
+#   AKASH_IMAGE                    your pushed image, e.g. ghcr.io/org/yieldswarm-agents:1.0.0
+#   VAULT_ADDR                     https://vault.internal:8200
+#   VAULT_ROLE_ID                  role_id of the 'akash-runtime' AppRole
+#   VAULT_SECRET_ID_WRAPPING_TOKEN response-wrapped secret_id (TTL ~120s),
+#                                  minted right before `provider-services tx deployment create`
+# =============================================================================
+version: "2.0"
+
+services:
+  agents:
+    image: AKASH_IMAGE
+    env:
+      # --- Non-secret Vault coordinates ---
+      - VAULT_ADDR=VAULT_ADDR
+      - VAULT_ROLE_ID=VAULT_ROLE_ID
+      - VAULT_KV_MOUNT=kv
+      # Paths the entrypoint loads (override to scope per service).
+      - VAULT_SECRET_PATHS=yieldswarm/app/core yieldswarm/app/llm yieldswarm/rpc/solana
+      # --- Short-lived, single-use wrapped secret_id (rotated each deploy) ---
+      - VAULT_SECRET_ID_WRAPPING_TOKEN=VAULT_SECRET_ID_WRAPPING_TOKEN
+    # No ports are exposed for this background worker. Add an `expose` block
+    # here if a service needs ingress.
+
+profiles:
+  compute:
+    agents:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 1Gi
+        storage:
+          - size: 2Gi
+  placement:
+    dcloud:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+      pricing:
+        agents:
+          denom: uakt
+          amount: 10000
+
+deployment:
+  agents:
+    dcloud:
+      profile: agents
+      count: 1

@@ -1,0 +1,20 @@
+# Local Terraform state, plans, and any real variable files — never commit.
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Provider plugin cache (the .terraform.lock.hcl file IS committed for
+# reproducible provider versions — do not ignore it).
+.terraform/
+
+# Real variable files (the .example is committed; the live one is not)
+terraform.tfvars
+*.auto.tfvars
+*.tfvars.json
+
+# Credentials that must never be tracked
+*.pem
+*.key
+.vault-token

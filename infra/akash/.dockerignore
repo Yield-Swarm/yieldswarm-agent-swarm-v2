@@ -1,0 +1,15 @@
+# Keep the build context lean and free of anything sensitive.
+.git
+.gitignore
+**/.env
+**/.env.*
+*.pem
+*.key
+.vault-token
+infra/terraform/.terraform
+infra/terraform/*.tfstate*
+infra/terraform/terraform.tfvars
+**/__pycache__
+**/*.pyc
+*.md
+!agents/**

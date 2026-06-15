@@ -1,0 +1,25 @@
+# =============================================================================
+# Example tfvars — copy to terraform.tfvars and adjust. Contains NO secrets:
+# all credentials come from Vault. AppRole role_id/secret_id should be passed
+# via TF_VAR_* environment variables in CI, not written here.
+# =============================================================================
+
+# Vault coordinates (or export VAULT_ADDR instead of setting vault_address).
+vault_address  = "https://vault.internal:8200"
+vault_kv_mount = "kv"
+# vault_namespace = "admin/yieldswarm"   # Vault Enterprise / HCP only
+
+environment   = "prod"
+azure_location = "eastus"
+
+# Feature toggles for the example resources (default false).
+enable_azure_examples        = false
+enable_digitalocean_examples = false
+enable_vultr_examples        = false
+
+# Non-secret public key for the example Vultr SSH key resource.
+# vultr_ssh_public_key = "ssh-ed25519 AAAA... yieldswarm"
+
+# DO NOT put credentials here. Provide AppRole auth via environment:
+#   export TF_VAR_vault_approle_role_id="$(vault read -field=role_id auth/approle/role/terraform-provisioner/role-id)"
+#   export TF_VAR_vault_approle_secret_id="$(vault write -field=secret_id -f auth/approle/role/terraform-provisioner/secret-id)"
