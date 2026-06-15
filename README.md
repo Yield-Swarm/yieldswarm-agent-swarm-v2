@@ -10,16 +10,23 @@ Unstoppable Domains integration
 ## Deployment
 - Vercel: https://v2-0-bay.vercel.app/
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
+- Vault-backed Terraform and Akash deployment assets now live in:
+  - `infra/vault/`
+  - `docker/Dockerfile.akash`
+  - `deploy/akash/deployment.sdl.tpl.yml`
 
 ## Setup
-1. Copy .env.example to .env
-2. Fill in values securely
-3. Deploy to Vercel or Azure
-4. Wire Unstoppable Domains via Cloudflare nameservers
+1. Provision Vault mounts, policies, and AppRoles from `infra/vault/`
+2. Write Azure, RunPod, Vultr, DigitalOcean, RPC, and runtime app secrets into Vault
+3. Build and publish the Akash image from `docker/Dockerfile.akash`
+4. Render the Akash SDL from `deploy/akash/deployment.sdl.tpl.yml`
+5. Inject the non-committed Vault bootstrap env file into the running lease
+
+Use `SECRETS.md` for the exact production commands. The old local `.env` workflow is no longer the source of truth for secrets.
 
 ## Business
 Wise: cbrown03777@gmail.com
-UD API Key included in .env.example
+Secrets are no longer stored in tracked files.
 
 ## Next
-Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+Follow `SECRETS.md`, keep bootstrap files under `.secrets/`, and rotate AppRole secret IDs for every deployment or operator handoff.

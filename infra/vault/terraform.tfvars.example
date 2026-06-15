@@ -1,0 +1,10 @@
+vault_addr         = "https://vault.example.com"
+vault_namespace    = null
+vault_ca_cert_file = null
+
+# Enable after you have written cloud/* and rpc/mainnet secrets to Vault.
+enable_secret_contract_validation = false
+
+# Optional: constrain issued tokens to known egress ranges.
+terraform_token_bound_cidrs = []
+akash_token_bound_cidrs     = []

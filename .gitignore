@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+
+.secrets/
+deploy/akash/deployment.sdl.yml
+
+infra/vault/.terraform/
+infra/vault/*.tfvars
+!infra/vault/*.tfvars.example
+infra/vault/*.tfstate
+infra/vault/*.tfstate.*
+infra/vault/crash.log
+infra/vault/override.tf
+infra/vault/override.tf.json
+infra/vault/*_override.tf
+infra/vault/*_override.tf.json
