@@ -1,36 +1,62 @@
-# Local secrets & state
-.env
-.env.local
-.env.*.local
-.vault-init/
-*.tfvars
-!*.example.tfvars
-
-# Terraform local artifacts
-**/.terraform/
-**/.terraform.lock.hcl
-*.tfstate
-*.tfstate.*
-*.tfplan
-crash.log
+/build
+build/
+coverage/
 crash.*.log
-override.tf
-override.tf.json
+crash.log
+/.data
+# debug
+# dependencies
+dist/
+.DS_Store
+*.egg-info/
+.env
+.env*.local
+.env.*.local
+.env.local
+!*.example.tfvars
+.idea/
+# local env files
+# local file-store fallback (dev persistence)
+# Local secrets & state
+# misc
+.next/
+/.next/
+next-env.d.ts
+# next.js
+/node_modules
+node_modules/
+npm-debug.log*
+# OS / editor
+/out/
+out/
 *_override.tf
+override.tf
 *_override.tf.json
-
-# Vault Agent runtime artifacts (if developing locally)
-/run/secrets/
-
-# Python / build
+override.tf.json
+*.pem
+/.pnp
+.pnp.js
+# production
 __pycache__/
 *.py[cod]
-*.egg-info/
-.venv/
 .pytest_cache/
-
-# OS / editor
-.DS_Store
-.idea/
-.vscode/
+# Python / build
+/run/secrets/
 *.swp
+**/.terraform/
+# Terraform local artifacts
+**/.terraform.lock.hcl
+*.tfplan
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tsbuildinfo
+# typescript
+# Vault Agent runtime artifacts (if developing locally)
+.vault-init/
+.venv/
+# vercel
+.vercel
+.vscode/
+yarn-debug.log*
+yarn-error.log*
