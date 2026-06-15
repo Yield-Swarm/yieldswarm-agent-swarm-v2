@@ -1,0 +1,36 @@
+# Local secrets & state
+.env
+.env.local
+.env.*.local
+.vault-init/
+*.tfvars
+!*.example.tfvars
+
+# Terraform local artifacts
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Vault Agent runtime artifacts (if developing locally)
+/run/secrets/
+
+# Python / build
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
