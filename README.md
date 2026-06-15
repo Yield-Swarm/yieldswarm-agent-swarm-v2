@@ -21,5 +21,15 @@ Unstoppable Domains integration
 Wise: cbrown03777@gmail.com
 UD API Key included in .env.example
 
+## Frontend & Unified Wallet
+The `frontend/` app is a Vite + React + TypeScript dApp with a production-grade,
+custom multi-chain wallet layer (`frontend/src/wallet`) supporting EVM
+(viem + wagmi), Solana, TON, and basic Bitcoin. It is the default wallet layer
+used across Arena, Portal, and Payments. See `frontend/README.md` for details.
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
 ## Next
 Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
