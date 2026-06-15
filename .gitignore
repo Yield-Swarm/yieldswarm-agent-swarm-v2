@@ -87,3 +87,4 @@ __pycache__/
 .vscode/
 yarn-debug.log*
 yarn-error.log*
+.odysseus/
