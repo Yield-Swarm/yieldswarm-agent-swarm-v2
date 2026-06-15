@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars (gitignored) and fill in per environment.
+# Notice: there are NO secret values in this file. Every credential is
+# resolved from Vault at runtime.
+
+vault_address       = "https://vault.apn.internal:8200"
+vault_namespace     = ""
+vault_kv_mount      = "kv"
+vault_secret_prefix = "apn"
+environment         = "prod"
