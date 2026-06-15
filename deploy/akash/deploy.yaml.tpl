@@ -4,9 +4,6 @@ version: "2.0"
 services:
   yieldswarm:
     image: ${AKASH_IMAGE}
-    command:
-      - python
-      - agents/akash-optimizer.py
     env:
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_NAMESPACE=${VAULT_NAMESPACE}

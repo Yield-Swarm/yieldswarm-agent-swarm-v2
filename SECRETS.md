@@ -66,31 +66,48 @@ Do not write secrets with Terraform resources; that would place the secret mater
 export VAULT_ADDR="https://vault.example.com"
 export VAULT_TOKEN="replace-with-a-token-that-has-yieldswarm-secret-operator"
 
+read -r -p "Azure subscription ID: " AZURE_SUBSCRIPTION_ID
+read -r -p "Azure tenant ID: " AZURE_TENANT_ID
+read -r -p "Azure client ID: " AZURE_CLIENT_ID
+read -r -s -p "Azure client secret: " AZURE_CLIENT_SECRET && printf '\n'
 vault kv put yieldswarm/cloud/azure \
-  subscription_id="00000000-0000-0000-0000-000000000000" \
-  tenant_id="00000000-0000-0000-0000-000000000000" \
-  client_id="00000000-0000-0000-0000-000000000000" \
-  client_secret="replace-with-azure-client-secret"
+  subscription_id="${AZURE_SUBSCRIPTION_ID}" \
+  tenant_id="${AZURE_TENANT_ID}" \
+  client_id="${AZURE_CLIENT_ID}" \
+  client_secret="${AZURE_CLIENT_SECRET}"
 
+read -r -s -p "RunPod API key: " RUNPOD_API_KEY && printf '\n'
 vault kv put yieldswarm/cloud/runpod \
-  api_key="replace-with-runpod-api-key"
+  api_key="${RUNPOD_API_KEY}"
 
+read -r -s -p "Vultr API key: " VULTR_API_KEY && printf '\n'
 vault kv put yieldswarm/cloud/vultr \
-  api_key="replace-with-vultr-api-key"
+  api_key="${VULTR_API_KEY}"
 
+read -r -s -p "DigitalOcean token: " DIGITALOCEAN_TOKEN && printf '\n'
 vault kv put yieldswarm/cloud/digitalocean \
-  token="replace-with-digitalocean-token"
+  token="${DIGITALOCEAN_TOKEN}"
 
+read -r -p "Solana RPC URL: " SOLANA_RPC_URL
+read -r -p "Failover RPC list JSON: " FAILOVER_RPC_LIST_JSON
+read -r -s -p "Helius API key: " HELIUS_API_KEY && printf '\n'
+read -r -p "Ethereum RPC URL: " ETHEREUM_RPC_URL
+read -r -p "Base RPC URL: " BASE_RPC_URL
+read -r -p "Polygon RPC URL: " POLYGON_RPC_URL
 vault kv put yieldswarm/rpc \
-  solana_rpc_url="https://replace-with-solana-rpc.example.com" \
-  failover_rpc_list_json='["https://replace-with-rpc-1.example.com","https://replace-with-rpc-2.example.com"]' \
-  helius_api_key="replace-with-helius-api-key" \
-  ethereum_rpc_url="https://replace-with-ethereum-rpc.example.com" \
-  base_rpc_url="https://replace-with-base-rpc.example.com" \
-  polygon_rpc_url="https://replace-with-polygon-rpc.example.com"
+  solana_rpc_url="${SOLANA_RPC_URL}" \
+  failover_rpc_list_json="${FAILOVER_RPC_LIST_JSON}" \
+  helius_api_key="${HELIUS_API_KEY}" \
+  ethereum_rpc_url="${ETHEREUM_RPC_URL}" \
+  base_rpc_url="${BASE_RPC_URL}" \
+  polygon_rpc_url="${POLYGON_RPC_URL}"
+
+unset AZURE_SUBSCRIPTION_ID AZURE_TENANT_ID AZURE_CLIENT_ID AZURE_CLIENT_SECRET
+unset RUNPOD_API_KEY VULTR_API_KEY DIGITALOCEAN_TOKEN
+unset SOLANA_RPC_URL FAILOVER_RPC_LIST_JSON HELIUS_API_KEY ETHEREUM_RPC_URL BASE_RPC_URL POLYGON_RPC_URL
 ```
 
-Verify only metadata and expected field names, not values:
+Verify secret versions without printing values:
 
 ```bash
 vault kv metadata get yieldswarm/cloud/azure
@@ -191,7 +208,9 @@ If the deploy command is not submitted within the wrap TTL, generate a new `VAUL
 Rotate any provider secret by writing a new version to the same path:
 
 ```bash
-vault kv put yieldswarm/cloud/runpod api_key="replace-with-new-runpod-api-key"
+read -r -s -p "New RunPod API key: " RUNPOD_API_KEY && printf '\n'
+vault kv put yieldswarm/cloud/runpod api_key="${RUNPOD_API_KEY}"
+unset RUNPOD_API_KEY
 ```
 
 Then restart or redeploy workloads so the entrypoint fetches the new version:
@@ -202,6 +221,7 @@ export VAULT_WRAPPED_SECRET_ID="$(vault write \
   -wrap-ttl=10m \
   -field=wrapping_token \
   auth/approle/role/yieldswarm-akash-runtime/secret-id)"
+mkdir -p .generated/akash
 envsubst < deploy/akash/deploy.yaml.tpl > .generated/akash/deploy.yaml
 akash tx deployment update .generated/akash/deploy.yaml \
   --from "${AKASH_KEY_NAME}" \
