@@ -1,3 +1,6 @@
+# Full Odysseus + YieldSwarm production stack.
+# See docs/odysseus-yieldswarm.md for topology and bootstrap steps.
+
 services:
   odysseus:
     build:
@@ -5,7 +8,7 @@ services:
       dockerfile: Dockerfile
     image: ${ODYSSEUS_IMAGE:-ghcr.io/yieldswarm/agent-swarm-odysseus:local}
     ports:
-      - "${ODYSSEUS_PORT:-8080}:8080"
+      - "${ODYSSEUS_PORT:-7000}:8080"
     environment:
       AGENT_SHARD_ID: ${AGENT_SHARD_ID:-0}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
@@ -14,17 +17,93 @@ services:
       ODYSSEUS_RUNTIME_VAULT_PATH: ${ODYSSEUS_RUNTIME_VAULT_PATH:-kv/data/yieldswarm/odysseus/runtime}
       ODYSSEUS_SERVICE_NAME: odysseus
       VAULT_ADDR: ${VAULT_ADDR}
-      VAULT_APPROLE_AUTH_PATH: ${VAULT_APPROLE_AUTH_PATH:-auth/approle/login}
       VAULT_AUTH_METHOD: ${VAULT_AUTH_METHOD:-token}
-      VAULT_JWT_AUTH_PATH: ${VAULT_JWT_AUTH_PATH:-auth/jwt/login}
-      VAULT_JWT_ROLE: ${VAULT_JWT_ROLE:-}
       VAULT_KV_PATH: ${VAULT_KV_PATH:-kv/data/yieldswarm/odysseus/runtime}
-      VAULT_NAMESPACE: ${VAULT_NAMESPACE:-}
-      VAULT_TOKEN_FILE: /run/secrets/vault_token
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+      LLM_ROUTER_URL: http://llm-router:4000/v1
+    depends_on:
+      chromadb:
+        condition: service_started
+      llm-router:
+        condition: service_started
     secrets:
       - vault_token
     restart: unless-stopped
+    networks:
+      - yieldswarm
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "${CHROMA_HOST_PORT:-8100}:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      ANONYMIZED_TELEMETRY: "false"
+    restart: unless-stopped
+    networks:
+      - yieldswarm
+
+  llm-router:
+    image: ${YIELDSWARM_LITELLM_IMAGE:-ghcr.io/berriai/litellm:main-latest}
+    ports:
+      - "${LLM_ROUTER_PORT:-4000}:4000"
+    volumes:
+      - ./config/litellm/config.yaml:/app/config.yaml:ro
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_LITELLM_MODEL: ${OPENROUTER_MODEL:-anthropic/claude-3.5-sonnet}
+      FIREWORKS_API_KEY: ${FIREWORKS_API_KEY:-}
+      FIREWORKS_LITELLM_MODEL: ${FIREWORKS_MODEL:-accounts/fireworks/models/llama-v3p1-70b-instruct}
+      AKASH_OLLAMA_BASE_URL: ${AKASH_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      AKASH_OLLAMA_LITELLM_MODEL: ${AKASH_OLLAMA_MODEL:-ollama/llama3.1:8b}
+      AKASH_OLLAMA_EMBED_LITELLM_MODEL: ${AKASH_OLLAMA_EMBED_MODEL:-ollama/nomic-embed-text}
+      LOCAL_OLLAMA_BASE_URL: ${LOCAL_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      LOCAL_OLLAMA_LITELLM_MODEL: ${LOCAL_OLLAMA_MODEL:-ollama/llama3.1:8b}
+      LITELLM_MASTER_KEY: ${YIELDSWARM_ROUTER_API_KEY:-yieldswarm-dev-router-key}
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    restart: unless-stopped
+    networks:
+      - yieldswarm
+
+  searxng:
+    image: searxng/searxng:latest
+    ports:
+      - "${SEARXNG_PORT:-8088}:8080"
+    volumes:
+      - ./config/searxng:/etc/searxng:ro
+    restart: unless-stopped
+    networks:
+      - yieldswarm
+
+  kairo-ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${ODYSSEUS_IMAGE:-ghcr.io/yieldswarm/agent-swarm-odysseus:local}
+    command: >
+      python3 kairo/services/mandelbrot_ingest.py
+      --watch http://host.docker.internal:${KAIRO_API_PORT:-3000}
+      --interval 30
+    environment:
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+    depends_on:
+      - chromadb
+    restart: unless-stopped
+    profiles:
+      - kairo
+    networks:
+      - yieldswarm
 
 secrets:
   vault_token:
     file: ${VAULT_TOKEN_FILE:-./.vault-token}
+
+volumes:
+  chroma-data:
+
+networks:
+  yieldswarm:
+    driver: bridge

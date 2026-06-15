@@ -331,7 +331,76 @@ make logs                                                # tail .run/*.log
 
 Then point your domain / Vercel frontend at the worker URLs written to
 `dashboard/config.js` and wire Unstoppable Domains via Cloudflare nameservers
-(see root `README.md`).
+(see `DOMAINS.md`).
+
+---
+
+## Vault + Akash production deploy (Codespaces / CI)
+
+For a **Vault-first** Akash deployment that pulls all secrets at runtime (no
+secrets on disk), use the dedicated orchestrator:
+
+```bash
+# 0. Bootstrap Vault (one-time, from a trusted machine)
+cd vault/setup && ./bootstrap.sh
+
+# 1. Authenticate to Vault
+export VAULT_ADDR=https://vault.yieldswarm.io
+vault login   # or use VAULT_TOKEN for dev
+
+# 2. Copy and fill deployment config
+cp deploy/config.env.example deploy/config.env
+cp .env.example .env
+# Set AKASH_KEY_NAME, GHCR_OWNER, GHCR_TOKEN in deploy/config.env
+
+# 3. Preflight
+./scripts/deploy-production-vault-akash.sh --check
+
+# 4. Full deploy: Vault secrets → Akash RTX 3090 → health check → auto-heal
+./scripts/deploy-production-vault-akash.sh
+
+# 5. Verify
+source .run/akash-lease.env
+curl -fsS "${AKASH_WORKER_URI}/healthz"
+```
+
+### Codespaces quick-start
+
+```bash
+# In a GitHub Codespace (tools pre-installed):
+git clone https://github.com/Yield-Swarm/yieldswarm-agent-swarm-v2
+cd yieldswarm-agent-swarm-v2
+cp deploy/config.env.example deploy/config.env
+# Paste VAULT_TOKEN and AKASH_KEY_NAME from your secret manager
+
+make preflight
+./scripts/akash-deploy.sh check
+./scripts/deploy-production-vault-akash.sh --check
+./scripts/deploy-production-vault-akash.sh
+```
+
+### Odysseus full stack (local)
+
+```bash
+# Start Odysseus + ChromaDB + LiteLLM + SearXNG
+docker compose up -d odysseus chromadb llm-router searxng
+
+# With Kairo telemetry ingest bridge:
+docker compose --profile kairo up -d
+```
+
+See `docs/odysseus-yieldswarm.md` for model aliases and memory bootstrap.
+
+### Auto-healing
+
+The deploy orchestrator starts `deploy/akash/auto-heal.sh --daemon` (or
+`akash/lease-manager.py --daemon`) which:
+
+- Polls lease health every 60s
+- Re-deploys to a new RTX 3090 provider if the worker fails `/healthz`
+- Logs to `.run/akash-heal.log`
+
+Stop: `make akash-heal-stop` or `kill $(cat .run/akash-heal.pid)`
 
 ---
 

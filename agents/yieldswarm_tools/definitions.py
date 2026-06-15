@@ -239,6 +239,30 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
             required=("action",),
         ),
     ),
+    ToolDefinition(
+        name="yieldswarm_kairo_telemetry",
+        description=(
+            "Ingest and query Kairo driver telemetry routed through the Mandelbrot / "
+            "Tree of Life mesh. Every driver is a YieldSwarm DePIN node with signed data."
+        ),
+        tags=("yieldswarm", "kairo", "telemetry", "depin", "mandelbrot"),
+        input_schema=_object(
+            {
+                "action": _string(
+                    "Kairo telemetry operation.",
+                    enum=["ingest", "contribution", "earnings", "list_drivers"],
+                ),
+                "driver_id": _string("Kairo driver UUID."),
+                "event": {
+                    "type": "object",
+                    "description": "Signed telemetry event payload for ingest action.",
+                    "additionalProperties": True,
+                },
+                "period": _string("Earnings period (YYYY-MM) for earnings action."),
+            },
+            required=("action",),
+        ),
+    ),
 )
 
 
