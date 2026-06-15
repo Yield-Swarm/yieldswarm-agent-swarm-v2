@@ -1,0 +1,28 @@
+# Local secrets / env
+.env
+.env.*
+!.env.example
+
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+**/*.tfvars
+**/*.tfvars.json
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/crash.log
+
+# Vault bootstrap artifacts that may contain secret_ids
+infrastructure/vault/secret-id*
+infrastructure/vault/*-id.txt
+infrastructure/akash/*.rendered.yaml
+/tmp/akash-deploy-*.yaml
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
