@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import config from './config.js';
 import apiRouter from './routes/api.js';
+import kairoRouter from './routes/kairo.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -21,6 +22,7 @@ const frontendDir = path.join(repoRoot, 'frontend');
 
 const app = express();
 app.disable('x-powered-by');
+app.use(express.json());
 
 // Permissive CORS for read-only telemetry (dashboard may be hosted elsewhere).
 app.use((req, res, next) => {
@@ -32,6 +34,10 @@ app.use((req, res, next) => {
 });
 
 app.use('/api', apiRouter);
+app.use('/api', kairoRouter);
+
+// Kairo driver dashboard (static fallback if Python API is down)
+app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
 
 // ---- Frontends -----------------------------------------------------------
 app.use('/arena', express.static(path.join(frontendDir, 'arena')));

@@ -162,16 +162,17 @@ development → testnet → production → MAINNET
 
 ---
 
-## Kairo Integration (Future)
+## Kairo Integration
 
-Kairo (driver-first marketplace) should live **in this monorepo** under `kairo/` to share:
+Kairo (driver-first marketplace) lives in `kairo/` and shares:
 
 - `frontend/src/wallet` — unified wallet layer
 - `src/lib/payments` / payment rails — Square, Wise, Web3
-- Vault secret injection patterns
-- DePIN telemetry pipeline → Mandelbrot / Tree of Life
+- Vault secret injection patterns (`scripts/lib/vault-env.sh`)
+- DePIN telemetry pipeline → Mandelbrot / Tree of Life (`kairo/pipeline/`)
 
-Recommended path: scaffold `kairo/` on `development` after this merge lands on `main`.
+Start the Kairo API: `python -m kairo.api.server`
+Dashboard: `http://localhost:3001/api/kairo/dashboard`
 
 ---
 
@@ -187,6 +188,59 @@ Recommended path: scaffold `kairo/` on `development` after this merge lands on `
 - [ ] Review `contracts/` for duplicate GreatDelta routers — consolidate before mainnet
 - [ ] Wire Arena React (`frontend/src/routes/Arena.tsx`) to `backend/` telemetry API
 - [ ] Remove duplicate static `frontend/arena/` once React Arena is wired
+
+---
+
+## Execution Commands (June 15, 2026)
+
+The integration branch `cursor/merge-coordination-93dd` has been merged into the
+mega-task branch. To promote to `main` and create environment branches:
+
+```bash
+# From a clean checkout
+git fetch --all --prune
+git checkout main
+git merge --no-ff origin/cursor/merge-coordination-93dd \
+  -m "Merge swarm integration: 18 canonical cursor branches"
+
+# Or use the merge script (also creates env branches)
+bash scripts/merge-swarm.sh
+
+# Push all branches
+git push -u origin main development testnet devnets production MAINNET
+```
+
+### Post-merge validation
+
+```bash
+# Install dependencies
+cd frontend && npm install && npm run build
+npm install && npm run build          # payments app (root)
+cd backend && npm install && npm test
+pip install -r requirements.txt
+python -m pytest tests/
+
+# Local Odysseus stack
+docker compose up -d chromadb llm-router odysseus
+bash scripts/odysseus-wire-providers.sh
+
+# Kairo API
+python -m kairo.api.server &
+curl -s http://localhost:3001/api/kairo/health
+
+# Production deploy (Vault required)
+./scripts/codespace-deploy.sh
+```
+
+### Close duplicate PRs
+
+After merge, close without merging these 25+ duplicate branches:
+- All `cursor/vault-integration-*` except `cursor/vault-integration-1b83`
+- All `cursor/hashicorp-vault-integration-*`
+- `cursor/complete-vault-integration-8887`
+- `cursor/greatdelta-emission-router-1068`
+- `cursor/arena-akash-telemetry-f187`, `cursor/arena-telemetry-dashboard-c904`
+- `cursor/akash-tfc-bootstrap-fc5d`, `cursor/multicloud-fallback-6923`
 
 ---
 

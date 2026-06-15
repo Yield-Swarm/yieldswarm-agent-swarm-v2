@@ -381,4 +381,50 @@ dashboard/                        # index.html + config.js (live worker view)
 | Terraform makes no fallback | Expected when `primary_healthy=true` or all `TF_ENABLE_*=false`. |
 | Grafana/Prometheus won't start | Ensure Docker is running and ports 9090/3001/9093 are free. |
 | Sovereign loop stalled alert | `deploy/scripts/start-sovereign-loops.sh start`; check `.run/sovereign-loop.log`. |
+
+---
+
+## Codespace / Vault-first deploy
+
+For GitHub Codespaces or any clean Linux host with Vault credentials:
+
+```bash
+# 1. Clone and enter the repo
+git clone https://github.com/Yield-Swarm/yieldswarm-agent-swarm-v2.git
+cd yieldswarm-agent-swarm-v2
+
+# 2. Set Vault credentials (AppRole recommended)
+export VAULT_ADDR=https://vault.yieldswarm.io:8200
+export VAULT_ROLE_ID=<your-approle-role-id>
+export VAULT_SECRET_ID=<your-approle-secret-id>
+# Or use a wrapped secret:
+# export VAULT_WRAPPED_SECRET_ID=<one-shot-wrap-token>
+
+# 3. Copy deployment config
+cp deploy/config.env.example deploy/config.env
+$EDITOR deploy/config.env   # set GHCR_OWNER, AKASH_KEY_NAME
+
+# 4. Run the Vault-first orchestrator
+chmod +x scripts/codespace-deploy.sh
+./scripts/codespace-deploy.sh
+
+# Dry-run first (optional)
+DRY_RUN=1 ./scripts/codespace-deploy.sh
 ```
+
+The Codespace flow:
+1. Pulls all runtime secrets from HashiCorp Vault (`kv/data/yieldswarm/akash/runtime`)
+2. Builds and pushes Docker images to GHCR
+3. Deploys the Akash monolith SDL with Vault Agent sidecar (`deploy/deploy-swarm-monolith.yaml`)
+4. Deploys Odysseus via `scripts/deploy-production-odysseus.sh`
+5. Starts monitoring, sovereign loops, and the Kairo API
+
+Health checks after deploy:
+
+```bash
+curl -s http://localhost:3001/api/kairo/health
+curl -s http://localhost:8080/api/health
+make preflight
+```
+
+See `SECRETS.md` for Vault bootstrap and `scripts/lib/vault-env.sh` for secret injection internals.

@@ -71,9 +71,9 @@
 
 ## Next Steps
 
-1. Merge PR `cursor/merge-coordination-93dd` → `main`
-2. Create environment branches from `main`
+1. Merge PR `cursor/mega-task-integration-3716` → `main`
+2. Environment branches already exist on remote (`development`, `testnet`, `devnets`, `production`, `MAINNET`)
 3. Enable branch protection on `main`, `testnet`, `devnets`, `production`, `MAINNET`
 4. Close duplicate Vault PRs
 5. Run build/test validation on `development`
-6. Begin Kairo scaffold under `kairo/` on `development`
+6. Kairo module scaffolded under `kairo/` — cryptographic identity, telemetry, payments, dashboard

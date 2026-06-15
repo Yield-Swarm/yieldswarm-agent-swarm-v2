@@ -84,6 +84,13 @@ export const serverEnv = {
     driver: () => str("PAYMENTS_STORE_DRIVER", "memory"),
     fileDir: () => str("PAYMENTS_STORE_DIR", ".data"),
   },
+
+  kairo: {
+    customerFeeRate: () => Number(str("KAIRO_CUSTOMER_FEE_RATE", "0.01")),
+    driverMultiplier: () => Number(str("KAIRO_DRIVER_MULTIPLIER", "2.0")),
+    instantCashoutFee: () => Number(str("KAIRO_INSTANT_CASHOUT_FEE", "0.015")),
+    apiUrl: () => str("KAIRO_API_URL", "http://localhost:3001"),
+  },
 };
 
 /** Config safe to send to the browser. */

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kairo — Driver Contribution Dashboard</title>
+  <style>
+    :root { --bg: #0a0e17; --card: #141b2d; --accent: #00d4aa; --text: #e8ecf4; --muted: #8892a8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); margin-bottom: 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .card { background: var(--card); border-radius: 12px; padding: 1.25rem; border: 1px solid #1e2a42; }
+    .card .label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .card .value { font-size: 2rem; font-weight: 700; color: var(--accent); margin-top: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #1e2a42; }
+    th { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; }
+    .status { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 0.5rem; }
+    #refresh { background: var(--accent); color: #000; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Kairo Driver Dashboard</h1>
+  <p class="subtitle">Data contribution + potential DePIN rewards via YieldSwarm Mandelbrot pipeline</p>
+
+  <div class="grid">
+    <div class="card"><div class="label">Active Drivers</div><div class="value" id="driver-count">—</div></div>
+    <div class="card"><div class="label">Total Events</div><div class="value" id="total-events">—</div></div>
+    <div class="card"><div class="label">Reward Weight</div><div class="value" id="total-weight">—</div></div>
+    <div class="card"><div class="label">Mandelbrot Zones</div><div class="value" id="zone-count">—</div></div>
+  </div>
+
+  <button id="refresh">Refresh</button>
+  <table style="margin-top: 1.5rem">
+    <thead><tr><th>Driver</th><th>EVM Address</th><th>Events</th><th>Reward Weight</th><th>Zones</th></tr></thead>
+    <tbody id="driver-table"></tbody>
+  </table>
+
+  <script>
+    const API = window.location.origin;
+
+    async function load() {
+      const [drivers, contribs] = await Promise.all([
+        fetch(`${API}/api/kairo/drivers`).then(r => r.json()),
+        fetch(`${API}/api/kairo/contributions`).then(r => r.json()),
+      ]);
+
+      const driverList = drivers.drivers || [];
+      const contribMap = contribs.contributions || {};
+
+      let totalEvents = 0, totalWeight = 0, allZones = new Set();
+      const rows = driverList.map(d => {
+        const c = contribMap[d.driver_id] || { events: 0, reward_weight: 0, zones: [] };
+        totalEvents += c.events;
+        totalWeight += c.reward_weight;
+        (c.zones || []).forEach(z => allZones.add(z));
+        return `<tr>
+          <td><span class="status"></span>${d.driver_id.slice(0, 12)}…</td>
+          <td style="font-family:monospace;font-size:0.85rem">${d.evm_address.slice(0, 10)}…</td>
+          <td>${c.events}</td>
+          <td>${c.reward_weight.toFixed(4)}</td>
+          <td>${(c.zones || []).length}</td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('driver-count').textContent = driverList.length;
+      document.getElementById('total-events').textContent = totalEvents;
+      document.getElementById('total-weight').textContent = totalWeight.toFixed(2);
+      document.getElementById('zone-count').textContent = allZones.size;
+      document.getElementById('driver-table').innerHTML = rows || '<tr><td colspan="5">No drivers registered yet</td></tr>';
+    }
+
+    document.getElementById('refresh').addEventListener('click', load);
+    load();
+    setInterval(load, 30000);
+  </script>
+</body>
+</html>

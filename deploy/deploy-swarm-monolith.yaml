@@ -1,13 +1,33 @@
 version: "2.0"
 
 services:
+  vault-agent:
+    image: hashicorp/vault:1.18
+    command: agent -config=/etc/vault-agent/vault-agent.hcl
+    env:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_WRAPPED_SECRET_ID=${VAULT_WRAPPED_SECRET_ID}
+    expose:
+      - port: 8100
+        to:
+          - service: worker
+    params:
+      storage:
+        vault-secrets:
+          mount: /run/secrets
+
   worker:
     image: ghcr.io/yieldswarm/swarm-worker:stable
+    depends_on:
+      - vault-agent
     env:
       - NODE_ENV=production
       - WORKER_ENV=production
       - WORKER_PORT=8080
       - HEALTHCHECK_PATH=/healthz
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_AGENT_ADDR=http://vault-agent:8100
+      - AGENT_ENV_FILE=/run/secrets/agent.env
     expose:
       - port: 8080
         as: 80
@@ -17,7 +37,7 @@ services:
       http_get:
         path: /healthz
         port: 8080
-      initial_delay_seconds: 20
+      initial_delay_seconds: 30
       period_seconds: 10
       timeout_seconds: 5
       success_threshold: 1
@@ -26,7 +46,7 @@ services:
       http_get:
         path: /healthz
         port: 8080
-      initial_delay_seconds: 45
+      initial_delay_seconds: 60
       period_seconds: 15
       timeout_seconds: 5
       success_threshold: 1
@@ -39,6 +59,8 @@ services:
           mount: /var/cache/yieldswarm
         worker-logs:
           mount: /var/log/yieldswarm
+        vault-secrets:
+          mount: /run/secrets
 
 profiles:
   compute:

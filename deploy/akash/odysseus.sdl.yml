@@ -41,9 +41,9 @@ profiles:
           attributes:
             vendor:
               nvidia:
-                - model: h100
-                - model: a100
+                - model: rtx3090
                 - model: rtx4090
+                - model: a100
   placement:
     akash-gpu:
       pricing:

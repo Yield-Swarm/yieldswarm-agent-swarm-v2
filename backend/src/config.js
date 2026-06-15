@@ -71,6 +71,8 @@ export const config = {
     totalAgents: int(process.env.AGENT_COUNT_TOTAL, 10080),
     cronShardCount: int(process.env.CRON_SHARD_COUNT, 120),
   },
+
+  kairoApiUrl: (process.env.KAIRO_API_URL || 'http://localhost:3001').replace(/\/$/, ''),
 };
 
 export default config;

@@ -1,4 +1,34 @@
 services:
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "${CHROMADB_PORT:-8100}:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    restart: unless-stopped
+
+  llm-router:
+    image: ghcr.io/berriai/litellm:main-latest
+    ports:
+      - "${LITELLM_PORT:-4000}:4000"
+    volumes:
+      - ./config/litellm/config.yaml:/app/config.yaml
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_LITELLM_MODEL=${OPENROUTER_LITELLM_MODEL:-openrouter/anthropic/claude-3.5-sonnet}
+      - FIREWORKS_API_KEY=${FIREWORKS_API_KEY}
+      - FIREWORKS_LITELLM_MODEL=${FIREWORKS_LITELLM_MODEL:-fireworks_ai/accounts/fireworks/models/llama-v3p1-70b-instruct}
+      - AKASH_OLLAMA_BASE_URL=${AKASH_OLLAMA_BASE_URL:-http://ollama:11434}
+      - AKASH_OLLAMA_LITELLM_MODEL=${AKASH_OLLAMA_LITELLM_MODEL:-ollama/llama3.1:8b}
+      - AKASH_OLLAMA_EMBED_LITELLM_MODEL=${AKASH_OLLAMA_EMBED_LITELLM_MODEL:-ollama/nomic-embed-text}
+      - LOCAL_OLLAMA_BASE_URL=${LOCAL_OLLAMA_BASE_URL:-http://ollama:11434}
+      - LOCAL_OLLAMA_LITELLM_MODEL=${LOCAL_OLLAMA_LITELLM_MODEL:-ollama/llama3.1:8b}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-yieldswarm-dev-router-key}
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    depends_on:
+      - chromadb
+    restart: unless-stopped
+
   odysseus:
     build:
       context: .
@@ -21,6 +51,12 @@ services:
       VAULT_KV_PATH: ${VAULT_KV_PATH:-kv/data/yieldswarm/odysseus/runtime}
       VAULT_NAMESPACE: ${VAULT_NAMESPACE:-}
       VAULT_TOKEN_FILE: /run/secrets/vault_token
+      CHROMADB_URL: http://chromadb:8000
+      LITELLM_BASE_URL: http://llm-router:4000/v1
+      YIELDSWARM_ROUTER_API_KEY: ${LITELLM_MASTER_KEY:-yieldswarm-dev-router-key}
+    depends_on:
+      - chromadb
+      - llm-router
     secrets:
       - vault_token
     restart: unless-stopped
@@ -28,3 +64,6 @@ services:
 secrets:
   vault_token:
     file: ${VAULT_TOKEN_FILE:-./.vault-token}
+
+volumes:
+  chroma-data:
