@@ -1,0 +1,275 @@
+version: "2.0"
+
+services:
+  odysseus:
+    image: "${ODYSSEUS_IMAGE:-ghcr.io/yieldswarm/odysseus:main}"
+    expose:
+      - port: 7000
+        as: 7000
+        to:
+          - global: true
+    env:
+      - "APP_BIND=0.0.0.0"
+      - "APP_PORT=7000"
+      - "LLM_HOST=llm-router:4000"
+      - "LLM_HOSTS=llm-router:4000,${AKASH_OLLAMA_HOSTS:-}"
+      - "OPENAI_API_KEY=${YIELDSWARM_ROUTER_API_KEY}"
+      - "OLLAMA_BASE_URL=${ODYSSEUS_OLLAMA_BASE_URL:-http://llm-router:4000/v1}"
+      - "RESEARCH_LLM_ENDPOINT=http://llm-router:4000/v1/chat/completions"
+      - "SEARXNG_INSTANCE=http://searxng:8080"
+      - "CHROMADB_HOST=chromadb"
+      - "CHROMADB_PORT=8000"
+      - "DATABASE_URL=sqlite:///./data/app.db"
+      - "AUTH_ENABLED=${AUTH_ENABLED:-true}"
+      - "LOCALHOST_BYPASS=false"
+      - "ODYSSEUS_ADMIN_USER=${ODYSSEUS_ADMIN_USER:-admin}"
+      - "ODYSSEUS_ADMIN_PASSWORD=${ODYSSEUS_ADMIN_PASSWORD:-}"
+      - "ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:7000}"
+      - "SECURE_COOKIES=${SECURE_COOKIES:-true}"
+      - "EMBEDDING_URL=http://llm-router:4000/v1/embeddings"
+      - "EMBEDDING_MODEL=${YIELDSWARM_EMBEDDING_MODEL:-akash-ollama-embed}"
+      - "EMBEDDING_API_KEY=${YIELDSWARM_ROUTER_API_KEY}"
+      - "ODYSSEUS_CHAT_UPLOAD_MAX_BYTES=${ODYSSEUS_CHAT_UPLOAD_MAX_BYTES:-52428800}"
+      - "YIELDSWARM_AGENT_COUNT_TOTAL=${AGENT_COUNT_TOTAL:-10080}"
+      - "YIELDSWARM_DEITY_COUNT=${YIELDSWARM_DEITY_COUNT:-169}"
+      - "YIELDSWARM_DEFAULT_INTERFACE=odysseus"
+    params:
+      storage:
+        odysseus-data:
+          mount: /app/data
+        odysseus-logs:
+          mount: /app/logs
+        odysseus-huggingface:
+          mount: /app/.cache/huggingface
+        odysseus-local:
+          mount: /app/.local
+
+  llm-router:
+    image: "${YIELDSWARM_LITELLM_IMAGE:-ghcr.io/yieldswarm/litellm-router:main}"
+    command:
+      - "litellm"
+    args:
+      - "--config"
+      - "/app/config.yaml"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "4000"
+    expose:
+      - port: 4000
+        to:
+          - service: odysseus
+    env:
+      - "LITELLM_MASTER_KEY=${YIELDSWARM_ROUTER_API_KEY}"
+      - "OPENROUTER_API_KEY=${OPENROUTER_API_KEY}"
+      - "OPENROUTER_MODEL=${OPENROUTER_MODEL:-anthropic/claude-3.5-sonnet}"
+      - "OPENROUTER_LITELLM_MODEL=openrouter/${OPENROUTER_MODEL:-anthropic/claude-3.5-sonnet}"
+      - "FIREWORKS_API_KEY=${FIREWORKS_API_KEY}"
+      - "FIREWORKS_MODEL=${FIREWORKS_MODEL:-accounts/fireworks/models/llama-v3p1-70b-instruct}"
+      - "FIREWORKS_LITELLM_MODEL=fireworks_ai/${FIREWORKS_MODEL:-accounts/fireworks/models/llama-v3p1-70b-instruct}"
+      - "AKASH_OLLAMA_BASE_URL=${AKASH_OLLAMA_BASE_URL}"
+      - "AKASH_OLLAMA_MODEL=${AKASH_OLLAMA_MODEL:-llama3.1:8b}"
+      - "AKASH_OLLAMA_LITELLM_MODEL=ollama/${AKASH_OLLAMA_MODEL:-llama3.1:8b}"
+      - "AKASH_OLLAMA_EMBED_MODEL=${AKASH_OLLAMA_EMBED_MODEL:-nomic-embed-text}"
+      - "AKASH_OLLAMA_EMBED_LITELLM_MODEL=ollama/${AKASH_OLLAMA_EMBED_MODEL:-nomic-embed-text}"
+      - "LOCAL_OLLAMA_BASE_URL=${LOCAL_OLLAMA_BASE_URL:-http://ollama:11434}"
+      - "LOCAL_OLLAMA_MODEL=${LOCAL_OLLAMA_MODEL:-llama3.1:8b}"
+      - "LOCAL_OLLAMA_LITELLM_MODEL=ollama/${LOCAL_OLLAMA_MODEL:-llama3.1:8b}"
+
+  chromadb:
+    image: docker.io/chromadb/chroma:latest
+    expose:
+      - port: 8000
+        to:
+          - service: odysseus
+    env:
+      - "ANONYMIZED_TELEMETRY=FALSE"
+    params:
+      storage:
+        chromadb-data:
+          mount: /chroma/chroma
+
+  searxng:
+    image: docker.io/searxng/searxng:2026.5.31-7159b8aed
+    command:
+      - "/bin/sh"
+      - "-c"
+    args:
+      - |
+        set -eu
+        if [ ! -s /etc/searxng/settings.yml ] || grep -q '__SEARXNG_SECRET__' /etc/searxng/settings.yml; then
+          secret="${SEARXNG_SECRET:-}"
+          if [ -z "$secret" ]; then
+            secret="$(python -c 'import secrets; print(secrets.token_urlsafe(48))')"
+          fi
+          cat > /etc/searxng/settings.yml <<EOF
+        use_default_settings: true
+
+        server:
+          secret_key: "$secret"
+
+        search:
+          formats:
+            - html
+            - json
+        EOF
+        fi
+        exec /usr/local/searxng/entrypoint.sh
+    expose:
+      - port: 8080
+        to:
+          - service: odysseus
+    env:
+      - "SEARXNG_BASE_URL=http://searxng:8080/"
+      - "SEARXNG_SECRET=${SEARXNG_SECRET:-}"
+    params:
+      storage:
+        searxng-data:
+          mount: /etc/searxng
+
+  ntfy:
+    image: docker.io/binwiederhier/ntfy
+    command:
+      - "ntfy"
+    args:
+      - "serve"
+    expose:
+      - port: 80
+        to:
+          - service: odysseus
+    env:
+      - "NTFY_BASE_URL=http://ntfy:80"
+    params:
+      storage:
+        ntfy-cache:
+          mount: /var/cache/ntfy
+
+profiles:
+  compute:
+    odysseus:
+      resources:
+        cpu:
+          units: 8.0
+        memory:
+          size: 32Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+                  ram: 24GB
+        storage:
+          - size: 20Gi
+          - name: odysseus-data
+            size: 100Gi
+            attributes:
+              persistent: true
+              class: beta3
+          - name: odysseus-logs
+            size: 10Gi
+            attributes:
+              persistent: true
+              class: beta3
+          - name: odysseus-huggingface
+            size: 200Gi
+            attributes:
+              persistent: true
+              class: beta3
+          - name: odysseus-local
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+    llm-router:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 4Gi
+
+    chromadb:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 8Gi
+        storage:
+          - size: 4Gi
+          - name: chromadb-data
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+    searxng:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 2Gi
+          - name: searxng-data
+            size: 2Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+    ntfy:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          - size: 512Mi
+          - name: ntfy-cache
+            size: 2Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+  placement:
+    akash:
+      pricing:
+        odysseus:
+          denom: uakt
+          amount: 10000
+        llm-router:
+          denom: uakt
+          amount: 1000
+        chromadb:
+          denom: uakt
+          amount: 1000
+        searxng:
+          denom: uakt
+          amount: 500
+        ntfy:
+          denom: uakt
+          amount: 250
+
+deployment:
+  odysseus:
+    akash:
+      profile: odysseus
+      count: 1
+  llm-router:
+    akash:
+      profile: llm-router
+      count: 1
+  chromadb:
+    akash:
+      profile: chromadb
+      count: 1
+  searxng:
+    akash:
+      profile: searxng
+      count: 1
+  ntfy:
+    akash:
+      profile: ntfy
+      count: 1

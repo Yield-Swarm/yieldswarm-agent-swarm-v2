@@ -1,3 +1,4 @@
+*.bak
 /build
 build/
 coverage/
@@ -5,9 +6,11 @@ crash.*.log
 crash.log
 # dashboard/config.js
 /.data
+data/
 # debug
 # dependencies
 deploy/config.env
+deploy/rendered/
 deploy/terraform/active-backend.json
 deploy/terraform/auto.tfvars.json
 deploy/terraform/fallback-url.txt
@@ -31,6 +34,7 @@ dist/
 # local env files
 # local file-store fallback (dev persistence)
 # Local secrets & state
+logs/
 # misc
 .next/
 /.next/
@@ -69,6 +73,7 @@ __pycache__/
 *.tfstate
 *.tfstate.*
 *.tfvars
+*.tmp
 # Tracked default is committed; the deploy step overwrites it locally.
 *.tsbuildinfo
 # typescript
