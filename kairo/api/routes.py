@@ -8,23 +8,48 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
-from kairo.services.earnings import estimate_rewards
-from kairo.services.identity import DriverStore, generate_driver_identity
-from kairo.services.mandelbrot_pipeline import MandelbrotPipeline
-from kairo.services.signing import sign_telemetry, verify_telemetry
-from kairo.models.driver import SignedTelemetry
+from kairo.services.identity import recover_driver, register_driver
+from kairo.services.telemetry_pipeline import TelemetryPipeline
 
 
 class KairoApi:
     def __init__(self) -> None:
-        self.drivers = DriverStore()
-        self.pipeline = MandelbrotPipeline()
+        self.pipeline = TelemetryPipeline()
+        self.drivers = self.pipeline.drivers
 
     def create_driver(self, body: dict[str, Any]) -> dict[str, Any]:
         driver_id = body.get("driver_id")
-        identity = generate_driver_identity(driver_id)
-        self.drivers.save(identity)
-        return identity.to_public_dict()
+        recovery_passphrase = body.get("recovery_passphrase")
+        result = register_driver(
+            driver_id=driver_id,
+            recovery_passphrase=recovery_passphrase,
+            store=self.drivers,
+            mirror_vault=body.get("mirror_vault", True),
+        )
+        # Mnemonic returned once at registration — client must persist offline
+        return result.to_response(include_mnemonic=True)
+
+    def recover_driver(self, body: dict[str, Any]) -> dict[str, Any]:
+        mnemonic = body["mnemonic"]
+        identity = recover_driver(
+            mnemonic,
+            passphrase=body.get("passphrase", ""),
+            driver_id=body.get("driver_id"),
+            recovery_passphrase=body.get("recovery_passphrase"),
+            store=self.drivers,
+        )
+        return {"recovered": True, "identity": identity.to_public_dict()}
+
+    def unlock_backup(self, driver_id: str, body: dict[str, Any]) -> dict[str, Any]:
+        passphrase = body["recovery_passphrase"]
+        mnemonic = self.drivers.unlock_mnemonic(driver_id, passphrase)
+        return {"driver_id": driver_id, "mnemonic": mnemonic}
+
+    def wallet_meta(self, driver_id: str) -> dict[str, Any]:
+        meta = self.drivers.get_wallet_meta(driver_id)
+        if not meta:
+            raise KeyError("driver not found")
+        return meta
 
     def get_driver(self, driver_id: str) -> dict[str, Any]:
         identity = self.drivers.get(driver_id)
@@ -33,47 +58,16 @@ class KairoApi:
         return identity.to_public_dict()
 
     def submit_telemetry(self, body: dict[str, Any]) -> dict[str, Any]:
-        driver_id = body["driver_id"]
-        payload = body["payload"]
-        identity = self.drivers.get(driver_id)
-        if not identity:
-            raise KeyError("driver not found")
+        return self.pipeline.submit(body)
 
-        if "signature" in body:
-            packet = SignedTelemetry(
-                driver_id=driver_id,
-                evm_address=identity.evm_address,
-                payload=payload,
-                signature=body["signature"],
-                signed_at=body.get("signed_at", ""),
-            )
-            if not verify_telemetry(packet, identity.public_key_hex):
-                raise ValueError("invalid telemetry signature")
-        else:
-            packet = sign_telemetry(identity, payload)
-
-        record = self.pipeline.ingest(packet)
-        return {"accepted": True, "record": record}
+    def submit_telemetry_batch(self, body: dict[str, Any]) -> dict[str, Any]:
+        return self.pipeline.process_batch(body.get("samples", body.get("events", [])))
 
     def contribution(self, driver_id: str, trip_fare_usd: float = 0.0) -> dict[str, Any]:
-        stats = self.pipeline.driver_stats(driver_id)
-        if not stats:
-            return {
-                "driver_id": driver_id,
-                "packets": 0,
-                "estimated_total_usd": 0.0,
-                "app_earnings_usd": 0.0,
-                "depin_rewards_usd": 0.0,
-            }
-        return estimate_rewards(stats, trip_fare_usd=trip_fare_usd)
+        return self.pipeline.contribution(driver_id, trip_fare_usd)
 
     def leaderboard(self) -> dict[str, Any]:
-        rows = self.pipeline.all_driver_stats()
-        ranked = sorted(rows, key=lambda row: row.get("reward_weight", 0.0), reverse=True)
-        return {
-            "drivers": [estimate_rewards(row) for row in ranked[:25]],
-            "tree": self.pipeline.tree_summary(),
-        }
+        return self.pipeline.leaderboard()
 
 
 class KairoHandler(BaseHTTPRequestHandler):
@@ -114,6 +108,8 @@ class KairoHandler(BaseHTTPRequestHandler):
                     qs = parse_qs(parsed.query)
                     fare = float((qs.get("trip_fare_usd") or ["0"])[0])
                     return self._send(HTTPStatus.OK, self.api.contribution(driver_id, fare))
+                if len(parts) == 4 and parts[3] == "wallet":
+                    return self._send(HTTPStatus.OK, self.api.wallet_meta(driver_id))
                 return self._send(HTTPStatus.OK, self.api.get_driver(driver_id))
             if parsed.path == "/api/contribution/leaderboard":
                 return self._send(HTTPStatus.OK, self.api.leaderboard())
@@ -129,8 +125,15 @@ class KairoHandler(BaseHTTPRequestHandler):
             body = self._read_json()
             if parsed.path == "/api/drivers":
                 return self._send(HTTPStatus.CREATED, self.api.create_driver(body))
+            if parsed.path == "/api/drivers/recover":
+                return self._send(HTTPStatus.OK, self.api.recover_driver(body))
+            if parsed.path.startswith("/api/drivers/") and parsed.path.endswith("/unlock"):
+                driver_id = parsed.path.split("/")[3]
+                return self._send(HTTPStatus.OK, self.api.unlock_backup(driver_id, body))
             if parsed.path == "/api/telemetry":
                 return self._send(HTTPStatus.ACCEPTED, self.api.submit_telemetry(body))
+            if parsed.path == "/api/telemetry/batch":
+                return self._send(HTTPStatus.ACCEPTED, self.api.submit_telemetry_batch(body))
             self._send(HTTPStatus.NOT_FOUND, {"error": "not found"})
         except KeyError as exc:
             self._send(HTTPStatus.NOT_FOUND, {"error": str(exc)})

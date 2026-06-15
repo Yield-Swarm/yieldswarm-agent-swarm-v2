@@ -10,6 +10,20 @@ Signed driving telemetry flows into the Mandelbrot / Tree of Life reward mesh.
 - **Mandelbrot pipeline** — shard/branch/leaf indexing for DePIN rewards
 - **Earnings breakdown** — app revenue (2× pay) + crypto/DePIN rewards (1% customer fee)
 
+## Telemetry pipeline
+
+See **`KAIRO_TELEMETRY.md`** for the full collect → sign → Mandelbrot → reward flow.
+
+```bash
+# Simulate a drive (3 GPS points)
+python kairo/cli.py simulate-drive '{"driver_id":"driver-demo-1"}'
+
+# Batch ingest
+curl -s -X POST http://localhost:8091/api/telemetry/batch \
+  -H 'Content-Type: application/json' \
+  -d '{"samples":[{"driver_id":"driver-demo-1","latitude":39.74,"longitude":-104.99,"speed_kmh":40}]}'
+```
+
 ## Quick start
 
 ```bash

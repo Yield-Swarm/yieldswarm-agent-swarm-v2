@@ -10,8 +10,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
 
-from kairo.models.driver import SignedTelemetry, utc_now
-from kairo.services.identity import DriverIdentity, decrypt_private_key
+from kairo.models.driver import DriverIdentity, SignedTelemetry, utc_now
+from kairo.services.identity import decrypt_private_key
 
 
 def _canonical_payload(payload: dict[str, Any]) -> bytes:
