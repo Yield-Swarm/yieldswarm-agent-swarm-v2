@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is .gitignored.
+# Prefer supplying the SecretID via the environment instead of this file:
+#   export TF_VAR_vault_secret_id="$(vault write -f -field=secret_id \
+#       auth/approle/role/yieldswarm-terraform/secret-id)"
+
+# Vault server address (or set the VAULT_ADDR environment variable instead).
+vault_address = "https://vault.example.com:8200"
+
+# KV v2 mount and AppRole auth mount (match infra/vault/bootstrap.sh).
+vault_kv_mount     = "secret"
+vault_approle_path = "approle"
+
+# AppRole login. Obtain the RoleID from bootstrap.sh output.
+# Leave both empty to fall back to VAULT_TOKEN from the environment.
+vault_role_id = "00000000-0000-0000-0000-000000000000"
+# vault_secret_id is intentionally omitted here — pass it via TF_VAR_vault_secret_id.

@@ -1,0 +1,4 @@
+# Never commit real secret material.
+secrets.env
+*.env
+!*.env.example

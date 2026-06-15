@@ -1,0 +1,23 @@
+# Keep the build context minimal and free of anything sensitive.
+.git
+.gitignore
+**/.terraform
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfvars
+!**/*.tfvars.example
+**/secrets.env
+**/.env
+**/*.log
+ARCHITECTURE
+council
+crons
+dashboard
+marketplace
+mining
+redesign
+revenue
+security
+v2-supercharge
+SECRETS.md
+README.md

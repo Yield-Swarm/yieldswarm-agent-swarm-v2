@@ -1,0 +1,67 @@
+---
+# Akash SDL (Stack Definition Language) v2.0 for the YieldSwarm runtime.
+#
+# Secrets are NEVER placed in this manifest. The container fetches them from
+# Vault at startup (see deploy/akash/entrypoint.sh). Only the following are
+# supplied as environment variables, and only VAULT_SECRET_ID_WRAPPING_TOKEN is
+# sensitive:
+#
+#   - VAULT_ADDR                      (public endpoint)
+#   - VAULT_ROLE_ID                   (non-sensitive AppRole identifier)
+#   - VAULT_SECRET_ID_WRAPPING_TOKEN  (short-lived, single-use wrapping token)
+#
+# IMPORTANT: the Akash manifest (including env values) is visible to the
+# provider that runs the workload. That is exactly why we pass a *response-
+# wrapped, single-use, short-TTL* SecretID instead of a raw SecretID or token:
+# even if observed, it cannot be replayed after the container unwraps it.
+#
+# Generate the wrapping token immediately before `provider lease-send-manifest`:
+#   export VAULT_SECRET_ID_WRAPPING_TOKEN="$(vault write -wrap-ttl=120s -f \
+#     -field=wrapping_token auth/approle/role/yieldswarm-akash/secret-id)"
+# Then render this file (e.g. with envsubst) so the value is injected at deploy
+# time and never committed.
+
+version: "2.0"
+
+services:
+  yieldswarm:
+    image: ghcr.io/YOUR_ORG/yieldswarm:latest # pin to an immutable digest in prod
+    env:
+      - VAULT_ADDR=https://vault.example.com:8200
+      - VAULT_APPROLE_PATH=approle
+      - VAULT_KV_MOUNT=secret
+      - VAULT_APP_PATH=yieldswarm/app
+      - VAULT_RPC_PATH=yieldswarm/rpc
+      - VAULT_REVOKE_TOKEN_AFTER_LOAD=true
+      # Non-sensitive AppRole RoleID (from infra/vault/bootstrap.sh output).
+      - VAULT_ROLE_ID=00000000-0000-0000-0000-000000000000
+      # Injected at deploy time — DO NOT COMMIT A REAL VALUE.
+      - VAULT_SECRET_ID_WRAPPING_TOKEN=${VAULT_SECRET_ID_WRAPPING_TOKEN}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    yieldswarm:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 1Gi
+        storage:
+          - size: 2Gi
+  placement:
+    akash:
+      pricing:
+        yieldswarm:
+          denom: uakt
+          amount: 10000
+
+deployment:
+  yieldswarm:
+    akash:
+      profile: yieldswarm
+      count: 1
