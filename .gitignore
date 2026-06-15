@@ -1,0 +1,28 @@
+# Local secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/crash.log
+terraform/terraform.tfvars
+terraform/crash.log
+
+# Vault bootstrap artifacts
+vault-init.json
+*.unseal
+
+# Runtime
+/run/
+secrets.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store

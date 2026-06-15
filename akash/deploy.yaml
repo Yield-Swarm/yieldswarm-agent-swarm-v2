@@ -1,0 +1,61 @@
+---
+# Akash SDL v2 — YieldSwarm AgentSwarm deployment
+# Secrets are NEVER in this file. Runtime injection via Vault AppRole.
+version: "2.0"
+
+services:
+  agentswarm:
+    image: ghcr.io/yieldswarm/agentswarm:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      # Vault connection — role_id is public; secret_id injected at deploy time only
+      - VAULT_ADDR=https://vault.yieldswarm.internal:8200
+      - VAULT_ROLE_ID
+      - VAULT_SECRET_ID
+      - AGENT_MODULE=agents.akash_optimizer
+      - AGENT_SHARD_ID=0
+      - LOG_LEVEL=INFO
+    params:
+      storage:
+        data:
+          mount: /run/yieldswarm
+          readOnly: false
+      compute:
+        cpu: 1.0
+        memory: 2Gi
+        storage: 5Gi
+      pricing:
+        denom: uakt
+        amount: 5000
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 5Gi
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "$DEPLOY_SIGNED_BY"
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 5000
+
+deployment:
+  agentswarm:
+    akash:
+      profile: agentswarm
+      count: 1

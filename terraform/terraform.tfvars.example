@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars and fill in non-secret values.
+# Secrets are pulled from Vault — do NOT put API keys here.
+
+environment               = "production"
+azure_location            = "eastus2"
+azure_resource_group_name = "yieldswarm-agents"
+do_region                 = "nyc3"
+vultr_region              = "ewr"
+runpod_gpu_type           = "NVIDIA GeForce RTX 4090"
+
+# Vault connection (non-sensitive)
+vault_addr = "https://vault.yieldswarm.internal:8200"
+
+# AppRole credentials — set via environment in CI, not in this file:
+# export TF_VAR_vault_role_id="..."
+# export TF_VAR_vault_secret_id="..."

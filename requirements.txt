@@ -1,0 +1,2 @@
+# Python dependencies for YieldSwarm agents (no secret-handling libs needed — Vault via shell)
+requests>=2.31.0,<3.0.0
