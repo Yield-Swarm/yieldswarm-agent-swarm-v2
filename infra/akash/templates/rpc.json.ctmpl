@@ -1,0 +1,24 @@
+{{/*
+  ============================================================================
+  rpc.json.ctmpl
+  ----------------------------------------------------------------------------
+  Single JSON document indexed by chain name. The AgentSwarm RPC failover
+  client reads this at startup AND watches the file for atomic replacement.
+  ============================================================================
+*/}}
+{
+{{- $chains := "solana ton tao helix zec erc4337" | split " " -}}
+{{- $sep := "" -}}
+{{ range $i, $chain := $chains -}}
+{{ with secret (printf "yieldswarm/data/rpc/%s" $chain) }}
+  {{ $sep }}"{{ $chain }}": {
+    {{- $inner := "" -}}
+    {{- range $k, $v := .Data.data }}
+    {{ $inner }}{{ $k | toJSON }}: {{ $v | toJSON }}
+    {{- $inner = "," -}}
+    {{- end }}
+  }
+{{- $sep = "," -}}
+{{- end -}}
+{{ end }}
+}

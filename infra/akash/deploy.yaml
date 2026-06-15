@@ -1,0 +1,95 @@
+---
+# =============================================================================
+# Akash Stack Deployment Language manifest for AgentSwarm OS.
+#
+# Hard rules enforced here:
+#
+#   * NO secret values inside this file. The only Vault-related env vars are
+#     non-sensitive locators (VAULT_ADDR, VAULT_ROLE_ID) and a *delivery
+#     channel* for the secret_id (either a response-wrapped token with a
+#     5-minute TTL OR a path to a bind-mounted file on the provider).
+#
+#   * VAULT_ROLE_ID is treated as low-sensitivity (an attacker that learns it
+#     still needs a live secret_id to use it). It IS injected as an env var
+#     so operators can scale deployments without re-templating.
+#
+#   * The image must already be published to a registry; build it with:
+#
+#         docker buildx build \
+#           --platform linux/amd64 \
+#           -f infra/akash/Dockerfile \
+#           -t ghcr.io/yield-swarm/agentswarm-os:VERSION \
+#           --push .
+#
+#   * Deploy via the Akash CLI:
+#
+#         akash tx deployment create infra/akash/deploy.yaml \
+#           --from $AKASH_KEY_NAME --node $AKASH_NODE \
+#           --chain-id $AKASH_CHAIN_ID --keyring-backend os --gas auto -y
+# =============================================================================
+
+version: "2.0"
+
+services:
+  agentswarm:
+    image: ghcr.io/yield-swarm/agentswarm-os:0.1.0
+    env:
+      # ---- Vault connection (non-sensitive) --------------------------------
+      - VAULT_ADDR=https://vault.yieldswarm.internal:8200
+      - VAULT_NAMESPACE=
+      - VAULT_SKIP_VERIFY=false
+      # ---- AppRole role_id (low-sensitivity per HashiCorp guidance) -------
+      # Injected by `akash deployment create-deployment --env`, NEVER baked.
+      - VAULT_ROLE_ID
+      # ---- Secret delivery channel. Prefer the response-wrapped token. ----
+      # VAULT_SECRET_ID_WRAP_TOKEN is created by the operator on the bastion
+      # via `vault write -wrap-ttl=300s -f auth/approle/role/akash-runtime/secret-id`
+      # and piped into the deployment at create time. The container unwraps
+      # it ONCE inside docker-entrypoint.sh and then destroys the env var.
+      - VAULT_SECRET_ID_WRAP_TOKEN
+      # ---- Application toggles --------------------------------------------
+      - AGENT_SHARD_ID
+      - LOG_LEVEL=INFO
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    params:
+      storage:
+        data:
+          mount: /var/log/agentswarm
+          readOnly: false
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - name: data
+            size: 10Gi
+            attributes:
+              persistent: true
+              class: beta3
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+          - "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 1500
+
+deployment:
+  agentswarm:
+    akash:
+      profile: agentswarm
+      count: 1
