@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# terraform/terraform.tfvars.example
+# Copy to terraform.tfvars and fill in non-secret values.
+# NEVER put secrets in this file — they come from Vault automatically.
+# ---------------------------------------------------------------------------
+
+# Global
+environment  = "prod"
+project      = "agentswarm"
+vault_addr   = "https://vault.yourdomain.com:8200"
+agent_image  = "ghcr.io/yieldswarm/agentswarm-os:latest"
+
+# Agent sharding
+total_agents     = 10080
+agents_per_shard = 84
+shard_count      = 120
+
+# Azure
+azure_location         = "eastus"
+azure_container_cpu    = 0.5
+azure_container_memory = "1Gi"
+azure_min_replicas     = 1
+azure_max_replicas     = 5
+
+# RunPod
+runpod_gpu_type            = "NVIDIA GeForce RTX 4090"
+runpod_gpu_count           = 1
+runpod_container_disk_size = 50
+runpod_pod_count           = 2
+
+# Vultr
+vultr_region         = "ewr"
+vultr_plan           = "vc2-2c-4gb"
+vultr_os_id          = 387
+vultr_instance_count = 3
+
+# DigitalOcean
+do_region        = "nyc3"
+do_droplet_size  = "s-2vcpu-4gb"
+do_droplet_count = 3
+do_spaces_region = "nyc3"
+do_db_node_count = 1
+
+# ---------------------------------------------------------------------------
+# AppRole — supply via environment variables, not this file.
+# export TF_VAR_vault_approle_role_id=<role_id>
+# export TF_VAR_vault_approle_secret_id=<wrapped_secret_id>
+# ---------------------------------------------------------------------------

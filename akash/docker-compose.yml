@@ -1,0 +1,157 @@
+# ---------------------------------------------------------------------------
+# akash/docker-compose.yml
+# Local development and testing environment.
+#
+# Starts:
+#   • vault-dev  — Vault in dev mode (in-memory, auto-unsealed, no TLS)
+#   • agentswarm — Agent container that authenticates with the dev Vault
+#
+# Usage:
+#   docker compose up
+#
+# The vault-setup service runs bootstrap.sh + seed-secrets.sh automatically
+# so the agentswarm container starts up with real (or placeholder) secrets.
+#
+# NEVER use this compose file in production.
+# ---------------------------------------------------------------------------
+version: "3.9"
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Vault — dev mode (auto-initialized, auto-unsealed, root token = "root")
+  # ---------------------------------------------------------------------------
+  vault-dev:
+    image: hashicorp/vault:1.17
+    container_name: vault-dev
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_LOG_LEVEL: "info"
+    ports:
+      - "8200:8200"
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - agentnet
+
+  # ---------------------------------------------------------------------------
+  # vault-setup — runs bootstrap + seed in dev mode after Vault is healthy
+  # ---------------------------------------------------------------------------
+  vault-setup:
+    image: hashicorp/vault:1.17
+    container_name: vault-setup
+    depends_on:
+      vault-dev:
+        condition: service_healthy
+    environment:
+      VAULT_ADDR: "http://vault-dev:8200"
+      VAULT_TOKEN: "root"
+    volumes:
+      - ../vault:/vault-config:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Running bootstrap ..."
+        sh /vault-config/init/bootstrap.sh
+
+        echo "Seeding placeholder secrets for local dev ..."
+        vault kv put secret/agentswarm/core \
+          agentswarm_master_key="dev-master-key" \
+          kimiclaw_consensus_key="dev-kimiclaw-key" \
+          wallet_encryption_key="dev-wallet-key" \
+          tee_signing_key="dev-tee-key" \
+          database_encryption_key="dev-db-key"
+
+        vault kv put secret/agentswarm/llm \
+          grok_api_key="dev-grok-key" \
+          openai_api_key="dev-openai-key" \
+          gemini_api_key="dev-gemini-key" \
+          anthropic_api_key="dev-anthropic-key"
+
+        vault kv put secret/agentswarm/rpc \
+          solana_rpc_url="https://api.mainnet-beta.solana.com" \
+          helius_api_key="dev-helius-key" \
+          birdeye_api_key="dev-birdeye-key" \
+          jupiter_api_key="dev-jupiter-key" \
+          raydium_api_key="dev-raydium-key" \
+          pump_fun_deploy_key="dev-pump-key" \
+          ton_api_key="dev-ton-key" \
+          tao_subnet_key="dev-tao-key" \
+          helix_chain_bridge_key="dev-helix-key" \
+          zec_shielded_key="dev-zec-key" \
+          erc4337_bundler_key="dev-bundler-key"
+
+        vault kv put secret/agentswarm/depin \
+          depin_helium_hotspot_keys='["dev-hotspot"]' \
+          gpu_cluster_keys='["dev-gpu-key"]' \
+          grass_node_keys='["dev-grass-node"]' \
+          smartthings_bridge_token="dev-smartthings" \
+          colorado_power_permit_id="dev-permit" \
+          utility_api_key="dev-utility"
+
+        vault kv put secret/agentswarm/integrations \
+          notion_api_key="dev-notion" \
+          linear_api_key="dev-linear" \
+          vercel_api_token="dev-vercel" \
+          github_token="dev-github" \
+          telegram_bot_token="dev-telegram" \
+          filecoin_storage_key="dev-filecoin" \
+          dexscreener_api="dev-dexscreener" \
+          solscan_api_key="dev-solscan"
+
+        echo "Getting role-id for agentswarm container ..."
+        ROLE_ID=$$(vault read -field=role_id auth/approle/role/akash-runtime/role-id)
+        SECRET_ID=$$(vault write -field=secret_id -f auth/approle/role/akash-runtime/secret-id)
+        echo "ROLE_ID=$${ROLE_ID}"
+        echo "SECRET_ID=$${SECRET_ID}"
+
+        # Write role_id/secret_id to a shared volume so the agent picks them up
+        echo "$${ROLE_ID}" > /approle/role_id
+        echo "$${SECRET_ID}" > /approle/secret_id
+        echo "Vault setup complete."
+    volumes:
+      - approle-data:/approle
+      - ../vault:/vault-config:ro
+    networks:
+      - agentnet
+
+  # ---------------------------------------------------------------------------
+  # agentswarm — agent container (uses AppRole credentials from vault-setup)
+  # ---------------------------------------------------------------------------
+  agentswarm:
+    build:
+      context: ..
+      dockerfile: akash/Dockerfile
+    container_name: agentswarm-local
+    depends_on:
+      vault-setup:
+        condition: service_completed_successfully
+    environment:
+      VAULT_ADDR: "http://vault-dev:8200"
+      VAULT_SKIP_VERIFY: "true"
+      AGENT_SHARD_ID: "0"
+      AGENTS_PER_SHARD: "84"
+      AGENT_MODE: "local-dev"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        export VAULT_ROLE_ID=$$(cat /approle/role_id)
+        export VAULT_SECRET_ID=$$(cat /approle/secret_id)
+        exec /entrypoint.sh python agents/akash-optimizer.py
+    volumes:
+      - approle-data:/approle:ro
+    networks:
+      - agentnet
+
+volumes:
+  approle-data:
+
+networks:
+  agentnet:
+    driver: bridge

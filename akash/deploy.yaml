@@ -1,0 +1,90 @@
+# ---------------------------------------------------------------------------
+# akash/deploy.yaml
+# Akash Network SDL — YieldSwarm AgentSwarm OS
+#
+# Secret injection strategy:
+#   • VAULT_ADDR      — non-sensitive, points to your Vault cluster
+#   • VAULT_ROLE_ID   — non-sensitive identifier for the akash-runtime role
+#   • VAULT_SECRET_ID — SENSITIVE: a single-use, response-wrapped token
+#                       generated immediately before each deployment.
+#                       Pass via: akash tx deployment create ... \
+#                         --env VAULT_SECRET_ID=<wrapped_token>
+#
+# Replace all <PLACEHOLDER> values before deploying.
+#
+# Shard deployment: This file deploys one shard (AGENT_SHARD_ID=0).
+# For 120 shards, either:
+#   a) Run the deploy-shards.sh script (generates 120 SDLs automatically), or
+#   b) Update AGENT_SHARD_ID and re-deploy for each shard.
+# ---------------------------------------------------------------------------
+---
+version: "2.0"
+
+services:
+  agentswarm:
+    image: ghcr.io/yieldswarm/agentswarm-os:latest
+    env:
+      # Non-sensitive: Vault server address
+      - VAULT_ADDR=https://<VAULT_HOSTNAME>:8200
+
+      # Non-sensitive: AppRole role identifier (not a secret)
+      - VAULT_ROLE_ID=<AKASH_RUNTIME_ROLE_ID>
+
+      # SENSITIVE: single-use wrapped secret_id.
+      # Generate immediately before deploy:
+      #   vault write -wrap-ttl=10m -f auth/approle/role/akash-runtime/secret-id
+      # Then pass the wrapping token here. It is consumed on first use.
+      - VAULT_SECRET_ID=<WRAPPED_SECRET_ID>
+
+      # Agent shard configuration (override per-shard deployment)
+      - AGENT_SHARD_ID=0
+      - AGENTS_PER_SHARD=84
+      - CRON_SHARD_COUNT=120
+      - AGENT_MODE=akash-cron
+
+    expose:
+      - port: 8080
+        as: 8080
+        proto: tcp
+        to:
+          - global: false   # Internal only; agents do not need public ingress
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi
+
+  placement:
+    # Primary placement — US West providers with Akash Foundation signature
+    us-west:
+      attributes:
+        region: us-west
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63  # Akash Foundation
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 500
+
+    # Fallback placement — any verified provider worldwide
+    anywhere:
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  agentswarm:
+    us-west:
+      profile: agentswarm
+      count: 1

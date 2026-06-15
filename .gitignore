@@ -1,0 +1,72 @@
+# ---------------------------------------------------------------------------
+# .gitignore — YieldSwarm AgentSwarm OS
+# ---------------------------------------------------------------------------
+
+# Real environment files — NEVER commit
+.env
+.env.local
+.env.production
+.env.staging
+
+# Terraform — state files, secrets, credentials
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.tfvars
+**/crash.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+
+# Vault — init output (contains unseal keys and root token!)
+/tmp/vault-init.json
+vault/init/vault-init.json
+vault/data/
+
+# AppRole credentials generated at runtime
+/tmp/agentswarm-shard-*.yaml
+approle/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Docker
+.docker/
+
+# Logs
+*.log
+logs/
