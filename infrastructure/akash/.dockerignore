@@ -1,0 +1,11 @@
+**/.git
+**/.terraform
+**/.env
+**/*.tfstate*
+**/*.tfvars
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/.DS_Store
+infrastructure/vault/secret-id*
+infrastructure/akash/*.rendered.yaml

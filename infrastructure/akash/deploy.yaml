@@ -1,0 +1,90 @@
+---
+# =============================================================================
+# Akash SDL (Stack Definition Language) for the YieldSwarm OpenClaw service.
+# -----------------------------------------------------------------------------
+# This SDL ships ZERO secret values. The only sensitive material that leaves
+# the operator's machine is a *response-wrapped* Vault secret_id, which is:
+#
+#   * single-unwrap (the container consumes it on boot, then it's dead)
+#   * short-lived (300s default TTL)
+#   * useless without VAULT_ROLE_ID, which is delivered separately
+#
+# Render this template with envsubst (or your CI) immediately before
+# `akash tx deployment create`:
+#
+#   export VAULT_ADDR=https://vault.example.com:8200
+#   export VAULT_ROLE_ID=$(vault read -field=role_id \
+#       auth/approle/role/yieldswarm-akash/role-id)
+#   export VAULT_WRAPPING_TOKEN=$(VAULT_WRAP_TTL=300 vault write -f \
+#       -field=wrapping_token \
+#       auth/approle/role/yieldswarm-akash/secret-id)
+#   envsubst < infrastructure/akash/deploy.yaml > /tmp/deploy.rendered.yaml
+#   akash tx deployment create /tmp/deploy.rendered.yaml --from yieldswarm
+#
+# The rendered file lives only in /tmp on the operator box; do not commit.
+# =============================================================================
+
+version: "2.0"
+
+services:
+  openclaw:
+    image: ghcr.io/yieldswarm/openclaw-akash:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+        accept:
+          - openclaw.yieldswarm.io
+    env:
+      # --- Vault wiring (only IDs + the wrapping token, NEVER raw secrets) ---
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE=yieldswarm-akash
+      - VAULT_KV_MOUNT=kv
+      - VAULT_SECRET_ROOT=yieldswarm
+      - VAULT_RUNTIME_PATH=runtime/openclaw
+      - VAULT_RPC_PATH=rpc
+      - VAULT_AKASH_PATH=runtime/akash
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_WRAPPING_TOKEN=${VAULT_WRAPPING_TOKEN}
+      # --- Workload selector (entrypoint will export everything Vault holds) -
+      - APP_CMD=python -u /app/agents/openclaw-scaler.py
+      - LOG_LEVEL=INFO
+    params:
+      storage:
+        data:
+          mount: /workspace
+          readOnly: false
+
+profiles:
+  compute:
+    openclaw:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          - size: 20Gi
+          - name: data
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta3
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63
+      pricing:
+        openclaw:
+          denom: uakt
+          amount: 1500
+
+deployment:
+  openclaw:
+    akash:
+      profile: openclaw
+      count: 1
