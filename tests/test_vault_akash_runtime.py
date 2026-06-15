@@ -39,6 +39,22 @@ class TestVaultSecrets(unittest.TestCase):
 
 
 class TestVaultAkashBootstrap(unittest.TestCase):
+    def test_runtime_env_canonical_sections_follow_legacy(self):
+        """Later sections win when sourced — legacy must render before canonical."""
+        template = (REPO_ROOT / "akash/templates/runtime.env.ctmpl").read_text(encoding="utf-8")
+        self.assertLess(
+            template.index("# --- Legacy akash/runtime bundle"),
+            template.index("# --- Runtime core (canonical)"),
+        )
+        self.assertLess(
+            template.index('yieldswarm/data/llm/openai'),
+            template.index('yieldswarm/data/runtime/llm'),
+        )
+        self.assertLess(
+            template.index('yieldswarm/data/rpc/helius'),
+            template.index('yieldswarm/data/rpc/solana'),
+        )
+
     def test_sdl_needs_runtime_secrets_detects_placeholders(self):
         with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as fh:
             fh.write("env:\n  - VAULT_WRAPPED_SECRET_ID\n  - AGENT_SHARD_ID\n")
