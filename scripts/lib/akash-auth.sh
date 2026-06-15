@@ -2,6 +2,10 @@
 # Shared Akash auth helpers — keyring (default) or pre-generated JWT.
 set -euo pipefail
 
+_AKASH_AUTH_LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+[[ -f "${_AKASH_AUTH_LIB}/jwt-utils.sh" ]] && source "${_AKASH_AUTH_LIB}/jwt-utils.sh"
+
 akash__require_env() {
   : "${AKASH_KEY_NAME:?AKASH_KEY_NAME is required}"
   : "${AKASH_NODE:=https://rpc.akashnet.net:443}"
@@ -26,16 +30,35 @@ akash_tx_flags() {
     --keyring-backend "${AKASH_KEYRING_BACKEND}"
 }
 
-# send-manifest: use AKASH_JWT if set, else keyring (CLI auto-signs JWT in v0.10+).
+# send-manifest: JWT if valid; auto-fallback to keyring on expiry.
 akash_manifest_auth_flags() {
   akash__require_env
-  if [[ -n "${AKASH_JWT:-}" ]]; then
-    printf '%s\n' --token "${AKASH_JWT}"
-    return
-  fi
-  if [[ -n "${AKASH_JWT_FILE:-}" && -r "${AKASH_JWT_FILE}" ]]; then
-    printf '%s\n' --token-file "${AKASH_JWT_FILE}"
-    return
+  if declare -F akash_jwt_export >/dev/null 2>&1; then
+    akash_jwt_export 2>/dev/null || true
+    local status
+    status="$(akash_jwt_status 2>/dev/null || echo missing)"
+    if [[ "${status}" == "valid" || "${status}" == "stale" ]]; then
+      if [[ -n "${AKASH_JWT:-}" ]]; then
+        printf '%s\n' --token "${AKASH_JWT}"
+        return
+      fi
+      if [[ -n "${AKASH_JWT_FILE:-}" && -r "${AKASH_JWT_FILE}" ]]; then
+        printf '%s\n' --token-file "${AKASH_JWT_FILE}"
+        return
+      fi
+    fi
+    if [[ "${status}" == "expired" ]]; then
+      echo "akash-auth: JWT expired — falling back to keyring for send-manifest" >&2
+    fi
+  else
+    if [[ -n "${AKASH_JWT:-}" ]]; then
+      printf '%s\n' --token "${AKASH_JWT}"
+      return
+    fi
+    if [[ -n "${AKASH_JWT_FILE:-}" && -r "${AKASH_JWT_FILE}" ]]; then
+      printf '%s\n' --token-file "${AKASH_JWT_FILE}"
+      return
+    fi
   fi
   printf '%s\n' --from "${AKASH_KEY_NAME}" --keyring-backend "${AKASH_KEYRING_BACKEND}"
 }

@@ -166,7 +166,9 @@ bash scripts/akash-verify-setup.sh          # confirm wallet + balance + RPC
 AUTO_SELECT_BID=1 scripts/akash-deploy.sh deploy/deploy-swarm-monolith.yaml
 ```
 
-For CI/CD with pre-generated JWT: `bash scripts/akash-generate-jwt.sh` then `source .run/akash-jwt.env`.
+For CI/CD with pre-generated JWT: `bash scripts/akash-generate-jwt.sh` then `source scripts/akash-jwt-export.sh`.
+
+Full Codespace workflow: **`docs/AKASH_CODESPACE_JWT.md`**
 
 ---
 
