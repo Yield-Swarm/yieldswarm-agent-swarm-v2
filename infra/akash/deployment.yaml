@@ -1,0 +1,45 @@
+---
+version: "2.0"
+
+services:
+  agentswarm:
+    image: ghcr.io/your-org/yieldswarm:vault-runtime
+    command:
+      - /usr/local/bin/akash-entrypoint
+      - python3
+      - /app/agents/chainlink-vault-manager.py
+    env:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_NAMESPACE=${VAULT_NAMESPACE}
+      - VAULT_AUTH_METHOD=approle
+      - VAULT_ROLE_ID=${AKASH_VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${AKASH_VAULT_SECRET_ID}
+      - VAULT_SECRET_PATHS=app/data/akash,rpc/data/default
+      - VAULT_KEEP_TOKEN=false
+    expose:
+      - port: 8080
+        to:
+          - global: true
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 2
+        memory:
+          size: 4Gi
+        storage:
+          size: 20Gi
+  placement:
+    dcloud:
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 10000
+
+deployment:
+  agentswarm:
+    dcloud:
+      profile: agentswarm
+      count: 1
