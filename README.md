@@ -17,6 +17,13 @@ Unstoppable Domains integration
 3. Deploy to Vercel or Azure
 4. Wire Unstoppable Domains via Cloudflare nameservers
 
+## Secrets management
+Production secrets are managed via HashiCorp Vault — see
+[`SECRETS.md`](SECRETS.md) for the operator runbook and
+`infrastructure/{vault,terraform,akash}/` for the implementation.
+`.env` files are only used for local development; **never** for
+production workloads.
+
 ## Business
 Wise: cbrown03777@gmail.com
 UD API Key included in .env.example

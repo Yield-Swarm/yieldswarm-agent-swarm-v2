@@ -1,0 +1,43 @@
+# --- Secrets ---------------------------------------------------------------
+# Anything that even looks like a real env file. Templates use `.example`.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.env
+secrets.yaml
+secrets.json
+
+# --- Terraform -------------------------------------------------------------
+infrastructure/terraform/.terraform/
+infrastructure/terraform/.terraform.lock.hcl
+infrastructure/terraform/terraform.tfstate
+infrastructure/terraform/terraform.tfstate.*
+infrastructure/terraform/*.auto.tfvars
+infrastructure/terraform/terraform.tfvars
+infrastructure/terraform/crash.log
+infrastructure/terraform/tfplan
+infrastructure/terraform/tfplan.*
+infrastructure/terraform/override.tf
+infrastructure/terraform/override.tf.json
+infrastructure/terraform/*_override.tf
+infrastructure/terraform/*_override.tf.json
+
+# --- Vault -----------------------------------------------------------------
+# Rendered Akash SDLs (contain wrapping tokens during the 60s wrap window).
+infrastructure/akash/deploy.rendered.yaml
+infrastructure/akash/*.rendered.yaml
+
+# Locally-decrypted seed envelopes.
+/dev/shm/*.env
+
+# --- General ---------------------------------------------------------------
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
