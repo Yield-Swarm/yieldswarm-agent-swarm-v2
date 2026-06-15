@@ -1,38 +1,35 @@
-"""Akash Optimizer Agent — lease self-healing and ROI optimization.
+# Akash Optimizer Agent
+# Connects to current allocations (GPU miners, OpenClaw, Eliza, Gensyn)
+# Optimizes with $200 credits, extends leases, migrates providers
+# Part of MEGA TASK scaling (Hydrogen Particle VM sharding)
+#
+# The production implementation of lease supervision / auto-failover now lives in
+# ../akash/. This agent delegates to the lease-manager so the swarm and the
+# standalone manager share one code path.
+#
+#   akash/akash-deploy.sh   -> Akash CLI wrapper (deploy / select RTX 3090 / lease)
+#   akash/lease-manager.py  -> 60s health-check loop + auto-failover + telemetry
+#
+# Run as a one-shot pass (cron) or a daemon:
+#   python3 akash/lease-manager.py --once
+#   ./akash/run.sh start
 
-Connects to current allocations (GPU miners, OpenClaw, Eliza, Gensyn, Odysseus).
-Optimizes with $200 credits, extends leases, migrates providers.
-Part of MEGA TASK scaling (Hydrogen Particle VM sharding).
-"""
+import os
+import subprocess
+import sys
 
-from __future__ import annotations
-
-import json
-from pathlib import Path
-
-from iteration_100_sovereign_loops import SovereignController
-
-
-def main() -> int:
-    controller = SovereignController(
-        state_path=Path("dashboard/iteration_100_state.json"),
-        dashboard_path=Path("dashboard/final-monitoring-dashboard-5m.md"),
-    )
-    report = controller.run_cycle()
-    print(
-        json.dumps(
-            {
-                "loop": "self-healing-akash-leases",
-                "cycle": report["cycle"],
-                "healed_or_renewed": report["lease_metrics"]["healed_or_renewed"],
-                "health_ratio": report["lease_metrics"]["health_ratio"],
-                "avg_sla": report["lease_metrics"]["avg_sla"],
-            },
-            indent=2,
-        )
-    )
-    return 0
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LEASE_MANAGER = os.path.join(REPO_ROOT, 'akash', 'lease-manager.py')
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+def run_once() -> int:
+    """Trigger a single reconcile pass of the production lease manager."""
+    if not os.path.isfile(LEASE_MANAGER):
+        print('Akash lease-manager not found at', LEASE_MANAGER)
+        return 1
+    return subprocess.call([sys.executable, LEASE_MANAGER, '--once'])
+
+
+if __name__ == '__main__':
+    print('Akash Optimizer Agent active - delegating to akash/lease-manager.py')
+    raise SystemExit(run_once())
