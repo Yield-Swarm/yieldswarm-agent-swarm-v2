@@ -1,6 +1,8 @@
 .env
 .env.*
 !.env.example
+__pycache__/
+*.py[cod]
 
 # Terraform local state and plans can contain secret-derived values.
 .terraform/

@@ -249,10 +249,11 @@ akash tx deployment update /tmp/agentswarm-akash.yml \
 shred -u /tmp/agentswarm-akash.yml 2>/dev/null || rm -f /tmp/agentswarm-akash.yml
 ```
 
-Revoke active Vault tokens for a compromised role:
+Revoke a known compromised Vault token or token accessor:
 
 ```sh
-vault token revoke -mode=orphan -prefix auth/approle/login
+vault token revoke "$COMPROMISED_VAULT_TOKEN"
+vault token revoke -accessor "$COMPROMISED_TOKEN_ACCESSOR"
 ```
 
 ## 7. Local runtime verification without printing secrets
