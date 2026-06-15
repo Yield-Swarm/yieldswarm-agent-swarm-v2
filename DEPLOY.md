@@ -25,6 +25,57 @@ The 5 steps, in order:
 
 ---
 
+## GitHub Codespaces — exact commands
+
+Run these in a fresh Codespace after cloning the repo:
+
+```bash
+# 1. Tooling + config
+make preflight
+cp deploy/config.env.example deploy/config.env
+cp .env.example .env
+# Edit deploy/config.env (GHCR_OWNER, AKASH_KEY_NAME) and .env (API keys)
+
+# 2. Bootstrap HashiCorp Vault (local dev or point VAULT_ADDR at your cluster)
+vault/setup/bootstrap.sh
+
+# 3. Load runtime secrets from Vault (AppRole or JWT)
+export VAULT_ADDR=https://vault.your-domain.example
+export VAULT_AUTH_METHOD=approle
+export VAULT_ROLE_ID=...
+export VAULT_SECRET_ID=...
+source scripts/lib/vault-env.sh
+vault_export_env kv/data/yieldswarm/akash/runtime
+vault_export_env kv/data/yieldswarm/odysseus/runtime
+
+# 4. Full stack deploy (images → Akash lease → Terraform fallback → frontend → monitoring)
+make deploy
+
+# 5. Odysseus GPU stack (RTX 3090 + Ollama) — pulls deploy secrets from Vault
+scripts/deploy-production-odysseus.sh akash
+
+# 6. Monolith SDL deploy (hardened worker + health probes)
+AKASH_KEY_NAME=yieldswarm AUTO_SELECT_BID=1 scripts/akash-deploy.sh deploy/deploy-swarm-monolith.yaml
+
+# 7. Kairo driver API (cryptographic identity + telemetry pipeline)
+pip install -r requirements.txt
+python -m kairo.api.routes &
+cd backend && npm install && npm start
+```
+
+Vault paths (see `SECRETS.md`):
+
+| Path | Contents |
+|------|----------|
+| `kv/data/yieldswarm/akash/runtime` | Akash wallet, GHCR tokens, worker env |
+| `kv/data/yieldswarm/odysseus/deploy` | Image refs, SDL template vars |
+| `kv/data/yieldswarm/odysseus/runtime` | Ollama host, Fireworks/OpenRouter keys |
+| `kv/data/yieldswarm/payments/runtime` | Square, Wise, treasury wallet keys |
+
+Akash workers inject secrets at runtime via Vault Agent (`akash/vault-agent.hcl`).
+
+---
+
 ## 0. Prerequisites
 
 ### Tooling
@@ -381,4 +432,3 @@ dashboard/                        # index.html + config.js (live worker view)
 | Terraform makes no fallback | Expected when `primary_healthy=true` or all `TF_ENABLE_*=false`. |
 | Grafana/Prometheus won't start | Ensure Docker is running and ports 9090/3001/9093 are free. |
 | Sovereign loop stalled alert | `deploy/scripts/start-sovereign-loops.sh start`; check `.run/sovereign-loop.log`. |
-```

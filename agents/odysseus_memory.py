@@ -654,6 +654,31 @@ def get_memory() -> OdysseusMemory:
     return OdysseusMemory()
 
 
+def record_driver_telemetry(record: Dict[str, Any]) -> None:
+    """Fan-out signed Kairo driver telemetry into the Odysseus memory mesh."""
+    memory = get_memory()
+    payload = {
+        "source": "kairo",
+        "driver_id": record.get("driver_id"),
+        "evm_address": record.get("evm_address"),
+        "telemetry_id": record.get("telemetry_id"),
+        "tree": record.get("tree"),
+        "signed_at": record.get("signed_at"),
+    }
+    memory.record_cross_agent_learning(
+        agent_id=f"kairo:{record.get('driver_id', 'unknown')}",
+        topic="driver_telemetry",
+        insight=_safe_json(payload),
+        metadata=_clean_metadata(
+            {
+                "driver_id": record.get("driver_id"),
+                "shard_id": (record.get("tree") or {}).get("shard_id"),
+                "reward_weight": (record.get("tree") or {}).get("reward_weight"),
+            }
+        ),
+    )
+
+
 if __name__ == "__main__":
     memory = get_memory()
     memory.register_agent_mesh()

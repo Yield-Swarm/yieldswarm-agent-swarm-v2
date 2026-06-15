@@ -10,6 +10,8 @@
 
 **Immediate human action required:** Enable branch protection on `main` (PR reviews + status checks) before merging the integration PR.
 
+**Mega Round status (June 15, 2026):** Integration branch content is ready to land on `main`. Environment branches (`development`, `testnet`, `devnets`, `production`, `MAINNET`) already mirror the integration tree. Run `scripts/merge-swarm.sh` to promote to `main`.
+
 ---
 
 ## Branch Inventory by Domain
@@ -162,16 +164,18 @@ development → testnet → production → MAINNET
 
 ---
 
-## Kairo Integration (Future)
+## Kairo Integration
 
-Kairo (driver-first marketplace) should live **in this monorepo** under `kairo/` to share:
+Kairo (driver-first marketplace) lives under `kairo/` in this monorepo and shares:
 
 - `frontend/src/wallet` — unified wallet layer
 - `src/lib/payments` / payment rails — Square, Wise, Web3
 - Vault secret injection patterns
 - DePIN telemetry pipeline → Mandelbrot / Tree of Life
 
-Recommended path: scaffold `kairo/` on `development` after this merge lands on `main`.
+**Status (Mega Round):** `kairo/` scaffold is merged with cryptographic identity, signed telemetry API, Mandelbrot pipeline, and contribution dashboard.
+
+Recommended path for new Kairo features: branch `cursor/kairo-*` off `development`, PR to `development`.
 
 ---
 

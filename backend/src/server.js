@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import config from './config.js';
 import apiRouter from './routes/api.js';
+import kairoRouter from './routes/kairo.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -32,6 +33,8 @@ app.use((req, res, next) => {
 });
 
 app.use('/api', apiRouter);
+app.use('/api/kairo', kairoRouter);
+app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
 
 // ---- Frontends -----------------------------------------------------------
 app.use('/arena', express.static(path.join(frontendDir, 'arena')));
@@ -60,7 +63,8 @@ const server = app.listen(config.port, config.host, () => {
     `[yieldswarm] integration server listening on http://${config.host}:${config.port}\n` +
       `  Portal:  /portal/\n` +
       `  Arena:   /arena/\n` +
-      `  API:     /api/arena/overview`,
+      `  API:     /api/arena/overview\n` +
+      `  Kairo:   /kairo/contribution.html  /api/kairo/*`,
   );
 });
 
