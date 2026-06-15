@@ -1,1 +1,1 @@
-"""YieldSwarm agents package."""
+"""YieldSwarm agent modules."""
