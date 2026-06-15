@@ -70,6 +70,10 @@ class BrainHandler(BaseHTTPRequestHandler):
                     HTTPStatus.OK,
                     {"tools": self.brain.status.registered_tools},
                 )
+            if path == "/api/integrations/health":
+                return self._send(HTTPStatus.OK, self.brain.integrations_health())
+            if path == "/api/governance/consensus/status":
+                return self._send(HTTPStatus.OK, self.brain.governance_status())
             if path == "/api/memory/recall":
                 qs = parse_qs(parsed.query)
                 query = (qs.get("q") or [""])[0]
@@ -102,6 +106,14 @@ class BrainHandler(BaseHTTPRequestHandler):
                     priority=float(body.get("priority", 0.5)),
                 )
                 return self._send(HTTPStatus.OK, result)
+            if path == "/api/governance/consensus/run":
+                proposal = body.get("proposal")
+                model_count = int(body.get("model_count", 100))
+                report = self.brain.run_governance_consensus(
+                    proposal=str(proposal) if proposal else None,
+                    model_count=model_count,
+                )
+                return self._send(HTTPStatus.OK, report)
             if path == "/odysseus/memory/sync":
                 reports = self.brain.memory.sync_with_peers()
                 return self._send(HTTPStatus.OK, {"reports": reports})

@@ -24,6 +24,8 @@ from services.yieldswarm_model_router import (  # noqa: E402
 )
 from yieldswarm_tools.registry import dispatch_tool  # noqa: E402
 from yieldswarm_tools.odysseus import register_yieldswarm_tools  # noqa: E402
+from services.integrations.registry import check_all_integrations, integration_status  # noqa: E402
+from agents.governance.consensus_engine import run_governance_consensus  # noqa: E402
 
 
 @dataclass
@@ -40,6 +42,8 @@ class BrainStatus:
     odysseus_workspace_url: str | None = None
     missing_secret_keys: list[str] = field(default_factory=list)
     last_router_sync_at: float | None = None
+    council_integrations: dict[str, Any] = field(default_factory=dict)
+    governance_consensus: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -55,6 +59,8 @@ class BrainStatus:
             "odysseus_workspace_url": self.odysseus_workspace_url,
             "missing_secret_keys": self.missing_secret_keys,
             "last_router_sync_at": self.last_router_sync_at,
+            "council_integrations": self.council_integrations,
+            "governance_consensus": self.governance_consensus,
         }
 
 
@@ -142,7 +148,82 @@ class OdysseusBrain:
         )
         self.sync_model_routing()
         self._refresh_secrets()
+        self._wire_council_integrations()
+        if os.getenv("GOVERNANCE_CONSENSUS_ON_BOOT", "true").lower() in {"1", "true", "yes"}:
+            self.run_governance_consensus()
         return self.status
+
+    def _wire_council_integrations(self) -> dict[str, Any]:
+        report = check_all_integrations(init_observability=True)
+        self.status.council_integrations = {
+            "configured_count": report["configured_count"],
+            "live_count": report["live_count"],
+            "configured_services": report["configured_services"],
+            "live_services": report["live_services"],
+            "livepeer_skipped": True,
+        }
+        self.memory.record_cross_agent_learning(
+            source_agent_id="odysseus-brain",
+            summary=(
+                f"Council Wishlist wired: {report['configured_count']} configured, "
+                f"{report['live_count']} live (Livepeer skipped)"
+            ),
+            applies_to=["council", "integrations", "odysseus"],
+            confidence=0.92,
+            evidence={"integrations": report["services"]},
+        )
+        return report
+
+    def run_governance_consensus(
+        self,
+        proposal: str | None = None,
+        *,
+        model_count: int = 100,
+    ) -> dict[str, Any]:
+        text = proposal or os.getenv(
+            "GOVERNANCE_CONSENSUS_PROPOSAL",
+            "Council Wishlist API wiring + sovereign integration bootstrap",
+        )
+        integration_report = self.status.council_integrations or {}
+        configured = integration_report.get("configured_count", 0)
+        report = run_governance_consensus(
+            text,
+            model_count=model_count,
+            configured_integrations=configured,
+        )
+        self.status.governance_consensus = {
+            "threshold_met": report["consensus"]["threshold_met"],
+            "council_approvals": report["consensus"]["council_approvals"],
+            "governance_delta": report["governance_delta"],
+            "autopilot_ready": report["autopilot_ready"],
+            "model_count": report["model_count"],
+            "output_path": report.get("output_path"),
+        }
+        self.memory.record_cross_agent_learning(
+            source_agent_id="deity-001",
+            summary=(
+                f"Kimiclaw consensus: {report['consensus']['council_approvals']}/14 seats, "
+                f"delta={report['governance_delta']}"
+            ),
+            applies_to=["council", "governance", "kimiclaw"],
+            confidence=0.97,
+            evidence={"consensus": report["consensus"]},
+        )
+        return report
+
+    def integrations_health(self) -> dict[str, Any]:
+        return check_all_integrations(init_observability=False)
+
+    def governance_status(self) -> dict[str, Any]:
+        return {
+            "consensus": self.status.governance_consensus,
+            "integrations": integration_status(),
+            "gospel": {
+                "council_seats": 14,
+                "threshold": "9/14",
+                "model_count": 100,
+            },
+        }
 
     def _refresh_secrets(self) -> None:
         missing = [key for key in self.REQUIRED_SECRETS if not os.getenv(key)]
