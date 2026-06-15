@@ -22,7 +22,7 @@ make deploy        # full ordered deploy (steps 1 → 5)
 | HashiCorp Vault | `./vault/scripts/bootstrap.sh` | `SECRETS.md` |
 | Odysseus | `./scripts/deploy-production-odysseus.sh` | `services/odysseus/` |
 | Kairo API | `python -m kairo.api.main` | `KAIRO_FRONTEND.md` |
-| Akash monolith (3× RTX 3090) | `./scripts/akash-deploy.sh deploy/deploy-swarm-monolith.yaml` | `akash/README.md` |
+| Akash monolith (3× RTX 3090) | `./scripts/deploy-to-akash.sh deploy` | `docs/AKASH_DEPLOY.md` |
 | Multi-cloud fallback | `cd infra/terraform && terraform apply` | `infra/README.md` |
 | Smoke tests | `./scripts/smoke-test.sh` | `PRODUCTION_READINESS.md` |
 

@@ -3,6 +3,7 @@
 deploy/config.env
 
 # Runtime state
+deploy/akash.env
 .run/
 
 # Terraform
@@ -21,7 +22,5 @@ deploy/terraform/.terraform.lock.hcl
 # dashboard/config.js
 
 # Python
-__pycache__/
-*.pyc
 __pycache__/
 *.pyc

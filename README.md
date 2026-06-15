@@ -57,6 +57,7 @@ akash/           # Lease manager, worker SDL, Vault runtime
 infra/           # Multi-cloud Terraform + Packer (Azure, GCP, RunPod, Vultr)
 terraform/       # Vault-backed provider modules
 vault/           # Policies, bootstrap, seed scripts
-scripts/         # akash-deploy.sh
+scripts/         # deploy-to-akash.sh (production), akash-deploy.sh (legacy)
+docs/            # AKASH_DEPLOY.md and runbooks
 kairo/           # (coming) Cryptographic identity app
 ```
