@@ -1,0 +1,17 @@
+# terraform/envs/prod/terraform.tfvars.example
+#
+# Copy to terraform.tfvars (gitignored) OR pass via TF_VAR_* env vars in CI.
+# NEVER commit the real vault_secret_id.
+
+vault_addr    = "https://vault.yieldswarm.internal:8200"
+vault_role_id = "11111111-2222-3333-4444-555555555555"   # from `vault read auth/approle/role/terraform/role-id`
+# vault_secret_id intentionally absent — set via TF_VAR_vault_secret_id only.
+
+azure_location              = "eastus"
+azure_resource_group_name   = "yieldswarm-prod-rg"
+digitalocean_default_region = "nyc3"
+
+rpc_chains          = ["solana", "ethereum", "ton", "bittensor"]
+required_rpc_chains = ["solana"]
+
+verify_runpod_api_key = true
