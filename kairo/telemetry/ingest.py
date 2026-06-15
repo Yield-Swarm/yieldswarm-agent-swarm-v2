@@ -1,38 +1,43 @@
-"""
-Signed telemetry ingestion — delegates to kairo.services pipeline when available.
-"""
+"""Signed telemetry ingestion — delegates to TelemetryPipeline."""
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
-_PIPELINE = Path(__file__).resolve().parents[1] / "data" / "pipeline"
+from kairo.services.telemetry_pipeline import TelemetryPipeline
+
+_pipeline: TelemetryPipeline | None = None
+
+
+def _get_pipeline() -> TelemetryPipeline:
+    global _pipeline
+    if _pipeline is None:
+        _pipeline = TelemetryPipeline()
+    return _pipeline
 
 
 def ingest_signed_event(raw: dict[str, Any]) -> tuple[dict[str, Any] | None, str | None]:
     try:
-        from kairo.services.identity import DriverStore
-        from kairo.services.mandelbrot_pipeline import MandelbrotPipeline
-        from kairo.services.signing import verify_telemetry
+        result = _get_pipeline().submit(raw)
+        return result, None
+    except KeyError as exc:
+        return None, str(exc)
+    except ValueError as exc:
+        return None, str(exc)
+    except Exception as exc:
+        return None, str(exc)
 
-        store = DriverStore(_PIPELINE.parent / "drivers")
-        pipeline = MandelbrotPipeline(_PIPELINE)
-        identity = store.get(raw.get("driver_id", ""))
-        if not identity:
-            return None, "unknown driver_id"
-        if not verify_telemetry(raw, identity.public_key_hex):
-            return None, "invalid signature"
-        record = pipeline.ingest(raw)
-        return record, None
+
+def ingest_sample(raw: dict[str, Any]) -> tuple[dict[str, Any] | None, str | None]:
+    try:
+        result = _get_pipeline().process_sample(raw)
+        return result, None
+    except (KeyError, ValueError) as exc:
+        return None, str(exc)
     except Exception as exc:
         return None, str(exc)
 
 
 def list_contributions(limit: int = 50) -> list[dict[str, Any]]:
-    from kairo.services.mandelbrot_pipeline import MandelbrotPipeline
-
-    pipeline = MandelbrotPipeline(_PIPELINE)
-    rows = pipeline.all_driver_stats()
-    rows.sort(key=lambda row: row.get("reward_weight", 0.0), reverse=True)
-    return rows[:limit]
+    board = _get_pipeline().leaderboard(limit)
+    return board.get("drivers", [])[:limit]
