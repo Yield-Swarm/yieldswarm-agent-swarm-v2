@@ -1,56 +1,59 @@
-/** Kairo driver telemetry + contribution API adapter. */
+/**
+ * Kairo adapter — proxies to the Python Kairo API or returns cached summaries.
+ */
 
-import { spawn } from 'node:child_process';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+const DEFAULT_BASE = process.env.KAIRO_API_BASE || 'http://127.0.0.1:8091';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(__dirname, '..', '..', '..');
-const kairoCli = path.join(repoRoot, 'kairo', 'cli.py');
-
-function runKairo(args) {
-  return new Promise((resolve, reject) => {
-    const proc = spawn('python3', [kairoCli, ...args], {
-      cwd: repoRoot,
-      env: process.env,
-    });
-    let stdout = '';
-    let stderr = '';
-    proc.stdout.on('data', (d) => { stdout += d; });
-    proc.stderr.on('data', (d) => { stderr += d; });
-    proc.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(stderr || `kairo cli exited ${code}`));
-        return;
-      }
-      try {
-        resolve(JSON.parse(stdout || '{}'));
-      } catch {
-        resolve({ raw: stdout });
-      }
-    });
+async function kairoFetch(path, options = {}) {
+  const url = `${DEFAULT_BASE.replace(/\/$/, '')}${path}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
   });
-}
-
-export async function ingestTelemetry(event) {
-  return runKairo(['ingest', JSON.stringify(event)]);
-}
-
-export async function listContributions(limit = 50) {
-  return runKairo(['contributions', String(limit)]);
-}
-
-export async function registerDriver(deviceFingerprint) {
-  const args = ['register'];
-  if (deviceFingerprint) args.push(deviceFingerprint);
-  return runKairo(args);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.error || `kairo upstream ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
 }
 
 export async function ping() {
   try {
-    await runKairo(['ping']);
-    return { live: true, source: 'kairo' };
+    const data = await kairoFetch('/healthz');
+    return { live: true, source: 'kairo-api', status: data.status };
   } catch (err) {
-    return { live: false, source: 'kairo', error: err.message };
+    return { live: false, source: 'kairo-api', error: err.message };
   }
+}
+
+export async function getContribution(driverId, tripFareUsd = 0) {
+  const qs = tripFareUsd ? `?trip_fare_usd=${encodeURIComponent(tripFareUsd)}` : '';
+  const data = await kairoFetch(`/api/drivers/${encodeURIComponent(driverId)}/contribution${qs}`);
+  return { live: true, source: 'kairo-api', data };
+}
+
+export async function getLeaderboard() {
+  const data = await kairoFetch('/api/contribution/leaderboard');
+  return { live: true, source: 'kairo-api', data };
+}
+
+export async function registerDriver(body) {
+  const data = await kairoFetch('/api/drivers', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  return { live: true, source: 'kairo-api', data };
+}
+
+export async function submitTelemetry(body) {
+  const data = await kairoFetch('/api/telemetry', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  return { live: true, source: 'kairo-api', data };
 }

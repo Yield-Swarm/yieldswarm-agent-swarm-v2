@@ -1,138 +1,129 @@
 # DOMAINS.md — Unstoppable Domains + Infrastructure Wiring
 
-Production wiring for Unstoppable Domains → YieldSwarm / Kairo infrastructure
-(Vercel frontend, Akash API, treasury crypto records).
+Production DNS and crypto record map for YieldSwarm, Kairo, and treasury wallets.
 
-> **Scope:** Runbook only. Apply records in the UD dashboard and/or Cloudflare.
-> Store `UD_API_KEY` in Vault at `yieldswarm/integrations/unstoppable`.
+> Apply these records in the **Unstoppable Domains dashboard** and/or **Cloudflare** (if used as resolver). This file is a runbook — it does not execute changes.
 
 ---
 
-## 0. Prerequisites
+## 1. Domain inventory
 
-| Item | Source | Notes |
-|------|--------|-------|
-| Domain(s) | UD dashboard | e.g. `yieldswarm.crypto`, `kairo.x` |
-| Vercel URL | Vercel dashboard | `v2-0-bay.vercel.app` (see `README.md`) |
-| Akash API | After Vault deploy | `scripts/akash-deploy-with-vault.sh` |
-| Treasury wallets | Multisig | ETH, BTC, SOL, TON |
-| UD API key | Vault `yieldswarm/integrations/unstoppable` | Never commit |
+| Domain (example) | Purpose | Primary target |
+|------------------|---------|----------------|
+| `yieldswarm.crypto` | Main marketing + swarm portal | Vercel `v2-0-bay.vercel.app` |
+| `kairo.crypto` | Driver app (future) | Vercel Kairo deployment |
+| `app.yieldswarm.crypto` | Authenticated app shell | Vercel |
+| `api.yieldswarm.crypto` | Integration + telemetry API | Akash worker / backend |
+| `dashboard.yieldswarm.crypto` | OpenClaw admin + Grafana | Akash or local monitoring |
+| `odysseus.yieldswarm.crypto` | Odysseus orchestration API | Akash RTX 3090 lease |
 
-**Current repo assets:** `deploy/deploy-swarm-monolith.yaml`, `deploy/akash/*`,
-`terraform/`, `backend/` integration server, `kairo/dashboard/`.
-
----
-
-## 1. Domain → target map
-
-| Record / subdomain | Target | Type | Purpose |
-|--------------------|--------|------|---------|
-| `@` (apex Website) | `https://v2-0-bay.vercel.app` | Website URL | Main YieldSwarm app |
-| `app.<domain>` | Vercel deployment | CNAME | App frontend |
-| `api.<domain>` | Akash worker / `backend:8787` | CNAME / A | Telemetry + Kairo API |
-| `dashboard.<domain>` | OpenClaw admin | CNAME | Admin dashboard |
-| `kairo.<domain>` | Vercel (future Kairo app) | CNAME | Driver marketplace |
-| `crypto.ETH.address` | Treasury EVM multisig | Crypto record | Wallet resolution |
-| `crypto.SOL.address` | Treasury Solana | Crypto record | Wallet resolution |
-| `crypto.TON.address` | Treasury TON | Crypto record | Wallet resolution |
-| `crypto.BTC.address` | Treasury BTC | Crypto record | Wallet resolution |
-
-`$APN` mint (`8JC3My2QqsK4fyTC8Ki3SJ6YZQ4miavzmAt82K1Kpump`) is a **token mint**,
-not a wallet — do not use it in `crypto.SOL.address`.
+Replace `.crypto` with your registered TLD (`.x`, `.nft`, etc.).
 
 ---
 
-## 2. Resolution paths
+## 2. Website / frontend records (Path A — traditional DNS)
 
-### Path A — Traditional DNS (recommended)
+Recommended for Vercel + Akash hybrid hosting.
 
-1. UD dashboard → domain → **DNS / Records**.
-2. Add `CNAME` for `app` → Vercel target (from Vercel → Domains settings).
-3. Add `CNAME` for `api` → stable reverse proxy in front of Akash worker.
-4. (Recommended) Delegate to **Cloudflare**:
-   - UD: set Cloudflare nameservers.
-   - Cloudflare zone: add `A`/`CNAME` records, enable proxy + Full (strict) TLS.
+### Unstoppable Domains dashboard
 
-### Path B — Decentralized (IPFS)
+| Host / record | Type | Value |
+|---------------|------|-------|
+| `@` (Website) | Website URL | `https://v2-0-bay.vercel.app` |
+| `app` | CNAME | `cname.vercel-dns.com` (Vercel shows exact value) |
+| `api` | CNAME | `<stable-akash-proxy-host>` (see §5) |
+| `dashboard` | CNAME | `<monitoring-host>` or Vercel |
+| `odysseus` | CNAME | `<akash-odysseus-endpoint>` |
 
-1. Build static site → upload to IPFS (Pinata / web3.storage).
-2. UD dashboard → **Website** → paste IPFS CID.
-3. Verify: `https://<CID>.ipfs.dweb.link`
+### Vercel project domains
+
+In Vercel → Project → Settings → Domains, add:
+
+- `yieldswarm.crypto` (apex via UD web2 bridge or Cloudflare)
+- `app.yieldswarm.crypto`
+- `kairo.yieldswarm.crypto` (Kairo app when deployed)
+
+### Cloudflare (optional resolver)
+
+1. UD → domain → **Manage** → set Cloudflare nameservers.
+2. Cloudflare zone → DNS:
+
+| Type | Name | Content | Proxy |
+|------|------|---------|-------|
+| CNAME | `app` | `cname.vercel-dns.com` | Proxied |
+| CNAME | `api` | `<akash-proxy>` | Proxied |
+| CNAME | `dashboard` | `<grafana-host>` | DNS only (or proxied) |
+| CNAME | `odysseus` | `<akash-odysseus>` | Proxied |
+
+TLS: **Full (strict)**. Enable HSTS after cert validation.
 
 ---
 
-## 3. Subdomain wiring
+## 3. Crypto / treasury records
 
-| Subdomain | Service | Port | Notes |
-|-----------|---------|------|-------|
-| `app.` | Vercel Next.js | 443 | Auto TLS via Vercel |
-| `api.` | Backend integration server | 8787 | `/api/*`, `/api/kairo/*` |
-| `dashboard.` | OpenClaw / Grafana | 443 | `deploy/monitoring/` stack |
-| `kairo.` | Kairo driver app (future) | 443 | Shares payment rails + wallet |
+Set in UD → domain → **Crypto / Addresses**:
+
+| Record | Example placeholder | Notes |
+|--------|---------------------|-------|
+| `crypto.ETH.address` | `0x…` (Gnosis Safe multisig) | EVM treasury |
+| `crypto.SOL.address` | `…` (Squads multisig) | Solana treasury |
+| `crypto.TON.address` | `EQ…` | TON treasury |
+| `crypto.BTC.address` | `bc1…` | Optional BTC treasury |
+| `crypto.MATIC.address` | `0x…` | Same as EVM if shared |
+
+**Do not** put token mint addresses (e.g. `$APN` mint `8JC3My2QqsK4fyTC8Ki3SJ6YZQ4miavzmAt82K1Kpump`) in wallet records — those are token contracts, not treasury wallets.
+
+Verify every address character-by-character before signing the on-chain UD transaction.
 
 ---
 
-## 4. Crypto treasury records
+## 4. Subdomain map (full stack)
 
-UD dashboard → domain → **Crypto / Addresses**:
+```
+yieldswarm.crypto          → Vercel (portal)
+app.yieldswarm.crypto      → Vercel (React frontend + payments)
+api.yieldswarm.crypto      → backend/src/server.js (Arena + Kairo proxy)
+dashboard.yieldswarm.crypto → Grafana :3001 or OpenClaw dashboard
+odysseus.yieldswarm.crypto → Odysseus + Ollama on Akash RTX 3090
+kairo.yieldswarm.crypto    → Kairo driver app (Mapbox + 1% fee UX)
+```
 
-| Ticker | Record path | Example |
-|--------|-------------|---------|
-| ETH | `crypto.ETH.address` | `0x9505578Bd5b32468E3cEa632664F7b8d2e46128c` |
-| SOL | `crypto.SOL.address` | Treasury Squads multisig |
-| TON | `crypto.TON.address` | Treasury TON wallet |
-| BTC | `crypto.BTC.address` | Treasury BTC multisig |
+Backend routes once `api.` is wired:
 
-Verify first/last 4 characters after paste. Prefer multisig over EOA.
+| Path | Service |
+|------|---------|
+| `/api/arena/overview` | Arena telemetry |
+| `/api/kairo/*` | Kairo driver identity + contributions |
+| `/kairo/contribution.html` | Contribution dashboard |
 
 ---
 
 ## 5. Akash endpoint wiring
 
-After `scripts/akash-deploy-with-vault.sh`:
+After `make akash-lease` or `scripts/akash-deploy.sh`:
+
+1. Read worker URL from `.run/akash-lease.env` (`AKASH_WORKER_URLS`).
+2. Place a **stable reverse proxy** (Cloudflare, nginx) in front — Akash provider URLs change on lease recreation.
+3. Point `api.yieldswarm.crypto` CNAME at the stable proxy.
+4. For Odysseus GPU workers, deploy `deploy/akash/odysseus.sdl.yml` and point `odysseus.` subdomain at that lease.
 
 ```bash
-# 1. Get lease endpoint
-provider-services lease-status --dseq <DSEQ> --from <KEY>
-
-# 2. Put stable reverse proxy in front (Cloudflare or nginx)
-# 3. Point api.<domain> CNAME at proxy host
-# 4. Backend routes:
-#    GET  https://api.<domain>/api/arena/overview
-#    POST https://api.<domain>/api/kairo/telemetry/ingest
-```
-
-Document live provider host here once deployed:
-
-```
-api.yieldswarm.crypto → <PROVIDER_HOST>:<PORT>
+# Example after lease creation
+source .run/akash-lease.env
+echo "Point api.yieldswarm.crypto → ${AKASH_WORKER_URLS%%,*}"
 ```
 
 ---
 
-## 6. Cloudflare resolver (if used)
+## 6. Programmatic updates (Vault + UD API)
 
-1. UD → custom nameservers → Cloudflare NS values.
-2. Cloudflare zone records:
-
-| Name | Type | Content | Proxy |
-|------|------|---------|-------|
-| `app` | CNAME | `cname.vercel-dns.com` | Yes |
-| `api` | CNAME | `<akash-proxy-host>` | Yes |
-| `dashboard` | CNAME | `<monitoring-host>` | Yes |
-| `kairo` | CNAME | `cname.vercel-dns.com` | Yes |
-
-3. SSL/TLS → Full (strict).
-
----
-
-## 7. Programmatic updates (UD API)
+Store `UD_API_KEY` in HashiCorp Vault (`kv/data/yieldswarm/integrations/unstoppable`) — never commit.
 
 ```bash
-# UD_API_KEY from Vault — never from repo
-export UD_API_KEY="$(vault kv get -field=api_key yieldswarm/integrations/unstoppable)"
+source scripts/lib/vault-env.sh
+vault_export_env kv/data/yieldswarm/integrations/unstoppable
 
-curl -s "https://api.unstoppabledomains.com/resolve/domains/<yourdomain>" \
+curl -s "https://api.unstoppabledomains.com/resolve/domains/yieldswarm.crypto" \
   -H "Authorization: Bearer ${UD_API_KEY}"
 ```
 
@@ -140,19 +131,38 @@ Docs: https://docs.unstoppabledomains.com/
 
 ---
 
-## 8. Security
+## 7. Security
 
-1. **Rotate** any `UD_API_KEY` previously committed to git history.
-2. Store new key only in Vault / Vercel env / GitHub Actions secrets.
-3. Treasury addresses should be multisig — update UD records when rotating.
+1. **Rotate** any UD API key that was ever committed to git history.
+2. Store new keys only in Vault / Vercel env / GitHub Actions secrets.
+3. Use multisig treasury addresses for all `crypto.*` records.
+4. Audit UD dashboard for unauthorized record changes after key rotation.
 
 ---
 
-## 9. Verification checklist
+## 8. Verification checklist
 
-- [ ] `app.<domain>` loads Vercel frontend over HTTPS
-- [ ] `api.<domain>/api/health` returns `200`
-- [ ] `api.<domain>/api/kairo/health` returns `200`
-- [ ] `crypto.ETH.address` resolves in UD resolver
-- [ ] `kairo.<domain>` placeholder or Vercel preview loads
-- [ ] Cloudflare proxy enabled with Full (strict) TLS
+- [ ] `yieldswarm.crypto` resolves to Vercel frontend
+- [ ] `app.` / `api.` / `dashboard.` / `odysseus.` subdomains resolve
+- [ ] `kairo.` subdomain ready for driver app deploy
+- [ ] `crypto.ETH`, `crypto.SOL`, `crypto.TON` verified with test micro-transfer
+- [ ] HTTPS valid on all proxied hosts
+- [ ] `curl https://api.yieldswarm.crypto/api/health` returns 200
+- [ ] `curl https://api.yieldswarm.crypto/api/kairo/health` returns 200 (Kairo API up)
+- [ ] Old UD API key revoked
+
+---
+
+## 9. Record this deployment
+
+After wiring, update the table below with your live values:
+
+| Record | Live value | Date |
+|--------|------------|------|
+| `app.yieldswarm.crypto` | | |
+| `api.yieldswarm.crypto` | | |
+| `crypto.ETH.address` | | |
+| `crypto.SOL.address` | | |
+| `crypto.TON.address` | | |
+| Akash worker proxy | | |
+| Odysseus GPU endpoint | | |

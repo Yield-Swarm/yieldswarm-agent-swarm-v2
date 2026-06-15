@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kairo — Data Contribution Dashboard</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    body { margin: 0; background: #0b1020; color: #e8eefc; }
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+    p.lead { color: #9db0d9; margin-top: 0; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .card { background: #141c33; border: 1px solid #243055; border-radius: 12px; padding: 1rem; }
+    .card h2 { margin: 0 0 0.5rem; font-size: 0.9rem; color: #8ea8ff; text-transform: uppercase; letter-spacing: 0.04em; }
+    .metric { font-size: 1.75rem; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+    th, td { text-align: left; padding: 0.6rem 0.4rem; border-bottom: 1px solid #243055; font-size: 0.9rem; }
+    input, button { border-radius: 8px; border: 1px solid #243055; background: #0f1528; color: #e8eefc; padding: 0.55rem 0.75rem; }
+    button { cursor: pointer; background: #3b5bdb; border-color: #3b5bdb; }
+    .row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .error { color: #ff8f8f; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Kairo Contribution Dashboard</h1>
+    <p class="lead">Signed telemetry → Mandelbrot / Tree of Life → potential DePIN rewards</p>
+
+    <div class="row">
+      <input id="driverId" placeholder="driver id" value="driver-demo-1" />
+      <input id="tripFare" type="number" step="0.01" placeholder="trip fare USD" value="24.50" />
+      <button id="refreshBtn">Refresh</button>
+      <button id="registerBtn">Register Driver</button>
+    </div>
+    <p id="status" class="error"></p>
+
+    <div class="grid" id="metrics"></div>
+
+    <h2>Leaderboard</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Driver</th>
+          <th>Packets</th>
+          <th>Distance (km)</th>
+          <th>App earnings</th>
+          <th>DePIN rewards</th>
+          <th>Total est.</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard"></tbody>
+    </table>
+  </main>
+  <script>
+    const apiBase = window.KAIRO_API_BASE || 'http://localhost:8091';
+
+    async function fetchJson(path, options) {
+      const res = await fetch(`${apiBase}${path}`, options);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      return data;
+    }
+
+    function renderMetrics(data) {
+      const cards = [
+        ['Packets', data.packets ?? 0],
+        ['Distance (km)', data.distance_km ?? 0],
+        ['Mandelbrot nodes', data.mandelbrot_nodes ?? 0],
+        ['App earnings', `$${(data.app_earnings_usd ?? 0).toFixed(2)}`],
+        ['DePIN rewards', `$${(data.depin_rewards_usd ?? 0).toFixed(2)}`],
+        ['Total estimated', `$${(data.estimated_total_usd ?? 0).toFixed(2)}`],
+      ];
+      document.getElementById('metrics').innerHTML = cards.map(([label, value]) => `
+        <div class="card"><h2>${label}</h2><div class="metric">${value}</div></div>
+      `).join('');
+    }
+
+    async function refresh() {
+      const driverId = document.getElementById('driverId').value.trim();
+      const fare = document.getElementById('tripFare').value || '0';
+      document.getElementById('status').textContent = '';
+      try {
+        const contribution = await fetchJson(`/api/drivers/${encodeURIComponent(driverId)}/contribution?trip_fare_usd=${fare}`);
+        renderMetrics(contribution);
+        const board = await fetchJson('/api/contribution/leaderboard');
+        document.getElementById('leaderboard').innerHTML = (board.drivers || []).map((row) => `
+          <tr>
+            <td>${row.driver_id}</td>
+            <td>${row.packets}</td>
+            <td>${row.distance_km}</td>
+            <td>$${row.app_earnings_usd.toFixed(2)}</td>
+            <td>$${row.depin_rewards_usd.toFixed(2)}</td>
+            <td>$${row.estimated_total_usd.toFixed(2)}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        document.getElementById('status').textContent = err.message;
+      }
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', refresh);
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const driverId = document.getElementById('driverId').value.trim();
+      try {
+        await fetchJson('/api/drivers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ driver_id: driverId }),
+        });
+        await refresh();
+      } catch (err) {
+        document.getElementById('status').textContent = err.message;
+      }
+    });
+
+    refresh();
+  </script>
+</body>
+</html>

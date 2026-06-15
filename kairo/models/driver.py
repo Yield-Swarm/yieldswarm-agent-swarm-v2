@@ -1,15 +1,11 @@
-"""
-Kairo driver data models.
-
-Every Kairo driver is a YieldSwarm DePIN node with a persistent cryptographic
-identity (IoTeX + EVM compatible) and signed telemetry contributions.
-"""
+"""Kairo driver identity and contribution models."""
 
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
+from uuid import uuid4
 
 
 def utc_now() -> str:
@@ -25,43 +21,44 @@ class DriverIdentity:
     iotex_address: str
     public_key_hex: str
     created_at: str = field(default_factory=utc_now)
-    device_fingerprint: Optional[str] = None
-    metadata: dict[str, Any] = field(default_factory=dict)
+    # Encrypted at rest when persisted; never returned by public APIs.
+    encrypted_private_key: str | None = None
 
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+    def to_public_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data.pop("encrypted_private_key", None)
+        return data
 
 
 @dataclass
-class SignedTelemetryEvent:
-    """Cryptographically signed driving telemetry envelope."""
+class SignedTelemetry:
+    """Cryptographically signed driving telemetry packet."""
 
     driver_id: str
     evm_address: str
-    event_type: str
     payload: dict[str, Any]
-    nonce: str
-    timestamp: str
-    signature_hex: str
-    mandelbrot_score: Optional[float] = None
-    tree_of_life_shard: Optional[str] = None
+    signature: str
+    signed_at: str = field(default_factory=utc_now)
+    telemetry_id: str = field(default_factory=lambda: str(uuid4()))
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 @dataclass
-class DriverContribution:
+class ContributionSummary:
     """Aggregated contribution stats for rewards estimation."""
 
     driver_id: str
     evm_address: str
-    event_count: int
-    total_miles: float
-    mandelbrot_points: float
+    total_packets: int
+    total_distance_km: float
+    total_drive_seconds: int
+    mandelbrot_nodes: int
     estimated_rewards_usd: float
+    app_earnings_usd: float
     depin_rewards_usd: float
-    last_event_at: Optional[str] = None
+    last_contribution_at: str | None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

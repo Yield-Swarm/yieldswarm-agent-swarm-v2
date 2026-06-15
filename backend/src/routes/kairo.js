@@ -1,5 +1,5 @@
 /**
- * Kairo driver API routes — identity registration and signed telemetry ingest.
+ * Kairo API routes — driver identity, signed telemetry, contribution stats.
  */
 
 import { Router } from 'express';
@@ -10,35 +10,34 @@ const router = Router();
 function asyncRoute(fn) {
   return (req, res) => {
     Promise.resolve(fn(req, res)).catch((err) => {
-      res.status(502).json({ error: err.message || 'kairo failure' });
+      res.status(err.status || 502).json({ error: err.message || 'kairo upstream failure' });
     });
   };
 }
 
 router.get('/health', asyncRoute(async (_req, res) => {
-  const ping = await kairo.ping();
-  res.status(ping.live ? 200 : 503).json(ping);
+  res.json(await kairo.ping());
 }));
 
-router.post('/drivers/register', asyncRoute(async (req, res) => {
-  const fp = req.body?.deviceFingerprint;
-  const identity = await kairo.registerDriver(fp);
-  res.status(201).json(identity);
+router.post('/drivers', asyncRoute(async (req, res) => {
+  const result = await kairo.registerDriver(req.body || {});
+  res.status(201).json(result);
 }));
 
-router.post('/telemetry/ingest', asyncRoute(async (req, res) => {
-  const result = await kairo.ingestTelemetry(req.body);
-  if (!result.ok) {
-    res.status(400).json(result);
-    return;
-  }
+router.get('/drivers/:driverId/contribution', asyncRoute(async (req, res) => {
+  const fare = Number(req.query.trip_fare_usd || 0);
+  const result = await kairo.getContribution(req.params.driverId, fare);
   res.json(result);
 }));
 
-router.get('/contributions', asyncRoute(async (req, res) => {
-  const limit = Number(req.query.limit) || 50;
-  const data = await kairo.listContributions(limit);
-  res.json(data);
+router.get('/contribution/leaderboard', asyncRoute(async (_req, res) => {
+  const result = await kairo.getLeaderboard();
+  res.json(result);
+}));
+
+router.post('/telemetry', asyncRoute(async (req, res) => {
+  const result = await kairo.submitTelemetry(req.body || {});
+  res.status(202).json(result);
 }));
 
 export default router;
