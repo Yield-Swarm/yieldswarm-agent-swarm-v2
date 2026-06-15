@@ -25,6 +25,18 @@ path "yieldswarm/data/vultr" {
   capabilities = ["read"]
 }
 
+path "yieldswarm/data/bittensor" {
+  capabilities = ["read"]
+}
+
+path "yieldswarm/data/kairo" {
+  capabilities = ["read"]
+}
+
+path "yieldswarm/data/kairo" {
+  capabilities = ["read"]
+}
+
 path "sys/health" {
   capabilities = ["read"]
 }

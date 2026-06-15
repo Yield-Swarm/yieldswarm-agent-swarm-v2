@@ -11,6 +11,7 @@ from kairo.models.schemas import MandelbrotRouteOut, SignedTelemetryIn
 from kairo.services.identity_service import IdentityService
 from kairo.services.mandelbrot_router import route_telemetry
 from kairo.services.signing_service import verify_telemetry_signature
+from kairo.services.yieldswarm_emitter import YieldSwarmEmitter
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -25,6 +26,7 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 class TelemetryPipeline:
     def __init__(self) -> None:
         self.identity = IdentityService()
+        self.emitter = YieldSwarmEmitter()
 
     def _last_point(self, driver_id: str) -> tuple[float, float] | None:
         row = db.fetchone(
@@ -85,13 +87,23 @@ class TelemetryPipeline:
             },
         )
 
+        route_data = route.model_dump()
+        harvest = self.emitter.emit(
+            driver_id=data.payload.driver_id,
+            event_id=event_id,
+            payload_hash=p_hash,
+            routing=route_data,
+            distance_delta_km=distance_delta,
+        )
+
         return {
             "event_id": event_id,
             "verified": True,
             "payload_hash": p_hash,
-            "routing": route.model_dump(),
+            "routing": route_data,
             "distance_delta_km": round(distance_delta, 6),
             "yieldswarm_status": "ingested",
+            "yieldswarm_harvest": harvest,
         }
 
     def driver_stats(self, driver_id: str) -> dict:

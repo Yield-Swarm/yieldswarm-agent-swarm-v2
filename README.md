@@ -11,7 +11,17 @@ Unstoppable Domains integration
 - Vercel: https://v2-0-bay.vercel.app/
 - Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
 
-## Kairo Bridge
+## Bittensor Acceleration (RTX 3090)
+Dual-purpose miner: telemetry :8080 + axon :8091 + Ollama. See [BITTENSOR.md](BITTENSOR.md).
+
+```bash
+export BT_NETUID=1
+./scripts/diagnostic.sh
+./deploy/akash/deploy-bittensor.sh
+```
+
+## Production Readiness
+See [PRODUCTION_READINESS.md](PRODUCTION_READINESS.md) for full cross-component status.
 Turn Kairo drivers into YieldSwarm data nodes — see [KAIRO_BRIDGE.md](KAIRO_BRIDGE.md)
 
 ```bash

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 VAULT_KV_MOUNT="${VAULT_KV_MOUNT:-yieldswarm}"
-VAULT_SECRET_PATHS="${VAULT_SECRET_PATHS:-akash,rpc,runpod}"
+VAULT_SECRET_PATHS="${VAULT_SECRET_PATHS:-akash,rpc,runpod,kairo}"
 SECRETS_FILE="${SECRETS_FILE:-/run/secrets/app.env}"
 VAULT_SKIP_VERIFY="${VAULT_SKIP_VERIFY:-false}"
 
@@ -86,6 +86,16 @@ map_secret_to_env() {
     raydium_api_key)           echo "RAYDIUM_API_KEY" ;;
     api_key)                   echo "RUNPOD_API_KEY" ;;
     api_token)                 echo "DIGITALOCEAN_API_TOKEN" ;;
+    api_signing_key)           echo "KAIRO_API_SIGNING_KEY" ;;
+    bridge_webhook_secret)     echo "KAIRO_BRIDGE_WEBHOOK_SECRET" ;;
+    wise_payout_email)         echo "KAIRO_WISE_PAYOUT_EMAIL" ;;
+    depin_helium_webhook)      echo "KAIRO_HELIUM_WEBHOOK" ;;
+    wallet_json)               echo "BITTENSOR_WALLET_JSON" ;;
+    wallet_name)               echo "BT_WALLET_NAME" ;;
+    hotkey_name)               echo "BT_HOTKEY_NAME" ;;
+    netuid)                    echo "BT_NETUID" ;;
+    network)                   echo "BT_NETWORK" ;;
+    ollama_model)              echo "OLLAMA_MODEL" ;;
     *)                         echo "${key^^}" ;;
   esac
 }
@@ -141,6 +151,11 @@ main() {
   vault_login
   inject_secrets
   validate_no_placeholders
+
+  if [[ "${1:-}" == "--inject-only" ]]; then
+    log "Vault inject-only mode complete"
+    return 0
+  fi
 
   # Background health server for lease monitoring (/health, /healthz)
   if [[ -n "${HEALTH_PORT:-}" ]]; then

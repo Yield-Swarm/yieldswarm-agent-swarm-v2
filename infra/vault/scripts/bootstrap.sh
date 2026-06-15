@@ -144,6 +144,14 @@ seed_secret_if_missing "kairo" \
   depin_helium_webhook="" \
   depin_grass_webhook=""
 
+seed_secret_if_missing "bittensor" \
+  wallet_name="miner" \
+  hotkey_name="default" \
+  wallet_json="" \
+  netuid="1" \
+  network="finney" \
+  ollama_model="llama3.1:8b"
+
 log "Bootstrap complete."
 log ""
 log "Next steps:"

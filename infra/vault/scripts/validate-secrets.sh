@@ -18,6 +18,8 @@ REQUIRED_PATHS=(
   yieldswarm/digitalocean
   yieldswarm/rpc
   yieldswarm/akash
+  yieldswarm/kairo
+  yieldswarm/bittensor
 )
 
 REQUIRED_POLICIES=(

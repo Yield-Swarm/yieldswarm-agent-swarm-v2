@@ -29,6 +29,18 @@ path "yieldswarm/data/akash" {
   capabilities = ["read"]
 }
 
+path "yieldswarm/data/bittensor" {
+  capabilities = ["read"]
+}
+
+path "yieldswarm/data/kairo" {
+  capabilities = ["read"]
+}
+
+path "yieldswarm/data/kairo" {
+  capabilities = ["read"]
+}
+
 # Allow Terraform to validate connectivity during plan/apply.
 path "sys/health" {
   capabilities = ["read", "sudo"]

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YieldSwarm Arena — Bittensor + Akash Workers</title>
+  <style>
+    :root { --bg:#070b14; --card:#101828; --accent:#00d4aa; --bt:#7c5cff; --text:#e8edf5; --muted:#8b9bb4; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:system-ui,sans-serif; background:var(--bg); color:var(--text); padding:1.5rem; }
+    h1 { font-size:1.4rem; }
+    .sub { color:var(--muted); margin:0.5rem 0 1.5rem; font-size:0.9rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
+    .card { background:var(--card); border:1px solid #1e2a42; border-radius:12px; padding:1rem; }
+    .card h2 { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:0.5rem; }
+    .val { font-size:1.6rem; font-weight:700; color:var(--accent); }
+    .val.bt { color:var(--bt); }
+  </style>
+</head>
+<body>
+  <h1>YieldSwarm Arena</h1>
+  <p class="sub">Real-time Bittensor miners + Akash workers · polls telemetry :8080</p>
+  <div class="grid" id="grid"></div>
+  <script>
+    const WORKERS = (() => {
+      const p = new URLSearchParams(location.search);
+      const urls = p.get('workers') || p.get('telemetry') || '';
+      return urls.split(',').map(s => s.trim()).filter(Boolean);
+    })();
+
+    async function fetchWorker(url) {
+      const base = url.replace(/\/$/, '');
+      const res = await fetch(`${base}/api/telemetry`);
+      if (!res.ok) throw new Error(`${base} ${res.status}`);
+      return { url: base, ...(await res.json()) };
+    }
+
+    function card(w) {
+      const bt = w.bittensor || {};
+      const gpu = w.gpu || {};
+      const inf = w.inference || {};
+      const ollama = w.ollama || {};
+      return `
+        <div class="card">
+          <h2>${w.url}</h2>
+          <p style="font-size:0.75rem;color:var(--muted);margin-bottom:0.75rem">uptime ${w.uptime_sec}s</p>
+          <p><strong>Bittensor</strong> netuid ${bt.netuid || '—'} · ${bt.network || '—'}</p>
+          <p class="val bt">${bt.running ? 'AXON LIVE' : 'OFFLINE'}</p>
+          <p style="font-size:0.8rem">hotkey: ${(bt.hotkey || '—').slice(0,16)}…</p>
+          <p style="font-size:0.8rem">last challenge: ${bt.last_challenge_ms ? bt.last_challenge_ms+'ms' : '—'}</p>
+          <hr style="border-color:#1e2a42;margin:0.75rem 0">
+          <p><strong>Ollama</strong> ${ollama.models?.join(', ') || 'none'}</p>
+          <p><strong>GPU</strong> ${gpu.available ? `${gpu.name} ${gpu.vram_used_mb}/${gpu.vram_total_mb}MB ${gpu.utilization_pct}%` : 'n/a'}</p>
+          <p><strong>Inference</strong> ${inf.request_count || 0} reqs · avg ${inf.avg_latency_ms || 0}ms</p>
+        </div>`;
+    }
+
+    async function poll() {
+      const grid = document.getElementById('grid');
+      if (!WORKERS.length) {
+        grid.innerHTML = '<div class="card">Add ?workers=http://host:8080,http://host2:8080 to URL</div>';
+        return;
+      }
+      const results = await Promise.allSettled(WORKERS.map(fetchWorker));
+      grid.innerHTML = results.map(r =>
+        r.status === 'fulfilled' ? card(r.value) : `<div class="card">Error: ${r.reason}</div>`
+      ).join('');
+    }
+    poll();
+    setInterval(poll, 15000);
+  </script>
+</body>
+</html>

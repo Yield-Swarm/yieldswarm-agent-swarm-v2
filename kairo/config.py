@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -36,10 +38,32 @@ class Settings(BaseSettings):
     wise_business_email: str = ""
     payout_wallet_evm: str = "0x9505578Bd5b32468E3cEa632664F7b8d2e46128c"
 
-    # Vault (optional runtime)
+    # Vault (optional runtime — injected by Akash entrypoint)
     vault_addr: str = ""
     vault_role_id: str = ""
     vault_secret_id: str = ""
 
+    # YieldSwarm harvest integration
+    yieldswarm_harvest_dir: str = "/run/secrets/harvest"
+    kairo_bridge_webhook_url: str = ""
+    kairo_bridge_webhook_secret: str = ""
+    kairo_api_signing_key: str = ""
+
+    def apply_vault_env(self) -> None:
+        """Load settings from Vault-injected environment variables."""
+        if v := os.environ.get("WISE_BUSINESS_EMAIL"):
+            self.wise_business_email = v
+        if v := os.environ.get("KAIRO_WISE_PAYOUT_EMAIL"):
+            self.wise_business_email = v
+        if v := os.environ.get("KAIRO_BRIDGE_WEBHOOK_URL"):
+            self.kairo_bridge_webhook_url = v
+        if v := os.environ.get("KAIRO_BRIDGE_WEBHOOK_SECRET"):
+            self.kairo_bridge_webhook_secret = v
+        if v := os.environ.get("KAIRO_API_SIGNING_KEY"):
+            self.kairo_api_signing_key = v
+        if v := os.environ.get("YIELDSWARM_HARVEST_DIR"):
+            self.yieldswarm_harvest_dir = v
+
 
 settings = Settings()
+settings.apply_vault_env()

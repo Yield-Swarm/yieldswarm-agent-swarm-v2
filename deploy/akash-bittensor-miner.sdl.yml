@@ -1,0 +1,87 @@
+---
+version: "2.0"
+
+# Akash SDL — Dual-purpose Bittensor worker (RTX 3090 class GPU)
+# Port 8080: telemetry → Vercel Arena dashboard
+# Port 8091: Bittensor axon for validator challenges
+# Render with: deploy/akash/deploy-bittensor.sh
+
+services:
+  bittensor-miner:
+    image: ${DEPLOY_IMAGE}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      - port: 8091
+        as: 8091
+        to:
+          - global: true
+    env:
+      # Bittensor subnet targeting
+      - BT_NETUID=${BT_NETUID}
+      - BT_NETWORK=${BT_NETWORK}
+      - BT_AXON_PORT=8091
+      - BT_WALLET_NAME=${BT_WALLET_NAME}
+      - BT_HOTKEY_NAME=${BT_HOTKEY_NAME}
+      - BT_WALLET_PATH=/secrets/bittensor
+      # Ollama inference
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - OLLAMA_HOST=0.0.0.0:11434
+      # Telemetry
+      - TELEMETRY_PORT=8080
+      - AKASH_DSEQ=${AKASH_DSEQ}
+      - AKASH_PROVIDER=${AKASH_PROVIDER}
+      # Vault runtime secrets (wallet json injected at deploy — never hardcode)
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_KV_MOUNT=yieldswarm
+      - VAULT_SECRET_PATHS=akash,bittensor,rpc
+      - VAULT_SKIP_VERIFY=${VAULT_SKIP_VERIFY}
+    params:
+      storage:
+        data:
+          mount: /secrets
+          readOnly: false
+        ollama-cache:
+          mount: /root/.ollama
+          readOnly: false
+    count: 1
+    pricing:
+      denom: uakt
+      amount: 8000
+
+profiles:
+  compute:
+    bittensor-miner:
+      resources:
+        cpu:
+          units: 4
+        memory:
+          size: 32Gi
+        storage:
+          - name: data
+            size: 10Gi
+          - name: ollama-cache
+            size: 50Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+                - model: rtx4090
+  placement:
+    akash:
+      pricing:
+        bittensor-miner:
+          denom: uakt
+          amount: 8000
+
+deployment:
+  bittensor-miner:
+    akash:
+      profile: bittensor-miner
+      count: 1
