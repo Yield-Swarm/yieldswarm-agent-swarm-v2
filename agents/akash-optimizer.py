@@ -1,35 +1,62 @@
-# Akash Optimizer Agent
-# Connects to current allocations (GPU miners, OpenClaw, Eliza, Gensyn)
-# Optimizes with $200 credits, extends leases, migrates providers
-# Part of MEGA TASK scaling (Hydrogen Particle VM sharding)
-#
-# The production implementation of lease supervision / auto-failover now lives in
-# ../akash/. This agent delegates to the lease-manager so the swarm and the
-# standalone manager share one code path.
-#
-#   akash/akash-deploy.sh   -> Akash CLI wrapper (deploy / select RTX 3090 / lease)
-#   akash/lease-manager.py  -> 60s health-check loop + auto-failover + telemetry
-#
-# Run as a one-shot pass (cron) or a daemon:
-#   python3 akash/lease-manager.py --once
-#   ./akash/run.sh start
+"""Akash Optimizer — lease self-healing, ROI optimization, and Odysseus memory."""
 
+from __future__ import annotations
+
+import json
 import os
-import subprocess
-import sys
+from pathlib import Path
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LEASE_MANAGER = os.path.join(REPO_ROOT, 'akash', 'lease-manager.py')
-
-
-def run_once() -> int:
-    """Trigger a single reconcile pass of the production lease manager."""
-    if not os.path.isfile(LEASE_MANAGER):
-        print('Akash lease-manager not found at', LEASE_MANAGER)
-        return 1
-    return subprocess.call([sys.executable, LEASE_MANAGER, '--once'])
+from iteration_100_sovereign_loops import SovereignController
+from odysseus_memory import build_agent_id, get_memory
 
 
-if __name__ == '__main__':
-    print('Akash Optimizer Agent active - delegating to akash/lease-manager.py')
-    raise SystemExit(run_once())
+def main() -> int:
+    memory = get_memory()
+    shard_id = int(os.getenv("AGENT_SHARD_ID", "0"))
+    agent_id = os.getenv("AGENT_ID", build_agent_id(shard_id, 0))
+
+    memory.register_agent_mesh()
+    memory.record_mutation(
+        agent_id=agent_id,
+        shard_id=shard_id,
+        mutation={
+            "type": "akash_lease_optimization",
+            "target": "openclaw_gpu_cpu_leases",
+            "strategy": "top_up_high_roi_leases_and_migrate_unhealthy_providers",
+        },
+        outcome={"status": "planned", "sync_scope": "all_odysseus_peers"},
+        tags=["akash", "openclaw", "multi-cloud", "odysseus-memory"],
+    )
+    memory.record_performance(
+        agent_id=agent_id,
+        shard_id=shard_id,
+        metric_name="akash_optimizer_boot",
+        metric_value=1.0,
+        context={"dseq_monitoring": True, "worker_node": memory.config.node_id},
+    )
+    sync_reports = memory.sync_with_peers()
+
+    controller = SovereignController(
+        state_path=Path("dashboard/iteration_100_state.json"),
+        dashboard_path=Path("dashboard/final-monitoring-dashboard-5m.md"),
+    )
+    report = controller.run_cycle()
+
+    print(
+        json.dumps(
+            {
+                "loop": "self-healing-akash-leases",
+                "cycle": report["cycle"],
+                "healed_or_renewed": report["lease_metrics"]["healed_or_renewed"],
+                "health_ratio": report["lease_metrics"]["health_ratio"],
+                "avg_sla": report["lease_metrics"]["avg_sla"],
+                "odysseus_sync_reports": sync_reports,
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
