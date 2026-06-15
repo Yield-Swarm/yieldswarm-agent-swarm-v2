@@ -1,0 +1,33 @@
+###############################################################################
+# terraform.tfvars.example
+#
+# Copy to terraform.tfvars (gitignored) and tweak per environment.
+# NEVER put secrets in this file - secrets live in Vault.
+#
+# In CI: do not write this file at all; pass values via TF_VAR_* env vars.
+###############################################################################
+
+environment     = "dev"
+vault_address   = "https://vault.internal:8200"
+vault_namespace = null
+vault_kv_mount  = "secret"
+
+# AppRole role_id is safe to ship as plain text (it's useless without
+# secret_id). The secret_id MUST come from a CI secret store, not from
+# tfvars. The init helper script wraps a fresh secret_id at run time and
+# exports TF_VAR_vault_auth_secret_id.
+vault_auth_role_id  = "PUT-TERRAFORM-DEPLOYER-ROLE-ID-HERE"
+vault_approle_mount = "approle"
+
+# Toggle providers per environment to keep dev costs down.
+enable_azure        = true
+enable_runpod       = true
+enable_vultr        = false
+enable_digitalocean = true
+
+default_tags = {
+  project    = "yieldswarm"
+  managed_by = "terraform"
+  component  = "agentswarm-os"
+  cost_owner = "platform"
+}
