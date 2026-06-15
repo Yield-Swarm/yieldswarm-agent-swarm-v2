@@ -23,6 +23,7 @@ class RuntimeSecrets:
     kairo: Mapping[str, str] = field(default_factory=dict)
     payments: Mapping[str, str] = field(default_factory=dict)
     odysseus: Mapping[str, str] = field(default_factory=dict)
+    bittensor: Mapping[str, str] = field(default_factory=dict)
 
     def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
         for bucket in (
@@ -33,6 +34,7 @@ class RuntimeSecrets:
             self.kairo,
             self.payments,
             self.odysseus,
+            self.bittensor,
         ):
             if key in bucket:
                 return bucket[key]
@@ -91,6 +93,7 @@ def load_runtime_secrets(mount: str = KV_MOUNT_DEFAULT) -> RuntimeSecrets:
         kairo=_read_kv_path(mount, "runtime/kairo"),
         payments=_read_kv_path(mount, "runtime/payments"),
         odysseus=_read_kv_path(mount, "runtime/odysseus"),
+        bittensor=_read_kv_path(mount, "runtime/bittensor"),
     )
 
 

@@ -152,7 +152,62 @@ GET /dashboard/sovereign-dashboard.html → $5M vault UI with live splits
 | Akash monolith SDL | ✅ | manual | `scripts/deploy-to-akash.sh` |
 | Odysseus + ChromaDB | ✅ | ✅ | ready |
 | Kairo API + frontend | ✅ | ✅ | Vercel |
+| Bittensor dual-purpose miner | ✅ | ✅ | `scripts/deploy-bittensor.sh` |
 | Sovereign $5M dashboard | ✅ | manual | static + API |
+
+---
+
+---
+
+## Merge coordination pass (June 15, 2026)
+
+| Item | Status |
+|------|--------|
+| 82 `cursor/*` branches analyzed | ✅ `scripts/analyze-cursor-branches.sh` |
+| Merge strategy documented | ✅ `MERGE_STRATEGY.md` |
+| Integration report | ✅ `INTEGRATION_REPORT.md` |
+| Environment branches created | ✅ `development`, `testnet`, `devnets`, `production`, `MAINNET` |
+| Environment sync to `main` | ⏳ Run `./scripts/sync-environment-branches.sh` |
+| Bittensor layer integrated | ✅ merged to `development` |
+| Vault `runtime/bittensor` path | ✅ seed + policy + env.ctmpl |
+| Close 40+ duplicate PRs | ⏳ Maintainer action |
+
+---
+
+## Final production readiness checklist
+
+### Code & integration
+- [x] `main` is canonical integration branch (~700 files)
+- [x] Cross-component API wiring (backend, Arena, Kairo, Odysseus, Vault)
+- [x] Stripe payments + 1% platform fee
+- [x] Odysseus brain + model router on Akash SDL
+- [x] Bittensor miner agents + SDL + deploy wrapper
+- [x] Python tests: 21/21 pass
+- [x] Vault policies for all runtimes (akash, odysseus, kairo, payments, bittensor)
+- [x] Merge integration pass → `development`
+- [ ] Promote `development` → `main`
+- [ ] Sync environment branches to `main`
+
+### GitHub hygiene
+- [ ] Branch protection on `main`, `production`, `MAINNET`
+- [ ] Close 27 absorbed `cursor/*` branches (0 commits ahead)
+- [ ] Close 40 duplicate/stale `cursor/*` branches
+
+### Operator credentials (MAINNET blockers)
+- [ ] Production Vault cluster + `vault/scripts/bootstrap.sh`
+- [ ] Seed `runtime/bittensor` (wallet, netuid, network, ollama_model)
+- [ ] Funded Akash wallet (≥0.5 AKT)
+- [ ] RTX 3090 lease via `./scripts/deploy-bittensor.sh`
+- [ ] Stripe production keys in Vault `runtime/payments`
+- [ ] Postgres/Neon for payment persistence
+- [ ] Great Delta router deploy + Foundry tests
+- [ ] Wire 17 domains per `DOMAINS.md`
+
+### Deploy verification
+- [ ] `./scripts/diagnostic.sh`
+- [ ] `docker build -f deploy/Dockerfile.bittensor-miner`
+- [ ] `./scripts/smoke-test.sh` with backend running
+- [ ] Arena: `src/app/arena?workers=https://<lease-uri>:8080`
 
 ---
 

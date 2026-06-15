@@ -181,4 +181,13 @@ put_if_set runtime/odysseus \
   model_api_key=ODYSSEUS_MODEL_API_KEY \
   chromadb_host=CHROMADB_HOST
 
+# ---- Bittensor miner (Akash dual-purpose worker) ----
+put_if_set runtime/bittensor \
+  wallet_name=BT_WALLET_NAME \
+  hotkey_name=BT_HOTKEY_NAME \
+  wallet_json=BITTENSOR_WALLET_JSON \
+  netuid=BT_NETUID \
+  network=BT_NETWORK \
+  ollama_model=OLLAMA_MODEL
+
 log "done"

@@ -1,0 +1,37 @@
+# Dual-purpose Bittensor miner: Ollama inference + telemetry (8080) + axon (8091)
+# Target: Akash RTX 3090 (24GB VRAM) clusters
+
+FROM ollama/ollama:0.5.7
+
+USER root
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        python3 python3-pip curl jq ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY agents/bittensor_telemetry_server.py agents/bittensor_miner.py ./agents/
+COPY lib/ ./lib/
+COPY scripts/bittensor-entrypoint.sh scripts/vault-export-env.py ./scripts/
+COPY deploy/requirements-bittensor.txt /tmp/requirements-bittensor.txt
+
+RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/requirements-bittensor.txt \
+    && chmod 755 /app/scripts/bittensor-entrypoint.sh \
+    && mkdir -p /run/bittensor /secrets/bittensor /root/.ollama
+
+ENV TELEMETRY_PORT=8080 \
+    BT_AXON_PORT=8091 \
+    OLLAMA_MODEL=llama3.1:8b \
+    OLLAMA_HOST=0.0.0.0:11434 \
+    BT_NETWORK=finney \
+    BITTENSOR_STATUS_FILE=/run/bittensor/status.json \
+    PYTHONUNBUFFERED=1
+
+EXPOSE 8080 8091 11434
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+  CMD curl -sf "http://127.0.0.1:${TELEMETRY_PORT}/health" && curl -sf "http://127.0.0.1:11434/api/tags" || exit 1
+
+ENTRYPOINT ["/app/scripts/bittensor-entrypoint.sh"]
