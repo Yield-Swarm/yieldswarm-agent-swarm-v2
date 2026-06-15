@@ -1,8 +1,8 @@
 # YieldSwarm + Kairo — Full Stack Status Report
 
 **Snapshot:** June 15, 2026  
-**Branch:** `main @ 1048a8e`  
-**Production:** `production @ e743b23` (sync pending — run `./scripts/sync-environment-branches.sh`)  
+**Branch:** `main @ f94d1fa`  
+**Production:** `production @ f94d1fa` (synced)  
 **Repo:** `yieldswarm-agent-swarm-v2`  
 **Files:** 718 tracked files | 37 top-level directories | 84 remote `cursor/*` branches  
 **Overall Status:** **Staging-ready monorepo** — production branch promoted; MAINNET not yet hardened
@@ -137,7 +137,7 @@ See `docs/PRODUCTION_REVENUE_CHECKLIST.md` for Vercel env vars and Stripe webhoo
 | Issue | Heat | Impact | Priority |
 |-------|------|--------|----------|
 | Payments store is in-memory (`PAYMENTS_STORE_DRIVER=memory`) | 🔴 | Balances lost on serverless cold start | **High** |
-| `production` branch behind `main` tip | 🟠 | Latest Great Delta integration not yet on prod deploy | **High** |
+| Live Stripe keys not set in Vercel production | 🔴 | Revenue rails idle until env configured | **High** |
 | Duplicate GreatDeltaEmissionRouter (`contracts/` vs `quadrant-iv/`) | 🟡 | Aliases mapped in `contracts/DEPLOYED.md`; consolidate before MAINNET | Medium |
 | 3 overlapping Terraform roots | 🟠 | Maintenance burden | Medium |
 | Sovereign state uses seed data | 🟠 | Dashboard not showing live $5M telemetry | Medium |
@@ -181,13 +181,12 @@ npm run dev
 
 ## Recommended Immediate Actions
 
-1. **Re-sync `production`** to `main` (`./scripts/sync-environment-branches.sh`)
-2. **Set Vercel production env** — `SESSION_SECRET`, live `STRIPE_*` keys, `APP_URL` (see revenue checklist)
-3. **Register Stripe webhook** → `https://<domain>/api/webhooks/stripe`
-4. **Add Postgres persistence** to Payments app (`src/lib/db/store.ts`)
-5. **Bootstrap HashiCorp Vault** in staging with live AppRole
-6. **Enable live Akash owner address** in backend (replace mock overlays)
-7. **Protect `main`** on GitHub (require PR reviews + CI status checks)
+1. **Set Vercel production env** — `SESSION_SECRET`, live `STRIPE_*` keys, `APP_URL` (see revenue checklist)
+2. **Register Stripe webhook** → `https://<domain>/api/webhooks/stripe`
+3. **Add Postgres persistence** to Payments app (`src/lib/db/store.ts`)
+4. **Bootstrap HashiCorp Vault** in staging with live AppRole
+5. **Enable live Akash owner address** in backend (replace mock overlays)
+6. **Protect `main`** on GitHub (require PR reviews + CI status checks)
 
 ---
 
