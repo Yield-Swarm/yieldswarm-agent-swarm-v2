@@ -1,0 +1,506 @@
+{
+  "agents": [
+    {
+      "agent_id": "agent-001",
+      "avg_latency_ms": 264.8,
+      "model_temperature": 0.19,
+      "mutation_generation": 8,
+      "risk_score": 0.094,
+      "strategy": "runic-helix-1-x100-prime101-x103-v105",
+      "success_rate": 0.914,
+      "yield_score": 0.894
+    },
+    {
+      "agent_id": "agent-002",
+      "avg_latency_ms": 455.1,
+      "model_temperature": 0.48,
+      "mutation_generation": 8,
+      "risk_score": 0.137,
+      "strategy": "runic-helix-2-x100-v102-v105",
+      "success_rate": 0.953,
+      "yield_score": 0.883
+    },
+    {
+      "agent_id": "agent-003",
+      "avg_latency_ms": 375.5,
+      "model_temperature": 0.68,
+      "mutation_generation": 5,
+      "risk_score": 0.136,
+      "strategy": "runic-helix-3-x103-prime104",
+      "success_rate": 0.934,
+      "yield_score": 0.874
+    },
+    {
+      "agent_id": "agent-004",
+      "avg_latency_ms": 773.4,
+      "model_temperature": 0.49,
+      "mutation_generation": 6,
+      "risk_score": 0.198,
+      "strategy": "runic-helix-0-x103-v105",
+      "success_rate": 0.986,
+      "yield_score": 0.926
+    },
+    {
+      "agent_id": "agent-005",
+      "avg_latency_ms": 390.2,
+      "model_temperature": 0.24,
+      "mutation_generation": 8,
+      "risk_score": 0.119,
+      "strategy": "runic-helix-1-prime101-x103-prime104",
+      "success_rate": 0.848,
+      "yield_score": 0.943
+    },
+    {
+      "agent_id": "agent-006",
+      "avg_latency_ms": 321.9,
+      "model_temperature": 0.41,
+      "mutation_generation": 7,
+      "risk_score": 0.146,
+      "strategy": "runic-helix-2-x100-prime101-v102-prime104",
+      "success_rate": 0.885,
+      "yield_score": 0.877
+    },
+    {
+      "agent_id": "agent-007",
+      "avg_latency_ms": 165.2,
+      "model_temperature": 0.46,
+      "mutation_generation": 7,
+      "risk_score": 0.136,
+      "strategy": "runic-helix-3-x100-v102-prime104",
+      "success_rate": 0.921,
+      "yield_score": 0.816
+    },
+    {
+      "agent_id": "agent-008",
+      "avg_latency_ms": 646.5,
+      "model_temperature": 0.38,
+      "mutation_generation": 8,
+      "risk_score": 0.168,
+      "strategy": "runic-helix-0-x100-v102-v105",
+      "success_rate": 0.963,
+      "yield_score": 0.945
+    },
+    {
+      "agent_id": "agent-009",
+      "avg_latency_ms": 695.0,
+      "model_temperature": 0.45,
+      "mutation_generation": 5,
+      "risk_score": 0.178,
+      "strategy": "runic-helix-1-v102-v105",
+      "success_rate": 0.984,
+      "yield_score": 0.922
+    },
+    {
+      "agent_id": "agent-010",
+      "avg_latency_ms": 303.1,
+      "model_temperature": 0.58,
+      "mutation_generation": 7,
+      "risk_score": 0.126,
+      "strategy": "runic-helix-2-prime101-x103-v105",
+      "success_rate": 0.846,
+      "yield_score": 0.948
+    },
+    {
+      "agent_id": "agent-011",
+      "avg_latency_ms": 387.5,
+      "model_temperature": 0.46,
+      "mutation_generation": 7,
+      "risk_score": 0.144,
+      "strategy": "runic-helix-3-x103-v105",
+      "success_rate": 0.873,
+      "yield_score": 0.988
+    },
+    {
+      "agent_id": "agent-012",
+      "avg_latency_ms": 544.9,
+      "model_temperature": 0.33,
+      "mutation_generation": 8,
+      "risk_score": 0.081,
+      "strategy": "runic-helix-0-x100-prime101-v102-x103-v105",
+      "success_rate": 0.995,
+      "yield_score": 0.81
+    },
+    {
+      "agent_id": "agent-013",
+      "avg_latency_ms": 326.5,
+      "model_temperature": 0.58,
+      "mutation_generation": 8,
+      "risk_score": 0.094,
+      "strategy": "runic-helix-1-x100-prime101-prime104-v105",
+      "success_rate": 0.967,
+      "yield_score": 0.857
+    },
+    {
+      "agent_id": "agent-014",
+      "avg_latency_ms": 365.8,
+      "model_temperature": 0.48,
+      "mutation_generation": 7,
+      "risk_score": 0.186,
+      "strategy": "runic-helix-2-v102-prime104",
+      "success_rate": 0.943,
+      "yield_score": 0.851
+    },
+    {
+      "agent_id": "agent-015",
+      "avg_latency_ms": 381.9,
+      "model_temperature": 0.59,
+      "mutation_generation": 5,
+      "risk_score": 0.117,
+      "strategy": "runic-helix-3-prime101-x103",
+      "success_rate": 0.856,
+      "yield_score": 0.91
+    },
+    {
+      "agent_id": "agent-016",
+      "avg_latency_ms": 569.9,
+      "model_temperature": 0.39,
+      "mutation_generation": 7,
+      "risk_score": 0.186,
+      "strategy": "runic-helix-0-x100-x103-v105",
+      "success_rate": 0.901,
+      "yield_score": 0.985
+    }
+  ],
+  "consecutive_failures": 0,
+  "cycle": 105,
+  "heartbeat_utc": "2026-06-15T04:44:51Z",
+  "last_report": {
+    "cycle": 105,
+    "delta_grid": {
+      "autopilot_ready": true,
+      "axes": [
+        [
+          "Autonomous Mutation Delta",
+          0.8877,
+          0.8
+        ],
+        [
+          "Akash Self-Heal Delta",
+          0.988,
+          0.85
+        ],
+        [
+          "Treasury Rebalance Delta",
+          0.9207,
+          0.8
+        ],
+        [
+          "Governance Consensus Delta",
+          0.9322,
+          0.82
+        ]
+      ],
+      "sovereign_index": 0.9322
+    },
+    "lease_actions": [],
+    "lease_metrics": {
+      "avg_sla": 0.98,
+      "healed_or_renewed": 0,
+      "health_ratio": 1.0,
+      "total_leases": 12
+    },
+    "mutation_actions": [
+      {
+        "agent_id": "agent-001",
+        "from_strategy": "runic-helix-1-x100-prime101-x103",
+        "generation": "7->8",
+        "temperature": "0.25->0.19",
+        "to_strategy": "runic-helix-1-x100-prime101-x103-v105"
+      },
+      {
+        "agent_id": "agent-002",
+        "from_strategy": "runic-helix-2-x100-v102",
+        "generation": "7->8",
+        "temperature": "0.49->0.48",
+        "to_strategy": "runic-helix-2-x100-v102-v105"
+      },
+      {
+        "agent_id": "agent-004",
+        "from_strategy": "runic-helix-0-x103",
+        "generation": "5->6",
+        "temperature": "0.42->0.49",
+        "to_strategy": "runic-helix-0-x103-v105"
+      },
+      {
+        "agent_id": "agent-008",
+        "from_strategy": "runic-helix-0-x100-v102",
+        "generation": "7->8",
+        "temperature": "0.40->0.38",
+        "to_strategy": "runic-helix-0-x100-v102-v105"
+      },
+      {
+        "agent_id": "agent-009",
+        "from_strategy": "runic-helix-1-v102",
+        "generation": "4->5",
+        "temperature": "0.44->0.45",
+        "to_strategy": "runic-helix-1-v102-v105"
+      },
+      {
+        "agent_id": "agent-010",
+        "from_strategy": "runic-helix-2-prime101-x103",
+        "generation": "6->7",
+        "temperature": "0.64->0.58",
+        "to_strategy": "runic-helix-2-prime101-x103-v105"
+      },
+      {
+        "agent_id": "agent-011",
+        "from_strategy": "runic-helix-3-x103",
+        "generation": "6->7",
+        "temperature": "0.51->0.46",
+        "to_strategy": "runic-helix-3-x103-v105"
+      },
+      {
+        "agent_id": "agent-012",
+        "from_strategy": "runic-helix-0-x100-prime101-v102-x103",
+        "generation": "7->8",
+        "temperature": "0.31->0.33",
+        "to_strategy": "runic-helix-0-x100-prime101-v102-x103-v105"
+      },
+      {
+        "agent_id": "agent-013",
+        "from_strategy": "runic-helix-1-x100-prime101-prime104",
+        "generation": "7->8",
+        "temperature": "0.56->0.58",
+        "to_strategy": "runic-helix-1-x100-prime101-prime104-v105"
+      },
+      {
+        "agent_id": "agent-016",
+        "from_strategy": "runic-helix-0-x100-x103",
+        "generation": "6->7",
+        "temperature": "0.42->0.39",
+        "to_strategy": "runic-helix-0-x100-x103-v105"
+      }
+    ],
+    "mutation_metrics": {
+      "avg_fitness_delta": 0.0235,
+      "mutated_agents": 10,
+      "mutation_rate": 0.625,
+      "total_agents": 16
+    },
+    "timestamp_utc": "2026-06-15T04:44:51Z",
+    "treasury_actions": [],
+    "treasury_metrics": {
+      "capital_deployed_usd": 5000000.0,
+      "rebalances": 0,
+      "volatility_index": 0.2032,
+      "weighted_apy": 0.2012
+    },
+    "vault_snapshot": {
+      "daily_pnl_usd": 2756.16,
+      "drawdown_pct": 0.0434,
+      "liquidity_ratio": 0.688,
+      "nav_usd": 5000000.0,
+      "realized_apy": 0.2012,
+      "sovereign_resilience_score": 0.9322,
+      "timestamp_utc": "2026-06-15T04:44:51Z"
+    }
+  },
+  "leases": [
+    {
+      "expires_at_utc": "2026-06-23T04:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-001",
+      "monthly_cost_usd": 164.1,
+      "provider": "provider-697",
+      "restart_count": 0,
+      "sla_score": 0.973
+    },
+    {
+      "expires_at_utc": "2026-06-23T04:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-002",
+      "monthly_cost_usd": 184.36,
+      "provider": "provider-752",
+      "restart_count": 0,
+      "sla_score": 0.982
+    },
+    {
+      "expires_at_utc": "2026-06-23T04:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-003",
+      "monthly_cost_usd": 181.9,
+      "provider": "provider-896",
+      "restart_count": 0,
+      "sla_score": 0.991
+    },
+    {
+      "expires_at_utc": "2026-06-16T22:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-004",
+      "monthly_cost_usd": 213,
+      "provider": "provider-124",
+      "restart_count": 1,
+      "sla_score": 0.96
+    },
+    {
+      "expires_at_utc": "2026-06-17T06:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-005",
+      "monthly_cost_usd": 225,
+      "provider": "provider-125",
+      "restart_count": 0,
+      "sla_score": 0.998
+    },
+    {
+      "expires_at_utc": "2026-06-17T14:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-006",
+      "monthly_cost_usd": 237,
+      "provider": "provider-126",
+      "restart_count": 0,
+      "sla_score": 0.967
+    },
+    {
+      "expires_at_utc": "2026-06-17T22:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-007",
+      "monthly_cost_usd": 249,
+      "provider": "provider-127",
+      "restart_count": 0,
+      "sla_score": 0.99
+    },
+    {
+      "expires_at_utc": "2026-06-18T06:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-008",
+      "monthly_cost_usd": 261,
+      "provider": "provider-128",
+      "restart_count": 0,
+      "sla_score": 0.957
+    },
+    {
+      "expires_at_utc": "2026-06-18T14:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-009",
+      "monthly_cost_usd": 273,
+      "provider": "provider-129",
+      "restart_count": 0,
+      "sla_score": 0.99
+    },
+    {
+      "expires_at_utc": "2026-06-18T22:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-010",
+      "monthly_cost_usd": 285,
+      "provider": "provider-130",
+      "restart_count": 0,
+      "sla_score": 0.999
+    },
+    {
+      "expires_at_utc": "2026-06-19T06:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-011",
+      "monthly_cost_usd": 297,
+      "provider": "provider-131",
+      "restart_count": 0,
+      "sla_score": 0.975
+    },
+    {
+      "expires_at_utc": "2026-06-19T14:44:17Z",
+      "healthy": true,
+      "lease_id": "akash-012",
+      "monthly_cost_usd": 309,
+      "provider": "provider-132",
+      "restart_count": 0,
+      "sla_score": 0.976
+    }
+  ],
+  "treasury": [
+    {
+      "allocation_usd": 1750000,
+      "bucket": "stable-yield",
+      "realized_apy": 0.168,
+      "risk_budget": 0.22,
+      "target_weight": 0.34,
+      "volatility": 0.1
+    },
+    {
+      "allocation_usd": 1420000.0,
+      "bucket": "depin-compute",
+      "realized_apy": 0.2252,
+      "risk_budget": 0.27,
+      "target_weight": 0.28,
+      "volatility": 0.24
+    },
+    {
+      "allocation_usd": 975000,
+      "bucket": "liquid-alpha",
+      "realized_apy": 0.2428,
+      "risk_budget": 0.3,
+      "target_weight": 0.2,
+      "volatility": 0.36
+    },
+    {
+      "allocation_usd": 575000,
+      "bucket": "insurance-reserve",
+      "realized_apy": 0.1292,
+      "risk_budget": 0.16,
+      "target_weight": 0.12,
+      "volatility": 0.04
+    },
+    {
+      "allocation_usd": 280000.0,
+      "bucket": "strategic-growth",
+      "realized_apy": 0.2896,
+      "risk_budget": 0.05,
+      "target_weight": 0.06,
+      "volatility": 0.42
+    }
+  ],
+  "vault_history": [
+    {
+      "daily_pnl_usd": 2209.59,
+      "drawdown_pct": 0.0567,
+      "liquidity_ratio": 0.688,
+      "nav_usd": 5000000.0,
+      "realized_apy": 0.1613,
+      "sovereign_resilience_score": 0.6651,
+      "timestamp_utc": "2026-06-15T04:44:17Z"
+    },
+    {
+      "daily_pnl_usd": 2319.18,
+      "drawdown_pct": 0.0455,
+      "liquidity_ratio": 0.688,
+      "nav_usd": 5000000.0,
+      "realized_apy": 0.1693,
+      "sovereign_resilience_score": 0.8898,
+      "timestamp_utc": "2026-06-15T04:44:35Z"
+    },
+    {
+      "daily_pnl_usd": 2428.77,
+      "drawdown_pct": 0.0451,
+      "liquidity_ratio": 0.688,
+      "nav_usd": 5000000.0,
+      "realized_apy": 0.1773,
+      "sovereign_resilience_score": 0.8971,
+      "timestamp_utc": "2026-06-15T04:44:40Z"
+    },
+    {
+      "daily_pnl_usd": 2536.99,
+      "drawdown_pct": 0.0444,
+      "liquidity_ratio": 0.688,
+      "nav_usd": 5000000.0,
+      "realized_apy": 0.1852,
+      "sovereign_resilience_score": 0.9129,
+      "timestamp_utc": "2026-06-15T04:44:40Z"
+    },
+    {
+      "daily_pnl_usd": 2646.58,
+      "drawdown_pct": 0.045,
+      "liquidity_ratio": 0.688,
+      "nav_usd": 5000000.0,
+      "realized_apy": 0.1932,
+      "sovereign_resilience_score": 0.9003,
+      "timestamp_utc": "2026-06-15T04:44:40Z"
+    },
+    {
+      "daily_pnl_usd": 2756.16,
+      "drawdown_pct": 0.0434,
+      "liquidity_ratio": 0.688,
+      "nav_usd": 5000000.0,
+      "realized_apy": 0.2012,
+      "sovereign_resilience_score": 0.9322,
+      "timestamp_utc": "2026-06-15T04:44:51Z"
+    }
+  ]
+}
