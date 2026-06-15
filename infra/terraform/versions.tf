@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.5.0"
+  required_version = ">= 1.10.0"
 
   required_providers {
     azurerm = {
@@ -12,7 +12,8 @@ terraform {
       source = "decentralized-infrastructure/runpod"
     }
     vault = {
-      source = "hashicorp/vault"
+      source  = "hashicorp/vault"
+      version = ">= 5.1.0"
     }
     vultr = {
       source = "vultr/vultr"

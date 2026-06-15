@@ -27,8 +27,8 @@ resource "vault_transit_secret_backend_key" "akash_env" {
   backend = vault_mount.runtime_transit.path
   name    = "akash-env"
 
-  deletion_allowed      = false
-  exportable            = false
+  deletion_allowed       = false
+  exportable             = false
   allow_plaintext_backup = false
 }
 
@@ -61,26 +61,26 @@ resource "vault_approle_auth_backend_role" "terraform" {
   backend   = vault_auth_backend.approle.path
   role_name = "yieldswarm-terraform"
 
-  token_policies      = [vault_policy.terraform_platform.name]
-  token_ttl           = 1800
-  token_max_ttl       = 3600
-  token_num_uses      = 0
-  secret_id_ttl       = 900
-  secret_id_num_uses  = 1
-  bind_secret_id      = true
-  token_bound_cidrs   = var.terraform_token_bound_cidrs
+  token_policies     = [vault_policy.terraform_platform.name]
+  token_ttl          = 1800
+  token_max_ttl      = 3600
+  token_num_uses     = 0
+  secret_id_ttl      = 900
+  secret_id_num_uses = 1
+  bind_secret_id     = true
+  token_bound_cidrs  = var.terraform_token_bound_cidrs
 }
 
 resource "vault_approle_auth_backend_role" "akash" {
   backend   = vault_auth_backend.approle.path
   role_name = "yieldswarm-akash"
 
-  token_policies      = [vault_policy.akash_runtime.name]
-  token_ttl           = 900
-  token_max_ttl       = 1800
-  token_num_uses      = 0
-  secret_id_ttl       = 300
-  secret_id_num_uses  = 1
-  bind_secret_id      = true
-  token_bound_cidrs   = var.akash_token_bound_cidrs
+  token_policies     = [vault_policy.akash_runtime.name]
+  token_ttl          = 900
+  token_max_ttl      = 1800
+  token_num_uses     = 0
+  secret_id_ttl      = 300
+  secret_id_num_uses = 1
+  bind_secret_id     = true
+  token_bound_cidrs  = var.akash_token_bound_cidrs
 }

@@ -2,27 +2,27 @@ locals {
   vault_kv_mount_path = trimsuffix(var.vault_kv_mount_path, "/")
 }
 
-data "vault_kv_secret_v2" "azure" {
+ephemeral "vault_kv_secret_v2" "azure" {
   mount = local.vault_kv_mount_path
   name  = var.azure_secret_path
 }
 
-data "vault_kv_secret_v2" "runpod" {
+ephemeral "vault_kv_secret_v2" "runpod" {
   mount = local.vault_kv_mount_path
   name  = var.runpod_secret_path
 }
 
-data "vault_kv_secret_v2" "vultr" {
+ephemeral "vault_kv_secret_v2" "vultr" {
   mount = local.vault_kv_mount_path
   name  = var.vultr_secret_path
 }
 
-data "vault_kv_secret_v2" "digitalocean" {
+ephemeral "vault_kv_secret_v2" "digitalocean" {
   mount = local.vault_kv_mount_path
   name  = var.digitalocean_secret_path
 }
 
-data "vault_kv_secret_v2" "rpc" {
+ephemeral "vault_kv_secret_v2" "rpc" {
   mount = local.vault_kv_mount_path
   name  = var.rpc_secret_path
 }
@@ -36,45 +36,45 @@ locals {
 
   azure_missing_keys = [
     for key in local.azure_required_keys : key
-    if !contains(keys(data.vault_kv_secret_v2.azure.data), key)
+    if !contains(keys(ephemeral.vault_kv_secret_v2.azure.data), key)
   ]
   runpod_missing_keys = [
     for key in local.runpod_required_keys : key
-    if !contains(keys(data.vault_kv_secret_v2.runpod.data), key)
+    if !contains(keys(ephemeral.vault_kv_secret_v2.runpod.data), key)
   ]
   vultr_missing_keys = [
     for key in local.vultr_required_keys : key
-    if !contains(keys(data.vault_kv_secret_v2.vultr.data), key)
+    if !contains(keys(ephemeral.vault_kv_secret_v2.vultr.data), key)
   ]
   digitalocean_missing_keys = [
     for key in local.digitalocean_required_keys : key
-    if !contains(keys(data.vault_kv_secret_v2.digitalocean.data), key)
+    if !contains(keys(ephemeral.vault_kv_secret_v2.digitalocean.data), key)
   ]
   rpc_missing_keys = [
     for key in local.rpc_required_keys : key
-    if !contains(keys(data.vault_kv_secret_v2.rpc.data), key)
+    if !contains(keys(ephemeral.vault_kv_secret_v2.rpc.data), key)
   ]
 
   azure = {
-    subscription_id = try(data.vault_kv_secret_v2.azure.data["subscription_id"], null)
-    tenant_id       = try(data.vault_kv_secret_v2.azure.data["tenant_id"], null)
-    client_id       = try(data.vault_kv_secret_v2.azure.data["client_id"], null)
-    client_secret   = try(data.vault_kv_secret_v2.azure.data["client_secret"], null)
+    subscription_id = try(ephemeral.vault_kv_secret_v2.azure.data["subscription_id"], null)
+    tenant_id       = try(ephemeral.vault_kv_secret_v2.azure.data["tenant_id"], null)
+    client_id       = try(ephemeral.vault_kv_secret_v2.azure.data["client_id"], null)
+    client_secret   = try(ephemeral.vault_kv_secret_v2.azure.data["client_secret"], null)
   }
 
   runpod = {
-    api_key = try(data.vault_kv_secret_v2.runpod.data["api_key"], null)
+    api_key = try(ephemeral.vault_kv_secret_v2.runpod.data["api_key"], null)
   }
 
   vultr = {
-    api_key = try(data.vault_kv_secret_v2.vultr.data["api_key"], null)
+    api_key = try(ephemeral.vault_kv_secret_v2.vultr.data["api_key"], null)
   }
 
   digitalocean = {
-    token = try(data.vault_kv_secret_v2.digitalocean.data["token"], null)
+    token = try(ephemeral.vault_kv_secret_v2.digitalocean.data["token"], null)
   }
 
-  rpc = data.vault_kv_secret_v2.rpc.data
+  rpc = ephemeral.vault_kv_secret_v2.rpc.data
 }
 
 check "vault_secret_schema" {

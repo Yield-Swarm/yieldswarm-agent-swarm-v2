@@ -18,21 +18,23 @@ The default KV v2 mount is `secret`. The integration expects these paths:
 | `secret/akash/runtime` | Runtime env vars consumed by the Akash workload |
 
 Terraform reads Azure, RunPod, Vultr, DigitalOcean, and RPC secrets from Vault in
-`infra/terraform`. The Akash container reads `secret/akash/runtime` and
-`secret/rpc` at startup through `akash/bin/entrypoint.sh`.
+`infra/terraform` with Vault provider ephemeral KV v2 reads. The Akash container
+reads `secret/akash/runtime` and `secret/rpc` at startup through
+`akash/bin/entrypoint.sh`.
 
-> Important: Terraform Vault data sources store returned secret values in
-> Terraform state, even when marked sensitive. Use an encrypted remote backend
-> with strict IAM, versioning, audit logs, and no broad read access before
-> running `terraform plan` or `terraform apply` in `infra/terraform`.
+> Important: Ephemeral Vault reads keep these provider/RPC secret values out of
+> Terraform state and plan files when used in provider configuration. If future
+> resources need secret values, pass them only to provider configuration,
+> write-only arguments, or other ephemeral contexts. Use an encrypted remote
+> backend with strict IAM, versioning, and audit logs for all production state.
 
 ## Prerequisites
 
 Install and authenticate these tools on the operator machine:
 
 ```bash
-vault version
-terraform version
+vault version      # Vault CLI compatible with your Vault server
+terraform version  # Terraform >= 1.10 for ephemeral values
 docker version
 akash version
 envsubst --version
@@ -191,8 +193,9 @@ unset TF_VAULT_ROLE_ID TF_VAULT_SECRET_ID TF_VAR_vault_kv_mount_path VAULT_TOKEN
 
 If you use HCP Terraform, Terraform Cloud, Azure Storage, or another remote
 backend, configure it before `terraform init`. The backend must encrypt state at
-rest and restrict state read access to the smallest possible group because the
-provider credentials and RPC values read from Vault are present in state.
+rest and restrict state read access to the smallest possible group. This stack
+uses ephemeral Vault reads for provider credentials; keep any future use of
+secret values in ephemeral or write-only contexts so that guarantee remains true.
 
 ## 4. Build and push the Akash image
 

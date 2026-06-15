@@ -8,8 +8,3 @@ output "vault_secret_paths" {
     rpc          = "${local.vault_kv_mount_path}/${var.rpc_secret_path}"
   }
 }
-
-output "rpc_secret_keys" {
-  description = "RPC keys present in Vault. Secret values stay in Vault/Terraform state and are not output."
-  value       = keys(local.rpc)
-}
