@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kairo Driver Contribution | YieldSwarm</title>
+  <style>
+    :root { --green: #00ff41; --bg: #0a0a0a; --card: #111; --muted: #666; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding: 20px; }
+    h1 { color: var(--green); font-size: 1.5rem; margin-bottom: 4px; }
+    .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .card { background: var(--card); border: 1px solid #222; border-radius: 12px; padding: 16px; }
+    .card h3 { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .card .value { font-size: 1.8rem; color: var(--green); font-weight: 700; margin-top: 4px; }
+    .card .unit { font-size: 0.8rem; color: var(--muted); }
+    .address { font-family: monospace; font-size: 0.75rem; word-break: break-all; color: #aaa; margin-top: 8px; }
+    .bar { height: 6px; background: #222; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.5s; }
+    button { background: var(--green); color: #000; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    #log { font-family: monospace; font-size: 0.7rem; color: #555; max-height: 120px; overflow-y: auto; margin-top: 16px; }
+    .live { display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; margin-right: 6px; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  </style>
+</head>
+<body>
+  <h1><span class="live"></span>Kairo Driver Node</h1>
+  <p class="subtitle">Cryptographic identity + Mandelbrot data contribution</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Signed Records</h3>
+      <div class="value" id="signedCount">—</div>
+      <div class="unit">verified telemetry</div>
+    </div>
+    <div class="card">
+      <h3>Est. App Rewards</h3>
+      <div class="value" id="rewardsUsd">—</div>
+      <div class="unit">USD equivalent</div>
+    </div>
+    <div class="card">
+      <h3>DePIN Rewards</h3>
+      <div class="value" id="depinRewards">—</div>
+      <div class="unit">YS tokens</div>
+    </div>
+    <div class="card">
+      <h3>Active Shard</h3>
+      <div class="value" id="shardId">—</div>
+      <div class="unit">of 120 shards</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Driver Identity</h3>
+    <div class="address" id="evmAddress">Not registered</div>
+    <div class="address" id="iotexAddress"></div>
+    <div class="bar"><div class="bar-fill" id="contribBar" style="width:0%"></div></div>
+    <button id="registerBtn">Register Driver Identity</button>
+  </div>
+
+  <div id="log"></div>
+
+  <script>
+    const API = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000'
+      : 'https://api.yieldswarm.crypto';
+
+    let driverId = localStorage.getItem('kairo_driver_id');
+    const log = (msg) => {
+      const el = document.getElementById('log');
+      el.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}<br>` + el.innerHTML;
+    };
+
+    async function loadContribution() {
+      if (!driverId) return;
+      try {
+        const res = await fetch(`${API}/api/v1/kairo/drivers/${driverId}/contribution`);
+        const data = await res.json();
+        document.getElementById('signedCount').textContent = data.verifiedRecords;
+        document.getElementById('rewardsUsd').textContent = '$' + data.estimatedRewardsUsd.toFixed(4);
+        document.getElementById('depinRewards').textContent = data.estimatedDepinRewards.toFixed(4);
+        const shards = Object.keys(data.shardContributions);
+        if (shards.length) document.getElementById('shardId').textContent = shards[shards.length - 1];
+        const pct = Math.min(100, (data.verifiedRecords / 1000) * 100);
+        document.getElementById('contribBar').style.width = pct + '%';
+      } catch (e) { log('Contribution fetch failed: ' + e.message); }
+    }
+
+    async function loadDriver() {
+      if (!driverId) return;
+      try {
+        const res = await fetch(`${API}/api/v1/kairo/drivers/${driverId}`);
+        const data = await res.json();
+        document.getElementById('evmAddress').textContent = 'EVM: ' + data.evmAddress;
+        document.getElementById('iotexAddress').textContent = 'IoTeX: ' + data.iotexAddress;
+        document.getElementById('registerBtn').textContent = 'Identity Active';
+        document.getElementById('registerBtn').disabled = true;
+      } catch (e) { localStorage.removeItem('kairo_driver_id'); driverId = null; }
+    }
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      try {
+        const res = await fetch(`${API}/api/v1/kairo/drivers/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId: 'web-' + Date.now(), platform: 'web' }),
+        });
+        const data = await res.json();
+        driverId = data.driverId;
+        localStorage.setItem('kairo_driver_id', driverId);
+        document.getElementById('evmAddress').textContent = 'EVM: ' + data.evmAddress;
+        document.getElementById('iotexAddress').textContent = 'IoTeX: ' + data.iotexAddress;
+        document.getElementById('registerBtn').textContent = 'Identity Active';
+        document.getElementById('registerBtn').disabled = true;
+        log('Registered driver ' + driverId);
+      } catch (e) { log('Registration failed: ' + e.message); }
+    });
+
+    loadDriver().then(loadContribution);
+    setInterval(loadContribution, 15000);
+  </script>
+</body>
+</html>

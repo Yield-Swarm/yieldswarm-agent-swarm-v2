@@ -1,0 +1,225 @@
+---
+# YieldSwarm AgentSwarm OS — Production Monolith
+# Deploys: API gateway, Odysseus orchestrator, ChromaDB, Ollama worker proxy,
+#          Kairo identity service, payment webhooks, health sidecar
+# Secrets: pulled from HashiCorp Vault at container start (see scripts/vault-secrets.sh)
+
+version: "2.0"
+
+services:
+  vault-agent:
+    image: hashicorp/vault:1.17
+    env:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE_ID_FILE=/vault/role-id
+      - VAULT_SECRET_ID_FILE=/vault/secret-id
+    expose:
+      - port: 8200
+        as: 8200
+        to:
+          - global: false
+          - service: api-gateway
+          - service: odysseus
+          - service: kairo-identity
+          - service: payments
+    command:
+      - /bin/sh
+      - -c
+      - |
+        vault agent -config=/vault/agent.hcl &
+        sleep 5
+        /scripts/vault-secrets.sh --render /run/secrets
+        wait
+    params:
+      storage:
+        data:
+          mount: host
+          size: 1Gi
+
+  api-gateway:
+    image: yieldswarm/api-gateway:2.0.0
+    env:
+      - NODE_ENV=production
+      - SECRETS_DIR=/run/secrets
+      - ODYSSEUS_URL=http://odysseus:8080
+      - KAIRO_IDENTITY_URL=http://kairo-identity:3001
+      - PAYMENTS_URL=http://payments:3002
+      - CHROMA_URL=http://chromadb:8000
+      - AGENT_COUNT_TOTAL=10080
+      - CRON_SHARD_COUNT=120
+    expose:
+      - port: 3000
+        as: 80
+        to:
+          - global: true
+    depends_on:
+      - service: vault-agent
+      - service: odysseus
+      - service: chromadb
+    params:
+      storage:
+        secrets:
+          mount: host
+          size: 256Mi
+
+  odysseus:
+    image: yieldswarm/odysseus:2.0.0
+    env:
+      - SECRETS_DIR=/run/secrets
+      - CHROMA_URL=http://chromadb:8000
+      - OLLAMA_URL=http://ollama-worker:11434
+      - FIREWORKS_API_BASE=https://api.fireworks.ai/inference/v1
+      - OPENROUTER_API_BASE=https://openrouter.ai/api/v1
+      - AGENT_COUNT=10080
+      - DEITY_COUNT=169
+      - SHARD_FORMULA=1x3x5x11x1111x1x3x8x9x11
+      - MEMORY_PERSIST=true
+    expose:
+      - port: 8080
+        as: 8080
+        to:
+          - global: false
+          - service: api-gateway
+    depends_on:
+      - service: vault-agent
+      - service: chromadb
+      - service: ollama-worker
+    params:
+      storage:
+        data:
+          mount: host
+          size: 10Gi
+
+  ollama-worker:
+    image: ollama/ollama:latest
+    env:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_MODELS=llama3.1:70b,mistral:7b
+    expose:
+      - port: 11434
+        as: 11434
+        to:
+          - global: false
+          - service: odysseus
+    params:
+      storage:
+        data:
+          mount: host
+          size: 50Gi
+      resources:
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+
+  chromadb:
+    image: chromadb/chroma:latest
+    env:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    expose:
+      - port: 8000
+        as: 8000
+        to:
+          - global: false
+          - service: odysseus
+          - service: api-gateway
+    params:
+      storage:
+        data:
+          mount: host
+          size: 20Gi
+
+  kairo-identity:
+    image: yieldswarm/kairo-identity:2.0.0
+    env:
+      - SECRETS_DIR=/run/secrets
+      - IOTEX_NETWORK=mainnet
+      - MANDELBROT_INGEST_URL=http://api-gateway:3000/api/v1/mandelbrot/ingest
+      - SIGNING_ALGORITHM=secp256k1
+    expose:
+      - port: 3001
+        as: 3001
+        to:
+          - global: false
+          - service: api-gateway
+    depends_on:
+      - service: vault-agent
+    params:
+      storage:
+        data:
+          mount: host
+          size: 2Gi
+
+  payments:
+    image: yieldswarm/payments:2.0.0
+    env:
+      - SECRETS_DIR=/run/secrets
+      - SQUARE_ENVIRONMENT=production
+      - WISE_BUSINESS_EMAIL=cbrown03777@gmail.com
+      - CUSTOMER_FEE_PERCENT=0.01
+      - DRIVER_PAY_MULTIPLIER=2.0
+      - INSTANT_CASHOUT_ENABLED=true
+    expose:
+      - port: 3002
+        as: 3002
+        to:
+          - global: false
+          - service: api-gateway
+    depends_on:
+      - service: vault-agent
+    params:
+      storage:
+        data:
+          mount: host
+          size: 1Gi
+
+  health-sidecar:
+    image: yieldswarm/health-sidecar:2.0.0
+    env:
+      - CHECK_INTERVAL_SECONDS=30
+      - SERVICES=api-gateway:3000,odysseus:8080,chromadb:8000,ollama-worker:11434,kairo-identity:3001,payments:3002
+      - AUTO_HEAL=true
+      - AKASH_LEASE_MANAGER_URL=http://api-gateway:3000/api/v1/akash/leases
+    expose:
+      - port: 9090
+        as: 9090
+        to:
+          - global: false
+    depends_on:
+      - service: api-gateway
+    params:
+      storage:
+        data:
+          mount: host
+          size: 128Mi
+
+profiles:
+  compute:
+    akash:
+      signedBy:
+        anyOf:
+          - "akash1..."   # Replace with your Akash provider allowlist
+      pricing:
+        denom: uakt
+        amount: 5000
+
+deployment:
+  akash:
+    profile: compute
+    count: 1
+    resources:
+      cpu:
+        units: 4
+      memory:
+        size: 16Gi
+      storage:
+        - size: 100Gi
+      gpu:
+        units: 1
+        attributes:
+          vendor:
+            nvidia:
+              - model: rtx3090

@@ -1,0 +1,61 @@
+---
+# Standalone Odysseus + Ollama GPU worker for Akash
+# Use when scaling GPU workers independently of API monolith
+
+version: "2.0"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    env:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_MODELS=llama3.1:70b
+    expose:
+      - port: 11434
+        as: 11434
+        to:
+          - global: true
+    params:
+      storage:
+        data:
+          mount: host
+          size: 50Gi
+      resources:
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+
+  odysseus-worker:
+    image: yieldswarm/odysseus:2.0.0
+    env:
+      - OLLAMA_URL=http://ollama:11434
+      - CHROMA_URL=${CHROMA_URL}
+      - AGENT_SHARD_ID=${AGENT_SHARD_ID:-0}
+      - AGENTS_PER_SHARD=84
+    expose:
+      - port: 8080
+        as: 8080
+        to:
+          - global: true
+    depends_on:
+      - service: ollama
+
+deployment:
+  akash:
+    count: 1
+    resources:
+      cpu:
+        units: 2
+      memory:
+        size: 8Gi
+      storage:
+        - size: 60Gi
+      gpu:
+        units: 1
+        attributes:
+          vendor:
+            nvidia:
+              - model: rtx3090

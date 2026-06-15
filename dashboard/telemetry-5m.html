@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YieldSwarm $5M Telemetry</title>
+  <style>
+    :root { --green: #00ff41; --gold: #ffd700; --bg: #050505; --card: #0d0d0d; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 24px; }
+    h1 { color: var(--gold); font-size: 1.6rem; }
+    .progress-wrap { background: #1a1a1a; border-radius: 12px; height: 32px; margin: 20px 0; overflow: hidden; position: relative; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--green), var(--gold)); border-radius: 12px; transition: width 1s; }
+    .progress-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .card { background: var(--card); border: 1px solid #1f1f1f; border-radius: 12px; padding: 20px; }
+    .card h2 { font-size: 0.7rem; color: #666; text-transform: uppercase; margin-bottom: 8px; }
+    .card .val { font-size: 2rem; font-weight: 800; color: var(--green); }
+    .card .sub { font-size: 0.75rem; color: #555; margin-top: 4px; }
+    .updated { color: #444; font-size: 0.7rem; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <h1>YieldSwarm Telemetry — $5M Target</h1>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    <div class="progress-label" id="progressLabel">0% → $5,000,000</div>
+  </div>
+  <div class="grid" id="metrics"></div>
+  <p class="updated" id="updated">Loading...</p>
+  <script>
+    const API = location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://api.yieldswarm.crypto';
+    const TARGET = 5_000_000;
+
+    async function refresh() {
+      try {
+        const res = await fetch(`${API}/api/v1/telemetry/dashboard`);
+        const d = await res.json();
+        const rev = d.currentMetrics.payments.totalRevenueCents / 100;
+        const pct = Math.min(100, (rev / TARGET) * 100);
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressLabel').textContent =
+          `${pct.toFixed(2)}% — $${rev.toLocaleString()} / $${TARGET.toLocaleString()}`;
+
+        const m = d.currentMetrics;
+        document.getElementById('metrics').innerHTML = `
+          <div class="card"><h2>Active Agents</h2><div class="val">${m.odysseus.totalAgents.toLocaleString()}</div><div class="sub">${m.odysseus.activeAgents} running</div></div>
+          <div class="card"><h2>Deity Agents</h2><div class="val">${m.odysseus.deityCount}</div><div class="sub">of 169 deities</div></div>
+          <div class="card"><h2>Mandelbrot Ingested</h2><div class="val">${m.mandelbrot.totalIngested.toLocaleString()}</div><div class="sub">${m.mandelbrot.activeShards} active shards</div></div>
+          <div class="card"><h2>DePIN Nodes</h2><div class="val">${m.depinNodes}</div><div class="sub">Kairo drivers</div></div>
+          <div class="card"><h2>Payment Revenue</h2><div class="val">$${(m.payments.totalRevenueCents/100).toFixed(2)}</div><div class="sub">${m.payments.totalPayments} transactions</div></div>
+          <div class="card"><h2>Driver Payouts</h2><div class="val">$${(m.payments.totalDriverPayoutsCents/100).toFixed(2)}</div><div class="sub">2x multiplier active</div></div>
+        `;
+        document.getElementById('updated').textContent = 'Updated: ' + new Date(d.timestamp).toLocaleString();
+      } catch (e) {
+        document.getElementById('updated').textContent = 'Offline — start API: cd services/api && npm run dev';
+      }
+    }
+    refresh();
+    setInterval(refresh, 30000);
+  </script>
+</body>
+</html>

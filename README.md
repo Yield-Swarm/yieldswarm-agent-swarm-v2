@@ -21,5 +21,30 @@ Unstoppable Domains integration
 Wise: cbrown03777@gmail.com
 UD API Key included in .env.example
 
+## Mega Task Deliverables
+
+| Doc | Description |
+|-----|-------------|
+| [MERGE_STRATEGY.md](./MERGE_STRATEGY.md) | Branch structure + merge commands |
+| [DEPLOY.md](./DEPLOY.md) | Akash + Vault production deployment |
+| [DOMAINS.md](./DOMAINS.md) | Unstoppable Domains + Cloudflare DNS |
+
+## Services
+
+```bash
+cd services/api && npm install && npm run dev   # API on :3000
+./scripts/akash-deploy.sh --env production --dry-run
+```
+
+## Dashboards
+
+- [Kairo Driver Contribution](./dashboard/kairo-contribution.html)
+- [$5M Telemetry](./dashboard/telemetry-5m.html)
+- [Council Status](./council/status.html)
+
+## Branch Structure
+
+`main` → `development` → `testnet` → `devnets` → `production` → `MAINNET`
+
 ## Next
-Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+Fill .env on iPhone, push to GitHub, Vercel auto-deploys. See DEPLOY.md for Akash.
