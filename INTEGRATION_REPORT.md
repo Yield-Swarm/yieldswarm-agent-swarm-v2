@@ -1,7 +1,7 @@
 # INTEGRATION_REPORT.md — YieldSwarm + Kairo Full System
 
 **Date:** 2026-06-15  
-**Branch:** `cursor/god-prompt-full-system-597f`  
+**Branch:** `main` (merged from `cursor/stripe-payment-flow-597f`)  
 **Prongs completed:** 16/16 (scaffold + production wiring)
 
 ---
@@ -67,7 +67,7 @@ flowchart TB
 | 9 | Multi-cloud fallback | ✅ | `infra/terraform/`, `infra/packer/` |
 | 10 | Sovereign core | ✅ | `iteration-100/`, `deploy/systemd/` |
 | 11 | Emission router | ✅ | `contracts/GreatDeltaEmissionRouter.sol` |
-| 12 | Arena live metrics | ✅ | `agents/system/`, `app/arena/`, `frontend/arena/` |
+| 12 | Arena live metrics | ✅ | `agents/system/`, `src/app/arena/`, `frontend/arena/` |
 | 13 | Deploy scripts | ✅ | `scripts/deploy-all.sh`, `make deploy` |
 | 14 | Secrets audit | ✅ | `lib/secrets.py`, rotated `.env.example` keys |
 | 15 | Documentation | ✅ | All `*.md` runbooks |

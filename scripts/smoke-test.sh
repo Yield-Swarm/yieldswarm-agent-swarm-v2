@@ -25,6 +25,7 @@ echo "=== YieldSwarm + Kairo Smoke Tests ==="
 # File structure
 check "deploy-swarm-monolith.yaml exists" test -f deploy/deploy-swarm-monolith.yaml
 check "akash-deploy.sh executable" test -x scripts/akash-deploy.sh
+check "deploy-to-akash.sh executable" test -x scripts/deploy-to-akash.sh
 check "DOMAINS.md exists" test -f DOMAINS.md
 check "MERGE_STRATEGY.md exists" test -f MERGE_STRATEGY.md
 check "Vault policies exist" test -f vault/policies/kairo-runtime.hcl
@@ -33,11 +34,23 @@ check "Odysseus service" test -f services/odysseus/main.py
 check "Emission router contract" test -f contracts/GreatDeltaEmissionRouter.sol
 check "Sovereign dashboard" test -f dashboard/sovereign-dashboard.html
 check "Payment rails page" test -f src/app/payments/page.tsx
+check "Arena page (Next.js)" test -f src/app/arena/page.tsx
+check "Stripe deposit route" test -f src/app/api/deposits/stripe/route.ts
+check "Stripe webhook route" test -f src/app/api/webhooks/stripe/route.ts
+check "Platform fee module" test -f src/lib/payments/fees.ts
 
 # Python imports
-check "Kairo tests" python -m pytest kairo/tests/ -q
-check "Odysseus memory tests" python -m pytest tests/test_odysseus_memory.py -q
-check "YieldSwarm tools tests" python -m pytest tests/test_yieldswarm_tools.py -q
+check "Kairo tests" python3 -m pytest kairo/tests/ -q
+check "Odysseus memory tests" python3 -m pytest tests/test_odysseus_memory.py -q
+check "YieldSwarm tools tests" python3 -m pytest tests/test_yieldswarm_tools.py -q
+
+# Node unit tests (payments, ledger, auth)
+if command -v npm >/dev/null 2>&1 && [[ -d node_modules ]]; then
+  check "Vitest (src/lib)" npm test
+fi
+
+# Frontend shared-module tests (node:test)
+check "Frontend auth/telemetry" node --test frontend/tests/*.test.js
 
 # Secrets audit — no hardcoded API keys in tracked files
 if rg -l 'ud_mcp_[a-f0-9]{20,}' --glob '!*.lock' . 2>/dev/null; then

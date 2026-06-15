@@ -28,3 +28,6 @@ deploy/terraform/.terraform.lock.hcl
 # Python
 __pycache__/
 *.pyc
+
+# TypeScript
+tsconfig.tsbuildinfo

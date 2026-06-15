@@ -10,7 +10,6 @@
     { "src": "/kairo", "dest": "/kairo/frontend/index.html" },
     { "src": "/kairo/(.*)", "dest": "/kairo/frontend/$1" },
     { "src": "/payments", "dest": "/src/app/payments" },
-    { "src": "/arena", "dest": "/app/arena/page.tsx" },
     { "src": "/council/(.*)", "dest": "/council/$1" },
     { "src": "/dashboard/(.*)", "dest": "/dashboard/$1" },
     { "src": "/(.*)", "dest": "/src/app/$1" }
