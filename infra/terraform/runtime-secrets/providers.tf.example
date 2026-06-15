@@ -1,0 +1,40 @@
+# Copy this file to the Terraform stack that provisions cloud resources. Keep
+# the Vault data sources in this directory or package them as a module, then
+# feed provider blocks from Vault-derived locals only.
+#
+# terraform {
+#   required_providers {
+#     azurerm = {
+#       source  = "hashicorp/azurerm"
+#       version = ">= 3.0.0"
+#     }
+#     digitalocean = {
+#       source  = "digitalocean/digitalocean"
+#       version = ">= 2.0.0"
+#     }
+#     vultr = {
+#       source  = "vultr/vultr"
+#       version = ">= 2.0.0"
+#     }
+#   }
+# }
+#
+# provider "azurerm" {
+#   features {}
+#
+#   subscription_id = local.azure.subscription_id
+#   tenant_id       = local.azure.tenant_id
+#   client_id       = local.azure.client_id
+#   client_secret   = local.azure.client_secret
+# }
+#
+# provider "digitalocean" {
+#   token = local.digitalocean.token
+# }
+#
+# provider "vultr" {
+#   api_key = local.vultr.api_key
+# }
+#
+# # RunPod and RPC providers vary by stack. Pass local.runpod and local.rpc into
+# # modules as sensitive inputs instead of using TF_VAR_* or checked-in tfvars.

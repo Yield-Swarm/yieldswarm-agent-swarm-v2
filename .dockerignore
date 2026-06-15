@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+*.tfstate
+*.tfstate.*
+.terraform
+.terraform.lock.hcl
+vault-token
+*.auto.tfvars
+*.auto.tfvars.json

@@ -1,0 +1,44 @@
+version: "2.0"
+
+services:
+  akash-optimizer:
+    image: ${AKASH_AGENT_IMAGE}
+    command:
+      - python
+      - agents/akash-optimizer.py
+    env:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_NAMESPACE=${VAULT_NAMESPACE}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_WRAPPED_SECRET_ID=${VAULT_WRAPPED_SECRET_ID}
+      - VAULT_AGENT_CONFIG=/etc/vault/agent-configs/akash-agent.hcl
+      - VAULT_SECRETS_FILE=/vault/secrets/yieldswarm.json
+      - LOG_LEVEL=${LOG_LEVEL}
+    expose:
+      - port: 8080
+        as: 8080
+        to:
+          - global: false
+
+profiles:
+  compute:
+    akash-optimizer:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          size: 2Gi
+  placement:
+    dcloud:
+      pricing:
+        akash-optimizer:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  akash-optimizer:
+    dcloud:
+      profile: akash-optimizer
+      count: 1

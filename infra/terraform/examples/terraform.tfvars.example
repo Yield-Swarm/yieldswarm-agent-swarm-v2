@@ -1,0 +1,8 @@
+vault_addr            = "https://vault.example.com"
+vault_namespace       = ""
+vault_skip_tls_verify = false
+
+kv_mount_path      = "secret"
+transit_mount_path = "transit"
+policy_prefix      = "yieldswarm"
+approle_mount_path = "approle"

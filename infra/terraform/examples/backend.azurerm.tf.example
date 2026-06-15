@@ -1,0 +1,9 @@
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "rg-yieldswarm-terraform-state"
+    storage_account_name = "styieldswarmtfstate"
+    container_name       = "tfstate"
+    key                  = "vault-bootstrap.tfstate"
+    use_azuread_auth     = true
+  }
+}

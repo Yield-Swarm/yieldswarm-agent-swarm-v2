@@ -9,7 +9,7 @@ Integrated with AgentSwarm referral engine and Akash/Grass optimization.
 - Automated fulfillment agents
 - Pricing engine (cost + 20-40% markup + dynamic based on market)
 - Integration with HeliumDeploy-style services
-- Payment via Wise (cbrown03777@gmail.com) or crypto
+- Payment via Vault-managed Wise or crypto payout configuration
 
 ## Monetization
 - Sell remaining Z15 Pros

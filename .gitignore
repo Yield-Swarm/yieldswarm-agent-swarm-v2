@@ -1,0 +1,32 @@
+.env
+.env.*
+!.env.example
+
+# Terraform state and local plans
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.auto.tfvars
+*.auto.tfvars.json
+crash.log
+crash.*.log
+
+# Vault local material
+.vault-token
+vault-token
+*.vault-token
+vault/secrets/
+vault/auth/
+vault/token/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local OS/editor noise
+.DS_Store
+.idea/
+.vscode/

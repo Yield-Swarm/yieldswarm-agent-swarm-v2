@@ -4,4 +4,17 @@
 # YieldSwarm agents optimize capital across DePIN (Akash, Grass) and yield strategies
 # Part of MEGA TASK Hydrogen Particle scaling
 
-print('Chainlink Vault Manager active - receiving sales proceeds and optimizing yields')
+from runtime_config import require_env
+
+
+require_env(
+    [
+        "AGENTSWARM_MASTER_KEY",
+        "PRIMARY_RPC_URL",
+        "WALLET_ENCRYPTION_KEY",
+        "TEE_SIGNING_KEY",
+        "CHAINLINK_VAULT_ADDRESS",
+    ]
+)
+
+print("Chainlink Vault Manager active - Vault runtime configuration loaded")

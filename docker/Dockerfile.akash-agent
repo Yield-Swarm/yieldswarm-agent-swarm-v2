@@ -1,0 +1,34 @@
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    VAULT_AGENT_CONFIG=/etc/vault/agent-configs/akash-agent.hcl \
+    VAULT_SECRETS_FILE=/vault/secrets/yieldswarm.json
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl gpg lsb-release \
+    && install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /etc/apt/keyrings/hashicorp-archive-keyring.gpg \
+    && chmod a+r /etc/apt/keyrings/hashicorp-archive-keyring.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends vault \
+    && apt-get purge -y --auto-remove curl gpg lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY docker/vault-entrypoint.sh /usr/local/bin/vault-entrypoint.sh
+COPY vault/agent-configs/ /etc/vault/agent-configs/
+COPY agents/ /app/agents/
+COPY mining/ /app/mining/
+
+RUN chmod 0755 /usr/local/bin/vault-entrypoint.sh \
+    && useradd --system --home-dir /app --shell /usr/sbin/nologin appuser \
+    && mkdir -p /vault/auth /vault/token /vault/secrets \
+    && chown -R appuser:appuser /app /vault
+
+USER appuser
+
+ENTRYPOINT ["/usr/local/bin/vault-entrypoint.sh"]
+CMD ["python", "agents/akash-optimizer.py"]
