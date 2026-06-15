@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+###############################################################################
+# AgentSwarm fallback worker bootstrap.
+#
+# Rendered by Terraform and delivered as cloud-init user-data (Azure custom_data
+# and Vultr user_data) or as the GCP startup-script. It is idempotent: VM images
+# built by Packer already have Docker + the systemd unit, in which case this
+# script only refreshes the environment file and (re)starts the worker.
+###############################################################################
+set -euxo pipefail
+
+WORKER_IMAGE="${worker_image}"
+WORKER_PROVIDER="${worker_provider}"
+ENV_FILE="/etc/agentswarm-worker.env"
+
+# --- Ensure Docker is present (no-op on Packer-built images) ------------------
+if ! command -v docker >/dev/null 2>&1; then
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update -y
+  apt-get install -y ca-certificates curl gnupg
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  chmod a+r /etc/apt/keyrings/docker.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    > /etc/apt/sources.list.d/docker.list
+  apt-get update -y
+  apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  systemctl enable --now docker
+fi
+
+# --- Render the worker environment file --------------------------------------
+INSTANCE_ID="$(hostname)"
+cat > "$ENV_FILE" <<EOF
+WORKER_PROVIDER=$WORKER_PROVIDER
+WORKER_INSTANCE_ID=$INSTANCE_ID
+%{ for key, value in worker_env ~}
+${key}=${value}
+%{ endfor ~}
+EOF
+chmod 0640 "$ENV_FILE"
+
+# --- Install / refresh the systemd unit that owns the worker container -------
+cat > /etc/systemd/system/agentswarm-worker.service <<EOF
+[Unit]
+Description=AgentSwarm fallback worker
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Restart=always
+RestartSec=10
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker rm -f agentswarm-worker
+ExecStartPre=/usr/bin/docker pull $WORKER_IMAGE
+ExecStart=/usr/bin/docker run --rm --name agentswarm-worker \\
+  --env-file $ENV_FILE \\
+  $${GPU_FLAGS:-} \\
+  $WORKER_IMAGE
+ExecStop=/usr/bin/docker stop agentswarm-worker
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Expose all GPUs to the container when the NVIDIA runtime is available.
+if command -v nvidia-smi >/dev/null 2>&1; then
+  mkdir -p /etc/systemd/system/agentswarm-worker.service.d
+  cat > /etc/systemd/system/agentswarm-worker.service.d/gpu.conf <<'EOF'
+[Service]
+Environment=GPU_FLAGS=--gpus all
+EOF
+fi
+
+systemctl daemon-reload
+systemctl enable --now agentswarm-worker.service

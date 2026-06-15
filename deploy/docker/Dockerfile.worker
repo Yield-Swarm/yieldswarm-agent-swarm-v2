@@ -1,0 +1,29 @@
+# YieldSwarm worker node — frontend-facing HTTP service (health/metrics/status).
+# Built and pushed as ghcr.io/<owner>/yieldswarm-worker:<tag>
+FROM python:3.12-slim AS base
+
+LABEL org.opencontainers.image.title="yieldswarm-worker" \
+      org.opencontainers.image.description="YieldSwarm worker node (health/metrics/status API)" \
+      org.opencontainers.image.source="https://github.com/your-github-username/yieldswarm"
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    WORKER_PORT=8080
+
+WORKDIR /app
+
+COPY deploy/runtime/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY deploy/runtime/worker.py /app/worker.py
+
+# Run as non-root.
+RUN useradd --create-home --uid 10001 swarm && chown -R swarm:swarm /app
+USER swarm
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=3).status==200 else 1)"
+
+CMD ["python", "/app/worker.py"]

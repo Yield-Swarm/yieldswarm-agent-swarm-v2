@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html><head><title>Akash GPU Fleet Telemetry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:monospace;background:#000;color:#0f0;padding:20px}
+h1{color:#0f0} .live{color:#0f0} .critical{color:#f00}
+.card{background:#111;border:1px solid #0f0;padding:15px;margin:10px 0;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #0f0;padding:8px;text-align:left;font-size:13px;word-break:break-all}
+th{background:#0f0;color:#000}
+.muted{color:#0a0}
+</style></head><body>
+<h1>Akash GPU Fleet</h1>
+<div class="card"><p class="muted">Waiting for lease-manager.py to publish telemetry...</p></div>
+<!--
+  This page is regenerated in place by lease-manager.py on every reconcile cycle.
+  It also fetches telemetry.json client-side so it stays live without a full
+  server-side rerender. Either mechanism keeps the worker URLs current.
+-->
+<div id="root"></div>
+<script>
+async function refresh() {
+  try {
+    const res = await fetch('telemetry.json?_=' + Date.now());
+    const t = await res.json();
+    const s = t.summary || {};
+    const rows = (t.workers || []).map(w => {
+      const cls = w.status === 'healthy' ? 'live' : 'critical';
+      const link = w.url ? `<a href="${w.url}" target="_blank" style="color:inherit">${w.url}</a>` : '-';
+      return `<tr><td>${w.id}</td><td class="${cls}">${w.status}</td><td>${link}</td>`
+           + `<td>${w.provider || '-'}</td><td>${w.dseq || '-'}</td>`
+           + `<td>${w.replaced_count || 0}</td><td>${w.last_ok || '-'}</td></tr>`;
+    }).join('') || '<tr><td colspan="7">no workers tracked</td></tr>';
+    document.getElementById('root').innerHTML = `
+      <h1>Akash GPU Fleet (${(t.gpu_model||'').toUpperCase()})</h1>
+      <div class="card">
+        <p>Healthy: <span class="live">${s.healthy||0}</span> /
+           Total: ${s.total||0} / Desired: ${s.desired||0} /
+           Unhealthy: <span class="critical">${s.unhealthy||0}</span></p>
+        <p class="muted">Last updated: ${t.updated||'-'}</p>
+      </div>
+      <div class="card"><table>
+      <tr><th>ID</th><th>Status</th><th>Worker URL</th><th>Provider</th>
+          <th>DSEQ</th><th>Replaced</th><th>Last OK</th></tr>
+      ${rows}</table></div>`;
+  } catch (e) {
+    document.getElementById('root').innerHTML =
+      `<div class="card critical">telemetry.json unavailable: ${e}</div>`;
+  }
+}
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body></html>

@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    swarm: yieldswarm
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # YieldSwarm workers. targets.json is regenerated at deploy time from the
+  # live worker URLs (see deploy/scripts/start-monitoring.sh).
+  - job_name: yieldswarm-workers
+    metrics_path: /metrics
+    scheme: https
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/targets.json
+        refresh_interval: 30s

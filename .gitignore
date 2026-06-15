@@ -1,0 +1,25 @@
+# Secrets & deploy config (never commit real values)
+.env
+deploy/config.env
+
+# Runtime state
+.run/
+
+# Terraform
+deploy/terraform/.terraform/
+deploy/terraform/*.tfstate
+deploy/terraform/*.tfstate.*
+deploy/terraform/auto.tfvars.json
+deploy/terraform/terraform.tfvars
+deploy/terraform/active-backend.json
+deploy/terraform/fallback-url.txt
+deploy/terraform/.terraform.lock.hcl
+
+# Generated frontend runtime config (regenerated each deploy)
+# Tracked default is committed; the deploy step overwrites it locally.
+# Uncomment to ignore environment-specific output:
+# dashboard/config.js
+
+# Python
+__pycache__/
+*.pyc
