@@ -14,13 +14,13 @@ output "vault_bootstrap" {
 output "vault_secret_paths" {
   description = "Canonical Vault KV paths expected by this repository."
   value = {
-    azure                    = "${vault_mount.kv_platform.path}/providers/azure"
-    runpod                   = "${vault_mount.kv_platform.path}/providers/runpod"
-    vultr                    = "${vault_mount.kv_platform.path}/providers/vultr"
-    digitalocean             = "${vault_mount.kv_platform.path}/providers/digitalocean"
-    rpc                      = "${vault_mount.kv_platform.path}/rpc/shared"
-    akash_runtime            = "${vault_mount.kv_runtime.path}/akash/optimizer"
-    application_common       = "${vault_mount.kv_runtime.path}/application/common"
+    azure              = "${vault_mount.kv_platform.path}/providers/azure"
+    runpod             = "${vault_mount.kv_platform.path}/providers/runpod"
+    vultr              = "${vault_mount.kv_platform.path}/providers/vultr"
+    digitalocean       = "${vault_mount.kv_platform.path}/providers/digitalocean"
+    rpc                = "${vault_mount.kv_platform.path}/rpc/shared"
+    akash_runtime      = "${vault_mount.kv_runtime.path}/akash/optimizer"
+    application_common = "${vault_mount.kv_runtime.path}/application/common"
   }
 }
 

@@ -73,13 +73,13 @@ resource "vault_policy" "akash_runtime" {
 }
 
 resource "vault_approle_auth_backend_role" "akash_runtime" {
-  backend             = vault_auth_backend.approle.path
-  role_name           = var.akash_role_name
-  token_policies      = [vault_policy.akash_runtime.name]
-  token_ttl           = var.akash_token_ttl_seconds
-  token_max_ttl       = var.akash_token_max_ttl_seconds
-  secret_id_ttl       = var.akash_secret_id_ttl_seconds
-  secret_id_num_uses  = var.akash_secret_id_num_uses
+  backend               = vault_auth_backend.approle.path
+  role_name             = var.akash_role_name
+  token_policies        = [vault_policy.akash_runtime.name]
+  token_ttl             = var.akash_token_ttl_seconds
+  token_max_ttl         = var.akash_token_max_ttl_seconds
+  secret_id_ttl         = var.akash_secret_id_ttl_seconds
+  secret_id_num_uses    = var.akash_secret_id_num_uses
   secret_id_bound_cidrs = length(var.akash_secret_id_bound_cidrs) > 0 ? var.akash_secret_id_bound_cidrs : null
 }
 
