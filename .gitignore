@@ -20,6 +20,8 @@ dist/
 .DS_Store
 *.egg-info/
 .env
+.env.*
+!.env.example
 .env*.local
 .env.*.local
 .env.local
@@ -73,6 +75,7 @@ __pycache__/
 # Uncomment to ignore environment-specific output:
 # Vault Agent runtime artifacts (if developing locally)
 .vault-init/
+.vault-token
 .venv/
 # vercel
 .vercel

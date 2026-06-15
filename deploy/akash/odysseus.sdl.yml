@@ -1,0 +1,58 @@
+---
+version: "2.0"
+
+services:
+  odysseus:
+    image: ${ODYSSEUS_IMAGE}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL}
+      - AGENT_SHARD_ID=${AGENT_SHARD_ID}
+      - ODYSSEUS_AGENT_COUNT=${ODYSSEUS_AGENT_COUNT}
+      - ODYSSEUS_GPU_COUNT=1
+      - ODYSSEUS_RUNTIME_VAULT_PATH=${ODYSSEUS_RUNTIME_VAULT_PATH}
+      - ODYSSEUS_SERVICE_NAME=odysseus
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_AUTH_METHOD=${VAULT_AUTH_METHOD}
+      - VAULT_JWT_AUTH_PATH=${VAULT_JWT_AUTH_PATH}
+      - VAULT_JWT_ROLE=${VAULT_JWT_ROLE}
+      - VAULT_JWT_FILE=${VAULT_JWT_FILE}
+      - VAULT_KV_PATH=${VAULT_KV_PATH}
+      - VAULT_NAMESPACE=${VAULT_NAMESPACE}
+
+profiles:
+  compute:
+    odysseus-gpu:
+      resources:
+        cpu:
+          units: 8
+        memory:
+          size: 32Gi
+        storage:
+          - size: 80Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: h100
+                - model: a100
+                - model: rtx4090
+  placement:
+    akash-gpu:
+      pricing:
+        odysseus:
+          denom: uakt
+          amount: 10000
+
+deployment:
+  odysseus:
+    akash-gpu:
+      profile: odysseus-gpu
+      count: 1
