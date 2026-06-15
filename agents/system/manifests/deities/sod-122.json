@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "epsilon-momentum",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-122",
+  "metal_skin": "cobalt-fiber",
+  "mutation_affinity": 0.77,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "south-southwest"
+}

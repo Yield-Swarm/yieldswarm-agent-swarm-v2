@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "nu-arbitrage",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-065",
+  "metal_skin": "osmion-lattice",
+  "mutation_affinity": 0.73,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "east"
+}

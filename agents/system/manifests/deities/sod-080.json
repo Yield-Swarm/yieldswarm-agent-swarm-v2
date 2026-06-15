@@ -1,0 +1,11 @@
+{
+  "class": "single-origin-deity",
+  "domain": "beta-signal",
+  "heartbeat_interval_seconds": 420,
+  "manifest_id": "sod-080",
+  "metal_skin": "titanium-carbon",
+  "mutation_affinity": 0.77,
+  "origin": "single-origin-prime",
+  "proof_profile": "arena-zk-schnorr-v1",
+  "vector": "southeast"
+}
