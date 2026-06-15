@@ -1,0 +1,80 @@
+###############################################################################
+# Example variable values for the Helixchainprod workspace.
+#
+# Copy to terraform.tfvars (gitignored) for local runs, or set each as a
+# workspace variable in HCP Terraform. Secrets should be marked "sensitive"
+# in HCP and supplied via environment variables in CI.
+###############################################################################
+
+environment           = "helixchainprod"
+name_prefix           = "yieldswarm-fallback"
+
+# --- Capacity planning -------------------------------------------------------
+# Provision enough fallback workers to reach 120 total when Akash is serving 40.
+desired_total_workers = 120
+akash_current_workers = 40
+enabled_fallbacks     = ["azure", "gcp", "runpod", "vultr"]
+
+fallback_weights = {
+  azure  = 3
+  gcp    = 3
+  runpod = 2
+  vultr  = 2
+}
+
+max_workers_per_provider = 50
+
+# --- Worker runtime ----------------------------------------------------------
+worker_container_image = "ghcr.io/yieldswarm/agentswarm-worker:latest"
+agents_per_worker      = 84
+control_plane_endpoint = "https://control.helixchain.example/ingest"
+
+worker_env = {
+  CRON_INTERVAL_MINUTES = "15"
+  LOG_LEVEL             = "INFO"
+}
+
+# Provide your own key, or leave blank to auto-generate a break-glass key
+# (exported via the sensitive `breakglass_private_key_pem` output).
+ssh_public_key = ""
+
+tags = {
+  project   = "yieldswarm"
+  component = "worker-fallback"
+  managedby = "terraform"
+  env       = "helixchainprod"
+}
+
+# --- Credentials (prefer environment variables / HCP sensitive vars) ---------
+# azure_subscription_id = "00000000-0000-0000-0000-000000000000"
+# azure_tenant_id       = "00000000-0000-0000-0000-000000000000"
+# azure_client_id       = "00000000-0000-0000-0000-000000000000"
+# azure_client_secret   = "..."        # sensitive
+# gcp_project_id        = "helixchain-prod"
+# gcp_credentials_json  = "..."         # sensitive; prefer GOOGLE_CREDENTIALS
+# vultr_api_key         = "..."         # sensitive; prefer VULTR_API_KEY
+# runpod_api_key        = "..."         # sensitive; prefer RUNPOD_API_KEY
+
+# --- Azure -------------------------------------------------------------------
+azure_location = "eastus"
+azure_vm_size  = "Standard_D4s_v5"
+# azure_source_image_id = "/subscriptions/.../images/agentswarm-worker"
+
+# --- GCP ---------------------------------------------------------------------
+gcp_region       = "us-central1"
+gcp_zone         = "us-central1-a"
+gcp_machine_type = "e2-standard-4"
+# gcp_gpu_type   = "nvidia-tesla-t4"
+# gcp_gpu_count  = 1
+# gcp_source_image = "projects/helixchain-prod/global/images/agentswarm-worker"
+
+# --- RunPod ------------------------------------------------------------------
+runpod_gpu_type_ids = ["NVIDIA GeForce RTX 4090", "NVIDIA A40"]
+runpod_gpu_count    = 1
+runpod_cloud_type   = "COMMUNITY"
+
+# --- Vultr -------------------------------------------------------------------
+vultr_region = "ewr"
+vultr_plan   = "vc2-4c-8gb"
+vultr_os_id  = 1743
+# vultr_snapshot_id = "<packer-snapshot-id>"

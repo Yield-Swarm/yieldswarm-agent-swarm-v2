@@ -1,0 +1,33 @@
+###############################################################################
+# Example Packer variable values.
+# Copy to worker.pkrvars.hcl (gitignored) and run e.g. (build against the whole
+# directory with -only so variables.pkr.hcl is loaded):
+#
+#   cd infra/packer
+#   packer init .
+#   packer build -var-file=worker.pkrvars.hcl -only="azure-worker.*" .
+#   packer build -var-file=worker.pkrvars.hcl -only="gcp-worker.*"   .
+#   packer build -var-file=worker.pkrvars.hcl -only="vultr-worker.*" .
+#
+# Credentials are read from environment variables by default (see
+# variables.pkr.hcl): ARM_*, GOOGLE_PROJECT, VULTR_API_KEY.
+###############################################################################
+
+image_name    = "agentswarm-worker"
+image_version = "1-0-0"
+worker_image  = "ghcr.io/yieldswarm/agentswarm-worker:latest"
+enable_gpu    = false
+
+# --- Azure -------------------------------------------------------------------
+azure_resource_group = "yieldswarm-images"
+azure_location       = "eastus"
+azure_vm_size        = "Standard_D4s_v5"
+
+# --- GCP ---------------------------------------------------------------------
+gcp_zone         = "us-central1-a"
+gcp_machine_type = "e2-standard-4"
+
+# --- Vultr -------------------------------------------------------------------
+vultr_region = "ewr"
+vultr_plan   = "vc2-4c-8gb"
+vultr_os_id  = 1743
