@@ -1,0 +1,9 @@
+vault_addr     = "https://vault.example.com"
+vault_kv_mount = "yieldswarm"
+
+# Leave these defaults unless you intentionally move the KV v2 secret paths.
+azure_secret_name        = "cloud/azure"
+runpod_secret_name       = "cloud/runpod"
+vultr_secret_name        = "cloud/vultr"
+digitalocean_secret_name = "cloud/digitalocean"
+rpc_secret_name          = "rpc"

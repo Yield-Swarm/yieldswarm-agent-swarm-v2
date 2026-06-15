@@ -1,0 +1,19 @@
+.env
+.env.*
+!.env.example
+
+# Terraform working data and local plans can contain secret material.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Rendered deployment manifests may include short-lived Vault credentials.
+.generated/
+deploy/akash/deploy.yaml
