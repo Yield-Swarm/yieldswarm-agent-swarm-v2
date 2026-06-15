@@ -8,18 +8,14 @@ $APN on Pump.fun
 Unstoppable Domains integration
 
 ## Deployment
-- Vercel: https://v2-0-bay.vercel.app/
-- Project: https://vercel.com/support-6930s-projects/v2-0/c64SWNEkWaF39C4GcjFPYoLxWgMg
+- Application deployment targets include Vercel, Azure, and Akash.
+- Production secrets are managed through HashiCorp Vault and documented in `SECRETS.md`.
 
 ## Setup
-1. Copy .env.example to .env
-2. Fill in values securely
-3. Deploy to Vercel or Azure
-4. Wire Unstoppable Domains via Cloudflare nameservers
-
-## Business
-Wise: cbrown03777@gmail.com
-UD API Key included in .env.example
+1. Read `SECRETS.md` and bootstrap Vault before any production deployment.
+2. Copy `.env.example` to `.env` only for local smoke tests.
+3. Inject runtime secrets from Vault for Akash and other hosted environments.
+4. Deploy the application stack after Vault policies, AppRole, and secret paths are in place.
 
 ## Next
-Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+Complete provider-specific infrastructure on top of the Vault-backed secret contract in `infra/terraform/vault`.

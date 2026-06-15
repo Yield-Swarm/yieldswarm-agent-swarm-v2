@@ -1,0 +1,39 @@
+path "${kv_platform_mount}/data/providers/*" {
+  capabilities = ["read"]
+}
+
+path "${kv_platform_mount}/metadata/providers/*" {
+  capabilities = ["read", "list"]
+}
+
+path "${kv_platform_mount}/data/rpc/*" {
+  capabilities = ["read"]
+}
+
+path "${kv_platform_mount}/metadata/rpc/*" {
+  capabilities = ["read", "list"]
+}
+
+path "${kv_runtime_mount}/data/application/*" {
+  capabilities = ["read"]
+}
+
+path "${kv_runtime_mount}/metadata/application/*" {
+  capabilities = ["read", "list"]
+}
+
+path "${kv_runtime_mount}/data/akash/*" {
+  capabilities = ["read"]
+}
+
+path "${kv_runtime_mount}/metadata/akash/*" {
+  capabilities = ["read", "list"]
+}
+
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+path "auth/token/renew-self" {
+  capabilities = ["update"]
+}

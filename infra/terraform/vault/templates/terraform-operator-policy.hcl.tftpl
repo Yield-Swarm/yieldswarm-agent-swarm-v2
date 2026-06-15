@@ -1,0 +1,67 @@
+path "${kv_platform_mount}/data/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+
+path "${kv_platform_mount}/metadata/*" {
+  capabilities = ["read", "list", "delete"]
+}
+
+path "${kv_platform_mount}/delete/*" {
+  capabilities = ["update"]
+}
+
+path "${kv_platform_mount}/undelete/*" {
+  capabilities = ["update"]
+}
+
+path "${kv_platform_mount}/destroy/*" {
+  capabilities = ["update"]
+}
+
+path "${kv_platform_mount}/config" {
+  capabilities = ["read", "update"]
+}
+
+path "${kv_runtime_mount}/data/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+
+path "${kv_runtime_mount}/metadata/*" {
+  capabilities = ["read", "list", "delete"]
+}
+
+path "${kv_runtime_mount}/delete/*" {
+  capabilities = ["update"]
+}
+
+path "${kv_runtime_mount}/undelete/*" {
+  capabilities = ["update"]
+}
+
+path "${kv_runtime_mount}/destroy/*" {
+  capabilities = ["update"]
+}
+
+path "${kv_runtime_mount}/config" {
+  capabilities = ["read", "update"]
+}
+
+path "sys/mounts/${kv_platform_mount}" {
+  capabilities = ["read", "update"]
+}
+
+path "sys/mounts/${kv_runtime_mount}" {
+  capabilities = ["read", "update"]
+}
+
+path "sys/mounts/${transit_mount}" {
+  capabilities = ["read", "update"]
+}
+
+path "sys/policies/acl/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "auth/${approle_path}/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}

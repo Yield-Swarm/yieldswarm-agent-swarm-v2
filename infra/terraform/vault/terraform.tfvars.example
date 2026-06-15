@@ -1,0 +1,9 @@
+vault_addr      = "https://vault.example.com"
+vault_token     = "replace-with-a-bootstrap-or-terraform-operator-token"
+vault_namespace = null
+
+# First apply with false, seed secrets, then re-apply with true to validate/export.
+enable_secret_reads = false
+
+# Tighten this in production to the egress addresses or NAT CIDRs your Akash deploys use.
+akash_secret_id_bound_cidrs = []

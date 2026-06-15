@@ -1,0 +1,40 @@
+version: "2.0"
+
+services:
+  akash-optimizer:
+    image: ${AKASH_IMAGE}
+    command:
+      - /app/deploy/akash/entrypoint.sh
+    args:
+      - python
+      - agents/akash-optimizer.py
+    env:
+      - PYTHONUNBUFFERED=1
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_NAMESPACE=${VAULT_NAMESPACE}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_SECRET_PATHS=${VAULT_SECRET_PATHS}
+
+profiles:
+  compute:
+    akash-optimizer:
+      resources:
+        cpu:
+          units: 1
+        memory:
+          size: 1Gi
+        storage:
+          - size: 2Gi
+  placement:
+    any:
+      pricing:
+        akash-optimizer:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  akash-optimizer:
+    any:
+      profile: akash-optimizer
+      count: 1
