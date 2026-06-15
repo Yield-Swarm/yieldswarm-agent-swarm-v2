@@ -119,7 +119,20 @@ GHCR_OWNER=your-github-username      # lowercase GitHub user/org
 GHCR_USER=your-github-username
 GHCR_TOKEN=ghp_xxx                   # PAT with write:packages
 AKASH_KEY_NAME=yieldswarm            # your funded Akash wallet key
+AKASH_KEYRING_BACKEND=test           # use test in Codespaces; os on desktop
 ```
+
+### Akash authentication (keyring vs JWT)
+
+See **`docs/AKASH_AUTH.md`** for the full guide. Quick start in Codespace:
+
+```bash
+source scripts/akash-env.sh
+bash scripts/akash-verify-setup.sh          # confirm wallet + balance + RPC
+AUTO_SELECT_BID=1 scripts/akash-deploy.sh deploy/deploy-swarm-monolith.yaml
+```
+
+For CI/CD with pre-generated JWT: `bash scripts/akash-generate-jwt.sh` then `source .run/akash-jwt.env`.
 
 ---
 

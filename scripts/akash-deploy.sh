@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${HERE}/lib/akash-auth.sh"
+
 timestamp() {
   date -u +"%Y-%m-%dT%H:%M:%SZ"
 }
@@ -30,6 +34,10 @@ Environment variables:
   AKASH_BID_WAIT_SECONDS    Optional: how long to wait for bids (default: 180).
   AUTO_SELECT_BID           Optional: set to 1 to auto-create lease for lowest-price bid.
   AKASH_PROVIDER            Optional: provider to use when AUTO_SELECT_BID=1 (overrides auto-pick).
+  AKASH_KEYRING_BACKEND     Keyring backend (default: test). Use os in production.
+  AKASH_JWT                 Optional: pre-generated JWT for send-manifest (CI/CD).
+  AKASH_JWT_FILE            Optional: path to JWT file for send-manifest.
+  AKASH_AUTH_METHOD         keyring (default) or jwt — see docs/AKASH_AUTH.md
 EOF
 }
 
@@ -46,14 +54,10 @@ create_deployment() {
   local output_file="$2"
 
   log "creating deployment from ${sdl_file}"
+  # shellcheck disable=SC2046
   provider-services tx deployment create "${sdl_file}" \
-    --from "${AKASH_KEY_NAME}" \
-    --node "${AKASH_NODE}" \
-    --chain-id "${AKASH_CHAIN_ID}" \
+    $(akash_tx_flags) \
     --deposit "${AKASH_DEPOSIT}" \
-    --gas "${AKASH_GAS}" \
-    --gas-adjustment "${AKASH_GAS_ADJUSTMENT}" \
-    --gas-prices "${AKASH_GAS_PRICES}" \
     --yes \
     --output json > "${output_file}"
 }
@@ -109,17 +113,13 @@ create_lease() {
   local output_file="$3"
 
   log "creating lease for dseq=${dseq} with provider=${provider}"
+  # shellcheck disable=SC2046
   provider-services tx market lease create \
     --dseq "${dseq}" \
     --gseq 1 \
     --oseq 1 \
     --provider "${provider}" \
-    --from "${AKASH_KEY_NAME}" \
-    --node "${AKASH_NODE}" \
-    --chain-id "${AKASH_CHAIN_ID}" \
-    --gas "${AKASH_GAS}" \
-    --gas-adjustment "${AKASH_GAS_ADJUSTMENT}" \
-    --gas-prices "${AKASH_GAS_PRICES}" \
+    $(akash_tx_flags) \
     --yes \
     --output json > "${output_file}"
 }
@@ -139,16 +139,12 @@ main() {
   AKASH_KEY_NAME="${AKASH_KEY_NAME:-}"
   [[ -n "${AKASH_KEY_NAME}" ]] || fail "AKASH_KEY_NAME is required"
 
-  AKASH_NODE="${AKASH_NODE:-https://rpc.akashnet.net:443}"
-  AKASH_CHAIN_ID="${AKASH_CHAIN_ID:-akashnet-2}"
-  AKASH_GAS="${AKASH_GAS:-auto}"
-  AKASH_GAS_ADJUSTMENT="${AKASH_GAS_ADJUSTMENT:-1.4}"
-  AKASH_GAS_PRICES="${AKASH_GAS_PRICES:-0.025uakt}"
   AKASH_DEPOSIT="${AKASH_DEPOSIT:-5000000uakt}"
   AKASH_BID_WAIT_SECONDS="${AKASH_BID_WAIT_SECONDS:-180}"
   AUTO_SELECT_BID="${AUTO_SELECT_BID:-0}"
+  akash__require_env
 
-  AKASH_ACCOUNT_ADDRESS="${AKASH_ACCOUNT_ADDRESS:-$(provider-services keys show "${AKASH_KEY_NAME}" -a 2>/dev/null || true)}"
+  AKASH_ACCOUNT_ADDRESS="${AKASH_ACCOUNT_ADDRESS:-$(akash_account_address || true)}"
   [[ -n "${AKASH_ACCOUNT_ADDRESS}" ]] || fail "unable to resolve AKASH_ACCOUNT_ADDRESS from key ${AKASH_KEY_NAME}"
 
   deployment_json="$(json_tmp)"
@@ -172,11 +168,12 @@ main() {
     log "lease created successfully for provider=${provider}"
 
     log "sending manifest to selected provider"
+    # shellcheck disable=SC2046
     provider-services send-manifest "${SDL_FILE}" \
       --dseq "${DSEQ}" \
       --provider "${provider}" \
-      --from "${AKASH_KEY_NAME}" \
-      --node "${AKASH_NODE}"
+      --node "${AKASH_NODE}" \
+      $(akash_manifest_auth_flags)
   else
     log "AUTO_SELECT_BID disabled. Review bids and create lease manually for dseq=${DSEQ}"
   fi
