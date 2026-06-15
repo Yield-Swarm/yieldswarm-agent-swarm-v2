@@ -1,0 +1,17 @@
+.terraform/
+.tools/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+terraform.tfvars
+terraform.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.env
+.env.local
+deploy/akash/deployment.sdl
+deploy/akash/runtime.env
+deploy/akash/*.wrapped-token

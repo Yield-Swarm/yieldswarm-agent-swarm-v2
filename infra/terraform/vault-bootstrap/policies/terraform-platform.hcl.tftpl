@@ -1,0 +1,17 @@
+%{ for secret_path in provider_secret_paths ~}
+path "${kv_mount_path}/data/${secret_path}" {
+  capabilities = ["read"]
+}
+
+path "${kv_mount_path}/metadata/${secret_path}" {
+  capabilities = ["read"]
+}
+
+%{ endfor ~}
+path "${kv_mount_path}/data/${rpc_secret_path}" {
+  capabilities = ["read"]
+}
+
+path "${kv_mount_path}/metadata/${rpc_secret_path}" {
+  capabilities = ["read"]
+}

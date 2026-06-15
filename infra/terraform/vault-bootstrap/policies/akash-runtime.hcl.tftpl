@@ -1,0 +1,19 @@
+path "${kv_mount_path}/data/${akash_runtime_path}" {
+  capabilities = ["read"]
+}
+
+path "${kv_mount_path}/metadata/${akash_runtime_path}" {
+  capabilities = ["read"]
+}
+
+path "${transit_mount_path}/encrypt/${transit_key_name}" {
+  capabilities = ["update"]
+}
+
+path "${transit_mount_path}/decrypt/${transit_key_name}" {
+  capabilities = ["update"]
+}
+
+path "${transit_mount_path}/rewrap/${transit_key_name}" {
+  capabilities = ["update"]
+}
