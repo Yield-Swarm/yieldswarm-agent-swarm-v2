@@ -23,3 +23,14 @@ UD API Key included in .env.example
 
 ## Next
 Fill .env on iPhone, push to GitHub, Vercel auto-deploys.
+
+## Iteration 100 Sovereign Loops
+- Core controller: `agents/iteration_100_sovereign_loops.py`
+- Loops: autonomous agent mutation, self-healing Akash leases, dynamic treasury rebalancing, Great Delta Grid
+- One-shot run:
+  - `python3 agents/iteration_100_sovereign_loops.py --mode once`
+- Zero-intervention daemon:
+  - `python3 agents/iteration_100_sovereign_loops.py --mode daemon --interval-seconds 300`
+- Output artifacts:
+  - State checkpoint: `dashboard/iteration_100_state.json`
+  - Monitoring dashboard: `dashboard/final-monitoring-dashboard-5m.md`
