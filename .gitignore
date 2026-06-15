@@ -3,9 +3,19 @@ build/
 coverage/
 crash.*.log
 crash.log
+# dashboard/config.js
 /.data
 # debug
 # dependencies
+deploy/config.env
+deploy/terraform/active-backend.json
+deploy/terraform/auto.tfvars.json
+deploy/terraform/fallback-url.txt
+deploy/terraform/.terraform/
+deploy/terraform/.terraform.lock.hcl
+deploy/terraform/terraform.tfvars
+deploy/terraform/*.tfstate
+deploy/terraform/*.tfstate.*
 dist/
 .DS_Store
 *.egg-info/
@@ -14,6 +24,7 @@ dist/
 .env.*.local
 .env.local
 !*.example.tfvars
+# Generated frontend runtime config (regenerated each deploy)
 .idea/
 # local env files
 # local file-store fallback (dev persistence)
@@ -37,21 +48,29 @@ override.tf.json
 /.pnp
 .pnp.js
 # production
+*.pyc
 __pycache__/
 *.py[cod]
 .pytest_cache/
+# Python
 # Python / build
+.run/
 /run/secrets/
+# Runtime state
+# Secrets & deploy config (never commit real values)
 *.swp
 **/.terraform/
+# Terraform
 # Terraform local artifacts
 **/.terraform.lock.hcl
 *.tfplan
 *.tfstate
 *.tfstate.*
 *.tfvars
+# Tracked default is committed; the deploy step overwrites it locally.
 *.tsbuildinfo
 # typescript
+# Uncomment to ignore environment-specific output:
 # Vault Agent runtime artifacts (if developing locally)
 .vault-init/
 .venv/

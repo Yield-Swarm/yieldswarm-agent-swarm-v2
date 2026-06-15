@@ -1,0 +1,10 @@
+.git
+.run
+**/*.pyc
+__pycache__
+deploy/config.env
+.env
+*.tfstate
+*.tfstate.backup
+.terraform
+node_modules

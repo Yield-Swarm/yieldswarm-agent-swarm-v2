@@ -1,0 +1,29 @@
+groups:
+  - name: yieldswarm-availability
+    rules:
+      - alert: WorkerDown
+        expr: up{job="yieldswarm-workers"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "YieldSwarm worker down ({{ $labels.instance }})"
+          description: "Worker {{ $labels.instance }} has been unreachable for >1m. Akash auto-heal should recover it; check deploy/akash/auto-heal.sh logs."
+
+      - alert: WorkerNotReady
+        expr: yieldswarm_worker_ready == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Worker not ready ({{ $labels.node }})"
+          description: "Worker shard {{ $labels.shard }} has not reached readiness for >5m."
+
+      - alert: SovereignLoopStalled
+        expr: time() - yieldswarm_sovereign_last_run_timestamp > 1800
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Sovereign loop stalled"
+          description: "No sovereign loop tick in >30m. Restart with deploy/scripts/start-sovereign-loops.sh."
