@@ -1,8 +1,9 @@
 pid_file = "/tmp/vault-agent.pid"
 
 vault {
-  address   = "{{ env "VAULT_ADDR" }}"
-  namespace = "{{ env "VAULT_NAMESPACE" }}"
+  # VAULT_ADDR and VAULT_NAMESPACE from the Akash environment override this
+  # non-secret placeholder at runtime.
+  address = "https://vault.example.com"
 }
 
 auto_auth {

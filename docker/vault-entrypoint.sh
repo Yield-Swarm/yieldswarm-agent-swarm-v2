@@ -77,7 +77,7 @@ done
 chmod 0400 "$VAULT_SECRETS_FILE"
 
 log "Starting workload with Vault-rendered environment"
-python3 - "$VAULT_SECRETS_FILE" "$@" <<'PY'
+exec python3 - "$VAULT_SECRETS_FILE" "$@" <<'PY'
 import json
 import os
 import sys
