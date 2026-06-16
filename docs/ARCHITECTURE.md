@@ -1,6 +1,6 @@
-# YieldSwarm Architecture v2.1 — Cross-Chain Execution Layer
+# YieldSwarm Architecture v2.2 — 30-Day Harvest + Cross-Chain
 
-Canonical architecture including **God Prompt P** cross-chain expansion.
+Canonical architecture: **async cloud scheduler**, **Sovereign Consensus**, **Great Delta**, **cross-chain execution**.
 
 ---
 
@@ -8,80 +8,120 @@ Canonical architecture including **God Prompt P** cross-chain expansion.
 
 ```mermaid
 flowchart TB
-  subgraph Sovereign["Sovereign Consensus"]
+  subgraph CentralBrain["Central Brain — Cron + Async"]
+    CS[CloudScheduler 10min]
+    DE[Decision Engine]
+    AQ[Async Job Queue]
+    UT[Unified Telemetry]
+    CS --> DE --> AQ
+    AQ --> UT
+  end
+
+  subgraph Sovereign["Sovereign Consensus 900s"]
     SR[swarm_runner.py]
-    CC[cross_chain_executor.py]
-    I100[iteration_100_sovereign_loops]
+    CSA[cloud_scheduler_agent]
+    CC[cross_chain_executor]
+    I100[sovereign_loops]
+    SR --> CSA
     SR --> CC
     SR --> I100
   end
 
-  subgraph Execution["Cross-Chain Execution"]
-    EX[CrossChainExecutor]
-    U[Uniswap V4 Hooks]
-    SOL[Jupiter / Orca / Raydium]
-    DY[dYdX Perps]
-    POW[Altcoin PoW]
-    EX --> U
-    EX --> SOL
-    EX --> DY
-    EX --> POW
+  CSA --> CS
+
+  subgraph Providers["Multi-Cloud Providers"]
+    AKASH[Akash RTX 3090]
+    VAST[Vast.io]
+    RUNPOD[RunPod]
+    AZURE[Azure]
+    GCP[GCP]
+    AWS[AWS]
+    ALI[Alibaba]
   end
 
+  CS --> AKASH
+  CS --> VAST
+  CS --> RUNPOD
+  CS --> AZURE
+  CS --> GCP
+  CS --> AWS
+  CS --> ALI
+
+  subgraph Revenue["Revenue Streams"]
+    BT[Bittensor TAO]
+    INF[GPU Inference]
+    DEPIN[Grass DePIN]
+    XCHAIN[Cross-Chain DeFi]
+  end
+
+  AKASH --> BT
+  AKASH --> INF
+  VAST --> INF
+  AZURE --> DEPIN
+  CC --> XCHAIN
+
   subgraph Treasury["Great Delta 50/30/15/5"]
-    GD[route_revenue_to_treasury]
-    ROUTER[GreatDeltaEmissionRouter.sol]
+    GD[route_revenue]
+    ROUTER[EmissionRouter.sol]
     GD --> ROUTER
   end
 
-  subgraph Infra["Compute + Secrets"]
-    AKASH[Akash GPU]
-    VAULT[HashiCorp Vault]
-    MC[Multi-Cloud Burst]
+  BT --> GD
+  INF --> GD
+  DEPIN --> GD
+  XCHAIN --> GD
+  UT --> GD
+
+  subgraph Secrets["HashiCorp Vault"]
+    VAULT[KV runtime + rpc]
   end
 
-  CC --> EX
-  EX --> GD
-  POW --> AKASH
-  EX --> VAULT
-  AKASH --> MC
+  Providers --> VAULT
 
   subgraph Observability
-    API["/api/cross-chain/*"]
+    API["/api/* telemetry"]
     ARENA[Arena Dashboard]
   end
 
-  EX --> API --> ARENA
+  UT --> API --> ARENA
 ```
 
 ---
 
 ## Layer map
 
-| Layer | Components | Status |
-|-------|------------|--------|
-| L0 Gospel | `agents/governance/gospel.py` | 50/30/15/5 invariants |
-| L1 Sovereign | `swarm_runner.py`, `cross_chain_executor.py` | Live supervisor |
-| L2 Execution | `services/cross_chain/` | Scaffold → production |
-| L3 Treasury | `great_delta.py`, emission router | Split math live; on-chain pending |
-| L4 Compute | Akash, Vast, RunPod, Azure, GCP | Multi-cloud plan |
-| L5 Observability | Backend adapters, Arena | `/api/cross-chain/overview` |
+| Layer | Components | Cadence |
+|-------|------------|---------|
+| L0 Gospel | `gospel.py` — harvest phase + 50/30/15/5 | invariant |
+| L0.5 Scheduler | `cloud_scheduler/` + `async_jobs/` | **10 min cron** |
+| L1 Sovereign | `swarm_runner.py` + agents | **900s tick** |
+| L2 Cross-chain | `services/cross_chain/` | per sovereign tick |
+| L3 Treasury | Great Delta routing | on revenue event |
+| L4 Compute | 7 cloud providers | async jobs |
+| L5 Telemetry | `.run/cloud-telemetry.json` | continuous |
 
 ---
 
-## Revenue flow
-
-All cross-chain gross revenue **must** pass through Great Delta before settlement:
+## Async data flow
 
 ```
-Strategy PnL → route_revenue_to_treasury() → 50/30/15/5 buckets → EmissionRouter (on-chain)
+Cron (10m) → CloudScheduler.tick()
+  → DecisionEngine.decide() — ROI + week phase
+  → AsyncJobQueue.enqueue() — bittensor, training, grass
+  → process_pending() — launch with retry + migration
+  → UnifiedTelemetry.ingest_worker()
+  → Great Delta rebalance input
+
+Sovereign (900s) → cloud_scheduler_agent.tick() — sync with cron state
+                 → cross_chain_executor — DeFi revenue
+                 → iteration_100_sovereign_loops — treasury policy
 ```
 
 ---
 
 ## Related docs
 
-- `docs/CROSS_CHAIN_EXECUTION.md` — full God Prompt P spec
-- `docs/YieldSwarm_v1_v2_Trident_Layer35_Blueprint.md` — Layer 0–6 blueprint
-- `HELIX-EXECUTION.md` — Helix activation tracks
-- `config/cross_chain/strategies.yaml` — strategy registry
+- `docs/MULTI_CLOUD_30DAY_PLAN.md` — 30-day execution playbook
+- `docs/CROSS_CHAIN_EXECUTION.md` — Uniswap V4, Solana, dYdX, PoW
+- `config/cloud_scheduler/schedule.yaml` — scheduler config
+- `crons/cloud-scheduler.cron.example` — crontab install

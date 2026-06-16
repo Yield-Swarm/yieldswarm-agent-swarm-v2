@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
+# Akash provider launch
 set -euo pipefail
-
-SDL_PATH="infra/akash/openclaw-worker-r3090.sdl.yml"
-
-if [[ ! -f "${SDL_PATH}" ]]; then
-  echo "Missing SDL at ${SDL_PATH}"
-  exit 1
+WORKLOAD="${WORKLOAD:-bittensor}"
+if [[ "${DRY_RUN:-1}" == "1" ]]; then
+  echo "[dry-run] Akash launch workload=${WORKLOAD}"
+  exit 0
 fi
-
-echo "[akash] validating SDL: ${SDL_PATH}"
-echo "[akash] dry-run only in scaffold mode"
-echo "[akash] next: provider-services tx create deployment --sdl ${SDL_PATH}"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+SDL="deploy/akash-bittensor-miner.sdl.yml"
+[[ "${WORKLOAD}" == "inference" ]] && SDL="deploy/deploy-swarm-monolith.yaml"
+exec bash "${REPO_ROOT}/scripts/deploy-to-akash.sh" deploy "${SDL}" 2>/dev/null || echo "[akash] deploy-to-akash.sh not available"

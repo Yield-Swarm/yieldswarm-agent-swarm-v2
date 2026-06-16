@@ -1,0 +1,65 @@
+# 30-day async cloud scheduler configuration
+
+scheduler:
+  interval_minutes: 10
+  dry_run: true
+  start_date: "2026-06-15"
+  sovereign_tick_interval_seconds: 900
+
+principles:
+  - asynchronous_first
+  - cron_orchestrated
+  - revenue_over_utilization
+  - self_healing_migration
+  - great_delta_treasury_routing
+
+providers:
+  akash:
+    priority: 1
+    workloads: [bittensor, inference]
+    gpu: RTX_3090
+  vast:
+    priority: 2
+    workloads: [training, inference]
+  runpod:
+    priority: 2
+    workloads: [training, inference]
+  azure:
+    priority: 3
+    workloads: [grass, cpu_batch]
+  gcp:
+    priority: 3
+    workloads: [grass, training]
+  aws:
+    priority: 4
+    workloads: [grass, training]
+  alibaba:
+    priority: 5
+    workloads: [cpu_batch]
+
+async_queue:
+  path: .run/async-jobs.json
+  max_attempts: 3
+  migrate_on_failure: true
+
+telemetry:
+  path: .run/cloud-telemetry.json
+  metrics:
+    - hashrate
+    - earnings_usd
+    - credit_burn_usd
+    - temperature_c
+
+weeks:
+  1:
+    focus: max_gpu_akash_vast_runpod
+    targets: [bittensor, inference, training]
+  2:
+    focus: cron_automation_grass_depin
+    targets: [grass, async_queue]
+  3:
+    focus: roi_rebalancing
+    targets: [bittensor_scale, paid_training]
+  4:
+    focus: harvest_and_document
+    targets: [credit_burn_max, profitability_report]

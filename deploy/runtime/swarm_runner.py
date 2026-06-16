@@ -28,6 +28,7 @@ RUN_DIR = REPO_ROOT / os.environ.get("RUN_DIR", ".run")
 ONESHOT = os.environ.get("SOVEREIGN_ONESHOT", "").lower() in ("1", "true", "yes")
 
 AGENT_FILES = [
+    REPO_ROOT / "agents" / "cloud_scheduler_agent.py",
     REPO_ROOT / "agents" / "cross_chain_executor.py",
     REPO_ROOT / "agents" / "akash-optimizer.py",
     REPO_ROOT / "agents" / "openclaw-scaler.py",
