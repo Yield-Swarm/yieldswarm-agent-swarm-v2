@@ -12,11 +12,23 @@ The Kairo frontend is a static ride/delivery shell deployable to **Vercel** or *
 
 ## Features
 
-- **Mapbox** live map (dark style) — set `MAPBOX_TOKEN`
-- **1% platform fee** display on every fare quote
-- **2× driver pay** estimate
+- **Mapbox** live map with route line (geocode + Directions API)
+- **Fare quote** via `POST /api/kairo/fare/quote` (distance + duration)
+- **Request ride** via `POST /api/kairo/rides` with loading / success / error states
+- **1% platform fee** + **2× driver pay** from server-side calculation
+- **DePIN status** pill — pending until Akash workers are live (`GET /api/kairo/depin/status`)
 - **Signed telemetry** submission to Mandelbrot pipeline
-- **Earnings breakdown** — app revenue + DePIN rewards
+- **Runtime config** from `/kairo-app/config.js` (no hardcoded localhost)
+
+## Environment variables
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `MAPBOX_TOKEN` or `VITE_MAPBOX_TOKEN` | Yes (for map) | Geocoding, directions, live map |
+| `KAIRO_PUBLIC_API_BASE` | Production | Public API URL e.g. `https://api.yieldswarm.crypto/api/kairo` |
+| `KAIRO_API_BASE` | Backend server | Upstream Python Kairo API (default `http://127.0.0.1:8091`) |
+
+When served from integration backend (`:8080`), open `/kairo-app/` — config is injected automatically.
 
 ## Local development
 
@@ -26,35 +38,41 @@ pip install -r requirements.txt
 python -m kairo.api.routes
 
 # Terminal 2 — Integration backend (serves frontend + proxies API)
+export MAPBOX_TOKEN=pk.eyJ...
 cd backend && npm install && npm start
 
 # Open
 open http://localhost:8080/kairo-app/
 ```
 
-Inject Mapbox token in the browser console or via `kairo/frontend/config.js`:
-
-```html
-<script>
-  window.KAIRO_CONFIG = {
-    apiBase: '/api/kairo',
-    mapboxToken: 'pk.eyJ...'
-  };
-</script>
-```
-
 ## Vercel deployment
 
-```bash
-# From repo root
-vercel --cwd kairo
+Deploy the **integration backend** (Render/Akash) with `MAPBOX_TOKEN` set, then point Kairo static hosting at the API:
 
-# Required env vars (Vercel dashboard or Vault → Vercel sync)
-KAIRO_API_BASE=https://api.yieldswarm.crypto/api/kairo
+```bash
+# Integration backend (Render) env:
+KAIRO_PUBLIC_API_BASE=https://api.yieldswarm.crypto/api/kairo
 MAPBOX_TOKEN=pk.eyJ...
+KAIRO_API_BASE=http://127.0.0.1:8091  # or internal Python service URL
+
+# Or serve full stack from integration server — users hit:
+# https://api.yieldswarm.crypto/kairo-app/
 ```
 
-`kairo/vercel.json` routes all paths to the static frontend.
+`kairo/vercel.json` is for static-only deploys — prefer integration backend for `/api/kairo` proxy.
+
+## API routes (integration backend)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/kairo/fare/quote` | Fare breakdown from `distanceKm` / `durationMin` |
+| `POST` | `/api/kairo/rides` | Create ride request |
+| `GET` | `/api/kairo/rides/:id` | Poll ride status |
+| `GET` | `/api/kairo/depin/status` | Akash worker connectivity |
+| `POST` | `/api/kairo/telemetry` | Signed driver telemetry |
+| `GET` | `/api/kairo/drivers/:id/contribution` | Earnings + DePIN |
+
+See `docs/KAIRO_AKASH_COORDINATION.md` for parallel Akash deploy track.
 
 ## Netlify deployment
 

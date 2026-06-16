@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const POLL_INTERVAL_MS = 5_000;
 const REQUEST_TIMEOUT_MS = 4_500;
@@ -343,10 +344,58 @@ function formatNumber(value: number | null, fractionDigits = 1, suffix = ""): st
 }
 
 export default function ArenaTelemetryPage(): JSX.Element {
-  const workerUrls = useMemo(
-    () => sanitizeWorkerUrls(process.env.NEXT_PUBLIC_AKASH_WORKER_URLS),
-    []
+  return (
+    <Suspense
+      fallback={
+        <main className="arena">
+          <section className="shell">
+            <p className="tag">ARENA / AKASH LIVE TELEMETRY</p>
+            <p>Loading worker telemetry…</p>
+          </section>
+        </main>
+      }
+    >
+      <ArenaTelemetryContent />
+    </Suspense>
   );
+}
+
+function ArenaTelemetryContent(): JSX.Element {
+  const searchParams = useSearchParams();
+  const [leaseUrls, setLeaseUrls] = useState<string[]>([]);
+
+  const workerUrls = useMemo(() => {
+    const fromQuery = sanitizeWorkerUrls(searchParams.get("workers") ?? undefined);
+    if (fromQuery.length > 0) {
+      return fromQuery;
+    }
+    const fromEnv = sanitizeWorkerUrls(process.env.NEXT_PUBLIC_AKASH_WORKER_URLS);
+    if (fromEnv.length > 0) {
+      return fromEnv;
+    }
+    return leaseUrls;
+  }, [leaseUrls, searchParams]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/akash/lease", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+        const payload = (await response.json()) as { workerUrls?: string[] };
+        if (!cancelled && Array.isArray(payload.workerUrls) && payload.workerUrls.length > 0) {
+          setLeaseUrls(sanitizeWorkerUrls(payload.workerUrls.join(",")));
+        }
+      } catch {
+        // Local dev without a deployed lease — query param or env still works.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [workers, setWorkers] = useState<WorkerTelemetry[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [polling, setPolling] = useState(false);
@@ -422,8 +471,11 @@ export default function ArenaTelemetryPage(): JSX.Element {
 
         {workerUrls.length === 0 && (
           <div className="notice">
-            Set <code>NEXT_PUBLIC_AKASH_WORKER_URLS</code> with comma or newline-separated Akash worker
-            URLs to activate live polling.
+            Connect a live Akash worker via{" "}
+            <code>?workers=https://&lt;lease-uri&gt;:8080</code>, set{" "}
+            <code>NEXT_PUBLIC_AKASH_WORKER_URLS</code>, or deploy with{" "}
+            <code>./scripts/deploy-to-akash.sh</code> (Arena reads <code>.run/akash-lease.env</code>{" "}
+            via <code>/api/akash/lease</code>).
           </div>
         )}
 
