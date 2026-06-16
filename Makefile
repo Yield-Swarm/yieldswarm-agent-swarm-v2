@@ -34,6 +34,7 @@ A := deploy/akash
         scale-akash-workers \
         cross-chain-preflight cross-chain-run cross-chain-test \
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
+        cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
         status logs clean production
 
 ## help: show this menu
@@ -259,6 +260,18 @@ cross-chain-run:
 ## cross-chain-test: pytest cross-chain + Great Delta routing
 cross-chain-test:
 	python3 -m pytest tests/test_cross_chain.py -q
+
+## cloud-scheduler-tick: one async multi-cloud scheduler cycle
+cloud-scheduler-tick:
+	python3 agents/cloud_scheduler_agent.py
+
+## cloud-scheduler-report: print last scheduler tick + telemetry
+cloud-scheduler-report:
+	@python3 -c "import json; from pathlib import Path; p=Path('.run/cloud-scheduler-last-tick.json'); print(json.dumps(json.loads(p.read_text()), indent=2) if p.exists() else 'no tick yet — run make cloud-scheduler-tick')"
+
+## cloud-scheduler-test: pytest scheduler + async queue
+cloud-scheduler-test:
+	python3 -m pytest tests/test_cloud_scheduler.py -q
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers

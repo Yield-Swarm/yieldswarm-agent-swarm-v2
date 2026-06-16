@@ -1,0 +1,11 @@
+# YieldSwarm 30-day cloud scheduler — install with: crontab crons/cloud-scheduler.cron.example
+# Runs every 10 minutes; sovereign loop also triggers cloud_scheduler_agent on 900s ticks.
+
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# Every 10 minutes — central scheduler tick
+*/10 * * * * cd /workspace && ./scripts/run-cloud-scheduler.sh >> .run/cloud-scheduler-cron.log 2>&1
+
+# Daily cost/telemetry rollup at 00:05 UTC
+5 0 * * * cd /workspace && python3 -c "from services.cloud_scheduler.telemetry import UnifiedTelemetry; import json; print(json.dumps(UnifiedTelemetry().snapshot(), indent=2))" >> .run/cloud-telemetry-daily.json 2>&1

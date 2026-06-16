@@ -45,6 +45,49 @@ CROSS_CHAIN_VENUES = (
 CROSS_CHAIN_DRY_RUN_DEFAULT = True
 CROSS_CHAIN_LATENCY_GUARDRAIL_MS = LATENCY_GUARDRAIL_MS  # 80ms ingest guardrail
 
+# ---------------------------------------------------------------------------
+# 30-Day Maximum Compute Harvest Phase (docs/MULTI_CLOUD_30DAY_PLAN.md)
+# Aggressive free-credit utilization — revenue-first, async, self-healing.
+# Ethical guardrails: no stolen resources; council 9/14 for live spend; dry-run default.
+# ---------------------------------------------------------------------------
+HARVEST_PHASE_NAME = "maximum_compute_harvest_30d"
+HARVEST_SCHEDULER_INTERVAL_MINUTES = 10
+HARVEST_SOVEREIGN_INTERVAL_SECONDS = HEARTBEAT_SECONDS  # 420s heartbeat; 900s swarm tick
+HARVEST_DRY_RUN_DEFAULT = True
+
+# Provider priority — revenue > utilization (akash first for Bittensor)
+HARVEST_PROVIDER_PRIORITY = (
+    "akash",     # RTX 3090 Bittensor + inference — real revenue
+    "vast",      # cheap GPU training burst
+    "runpod",    # GPU training + inference
+    "azure",     # Grass DePIN + CPU
+    "gcp",       # Grass + training MIG
+    "aws",       # training + batch
+    "alibaba",   # filler capacity
+)
+
+HARVEST_WORKLOAD_PRIORITY = (
+    "bittensor",   # highest ROI — TAO emissions
+    "inference",   # agent marketplace revenue
+    "training",    # model assets + paid jobs
+    "grass",       # DePIN rewards
+    "cpu_batch",   # lowest priority filler
+)
+
+# Async job queue invariants
+HARVEST_MAX_JOB_ATTEMPTS = 3
+HARVEST_MIGRATE_ON_FAILURE = True
+
+# Sustainable philosophy (unchanged): harvest free credits aggressively but route
+# all revenue through Great Delta; tear down idle spend; document for post-credit ops.
+HARVEST_ETHOS = (
+    "revenue_first",
+    "async_self_healing",
+    "great_delta_covenant",
+    "council_gated_live_spend",
+    "document_and_tear_down",
+)
+
 COUNCIL_ROLES = (
     ("deity-001", "Kimiclaw", "head_of_consensus_council"),
     ("deity-002", "Council Seat 02", "primary_deity"),
