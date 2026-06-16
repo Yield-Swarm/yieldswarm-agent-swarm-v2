@@ -64,6 +64,8 @@ See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo su
 
 | Doc | Purpose |
 |-----|---------|
+| `SINGLE_PANE_OF_GLASS.md` | Helix Chain + 35-layer neural mesh (Mermaid) |
+| `docs/ARCHITECTURE.md` | Full + investor architecture diagrams |
 | `INTEGRATION_REPORT.md` | 16-prong status matrix |
 | `PRODUCTION_READINESS.md` | Final smoke tests + mainnet checklist |
 | `KAIRO_FRONTEND.md` | Kairo app architecture + Vercel deploy |

@@ -21,12 +21,14 @@ S := deploy/scripts
 A := deploy/akash
 
 .PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault \
-        akash-deploy-vault akash-bittensor akash-odysseus akash-backend \
-        login build push images \
+        akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
+        akash-bittensor akash-odysseus akash-backend \
+        login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
         frontend vercel render \
         monitoring-up monitoring-down sovereign-up sovereign-down \
+        tesla-keys tesla-register \
         status logs clean production
 
 ## help: show this menu
@@ -58,7 +60,21 @@ vault-check:
 
 ## akash-deploy-vault: production Akash deploy with Vault runtime injection
 akash-deploy-vault:
-	bash $(S)/akash-production-deploy.sh
+	bash scripts/akash-deploy-with-vault.sh
+
+## akash-preflight: GO/NO-GO gate before live Akash deploy
+akash-preflight:
+	bash scripts/akash-preflight.sh
+
+## akash-verify: post-deploy smoke tests against live lease
+akash-verify:
+	bash scripts/verify-akash-lease.sh
+
+## deploy-akash-europlots: live mainnet deploy to provider.europlots.com
+deploy-akash-europlots:
+	AKASH_PROVIDER=akash18ga02jzaq8cw52anyhzkwta5wygufgu6zsz6xc \
+	VAULT_INJECT_RUNTIME_SECRETS=yes \
+	bash scripts/deploy-to-akash.sh deploy deploy/deploy-swarm-monolith.yaml
 
 ## akash-bittensor: deploy Bittensor miner SDL (requires BT_NETUID)
 akash-bittensor:
@@ -102,7 +118,7 @@ login:
 	@echo "$$GHCR_TOKEN" | docker login ghcr.io -u "$$GHCR_USER" --password-stdin
 
 ## build: STEP 1 — build & push all images to GHCR
-build images:
+build images build-ghcr:
 	bash $(S)/build-and-push.sh
 
 ## push: build & push only (alias of build)
@@ -166,6 +182,14 @@ status:
 ## logs: tail the sovereign + auto-heal logs
 logs:
 	@tail -n 50 -f .run/sovereign-loop.log .run/akash-auto-heal.log 2>/dev/null || echo "no logs yet"
+
+## tesla-keys: generate EC key pair and install public key for Vercel hosting
+tesla-keys:
+	@./scripts/setup-tesla-keys.sh
+
+## tesla-register: obtain partner token and register domain (TESLA_CLIENT_ID/SECRET/DOMAIN required)
+tesla-register:
+	@./scripts/register-tesla-fleet.sh $(or $(TESLA_REGION),na)
 
 ## clean: remove runtime state (.run) and generated tfvars
 clean:

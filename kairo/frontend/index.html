@@ -29,18 +29,23 @@
       background: #0a1020; color: #eef3ff; padding: 10px 12px; font-size: .95rem;
     }
     button { cursor: pointer; background: #3358ff; border-color: #3358ff; font-weight: 600; margin-top: 10px; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
     button.secondary { background: #15203a; border-color: #243055; }
     .fee { display: flex; justify-content: space-between; font-size: .9rem; margin: 6px 0; }
     .fee strong { color: #7dffc4; }
     .status { font-size: .85rem; color: #9db0d9; min-height: 1.2em; }
     .error { color: #ff8f8f; }
     .ok { color: #7dffc4; }
+    .loading { color: #ffd27d; }
+    .pill { display: inline-block; font-size: .72rem; padding: 2px 8px; border-radius: 999px; background: #1a2540; margin-left: 6px; }
+    .pill.live { background: #0d3d2a; color: #7dffc4; }
+    .pill.pending { background: #3d2a0d; color: #ffd27d; }
   </style>
 </head>
 <body>
   <header>
     <h1>Kairo <span class="badge">1% platform fee</span></h1>
-    <div id="driverMeta" class="status">Driver node: not registered</div>
+    <div id="driverMeta" class="status">Driver node: connecting…</div>
   </header>
   <main>
     <div id="map"></div>
@@ -51,16 +56,20 @@
         <input id="pickup" placeholder="123 Main St, Denver CO" value="Union Station, Denver CO" />
         <label>Dropoff</label>
         <input id="dropoff" placeholder="Airport" value="DEN Airport, Denver CO" />
-        <label>Estimated fare (USD)</label>
-        <input id="fare" type="number" step="0.01" value="24.50" />
-        <div class="fee"><span>Platform fee (1%)</span><strong id="platformFee">$0.25</strong></div>
-        <div class="fee"><span>Driver pay (2×)</span><strong id="driverPay">$49.00</strong></div>
-        <button id="bookBtn">Request ride</button>
+        <button id="quoteBtn" class="secondary" type="button">Get fare estimate</button>
+        <div class="fee"><span>Base fare</span><strong id="baseFare">—</strong></div>
+        <div class="fee"><span>Platform fee (1%)</span><strong id="platformFee">—</strong></div>
+        <div class="fee"><span>Your total</span><strong id="customerTotal">—</strong></div>
+        <div class="fee"><span>Driver pay (2×)</span><strong id="driverPay">—</strong></div>
+        <div class="fee"><span>Est. DePIN bonus</span><span><strong id="depinEstAmt">—</strong> <span id="depinPill" class="pill pending">checking workers</span></span></div>
+        <p id="routeMeta" class="status"></p>
+        <button id="bookBtn" type="button" disabled>Request ride</button>
+        <p id="rideStatus" class="status"></p>
       </div>
       <div class="card">
         <h2>Driver telemetry</h2>
         <p class="status">Signed GPS packets feed YieldSwarm Mandelbrot rewards.</p>
-        <button id="telemetryBtn" class="secondary">Submit signed telemetry</button>
+        <button id="telemetryBtn" class="secondary" type="button">Submit signed telemetry</button>
         <p id="telemetryStatus" class="status"></p>
       </div>
       <div class="card">
@@ -68,23 +77,30 @@
         <div class="fee"><span>App earnings</span><span id="appEarnings">—</span></div>
         <div class="fee"><span>DePIN rewards</span><span id="depinRewards">—</span></div>
         <div class="fee"><span>Total estimated</span><strong id="totalEst">—</strong></div>
-        <button id="refreshEarnings" class="secondary">Refresh</button>
+        <button id="refreshEarnings" class="secondary" type="button">Refresh</button>
       </div>
     </section>
   </main>
+  <script src="/kairo-app/config.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
   <script>
     const config = window.KAIRO_CONFIG || {};
-    const apiBase = config.apiBase || window.KAIRO_API_BASE || '/api/kairo';
+    const apiBase = (config.apiBase || window.KAIRO_API_BASE || '/api/kairo').replace(/\/$/, '');
     const mapboxToken = config.mapboxToken || window.MAPBOX_TOKEN || '';
     const driverId = localStorage.getItem('kairo_driver_id') || 'kairo-driver-1';
 
-    function money(v) { return '$' + Number(v).toFixed(2); }
+    let map = null;
+    let pickupMarker = null;
+    let dropoffMarker = null;
+    let routeLayerReady = false;
+    let lastQuote = null;
+    let activeRideId = null;
 
-    function updateFees() {
-      const fare = Number(document.getElementById('fare').value || 0);
-      document.getElementById('platformFee').textContent = money(fare * 0.01);
-      document.getElementById('driverPay').textContent = money(fare * 2);
+    function money(v) { return '$' + Number(v || 0).toFixed(2); }
+
+    function setStatus(el, msg, kind) {
+      el.textContent = msg;
+      el.className = 'status ' + (kind || '');
     }
 
     async function api(path, options) {
@@ -93,65 +109,217 @@
         ...options,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || res.statusText);
+      if (!res.ok) throw new Error(data.error || res.statusText || 'request failed');
       return data;
     }
 
     async function ensureDriver() {
       try {
-        const existing = await api(`/drivers/${encodeURIComponent(driverId)}/contribution?trip_fare_usd=0`);
+        await api(`/drivers/${encodeURIComponent(driverId)}/contribution?trip_fare_usd=0`);
         document.getElementById('driverMeta').textContent = `Driver: ${driverId}`;
-        return existing.data || existing;
       } catch {
-        const created = await api('/drivers', {
+        await api('/drivers', {
           method: 'POST',
           body: JSON.stringify({ driver_id: driverId }),
         });
         localStorage.setItem('kairo_driver_id', driverId);
         document.getElementById('driverMeta').textContent = `Driver: ${driverId} (registered)`;
-        return created.data || created;
+      }
+    }
+
+    async function refreshDepinStatus() {
+      const pill = document.getElementById('depinPill');
+      try {
+        const res = await api('/depin/status');
+        const row = res.data || res;
+        if (row.depinRewardsAvailable || row.live) {
+          pill.textContent = 'Akash live';
+          pill.className = 'pill live';
+        } else {
+          pill.textContent = 'pending Akash';
+          pill.className = 'pill pending';
+        }
+      } catch {
+        pill.textContent = 'offline';
+        pill.className = 'pill pending';
       }
     }
 
     async function refreshEarnings() {
-      const fare = Number(document.getElementById('fare').value || 0);
-      const res = await api(`/drivers/${encodeURIComponent(driverId)}/contribution?trip_fare_usd=${fare}`);
+      const base = lastQuote ? Number(lastQuote.baseFareUsd) : 0;
+      const res = await api(`/drivers/${encodeURIComponent(driverId)}/contribution?trip_fare_usd=${base}`);
       const row = res.data || res;
       document.getElementById('appEarnings').textContent = money(row.app_earnings_usd || 0);
-      document.getElementById('depinRewards').textContent = money(row.depin_rewards_usd || 0);
+      const depinEl = document.getElementById('depinRewards');
+      if (row.depin_rewards_usd > 0) {
+        depinEl.textContent = money(row.depin_rewards_usd);
+      } else {
+        depinEl.textContent = '— (awaiting live workers)';
+      }
       document.getElementById('totalEst').textContent = money(row.estimated_total_usd || 0);
+    }
+
+    async function geocode(query) {
+      if (!mapboxToken) throw new Error('Mapbox token required for geocoding');
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const feat = data.features?.[0];
+      if (!feat) throw new Error(`Could not geocode: ${query}`);
+      return { lng: feat.center[0], lat: feat.center[1], label: feat.place_name };
+    }
+
+    async function fetchDirections(pickup, dropoff) {
+      if (!mapboxToken) throw new Error('Mapbox token required for routing');
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?access_token=${mapboxToken}&geometries=geojson&overview=full`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const route = data.routes?.[0];
+      if (!route) throw new Error('No driving route found');
+      return {
+        distanceKm: route.distance / 1000,
+        durationMin: route.duration / 60,
+        geometry: route.geometry,
+      };
+    }
+
+    function updateMapRoute(pickup, dropoff, geometry) {
+      if (!map) return;
+      if (pickupMarker) pickupMarker.remove();
+      if (dropoffMarker) dropoffMarker.remove();
+      pickupMarker = new mapboxgl.Marker({ color: '#3358ff' }).setLngLat([pickup.lng, pickup.lat]).addTo(map);
+      dropoffMarker = new mapboxgl.Marker({ color: '#7dffc4' }).setLngLat([dropoff.lng, dropoff.lat]).addTo(map);
+
+      if (geometry) {
+        if (!routeLayerReady) {
+          map.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry } });
+          map.addLayer({
+            id: 'route-line',
+            type: 'line',
+            source: 'route',
+            paint: { 'line-color': '#7dffc4', 'line-width': 4, 'line-opacity': 0.85 },
+          });
+          routeLayerReady = true;
+        } else {
+          map.getSource('route').setData({ type: 'Feature', geometry });
+        }
+        const bounds = new mapboxgl.LngLatBounds();
+        geometry.coordinates.forEach((c) => bounds.extend(c));
+        map.fitBounds(bounds, { padding: 48 });
+      }
+    }
+
+    function applyQuote(quote, route) {
+      lastQuote = quote;
+      document.getElementById('baseFare').textContent = money(quote.baseFareUsd);
+      document.getElementById('platformFee').textContent = money(quote.customerFeeUsd);
+      document.getElementById('customerTotal').textContent = money(quote.customerTotalUsd);
+      document.getElementById('driverPay').textContent = money(quote.driverAppPayUsd);
+      document.getElementById('depinEstAmt').textContent = money(quote.depinRewardEstimateUsd);
+      document.getElementById('routeMeta').textContent =
+        `${route.distanceKm.toFixed(1)} km · ${Math.round(route.durationMin)} min`;
+      document.getElementById('bookBtn').disabled = false;
+    }
+
+    async function quoteRide() {
+      const status = document.getElementById('routeMeta');
+      const btn = document.getElementById('quoteBtn');
+      btn.disabled = true;
+      setStatus(status, 'Geocoding pickup and dropoff…', 'loading');
+      try {
+        const pickupQ = document.getElementById('pickup').value.trim();
+        const dropoffQ = document.getElementById('dropoff').value.trim();
+        const [pickup, dropoff] = await Promise.all([geocode(pickupQ), geocode(dropoffQ)]);
+        setStatus(status, 'Calculating route…', 'loading');
+        const route = await fetchDirections(pickup, dropoff);
+        updateMapRoute(pickup, dropoff, route.geometry);
+        const fareRes = await api('/fare/quote', {
+          method: 'POST',
+          body: JSON.stringify({ distanceKm: route.distanceKm, durationMin: route.durationMin }),
+        });
+        const quote = fareRes.data || fareRes;
+        applyQuote(quote, route);
+        lastQuote._route = { pickup, dropoff, ...route };
+        setStatus(status, 'Fare ready — tap Request ride', 'ok');
+      } catch (err) {
+        setStatus(status, err.message, 'error');
+        document.getElementById('bookBtn').disabled = true;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function pollRide(rideId) {
+      const el = document.getElementById('rideStatus');
+      for (let i = 0; i < 12; i++) {
+        const res = await api(`/rides/${encodeURIComponent(rideId)}`);
+        const ride = res.data || res;
+        if (ride.status === 'driver_en_route') {
+          setStatus(el, `Ride ${rideId}: driver en route`, 'ok');
+          return ride;
+        }
+        setStatus(el, `Ride ${rideId}: matching driver…`, 'loading');
+        await new Promise((r) => setTimeout(r, 800));
+      }
+      setStatus(el, `Ride ${rideId}: still matching`, 'loading');
+    }
+
+    async function bookRide() {
+      const el = document.getElementById('rideStatus');
+      const btn = document.getElementById('bookBtn');
+      if (!lastQuote?._route) {
+        setStatus(el, 'Get a fare estimate first', 'error');
+        return;
+      }
+      btn.disabled = true;
+      setStatus(el, 'Creating ride request…', 'loading');
+      try {
+        await ensureDriver();
+        const { pickup, dropoff, distanceKm, durationMin } = lastQuote._route;
+        const res = await api('/rides', {
+          method: 'POST',
+          body: JSON.stringify({
+            driver_id: driverId,
+            pickup: document.getElementById('pickup').value.trim(),
+            dropoff: document.getElementById('dropoff').value.trim(),
+            pickup_coords: [pickup.lng, pickup.lat],
+            dropoff_coords: [dropoff.lng, dropoff.lat],
+            distanceKm,
+            durationMin,
+            fare: lastQuote,
+          }),
+        });
+        const ride = res.data || res;
+        activeRideId = ride.id;
+        setStatus(el, `Ride ${ride.id} requested — 1% fee locked`, 'ok');
+        await pollRide(ride.id);
+        await refreshEarnings();
+      } catch (err) {
+        setStatus(el, err.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
     }
 
     function initMap() {
       if (!mapboxToken) {
         document.getElementById('map').innerHTML =
-          '<div style="padding:2rem;color:#9db0d9">Set <code>MAPBOX_TOKEN</code> or <code>KAIRO_CONFIG.mapboxToken</code> to enable live tracking.</div>';
+          '<div style="padding:2rem;color:#9db0d9">Set <code>MAPBOX_TOKEN</code> or <code>VITE_MAPBOX_TOKEN</code> on the integration backend.<br/>Served via <code>/kairo-app/config.js</code>.</div>';
         return;
       }
       mapboxgl.accessToken = mapboxToken;
-      const map = new mapboxgl.Map({
+      map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/dark-v11',
         center: [-104.9903, 39.7392],
         zoom: 11,
       });
-      new mapboxgl.Marker({ color: '#3358ff' }).setLngLat([-104.9903, 39.7392]).addTo(map);
-      new mapboxgl.Marker({ color: '#7dffc4' }).setLngLat([-104.6737, 39.8561]).addTo(map);
       map.addControl(new mapboxgl.NavigationControl());
     }
 
-    document.getElementById('fare').addEventListener('input', updateFees);
-    document.getElementById('bookBtn').addEventListener('click', async () => {
-      try {
-        await ensureDriver();
-        await refreshEarnings();
-        document.getElementById('telemetryStatus').textContent = 'Ride booked — 1% fee applied.';
-        document.getElementById('telemetryStatus').className = 'status ok';
-      } catch (err) {
-        document.getElementById('telemetryStatus').textContent = err.message;
-        document.getElementById('telemetryStatus').className = 'status error';
-      }
-    });
+    document.getElementById('quoteBtn').addEventListener('click', quoteRide);
+    document.getElementById('bookBtn').addEventListener('click', bookRide);
+    document.getElementById('refreshEarnings').addEventListener('click', refreshEarnings);
     document.getElementById('telemetryBtn').addEventListener('click', async () => {
       const status = document.getElementById('telemetryStatus');
       try {
@@ -164,24 +332,24 @@
               latitude: 39.7392 + (Math.random() - 0.5) * 0.05,
               longitude: -104.9903 + (Math.random() - 0.5) * 0.05,
               speed_kmh: 30 + Math.random() * 25,
-              distance_km: 1.2 + Math.random() * 3,
-              duration_seconds: 120 + Math.floor(Math.random() * 300),
+              distance_km: lastQuote?._route?.distanceKm || 1.2,
+              duration_seconds: Math.round((lastQuote?._route?.durationMin || 2) * 60),
             },
           }),
         });
-        status.textContent = 'Signed telemetry accepted by YieldSwarm pipeline.';
-        status.className = 'status ok';
+        setStatus(status, 'Signed telemetry accepted by YieldSwarm pipeline.', 'ok');
         await refreshEarnings();
       } catch (err) {
-        status.textContent = err.message;
-        status.className = 'status error';
+        setStatus(status, err.message, 'error');
       }
     });
-    document.getElementById('refreshEarnings').addEventListener('click', refreshEarnings);
 
-    updateFees();
     initMap();
-    ensureDriver().then(refreshEarnings).catch(() => {});
+    ensureDriver()
+      .then(() => Promise.all([refreshDepinStatus(), refreshEarnings()]))
+      .catch((err) => {
+        document.getElementById('driverMeta').textContent = err.message;
+      });
   </script>
 </body>
 </html>
