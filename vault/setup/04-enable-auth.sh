@@ -70,9 +70,33 @@ create_or_update_role ci-bootstrap \
   secret_id_num_uses=1 \
   bind_secret_id=true
 
+# Integration backend (Arena API, no GPU) — Akash :8080
+create_or_update_role integration-backend \
+  token_policies="integration-backend" \
+  token_ttl="1h" \
+  token_max_ttl="24h" \
+  token_num_uses=0 \
+  secret_id_ttl="30m" \
+  secret_id_num_uses=1 \
+  bind_secret_id=true \
+  secret_id_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}" \
+  token_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}"
+
 # Bittensor miner on Akash (Ollama + axon) — same CIDR binding as akash-runtime.
 create_or_update_role bittensor-runtime \
   token_policies="bittensor-runtime" \
+  token_ttl="1h" \
+  token_max_ttl="24h" \
+  token_num_uses=0 \
+  secret_id_ttl="30m" \
+  secret_id_num_uses=1 \
+  bind_secret_id=true \
+  secret_id_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}" \
+  token_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}"
+
+# Odysseus full stack (LLM keys at deploy-render time)
+create_or_update_role odysseus-runtime \
+  token_policies="odysseus-runtime" \
   token_ttl="1h" \
   token_max_ttl="24h" \
   token_num_uses=0 \
