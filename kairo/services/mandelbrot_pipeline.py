@@ -98,6 +98,14 @@ class MandelbrotPipeline:
         except Exception:
             pass
 
+        # Neon sink — Mandelbrot bot + Helix dashboards (file fallback without DATABASE_URL).
+        try:
+            from services.neon_store import log_mandelbrot
+
+            log_mandelbrot(record)
+        except Exception:
+            pass
+
         return record
 
     def _load_index(self) -> dict[str, Any]:
