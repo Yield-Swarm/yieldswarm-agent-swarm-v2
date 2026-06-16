@@ -54,6 +54,20 @@ app.get('/vault-dashboard', (_req, res) =>
 app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
 app.use('/kairo-app', express.static(path.join(repoRoot, 'kairo', 'frontend')));
 
+/** Runtime config for Kairo static app (Mapbox + API base). */
+app.get('/kairo-app/config.js', (_req, res) => {
+  const payload = {
+    apiBase: process.env.KAIRO_PUBLIC_API_BASE || '/api/kairo',
+    mapboxToken:
+      process.env.MAPBOX_TOKEN ||
+      process.env.MAPBOX_ACCESS_TOKEN ||
+      process.env.VITE_MAPBOX_TOKEN ||
+      '',
+  };
+  res.type('application/javascript');
+  res.send(`window.KAIRO_CONFIG=${JSON.stringify(payload)};`);
+});
+
 // ---- Frontends -----------------------------------------------------------
 app.use('/arena', express.static(path.join(frontendDir, 'arena')));
 app.use('/portal', express.static(path.join(frontendDir, 'portal')));
