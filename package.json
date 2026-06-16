@@ -17,6 +17,8 @@
     "test:unit": "vitest run",
     "test:god-prompt": "vitest run src/infrastructure/",
     "test:zk": "vitest run src/infrastructure/zk-entropy.test.js",
+    "mayhem:zk": "node scripts/mayhem-zk-pipeline.js",
+    "mayhem:zk:dry": "node scripts/mayhem-zk-pipeline.js --dry-run",
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",

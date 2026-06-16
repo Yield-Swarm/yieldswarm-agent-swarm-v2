@@ -29,8 +29,8 @@ COPY src/infrastructure/ /app/infrastructure/
 RUN chmod +x /entrypoint.sh
 
 # Resource guardrails (Greek layer hard limits)
-ENV THERMAL_LIMIT_C=85 \
-    VRAM_PRESSURE_PCT=92 \
+ENV THERMAL_LIMIT_C=83 \
+    VRAM_MAX_GB=29.5 \
     HEALTH_PATH=/healthz
 
 EXPOSE 8000 9090

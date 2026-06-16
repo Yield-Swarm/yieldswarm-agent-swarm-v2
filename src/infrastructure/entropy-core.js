@@ -161,6 +161,48 @@ export function deriveZkEntropyBundle(telemetry, tokenId = '0', opts = {}) {
 }
 
 /**
+ * Generate entropy seed + Groth16 proof in one call (E¹ Mayhem Task 11-20).
+ * @param {Record<string, number>} telemetry
+ * @param {string|number} tokenId
+ * @param {object} [opts]
+ * @param {import('./zk-entropy-prover.js').ZkEntropyProver} [opts.prover]
+ * @param {Record<string, number>[]} [opts.samples] rolling window samples
+ */
+export async function generateSeedWithProof(telemetry, tokenId = '0', opts = {}) {
+  const bundle = deriveZkEntropyBundle(telemetry, tokenId, {
+    samples: opts.samples,
+    window: opts.window,
+  });
+
+  const { ZkEntropyProver } = await import('./zk-entropy-prover.js');
+  const prover = opts.prover ?? new ZkEntropyProver({ circuitVersion: opts.circuitVersion ?? '1.0.0' });
+
+  const source = bundle.window?.aggregated ?? telemetry;
+  const proofResult = await prover.generateProof({
+    telemetry: { ...source, nodeProfile: bundle.nodeProfile },
+    tokenId,
+    nonce: bundle.window?.nonce ?? 0,
+  });
+
+  return {
+    seed: proofResult.publicSignals?.entropySeed
+      ? `0x${BigInt(proofResult.publicSignals.entropySeed).toString(16).padStart(64, '0').slice(-64)}`
+      : deriveMutationSeed(telemetry, tokenId).seed,
+    bundle,
+    proof: proofResult,
+    entropyQuality: bundle.entropyQuality,
+    publicInputs: bundle.publicInputs,
+    privateInputs: bundle.privateInputs,
+    layers: {
+      ...bundle.layers,
+      eastern: proofResult.ok ? 'seed_with_proof' : 'seed_degraded',
+      zk: proofResult.mode ?? 'none',
+      paradigm: 'mutation_ready',
+    },
+  };
+}
+
+/**
  * Legacy seed derivation (backward compatible).
  */
 export function deriveMutationSeed(telemetry, tokenId = '0') {
@@ -236,6 +278,7 @@ export default {
   buildZkWitness,
   deriveZkEntropyBundle,
   deriveMutationSeed,
+  generateSeedWithProof,
   proposeGenomeDelta,
   NODE_PROFILES,
   TELEMETRY_KEYS,

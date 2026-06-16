@@ -3,10 +3,13 @@
  * @module src/automation/resource-guardrails
  */
 
+import { MONITOR_LIMITS } from '../infrastructure/monitor-limits.js';
+
 export const LIMITS = Object.freeze({
-  THERMAL_C: 85,
-  VRAM_PCT: 92,
-  NETWORK_DROP_PCT: 5,
+  THERMAL_C: MONITOR_LIMITS.THERMAL_C,
+  VRAM_MAX_GB: MONITOR_LIMITS.VRAM_MAX_GB,
+  VRAM_PCT: MONITOR_LIMITS.VRAM_MAX_PCT_RTX5090,
+  NETWORK_DROP_PCT: MONITOR_LIMITS.NETWORK_DROP_PCT,
   MAX_CONCURRENT_INFERENCE: 8,
 });
 
@@ -17,6 +20,10 @@ export const LIMITS = Object.freeze({
 export function evaluateGuardrails(telemetry) {
   if (telemetry.gpuTempC > LIMITS.THERMAL_C) {
     return { ok: false, action: 'throttle', reason: `thermal>${LIMITS.THERMAL_C}C` };
+  }
+  const vramGb = telemetry.vramUsedGb ?? ((telemetry.vramUsedPct ?? 0) / 100) * MONITOR_LIMITS.VRAM_TOTAL_GB_RTX5090;
+  if (vramGb > LIMITS.VRAM_MAX_GB) {
+    return { ok: false, action: 'evict_models', reason: `vram>${LIMITS.VRAM_MAX_GB}GB` };
   }
   if (telemetry.vramUsedPct > LIMITS.VRAM_PCT) {
     return { ok: false, action: 'evict_models', reason: `vram>${LIMITS.VRAM_PCT}%` };

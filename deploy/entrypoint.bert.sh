@@ -15,8 +15,8 @@ thermal_check() {
   if command -v nvidia-smi >/dev/null 2>&1; then
     local temp
     temp="$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null | head -1 || echo 0)"
-    if [[ "${temp:-0}" -gt "${THERMAL_LIMIT_C:-85}" ]]; then
-      log "WARN: GPU temp ${temp}C exceeds limit ${THERMAL_LIMIT_C:-85}C — throttling batch size"
+    if [[ "${temp:-0}" -gt "${THERMAL_LIMIT_C:-83}" ]]; then
+      log "WARN: GPU temp ${temp}C exceeds limit ${THERMAL_LIMIT_C:-83}C — throttling batch size"
       export VLLM_MAX_NUM_SEQS=$((MAX_SEQS / 2))
     fi
   fi

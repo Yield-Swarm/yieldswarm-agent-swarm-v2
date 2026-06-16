@@ -1,5 +1,22 @@
 # ZK Entropy System — Security Model & Flow (Tasks 40, 48, 50)
 
+## Mayhem Mode (production hardening)
+
+| Component | Mayhem addition |
+|-----------|-----------------|
+| `deploy/entrypoint.monitor.sh` | Hard **83°C** thermal + **29.5GB** VRAM limits |
+| `entropy-core.generateSeedWithProof()` | One-call seed + Groth16 proof |
+| `hardened-odysseus-router.js` | Zero-trust isolation + hardware gate |
+| `scripts/mayhem-zk-pipeline.js` | Full e2e: telemetry → proof → route |
+| `scripts/mayhem-multicloud.sh` | Aggressive $5,408 credit burn |
+
+```bash
+npm run mayhem:zk          # full pipeline
+npm run test:zk            # 16 tests
+make mayhem-deploy         # multicloud + ZK + vLLM
+./deploy/entrypoint.monitor.sh  # GPU sidecar
+```
+
 ## Objective
 
 Cryptographically prove entropy seeds were derived from valid hardware telemetry **without revealing raw telemetry**, integrated across all **5 helical layers**.

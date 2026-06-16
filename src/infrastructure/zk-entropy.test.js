@@ -8,7 +8,9 @@ import {
   buildRollingWindow,
   toCircuitInputs,
   NODE_PROFILES,
+  generateSeedWithProof,
 } from '../infrastructure/entropy-core.js';
+import { hardenedRouteRequest } from '../infrastructure/hardened-odysseus-router.js';
 import { ZkProofQueue } from '../infrastructure/zk-proof-queue.js';
 import { applyZkFeedback } from '../infrastructure/sovereign-optimizer.js';
 
@@ -96,6 +98,50 @@ describe('sovereign-optimizer ZK feedback (E¹ Task 13, PDs¹ Task 46)', () => {
   it('penalizes failed proofs', () => {
     const fb = applyZkFeedback({ ok: false });
     expect(fb.boost).toBeLessThan(0);
+  });
+});
+
+describe('generateSeedWithProof (E¹ Mayhem Task 11)', () => {
+  it('returns seed + proof bundle', async () => {
+    const telemetry = { gpuTempC: 70, vramUsedPct: 60, powerWatts: 400, inferenceTps: 100, packetLossPct: 1, nodeProfile: 'rtx5090' };
+    const result = await generateSeedWithProof(telemetry, '7');
+    expect(result.seed).toMatch(/^0x/);
+    expect(result.proof.ok).toBe(true);
+    expect(result.entropyQuality).toBeGreaterThan(0);
+  });
+});
+
+describe('hardened-odysseus-router (Mayhem D¹)', () => {
+  it('blocks thermal breach routing', () => {
+    const route = hardenedRouteRequest({
+      tokenId: '99',
+      callerId: 'sovereign-optimizer',
+      telemetry: { gpuTempC: 90, vramUsedPct: 50, vramUsedGb: 20 },
+    });
+    expect(route.ok).toBe(false);
+    expect(route.error).toBe('hardware_limit_breach');
+  });
+
+  it('routes with ZK proof boost', () => {
+    const route = hardenedRouteRequest({
+      tokenId: '99',
+      callerId: 'sovereign-optimizer',
+      telemetry: { gpuTempC: 70, vramUsedPct: 60, vramUsedGb: 22 },
+      zkProof: { ok: true, mode: 'groth16', entropyQuality: 0.9, proveMs: 2000 },
+      tier: 2,
+    });
+    expect(route.ok).toBe(true);
+    expect(route.hardened).toBe(true);
+  });
+});
+
+describe('monitor limits (D¹ Mayhem 83°C / 29.5GB)', () => {
+  it('enforces hard caps', async () => {
+    const { evaluateHardwareLimits, MONITOR_LIMITS } = await import('../infrastructure/monitor-limits.js');
+    expect(MONITOR_LIMITS.THERMAL_C).toBe(83);
+    expect(MONITOR_LIMITS.VRAM_MAX_GB).toBe(29.5);
+    expect(evaluateHardwareLimits({ gpuTempC: 84, vramUsedGb: 20 }).ok).toBe(false);
+    expect(evaluateHardwareLimits({ gpuTempC: 70, vramUsedGb: 30 }).ok).toBe(false);
   });
 });
 

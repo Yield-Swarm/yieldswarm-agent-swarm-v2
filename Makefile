@@ -139,6 +139,14 @@ god-prompt-test:
 zk-test:
 	npm run test:zk
 
+## mayhem-zk: full Mayhem pipeline dry-run / live
+mayhem-zk:
+	node scripts/mayhem-zk-pipeline.js
+
+## mayhem-deploy: aggressive multicloud + ZK + vLLM stack
+mayhem-deploy:
+	bash scripts/mayhem-multicloud.sh
+
 ## zk-build: compile Groth16 circuit + trusted setup
 zk-build:
 	cd circuits && npm install && npm run full-build

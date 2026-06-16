@@ -3,6 +3,8 @@
  * @module src/infrastructure/zk-proof-queue
  */
 
+import { MONITOR_LIMITS } from './monitor-limits.js';
+
 const MUTATION_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const DEFAULT_BATCH_SIZE = 4;
 
@@ -13,8 +15,9 @@ export class ZkProofQueue {
     this.batchSize = opts.batchSize ?? DEFAULT_BATCH_SIZE;
     this.timingLog = [];
     this.loadThreshold = opts.loadThreshold ?? 0.85;
-    this.thermalLimitC = opts.thermalLimitC ?? 85;
-    this.vramLimitPct = opts.vramLimitPct ?? 92;
+    this.thermalLimitC = opts.thermalLimitC ?? MONITOR_LIMITS.THERMAL_C;
+    this.vramLimitGb = opts.vramLimitGb ?? MONITOR_LIMITS.VRAM_MAX_GB;
+    this.vramLimitPct = opts.vramLimitPct ?? MONITOR_LIMITS.VRAM_MAX_PCT_RTX5090;
   }
 
   /** Task 29 — enqueue with rhythmic priority */
@@ -35,7 +38,9 @@ export class ZkProofQueue {
       this.paused = true;
       return false;
     }
-    if ((clusterState.vramUsedPct ?? 0) > this.vramLimitPct) return false;
+    const vramGb = clusterState.vramUsedGb ??
+      ((clusterState.vramUsedPct ?? 0) / 100) * MONITOR_LIMITS.VRAM_TOTAL_GB_RTX5090;
+    if (vramGb > this.vramLimitGb || (clusterState.vramUsedPct ?? 0) > this.vramLimitPct) return false;
 
     return true;
   }
