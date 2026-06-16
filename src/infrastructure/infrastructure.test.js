@@ -62,6 +62,29 @@ describe("entropy-core", () => {
   });
 });
 
+describe("telemetry-validation-bridge", () => {
+  it("pulses GPU telemetry into HardenedAuditEngine with pillar envelope", async () => {
+    const { pulseGpuTelemetry } = await import("./telemetry-validation-bridge.js");
+    const r = pulseGpuTelemetry({
+      pillarId: "04_akash_gpu_workers",
+      vramUsedGb: 8.5,
+      tempC: 62,
+      utilizationPct: 45,
+      gpuId: "nvidia-p40",
+    });
+    expect(r.pillarId).toBe("04_akash_gpu_workers");
+    expect(r.status).toBe("green");
+    expect(r.chainVerify.valid).toBe(true);
+    expect(r.auditBlock.blockVerificationHash).toHaveLength(64);
+  });
+
+  it("flags mayhem breach above VRAM and thermal ceiling", async () => {
+    const { pulseGpuTelemetry } = await import("./telemetry-validation-bridge.js");
+    const r = pulseGpuTelemetry({ vramUsedGb: 30, tempC: 85 });
+    expect(r.status).toBe("mayhem_breach");
+  });
+});
+
 describe("zk-entropy-prover", () => {
   it("sanitizes telemetry within policy bounds", async () => {
     const { sanitizeTelemetry, computeCommitment, generateDevProof, verifyProofLocally } =
