@@ -40,7 +40,7 @@ class MultiLingualSolenoidEngine {
 }
 
 class RosettaStoneLanguageCore {
-  constructor() {
+  constructor(extraDictionary = {}) {
     this.dictionary = {
       D1_VAULT_LOCK: {
         en: 'Vault state secured. Cryptographic isolation active.',
@@ -62,7 +62,42 @@ class RosettaStoneLanguageCore {
         ja: '熱的限界に達しました。ノードの優先度を変更しています。',
         de: 'Kritische thermische Obergrenze erreicht. Knotenpriorität wird verschoben.',
       },
+      TREASURY_SPLIT_5015155: {
+        en: 'Great Delta split: Core 50% · Growth 30% · Insurance 15% · Ops 5%',
+        zh: 'Great Delta 分配：核心 50% · 增长 30% · 保险 15% · 运营 5%',
+      },
+      ...extraDictionary,
     };
+    this._loadPillarPack();
+  }
+
+  _loadPillarPack() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const packPath = path.join(__dirname, '..', '..', 'config', 'helix', 'rosetta-pillars.json');
+      if (!fs.existsSync(packPath)) return;
+      const pack = JSON.parse(fs.readFileSync(packPath, 'utf8'));
+      if (pack.pillars) Object.assign(this.dictionary, pack.pillars);
+      if (pack.treasury_split) this.dictionary.TREASURY_SPLIT_5015155 = pack.treasury_split;
+    } catch {
+      /* optional pack */
+    }
+  }
+
+  /** Translate pillar id 1-14 to localized label. */
+  translatePillar(pillarId, targetLang = 'en') {
+    const key = `P${String(pillarId).padStart(2, '0')}_${this._pillarKey(pillarId)}`;
+    return this.translate(key, targetLang);
+  }
+
+  _pillarKey(id) {
+    const keys = [
+      'GREEK_VAULTS', 'INFRA_ORACLES', 'ZK_MAYHEM', 'GPU_WORKERS', 'ARENA',
+      'CROSS_CHAIN', 'TESLA_FLEET', 'EMISSION', 'AGENTSWARM', 'SECURITY_MPC',
+      'TELEMETRY', 'GOVERNANCE', 'TREASURY_YIELD', 'VALHALLA',
+    ];
+    return keys[id - 1] || 'UNKNOWN';
   }
 
   translate(textCode, targetLang = 'en') {

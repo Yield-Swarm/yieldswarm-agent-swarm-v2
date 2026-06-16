@@ -1,0 +1,67 @@
+{
+  "locales": ["en", "zh", "hi", "es", "ar", "fr", "ja", "de", "pt", "ru", "ko", "it", "tr", "vi"],
+  "pillars": {
+    "P01_GREEK_VAULTS": {
+      "en": "Pillar 01 — D¹ Vaults: cryptographic isolation active",
+      "zh": "支柱 01 — D¹ 金库：加密隔离已激活",
+      "es": "Pilar 01 — Bóvedas D¹: aislamiento criptográfico activo",
+      "ja": "ピラー 01 — D¹ 金庫：暗号化分離が有効"
+    },
+    "P02_INFRA_ORACLES": {
+      "en": "Pillar 02 — Infra/Oracles: flow lane synchronized",
+      "zh": "支柱 02 — 基础设施/预言机：流道已同步"
+    },
+    "P03_ZK_MAYHEM": {
+      "en": "Pillar 03 — ZK¹ Mayhem: entropy proof window sealed",
+      "zh": "支柱 03 — ZK¹ 混沌：熵证明窗口已密封"
+    },
+    "P04_GPU_WORKERS": {
+      "en": "Pillar 04 — GPU Workers: RTX fleet online",
+      "zh": "支柱 04 — GPU 工作节点：RTX 集群在线"
+    },
+    "P05_ARENA": {
+      "en": "Pillar 05 — Arena: live telemetry dashboard",
+      "zh": "支柱 05 — 竞技场：实时遥测面板"
+    },
+    "P06_CROSS_CHAIN": {
+      "en": "Pillar 06 — Cross-Chain: execution bridge armed",
+      "zh": "支柱 06 — 跨链：执行桥已就绪"
+    },
+    "P07_TESLA_FLEET": {
+      "en": "Pillar 07 — Tesla Fleet: neural mesh resonance locked",
+      "zh": "支柱 07 — 特斯拉车队：神经网格共振已锁定"
+    },
+    "P08_EMISSION": {
+      "en": "Pillar 08 — Emission Router: 50/30/15/5 split verified",
+      "zh": "支柱 08 — 排放路由：50/30/15/5 分配已验证"
+    },
+    "P09_AGENTSWARM": {
+      "en": "Pillar 09 — AgentSwarm OS: 10,080 agents cycling",
+      "zh": "支柱 09 — 代理群操作系统：10,080 代理循环中"
+    },
+    "P10_SECURITY_MPC": {
+      "en": "Pillar 10 — Security/MPC: TEE boundary enforced",
+      "zh": "支柱 10 — 安全/MPC：TEE 边界已强制执行"
+    },
+    "P11_TELEMETRY": {
+      "en": "Pillar 11 — Telemetry: 64-block audit chain healthy",
+      "zh": "支柱 11 — 遥测：64 块审计链健康"
+    },
+    "P12_GOVERNANCE": {
+      "en": "Pillar 12 — Governance: consensus quorum active",
+      "zh": "支柱 12 — 治理：共识法定人数活跃"
+    },
+    "P13_TREASURY_YIELD": {
+      "en": "Pillar 13 — Treasury Yield: non-dilutive funding routed",
+      "zh": "支柱 13 — 国库收益：非稀释资金已路由"
+    },
+    "P14_VALHALLA": {
+      "en": "Pillar 14 — Valhalla Portal: omni-lingual surface live",
+      "zh": "支柱 14 — 英灵殿门户：全语种界面已上线"
+    }
+  },
+  "treasury_split": {
+    "en": "Great Delta split: Core 50% · Growth 30% · Insurance 15% · Ops 5%",
+    "zh": "Great Delta 分配：核心 50% · 增长 30% · 保险 15% · 运营 5%"
+  }
+}

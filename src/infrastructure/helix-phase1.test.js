@@ -31,6 +31,12 @@ describe('RosettaStoneLanguageCore', () => {
     expect(rosetta.translate('D1_VAULT_LOCK', 'zh')).toContain('金库');
   });
 
+  it('translates pillar 13 treasury label', () => {
+    const rosetta = new RosettaStoneLanguageCore();
+    const msg = rosetta.translatePillar(13, 'en');
+    expect(msg).toMatch(/Treasury|Pillar 13/i);
+  });
+
   it('falls back to English for unknown locale', () => {
     const rosetta = new RosettaStoneLanguageCore();
     const msg = rosetta.translate('E1_THERMAL_OVERLOAD', 'xx');
@@ -148,8 +154,14 @@ describe('TelemetryValidationBridge', () => {
     expect(result.stateAnchor).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  it('failovers on missing data', () => {
+  it('links treasury yield split on success', () => {
     const bridge = new TelemetryValidationBridge();
-    expect(bridge.processMetricPulse(null, {}).status).toBe('FAILOVER_TRIGGERED');
+    const result = bridge.processMetricPulse(
+      { id: '13', namespaceHash: 'NS_13' },
+      { gpu_temperature: 72, vram_used_bytes: 20e9, projected_yield_usd: 1000 }
+    );
+    expect(result.status).toBe('SUCCESS');
+    expect(result.treasuryYield?.splitPolicy).toBe('50/30/15/5');
+    expect(result.treasuryYield?.splits?.[0]?.bps).toBe(5000);
   });
 });

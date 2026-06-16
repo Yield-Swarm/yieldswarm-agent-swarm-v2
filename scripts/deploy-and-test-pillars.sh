@@ -2,6 +2,7 @@
 # scripts/deploy-and-test-pillars.sh
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TARGET_ENV="${1:-devnet}"
 REQUIRED_PILLARS=14
 LOG_DIR="./logs/deployment"
@@ -14,6 +15,9 @@ echo "================================================================="
 echo "🔍 Running foundational verification passes..."
 if command -v npm >/dev/null 2>&1; then
   npm run test:helix --if-present 2>/dev/null || npm run test:unit --if-present 2>/dev/null || true
+fi
+if [[ -x "${REPO_ROOT:-.}/scripts/hardware-guard.sh" ]]; then
+  "${REPO_ROOT:-.}/scripts/hardware-guard.sh" status 2>/dev/null || true
 fi
 echo "✅ Base verification tests passed cleanly."
 
@@ -37,6 +41,10 @@ for index in "${!PILLARS[@]}"; do
 
     echo "[LOG] Activating adversarial telemetry stress run (Mayhem Mode)..."
 
+    curl -s -X POST "$API_BASE/api/solenoid/pulse" \
+        -H "Content-Type: application/json" \
+        -d "{\"pillarId\":\"$pillar_num\",\"name\":\"$pillar_name\",\"metrics\":{\"gpu_temperature\":78,\"vram_used_bytes\":24000000000}}" \
+        >> "$LOG_DIR/pillar-${pillar_num}.log" 2>&1 || \
     curl -s -X POST "$API_BASE/api/telemetry/pulse" \
         -H "Content-Type: application/json" \
         -d "{\"pillarId\":\"$pillar_num\",\"name\":\"$pillar_name\",\"metrics\":{\"gpu_temperature\":78,\"vram_used_bytes\":24000000000}}" \

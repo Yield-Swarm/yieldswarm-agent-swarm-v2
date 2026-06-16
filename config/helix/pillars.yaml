@@ -1,0 +1,126 @@
+# 14-Pillar Helix Solenoid Omni-Core — production swarm ownership map
+# Stages: S1=Greek D¹ core · S2=Eastern E¹ quadrilateral · S3=ZK¹ pentagram · S4=TFC¹ elevators
+
+version: 1
+total_pillars: 14
+credit_pool_usd: 5408
+treasury_split_bps: [5000, 3000, 1500, 500]  # 50/30/15/5 Great Delta
+
+stages:
+  S1_greek_core:
+    name: "Helix Particle (Greek D¹)"
+    textures: [image_2, image_3, image_0, image_1]
+  S2_eastern_quadrilateral:
+    name: "Quadrilateral Solenoid (Eastern E¹)"
+    textures: [image_2, image_3]
+    corner_panels: [image_2, image_3, image_4, image_4_mirror]
+  S3_zk_pentagram:
+    name: "Pentagram Expansion (ZK¹)"
+    textures: [image_2, image_4]
+  S4_tfc_elevators:
+    name: "14× Pillar Elevators (TFC¹)"
+    textures: [image_0, image_1, image_2, image_3]
+
+swarms:
+  alpha:
+    axis: X
+    layer: D1
+    pillars: [1, 10]
+  beta:
+    axis: Y
+    layer: E1
+    pillars: [2, 4, 11]
+  gamma:
+    axis: Z
+    layer: PDs1
+    pillars: [3, 7, 13]
+  delta:
+    axis: W
+    layer: i18n
+    pillars: [5, 12, 14]
+
+pillars:
+  - id: 1
+    key: greek_vaults
+    name: "D¹ Vaults"
+    swarm: alpha
+    stage: S1
+    artifacts: [contracts/YieldSwarmNFT.sol, contracts/agent-nft/AgentNFT.sol, vault/]
+  - id: 2
+    key: infra_oracles
+    name: "Infra / Oracles"
+    swarm: beta
+    stage: S2
+    artifacts: [src/infrastructure/oracle-bridge.js, backend/src/adapters/oracle.js]
+  - id: 3
+    key: zk_mayhem
+    name: "ZK¹ / Mayhem"
+    swarm: gamma
+    stage: S3
+    artifacts: [circuits/entropy_proof.circom, backend/src/adapters/zkMayhem.js]
+  - id: 4
+    key: gpu_workers
+    name: "GPU Workers"
+    swarm: beta
+    stage: S2
+    artifacts: [deploy/akash-rtx5090-vllm.sdl.yml, scripts/hardware-guard.sh]
+  - id: 5
+    key: arena
+    name: "Arena"
+    swarm: delta
+    stage: S4
+    artifacts: [frontend/src/routes/Arena.tsx, /api/arena/overview]
+  - id: 6
+    key: cross_chain
+    name: "Cross-Chain Exec"
+    swarm: beta
+    stage: S3
+    artifacts: [services/cross_chain/, backend/src/adapters/crossChain.js]
+  - id: 7
+    key: tesla_fleet
+    name: "Tesla Fleet API"
+    swarm: gamma
+    stage: S3
+    artifacts: [scripts/lib/tesla-fleet.sh, TeslaMeshEntropyCore]
+  - id: 8
+    key: emission_routing
+    name: "Emission Routing"
+    swarm: alpha
+    stage: S2
+    artifacts: [contracts/GreatDeltaEmissionRouter.sol, backend/src/lib/great-delta-split.js]
+  - id: 9
+    key: agentswarm_os
+    name: "AgentSwarm OS"
+    swarm: beta
+    stage: S4
+    artifacts: [agents/, deploy/runtime/swarm_runner.py]
+  - id: 10
+    key: security_mpc
+    name: "Security / MPC"
+    swarm: alpha
+    stage: S1
+    artifacts: [deploy/entrypoint.monitor.sh, vault/policies/]
+  - id: 11
+    key: telemetry
+    name: "Telemetry"
+    swarm: beta
+    stage: S4
+    artifacts: [src/infrastructure/entropy-core.js, backend/src/adapters/rtx5090Telemetry.js]
+  - id: 12
+    key: governance
+    name: "Governance"
+    swarm: delta
+    stage: S4
+    artifacts: [agents/governance/, scripts/run-governance-consensus.py]
+  - id: 13
+    key: treasury_yield
+    name: "Treasury Yield"
+    swarm: gamma
+    stage: S3
+    artifacts: [src/infrastructure/sovereign-optimizer.js, services/live_treasury.py]
+  - id: 14
+    key: valhalla_portal
+    name: "Valhalla Portal"
+    swarm: delta
+    stage: S4
+    artifacts: [frontend/src/routes/Portal, council/status.html]
