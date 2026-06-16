@@ -38,6 +38,13 @@ These services use distinct ports, so all three can run at once.
   `pip3 install --break-system-packages`. Console scripts land in `~/.local/bin`.
 - The root `tsconfig.json`/`vitest.config.ts` scope only `src/**`; `frontend`,
   `backend`, `kairo`, etc. are excluded and have their own configs/tests.
+- **Telegram Mini App analytics:** the app initializes `@telegram-apps/analytics`
+  (`src/components/TelegramAnalytics.tsx`, mounted in `src/app/layout.tsx`) from
+  `NEXT_PUBLIC_TELEGRAM_ANALYTICS_TOKEN` / `NEXT_PUBLIC_TELEGRAM_ANALYTICS_APP_NAME`
+  (`yieldswarmprod`). These are `NEXT_PUBLIC_*` (client-side by design) — set the
+  real token in Vercel/Secrets, never commit it (local dev uses gitignored
+  `.env.local`). `init()` only reports inside the real Telegram WebApp; in a normal
+  browser the SDK chunk loads but init stays a no-op, which is expected.
 
 ### Lint / test / build (per service)
 
