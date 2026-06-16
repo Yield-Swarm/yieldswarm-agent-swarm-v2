@@ -1,0 +1,80 @@
+# YieldSwarm multi-cloud workload definitions
+# Used by scripts/multicloud/launch-worker.sh
+
+workloads:
+  bittensor:
+    description: Bittensor dual-purpose miner (telemetry :8080, axon :8091)
+    image: ghcr.io/yield-swarm/yieldswarm-agent:latest
+    gpu: RTX_3090
+    env:
+      AGENT_PROFILE: bittensor-miner
+      BITTENSOR_ENABLED: "1"
+    primary_provider: akash
+    fallback_providers: [vast, runpod]
+
+  inference:
+    description: Agent inference / model serving
+    image: ghcr.io/yield-swarm/yieldswarm-agent:latest
+    gpu: RTX_4090
+    env:
+      AGENT_PROFILE: gpu-inference
+    primary_provider: akash
+    fallback_providers: [runpod, vast]
+
+  training:
+    description: Model fine-tuning burst job
+    image: ghcr.io/yield-swarm/yieldswarm-agent:latest
+    gpu: RTX_4090
+    env:
+      AGENT_PROFILE: training
+    primary_provider: vast
+    fallback_providers: [runpod, gcp]
+
+  grass:
+    description: Grass Linux DePIN node
+    image: grassio/grass:latest
+    gpu: none
+    env: {}
+    primary_provider: azure
+    fallback_providers: [gcp, aws]
+
+  cpu-batch:
+    description: CPU batch / mining workloads
+    image: ghcr.io/yield-swarm/yieldswarm-agent:latest
+    gpu: none
+    env:
+      AGENT_PROFILE: cpu-batch
+    primary_provider: azure
+    fallback_providers: [aws, alibaba]
+
+  sovereign:
+    description: Sovereign loop sidecar
+    image: ghcr.io/yield-swarm/yieldswarm-agent:latest
+    gpu: none
+    env:
+      AGENT_PROFILE: sovereign
+    primary_provider: akash
+    fallback_providers: [azure]
+
+providers:
+  akash:
+    sdl: deploy/akash-bittensor-miner.sdl.yml
+    script: scripts/deploy-to-akash.sh
+  vast:
+    api: https://console.vast.ai/api/v0
+    script: scripts/multicloud/providers/vast.sh
+  runpod:
+    api: https://api.runpod.io/graphql
+    script: scripts/multicloud/providers/runpod.sh
+  azure:
+    terraform: infra/terraform/modules/azure-vmss
+    script: scripts/multicloud/providers/azure.sh
+  gcp:
+    terraform: infra/terraform/modules/gcp-mig
+    script: scripts/multicloud/providers/gcp.sh
+  aws:
+    status: planned
+    script: scripts/multicloud/providers/aws.sh
+  alibaba:
+    status: planned
+    script: scripts/multicloud/providers/alibaba.sh
