@@ -153,6 +153,7 @@ vault-akash-injection → production-prep (#25) → god-prompt-swarm (#27)
 
 | Doc | Purpose |
 |-----|---------|
+| `docs/FINAL_DEPLOYMENT_RUNBOOK.md` | Merge + smoke + sovereign activation |
 | `docs/MULTI_CLOUD_30DAY_PLAN.md` | Full strategy + week-by-week plan |
 | `docs/CURSOR_CLOUD_SETUP.md` | MCP + parallel agent setup |
 | `docs/SWARM_CONDUCTOR.md` | Meta-agent prompt |
