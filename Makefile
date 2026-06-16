@@ -38,6 +38,7 @@ A := deploy/akash
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         zk-trusted-setup zk-mutation-cycle \
+        tfc-setup tfc-init tfc-apply tfc-deploy-all \
         status logs clean production
 
 ## help: show this menu
@@ -306,6 +307,21 @@ zk-trusted-setup:
 ## zk-mutation-cycle: dry-run one ZK mutation cycle (dev proof mode)
 zk-mutation-cycle:
 	@node --input-type=module -e "import { HardenedAuditEngine } from './src/infrastructure/entropy-core.js'; import { runMutationCycle } from './src/automation/zk-mutation-scheduler.js'; const e=new HardenedAuditEngine(); const r=await runMutationCycle(e,{vramUsedGb:14,tempC:68,utilizationPct:55}); console.log(JSON.stringify(r,null,2));"
+
+## tfc-setup: TFC bootstrap from PR #3 — modular optional addon
+tfc-setup:
+	@cp -n deploy/terraform-tfc/terraform.tfvars.example deploy/terraform-tfc/terraform.tfvars 2>/dev/null || true
+
+## tfc-init: terraform init for deploy/terraform-tfc/
+tfc-init:
+	@cd deploy/terraform-tfc && terraform init
+
+## tfc-apply: apply Azure VMSS fallback via Terraform Cloud
+tfc-apply:
+	@cd deploy/terraform-tfc && terraform apply -var-file=terraform.tfvars
+
+## tfc-deploy-all: setup + init + apply
+tfc-deploy-all: tfc-setup tfc-init tfc-apply
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers

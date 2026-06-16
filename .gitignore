@@ -25,6 +25,12 @@ deploy/terraform/.terraform.lock.hcl
 deploy/terraform/terraform.tfvars
 deploy/terraform/*.tfstate
 deploy/terraform/*.tfstate.*
+# TFC bootstrap from PR #3 — modular optional addon
+deploy/terraform-tfc/.terraform/
+deploy/terraform-tfc/terraform.tfvars
+deploy/terraform-tfc/*.tfstate
+deploy/terraform-tfc/*.tfstate.*
+.akash/
 dist/
 .DS_Store
 *.egg-info/
