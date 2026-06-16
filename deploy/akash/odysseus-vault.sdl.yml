@@ -1,0 +1,77 @@
+---
+# Odysseus GPU worker — Vault AppRole bootstrap (no secrets in SDL).
+# Deploy: VAULT_AKASH_ROLE=akash-runtime ./scripts/deploy-production.sh akash-odysseus
+version: "2.0"
+
+services:
+  odysseus:
+    image: ${ODYSSEUS_IMAGE}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - LOG_LEVEL=INFO
+      - ODYSSEUS_AGENT_COUNT=${ODYSSEUS_AGENT_COUNT}
+      - ODYSSEUS_GPU_COUNT=1
+      - ODYSSEUS_SERVICE_NAME=odysseus
+      - ODYSSEUS_RUNTIME_VAULT_PATH=kv/data/yieldswarm/runtime/odysseus
+      # Vault bootstrap (values from deployment create --env)
+      - VAULT_ADDR
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - AGENT_SHARD_ID
+      - VAULT_AGENT_CONFIG=/etc/vault-agent/vault-agent.hcl
+      - AGENT_ENV_FILE=/run/secrets/agent.env
+    params:
+      storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
+    readiness_probe:
+      http_get:
+        path: /healthz
+        port: 8080
+      initial_delay_seconds: 30
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 6
+
+profiles:
+  compute:
+    odysseus-gpu:
+      resources:
+        cpu:
+          units: 8
+        memory:
+          size: 32Gi
+        storage:
+          - name: secrets
+            size: 8Mi
+            attributes:
+              persistent: false
+              class: ram
+          - size: 80Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: h100
+                - model: a100
+                - model: rtx4090
+  placement:
+    akash-gpu:
+      pricing:
+        odysseus:
+          denom: uakt
+          amount: 10000
+
+deployment:
+  odysseus:
+    akash-gpu:
+      profile: odysseus-gpu
+      count: 1
