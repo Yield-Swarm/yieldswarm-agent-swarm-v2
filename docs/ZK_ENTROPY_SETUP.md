@@ -15,7 +15,7 @@ flowchart LR
 
 | Component | Role |
 |-----------|------|
-| `src/infrastructure/entropy-core.js` | Rolling 128-sample window → SHA-256 `seed` + `zkInputs` |
+| `src/infrastructure/zk-entropy-core.js` | Rolling 128-sample window → SHA-256 `seed` + `zkInputs` |
 | `src/infrastructure/entropy-circuit-inputs.js` | Poseidon commitment + witness shaping |
 | `src/infrastructure/zk-entropy-prover.js` | Off-chain `snarkjs` proof generation |
 | `circuits/entropy_proof.circom` | Proves bounds + Poseidon chain + quality ∈ [85, 100] |
@@ -50,7 +50,7 @@ Artifacts land in `circuits/build/`:
 ## 2. Generate a proof (off-chain)
 
 ```js
-const { EntropyCore } = require("../src/infrastructure/entropy-core");
+const { EntropyCore } = require("../src/infrastructure/zk-entropy-core");
 const { proveEntropy } = require("../src/infrastructure/zk-entropy-prover");
 
 const core = new EntropyCore();

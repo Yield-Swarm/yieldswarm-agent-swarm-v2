@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EntropyCore } from "./entropy-core.js";
+import { EntropyCore } from "./zk-entropy-core.js";
 import { WINDOW_SIZE } from "./entropy-bounds.js";
 
 function sampleTelemetry(i) {

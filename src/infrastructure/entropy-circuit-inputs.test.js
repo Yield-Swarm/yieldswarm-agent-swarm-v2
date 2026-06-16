@@ -6,7 +6,7 @@ import {
   flattenTelemetry,
 } from "./entropy-circuit-inputs.js";
 import { clampToBounds, normalizeTelemetry } from "./entropy-bounds.js";
-import { EntropyCore } from "./entropy-core.js";
+import { EntropyCore } from "./zk-entropy-core.js";
 import { WINDOW_SIZE } from "./entropy-bounds.js";
 
 function fillWindow() {
