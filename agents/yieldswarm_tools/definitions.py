@@ -239,6 +239,54 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
             required=("action",),
         ),
     ),
+    ToolDefinition(
+        name="yieldswarm_dex_quote",
+        description=(
+            "Quote cross-chain DEX execution: Jupiter on Solana or Uniswap V4 hook auction on EVM. "
+            "Returns Great Delta 50/30/15/5 revenue split preview."
+        ),
+        tags=("yieldswarm", "dex", "jupiter", "uniswap", "cross-chain"),
+        input_schema=_object(
+            {
+                "chain": _string(
+                    "Target chain or provider.",
+                    enum=["solana", "jupiter", "ethereum", "evm", "uniswap_v4"],
+                ),
+                "input_mint": _string("Solana input mint address."),
+                "output_mint": _string("Solana output mint address."),
+                "amount": _number("Input amount in base units (lamports for SOL).", minimum=1),
+                "token_in": _string("EVM token-in address for Uniswap V4."),
+                "token_out": _string("EVM token-out address for Uniswap V4."),
+                "amount_in_wei": _number("Bid or swap amount in wei for EVM paths.", minimum=0),
+                "pool_id": _string("Uniswap V4 pool identifier."),
+                "bidder": _string("EVM bidder address for auction simulation."),
+                "slippage_bps": _number("Slippage tolerance in basis points.", minimum=0),
+            },
+            required=("chain",),
+        ),
+    ),
+    ToolDefinition(
+        name="yieldswarm_dex_swap",
+        description=(
+            "Execute or dry-run a cross-chain DEX swap via Jupiter or Uniswap V4 hook path. "
+            "Revenue routes through Great Delta treasury on success."
+        ),
+        tags=("yieldswarm", "dex", "swap", "cross-chain"),
+        input_schema=_object(
+            {
+                "chain": _string("Target chain.", enum=["solana", "jupiter", "ethereum", "evm"]),
+                "quote": {
+                    "type": "object",
+                    "description": "Prior quote payload from yieldswarm_dex_quote.",
+                    "additionalProperties": True,
+                },
+                "user_public_key": _string("Solana signer public key."),
+                "recipient": _string("EVM recipient for swap output."),
+                "dry_run": _boolean("Preview without broadcasting.", True),
+            },
+            required=("chain",),
+        ),
+    ),
 )
 
 

@@ -10,6 +10,7 @@ import * as akash from '../adapters/akash.js';
 import * as emission from '../adapters/emissionRouter.js';
 import * as treasury from '../adapters/treasury.js';
 import * as odysseus from '../adapters/odysseus.js';
+import * as dex from '../adapters/dex.js';
 
 const router = Router();
 
@@ -72,6 +73,30 @@ router.post('/workers/telemetry', asyncRoute(async (req, res) => {
       treasury: await treasury.getTreasurySplits(),
     },
   });
+}));
+
+router.get('/dex/health', asyncRoute(async (_req, res) => {
+  const data = await dex.getDexHealth();
+  res.json({ status: 'ok', data });
+}));
+
+router.post('/dex/quote', asyncRoute(async (req, res) => {
+  const { chain, ...params } = req.body || {};
+  if (chain === 'ethereum' || chain === 'evm') {
+    return res.json(await dex.quoteUniswapV4(params));
+  }
+  const quote = await dex.quoteJupiter({
+    inputMint: params.input_mint || params.inputMint,
+    outputMint: params.output_mint || params.outputMint,
+    amount: params.amount,
+    slippageBps: params.slippage_bps || params.slippageBps,
+  });
+  res.json(quote);
+}));
+
+router.post('/dex/swap', asyncRoute(async (req, res) => {
+  const data = await dex.executeDexSwap(req.body || {});
+  res.json(data);
 }));
 
 export default router;
