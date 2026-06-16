@@ -26,12 +26,14 @@ services:
       - OLLAMA_HOST=0.0.0.0:11434
       - TELEMETRY_PORT=8080
       - BT_WALLET_PATH=/run/secrets/bittensor
-      # Vault runtime bootstrap (values from deployment create --env)
       - VAULT_ADDR
       - VAULT_ROLE_ID
       - VAULT_WRAPPED_SECRET_ID
+      - AGENT_SHARD_ID=0
       - VAULT_KV_MOUNT=yieldswarm
       - VAULT_SECRET_PATHS=runtime/bittensor,runtime/akash,rpc/bittensor
+      - VAULT_AGENT_CONFIG=/etc/vault-agent/vault-agent.hcl
+      - AGENT_ENV_FILE=/run/secrets/agent.env
     params:
       storage:
         secrets:
