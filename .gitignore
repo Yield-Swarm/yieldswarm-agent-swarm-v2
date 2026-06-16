@@ -56,6 +56,9 @@ override.tf
 *_override.tf.json
 override.tf.json
 *.pem
+!public/.well-known/**/com.tesla.3p.public-key.pem
+tesla/keys/
+tesla/keys/**
 /.pnp
 .pnp.js
 # production

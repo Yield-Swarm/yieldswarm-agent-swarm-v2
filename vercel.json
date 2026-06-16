@@ -7,6 +7,7 @@
     { "src": "council/**", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/.well-known/appspecific/com.tesla.3p.public-key.pem", "dest": "/public/.well-known/appspecific/com.tesla.3p.public-key.pem" },
     { "src": "/kairo", "dest": "/kairo/frontend/index.html" },
     { "src": "/kairo/(.*)", "dest": "/kairo/frontend/$1" },
     { "src": "/payments", "dest": "/src/app/payments" },
