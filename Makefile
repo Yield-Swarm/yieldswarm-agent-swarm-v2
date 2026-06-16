@@ -21,9 +21,9 @@ S := deploy/scripts
 A := deploy/akash
 
 .PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault \
-        akash-deploy-vault akash-bittensor akash-odysseus akash-backend \
-        akash-preflight akash-verify deploy-akash-europlots \
-        login build push images \
+        akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
+        akash-bittensor akash-odysseus akash-backend \
+        login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
         frontend vercel render \
@@ -31,8 +31,9 @@ A := deploy/akash
         tesla-keys tesla-register \
         start-sovereign-consensus stop-sovereign-consensus restart-sovereign-consensus \
         multicloud-preflight multicloud-cost-report multicloud-launch multicloud-teardown \
-        scale-akash-workers smoke smoke-test merge-all-prs \
+        scale-akash-workers \
         cross-chain-preflight cross-chain-run cross-chain-test \
+        smoke smoke-test merge-all-prs merge-all-prs-to-production \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
         status logs clean production
 
@@ -139,7 +140,7 @@ login:
 	@echo "$$GHCR_TOKEN" | docker login ghcr.io -u "$$GHCR_USER" --password-stdin
 
 ## build: STEP 1 — build & push all images to GHCR
-build images:
+build images build-ghcr:
 	bash $(S)/build-and-push.sh
 
 ## push: build & push only (alias of build)
@@ -221,6 +222,10 @@ merge-all-prs:
 	@echo ""
 	@echo "Dry run above. To merge locally:  bash scripts/merge-all-prs.sh"
 	@echo "To merge + push main:            bash scripts/merge-all-prs.sh --push"
+
+## merge-all-prs-to-production: async batch merge open PRs into production
+merge-all-prs-to-production:
+	bash scripts/merge-all-prs-to-production.sh --push --sync-env
 
 # ---- multi-cloud 30-day utilization --------------------------------------
 ## multicloud-preflight: GO/NO-GO across Vault, Akash, and optional cloud APIs

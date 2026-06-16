@@ -28,6 +28,12 @@ path "yieldswarm/data/runtime/payments" {
 path "yieldswarm/data/runtime/odysseus" {
   capabilities = ["read"]
 }
+path "yieldswarm/data/runtime/bittensor" {
+  capabilities = ["read"]
+}
+path "yieldswarm/data/runtime/backend" {
+  capabilities = ["read"]
+}
 
 # --- Legacy layout (backward compatible with setup/05-seed-secrets.sh) ---
 path "yieldswarm/data/akash/runtime" {

@@ -179,7 +179,27 @@ put_if_set runtime/odysseus \
   api_key=ODYSSEUS_API_KEY \
   model_host=ODYSSEUS_MODEL_HOST \
   model_api_key=ODYSSEUS_MODEL_API_KEY \
-  chromadb_host=CHROMADB_HOST
+  chromadb_host=CHROMADB_HOST \
+  router_api_key=YIELDSWARM_ROUTER_API_KEY \
+  openrouter_api_key=OPENROUTER_API_KEY \
+  fireworks_api_key=FIREWORKS_API_KEY
+
+# ---- Akash deploy metadata (integration backend + lease tracking) ----
+put_if_set runtime/akash \
+  owner_address=AKASH_OWNER_ADDRESS \
+  key_name=AKASH_KEY_NAME \
+  mnemonic=AKASH_WALLET_MNEMONIC
+
+# ---- Integration backend (Arena API on Akash) ----
+put_if_set runtime/backend \
+  emission_router_address=EMISSION_ROUTER_ADDRESS \
+  treasury_address=TREASURY_ADDRESS \
+  apn_mint=APN_MINT_ADDRESS \
+  odysseus_brain_url=ODYSSEUS_BRAIN_URL \
+  split_core_bps=SPLIT_CORE_BPS \
+  split_growth_bps=SPLIT_GROWTH_BPS \
+  split_insurance_bps=SPLIT_INSURANCE_BPS \
+  split_ops_bps=SPLIT_OPS_BPS
 
 # ---- Bittensor miner (Akash dual-purpose worker) ----
 put_if_set runtime/bittensor \

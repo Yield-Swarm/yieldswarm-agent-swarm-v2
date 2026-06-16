@@ -87,7 +87,8 @@
     "postgres": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-postgres", "${env:DATABASE_URL}"],
-      "disabled": true
+      "disabled": true,
+      "comment": "Enable when DATABASE_URL (Neon) is set"
     },
     "brave-search": {
       "command": "npx",
@@ -95,12 +96,14 @@
       "env": {
         "BRAVE_API_KEY": "${env:BRAVE_API_KEY}"
       },
-      "disabled": true
+      "disabled": true,
+      "comment": "Enable with BRAVE_API_KEY for provider doc search"
     }
   },
   "_meta": {
     "description": "YieldSwarm unified MCP config (god-prompt-swarm + multicloud)",
     "setup": "docs/CURSOR_CLOUD_SETUP.md",
+    "linear": "Authenticate Linear via Cursor IDE MCP panel (not in this file)",
     "vault_paths": {
       "runpod": "kv/yieldswarm/cloud/runpod",
       "vast": "kv/yieldswarm/cloud/vast",
