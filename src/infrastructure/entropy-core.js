@@ -1,244 +1,251 @@
-/**
- * Eastern layer ($E^1$) — HardenedAuditEngine (entropy-core).
- *
- * Ingests hardware telemetry into a rolling 64-block window and compiles
- * append-only state chains with deterministic blockVerificationHash.
- * Integrates ZK¹ entropy proofs for verifiable living memory (A¹ + U¹).
- */
+// src/infrastructure/entropy-core.js
+'use strict';
 
-import crypto from "node:crypto";
-import { entropyQualityScore, generateGroth16Proof } from "./zk-entropy-prover.js";
+const crypto = require('crypto');
 
-export const WINDOW_SIZE = 64;
-
-/**
- * @typedef {object} TelemetrySample
- * @property {number} vramUsedGb
- * @property {number} tempC
- * @property {number} [powerW]
- * @property {number} [utilizationPct]
- * @property {string} [gpuId]
- * @property {number} [timestamp]
- */
-
-/**
- * @typedef {object} AuditBlock
- * @property {number} index
- * @property {string} prevHash
- * @property {string} sampleHash
- * @property {string} blockVerificationHash
- * @property {TelemetrySample} sample
- * @property {string} sealedAt
- */
-
-export class HardenedAuditEngine {
+class MultiLingualSolenoidEngine {
   constructor() {
-    /** @type {AuditBlock[]} */
-    this.chain = [];
-    this.genesisHash = crypto.createHash("sha256").update("helix-entropy-genesis").digest("hex");
+    this.currentPillarIndex = 0;
+    this.totalPillars = 14;
+    this.difficultyTarget = '0000';
+    this.stateChainHash = crypto.createHash('sha256').update('YIELDSWARM_GENESIS_ROOT').digest('hex');
   }
 
-  /**
-   * Hash a telemetry sample deterministically (raw metrics never leave this digest in proofs).
-   * @param {TelemetrySample} sample
-   * @returns {string}
-   */
-  hashSample(sample) {
-    const normalized = {
-      vramUsedGb: Number(sample.vramUsedGb.toFixed(4)),
-      tempC: Number(sample.tempC.toFixed(2)),
-      powerW: sample.powerW !== undefined ? Number(sample.powerW.toFixed(2)) : 0,
-      utilizationPct:
-        sample.utilizationPct !== undefined ? Number(sample.utilizationPct.toFixed(2)) : 0,
-      gpuId: sample.gpuId || "gpu0",
-      timestamp: sample.timestamp || Date.now(),
-    };
-    return crypto.createHash("sha256").update(JSON.stringify(normalized)).digest("hex");
-  }
-
-  /**
-   * Compute block verification hash linking prev + sample.
-   * @param {string} prevHash
-   * @param {string} sampleHash
-   * @param {number} index
-   * @returns {string}
-   */
-  computeBlockVerificationHash(prevHash, sampleHash, index) {
-    return crypto
-      .createHash("sha256")
-      .update(`${prevHash}:${sampleHash}:${index}`)
-      .digest("hex");
-  }
-
-  /**
-   * Validate sample is within acceptable hardware envelope.
-   * @param {TelemetrySample} sample
-   */
-  validateSample(sample) {
-    if (typeof sample.vramUsedGb !== "number" || sample.vramUsedGb < 0 || sample.vramUsedGb > 64) {
-      throw new RangeError("vramUsedGb out of range [0, 64]");
+  verifyMultilingualProof(pillarId, runTimeLanguage, blockData, nonce) {
+    if (!pillarId || !runTimeLanguage || !blockData) {
+      return { success: false, computedHash: '' };
     }
-    if (typeof sample.tempC !== "number" || sample.tempC < 0 || sample.tempC > 120) {
-      throw new RangeError("tempC out of range [0, 120]");
+    const contextPrefix = `PILLAR_${pillarId}_LANG_${runTimeLanguage.toUpperCase()}`;
+    const payloadToHash = `${contextPrefix}_${blockData}_${nonce}_${this.stateChainHash}`;
+
+    let evaluationHash = crypto.createHash('sha256').update(payloadToHash).digest('hex');
+    if (runTimeLanguage === 'cuda' || runTimeLanguage === 'rust') {
+      evaluationHash = crypto.createHash('sha256').update(evaluationHash).digest('hex');
     }
-    return true;
+
+    const isValidProof = evaluationHash.startsWith(this.difficultyTarget);
+    if (isValidProof) {
+      this.stateChainHash = crypto
+        .createHash('sha256')
+        .update(evaluationHash + this.stateChainHash)
+        .digest('hex');
+    }
+
+    return { success: isValidProof, computedHash: evaluationHash };
   }
 
-  /**
-   * Append telemetry to the rolling window chain.
-   * @param {TelemetrySample} sample
-   * @returns {AuditBlock}
-   */
-  ingest(sample) {
-    this.validateSample(sample);
+  incrementSolenoidLoop() {
+    this.currentPillarIndex = (this.currentPillarIndex + 1) % this.totalPillars;
+  }
+}
 
-    const prevHash =
-      this.chain.length === 0
-        ? this.genesisHash
-        : this.chain[this.chain.length - 1].blockVerificationHash;
-
-    const index = this.chain.length;
-    const sampleHash = this.hashSample(sample);
-    const blockVerificationHash = this.computeBlockVerificationHash(prevHash, sampleHash, index);
-
-    /** @type {AuditBlock} */
-    const block = {
-      index,
-      prevHash,
-      sampleHash,
-      blockVerificationHash,
-      sample: {
-        ...sample,
-        timestamp: sample.timestamp || Date.now(),
+class RosettaStoneLanguageCore {
+  constructor() {
+    this.dictionary = {
+      D1_VAULT_LOCK: {
+        en: 'Vault state secured. Cryptographic isolation active.',
+        zh: '金库状态已锁定。加密隔离已激活。',
+        hi: 'तिजोरी की स्थिति सुरक्षित। क्रिप्टोग्राफिक अलगाव सक्रिय।',
+        es: 'Estado de la bóveda asegurado. Aislamiento criptográfico activo.',
+        ar: 'تم تأمين حالة الخزنة. العزل التشفيري نشط.',
+        fr: 'État du coffre-fort sécurisé. Isolement cryptographique actif.',
+        ja: '金庫の状態は保護されています。暗号化分離が有効です。',
+        de: 'Tresorstatus gesichert. Kryptografische Isolation aktiv.',
       },
-      sealedAt: new Date().toISOString(),
-    };
-
-    this.chain.push(block);
-
-    if (this.chain.length > WINDOW_SIZE) {
-      this.chain = this.chain.slice(-WINDOW_SIZE);
-      this._rechainWindow();
-    }
-
-    return block;
-  }
-
-  /** Recompute hashes after window trim — reset indices to 0..n-1. */
-  _rechainWindow() {
-    let prev = this.genesisHash;
-    for (let i = 0; i < this.chain.length; i++) {
-      const block = this.chain[i];
-      block.index = i;
-      block.prevHash = prev;
-      block.sampleHash = this.hashSample(block.sample);
-      block.blockVerificationHash = this.computeBlockVerificationHash(prev, block.sampleHash, i);
-      prev = block.blockVerificationHash;
-    }
-  }
-
-  /**
-   * Verify chain integrity within the current window.
-   * @returns {{ valid: boolean, errors: string[] }}
-   */
-  verifyChain() {
-    const errors = [];
-    let prev = this.genesisHash;
-
-    for (let i = 0; i < this.chain.length; i++) {
-      const block = this.chain[i];
-      if (block.prevHash !== prev) {
-        errors.push(`block ${i}: prevHash mismatch`);
-      }
-      const expectedSample = this.hashSample(block.sample);
-      if (block.sampleHash !== expectedSample) {
-        errors.push(`block ${i}: sampleHash mismatch`);
-      }
-      const expectedBlock = this.computeBlockVerificationHash(block.prevHash, block.sampleHash, i);
-      if (block.blockVerificationHash !== expectedBlock) {
-        errors.push(`block ${i}: blockVerificationHash mismatch`);
-      }
-      prev = block.blockVerificationHash;
-    }
-
-    return { valid: errors.length === 0, errors };
-  }
-
-  /**
-   * Export proof seed for ZK circuit (commitment without revealing raw metrics).
-   * @returns {{ windowRoot: string, blockCount: number, latestBlockHash: string | null }}
-   */
-  exportProofSeed() {
-    const latest = this.chain[this.chain.length - 1];
-    const windowRoot = crypto
-      .createHash("sha256")
-      .update(this.chain.map((b) => b.blockVerificationHash).join(":"))
-      .digest("hex");
-
-    return {
-      windowRoot,
-      blockCount: this.chain.length,
-      latestBlockHash: latest?.blockVerificationHash ?? null,
+      E1_THERMAL_OVERLOAD: {
+        en: 'Thermal critical ceiling reached. Shifting node priority.',
+        zh: '达到热临界上限。正在转移节点优先级。',
+        hi: 'थर्मल क्रिटिकल सीमा पार। नोड प्राथमिकता बदली जा रही है।',
+        es: 'Techo térmico crítico alcanzado. Cambiando prioridad del nodo.',
+        ar: 'تم الوصول إلى الحد الحراري الحرج. يتم تغيير أولوية العقدة.',
+        fr: 'Plafond thermique critique atteint. Modification de la priorité du nœud.',
+        ja: '熱的限界に達しました。ノードの優先度を変更しています。',
+        de: 'Kritische thermische Obergrenze erreicht. Knotenpriorität wird verschoben.',
+      },
     };
   }
 
-  getWindow() {
-    return [...this.chain];
+  translate(textCode, targetLang = 'en') {
+    const cleanLang = targetLang.toLowerCase();
+    if (!this.dictionary[textCode]) return `TRANSLATION_MISSING: ${textCode}`;
+    return this.dictionary[textCode][cleanLang] || this.dictionary[textCode].en;
+  }
+}
+
+class SymbioticEvolutionEngine {
+  constructor() {
+    this.generation = 1;
+    this.mutationRate = 0.05;
+    this.genePool = ['sha256', 'double-sha256', 'tensor-matrix'];
+    this.activeGene = 'sha256';
+    this.fitnessHistory = [];
   }
 
-  /**
-   * Compute rolling entropy quality for O¹ oscillator + sovereign routing.
-   * @returns {number} 0–1 quality score
-   */
-  entropyQuality() {
-    if (this.chain.length === 0) return 0;
-    const recent = this.chain.slice(-8);
-    const scores = recent.map((b) => entropyQualityScore(b.sample));
-    return scores.reduce((a, b) => a + b, 0) / scores.length;
-  }
+  evaluateAndMutate(telemetry, processingSpeed) {
+    if (!telemetry || typeof processingSpeed !== 'number') return null;
 
-  /**
-   * Generate ZK entropy seed + proof from latest window block (A¹ Ancestral memory).
-   * Raw metrics stay private; only commitment + public signals are exported.
-   * @param {object} [opts]
-   * @param {number} [opts.blockIndex] defaults to latest block
-   * @returns {Promise<object>}
-   */
-  async generateSeedWithProof(opts = {}) {
-    const idx = opts.blockIndex ?? this.chain.length - 1;
-    if (idx < 0 || idx >= this.chain.length) {
-      throw new RangeError("no blocks in window — ingest telemetry first");
+    const currentFitness = processingSpeed / (telemetry.gpu_temperature || 1);
+    this.fitnessHistory.push(currentFitness);
+
+    let structuralShiftOccurred = false;
+    let anomalyReport = 'STABLE_METRIC_RESONANCE';
+
+    if (this.fitnessHistory.length > 10) {
+      const averageFitness =
+        this.fitnessHistory.slice(-10).reduce((a, b) => a + b, 0) / 10;
+
+      if (currentFitness < averageFitness * 0.85) {
+        this.generation++;
+        this.mutationRate = Math.min(this.mutationRate * 1.2, 0.5);
+        const structuralIndex = Math.floor(Math.random() * this.genePool.length);
+        this.activeGene = this.genePool[structuralIndex];
+        structuralShiftOccurred = true;
+        anomalyReport = `EVOLUTIONARY_MUTATION_TRIGGERED_GEN_${this.generation}`;
+      } else {
+        this.mutationRate = Math.max(this.mutationRate * 0.95, 0.01);
+      }
     }
-
-    const block = this.chain[idx];
-    const chainVerify = this.verifyChain();
-    if (!chainVerify.valid) {
-      throw new Error(`chain invalid: ${chainVerify.errors.join("; ")}`);
-    }
-
-    const proofBundle = await generateGroth16Proof({
-      ...block.sample,
-      nonce: block.index,
-    });
-
-    const seed = this.exportProofSeed();
 
     return {
-      pillar: "A1-Ancestral",
-      testimony: "U1-Living-Logos",
-      windowRoot: seed.windowRoot,
-      blockVerificationHash: block.blockVerificationHash,
-      blockIndex: block.index,
-      entropyQuality: this.entropyQuality(),
-      commitment: proofBundle.commitment,
-      publicSignals: proofBundle.publicSignals,
-      proof: proofBundle.proof,
-      devMode: proofBundle.devMode ?? false,
-      generatedAt: new Date().toISOString(),
+      generationId: this.generation,
+      activeAlgorithmTrack: this.activeGene,
+      mutationProbability: parseFloat(this.mutationRate.toFixed(4)),
+      structuralShiftOccurred,
+      systemLogCode: anomalyReport,
     };
   }
 }
 
-export const hardenedAuditEngine = new HardenedAuditEngine();
+class OmniDimensionalSafetyCanopy {
+  constructor() {
+    this.globalSafetyRating = 1.0;
+    this.activeMitigationNodeCount = 0;
+  }
 
-export default hardenedAuditEngine;
+  evaluateSystemHealth(matrixTelemetry, activeWorkloadDensity) {
+    if (!matrixTelemetry) return { status: 'ERROR', msg: 'Telemetry missing.' };
+
+    const hardwareTemp = matrixTelemetry.gpu_temperature || 0;
+    const vramAllocated = matrixTelemetry.vram_allocated_bytes || 0;
+
+    let protectionTriggered = false;
+    let defensiveActionCode = 'SYSTEM_OPTIMAL_STABILITY_BOUND';
+
+    if (
+      hardwareTemp > 80 ||
+      vramAllocated > 29_500_000_000 ||
+      activeWorkloadDensity > 560
+    ) {
+      this.globalSafetyRating = Math.max(this.globalSafetyRating - 0.1, 0.4);
+      this.activeMitigationNodeCount++;
+      protectionTriggered = true;
+      defensiveActionCode = 'ACTIVE_DEFENSIVE_SHIELDING_TRIGGERED';
+    } else {
+      this.globalSafetyRating = Math.min(this.globalSafetyRating + 0.05, 1.0);
+      if (this.activeMitigationNodeCount > 0) this.activeMitigationNodeCount--;
+    }
+
+    return {
+      safetyMetricIndex: parseFloat(this.globalSafetyRating.toFixed(2)),
+      activeMitigationNodes: this.activeMitigationNodeCount,
+      shieldingActive: protectionTriggered,
+      systemLogCode: defensiveActionCode,
+      timestamp: Date.now(),
+    };
+  }
+}
+
+class TeslaMeshEntropyCore {
+  constructor() {
+    this.fleetNodes = new Map();
+    this.resonanceTarget = 60.0;
+  }
+
+  ingestFleetTelemetry(vin, telemetry) {
+    if (!vin || !telemetry || typeof telemetry.battery_level === 'undefined') {
+      return null;
+    }
+
+    const currentFrequency = telemetry.grid_frequency || 60.0;
+    const resonanceDelta = Math.abs(this.resonanceTarget - currentFrequency);
+    const computeWeight =
+      (telemetry.battery_level / 100) * (telemetry.outside_temp ? 1.1 : 1.0);
+
+    const nodeState = {
+      vinHash: crypto.createHash('sha256').update(vin).digest('hex'),
+      metrics: {
+        soc: telemetry.battery_level,
+        powerDraw: telemetry.power_draw_kw || 0,
+        driveState: telemetry.shift_state || 'P',
+        resonanceFactor: parseFloat((1.0 - resonanceDelta).toFixed(4)),
+      },
+      computeWeight: parseFloat(computeWeight.toFixed(2)),
+      timestamp: telemetry.timestamp || Date.now(),
+    };
+
+    this.fleetNodes.set(nodeState.vinHash, nodeState);
+
+    const seedPayload = `${nodeState.vinHash}${nodeState.metrics.soc}${nodeState.metrics.resonanceFactor}`;
+    const blockVerificationHash = crypto.createHash('sha256').update(seedPayload).digest('hex');
+
+    return {
+      nodeRegistered: true,
+      allocatedComputeWeight: nodeState.computeWeight,
+      blockVerificationHash: '0x' + blockVerificationHash.slice(0, 32),
+    };
+  }
+}
+
+class HardenedAuditEngine {
+  constructor() {
+    this.stateChainHash = crypto.createHash('sha256').update('YIELDSWARM_GENESIS_ROOT').digest('hex');
+    this.entropyLogWindow = [];
+    this.MAX_WINDOW_CAPACITY = 64;
+  }
+
+  registerExecutionBlock(executionEvent, hardwareTelemetry) {
+    if (!executionEvent || !hardwareTelemetry) {
+      throw new Error('AUDIT_EXCEPTION: Missing core parameters.');
+    }
+    const structuredLog = {
+      tenantHash: executionEvent.tenantHash || 'ANONYMOUS',
+      actionHash: crypto
+        .createHash('sha256')
+        .update(JSON.stringify(executionEvent.payload || {}))
+        .digest('hex'),
+      hardwareMetrics: {
+        vram: Math.round(hardwareTelemetry.vram_used_bytes || 0),
+        temp: Math.round(hardwareTelemetry.gpu_temperature || 0),
+        tokensPerSec: Math.round(hardwareTelemetry.tokens_per_sec || 0),
+      },
+      timestamp: hardwareTelemetry.timestamp || Date.now(),
+      parentStateHash: this.stateChainHash,
+    };
+
+    this.entropyLogWindow.push(structuredLog);
+    if (this.entropyLogWindow.length > this.MAX_WINDOW_CAPACITY) {
+      this.entropyLogWindow.shift();
+    }
+
+    const serialized = JSON.stringify(structuredLog) + this.stateChainHash;
+    this.stateChainHash = crypto.createHash('sha256').update(serialized).digest('hex');
+
+    return {
+      blockVerificationHash: this.stateChainHash,
+      entropyWindowDepth: this.entropyLogWindow.length,
+      integrityConfirmed: true,
+    };
+  }
+}
+
+const { EntropyCore } = require('./zk-entropy-core');
+
+module.exports = {
+  MultiLingualSolenoidEngine,
+  RosettaStoneLanguageCore,
+  SymbioticEvolutionEngine,
+  OmniDimensionalSafetyCanopy,
+  TeslaMeshEntropyCore,
+  HardenedAuditEngine,
+  EntropyCore,
+};

@@ -1,148 +1,82 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-
 /// @title YieldSwarmNFT
-/// @notice Greek layer ($D^1$) — immutable agent identity boundary with oracle-gated mutable URIs.
-/// @dev URI updates are accepted only from authorized oracles presenting a validated callback digest.
-contract YieldSwarmNFT is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
-    using MessageHashUtils for bytes32;
+/// @notice Minimal ERC-721-style NFT with entropy-driven metadata mutation.
+contract YieldSwarmNFT {
+    string public name;
+    string public symbol;
 
-    uint256 private _nextTokenId;
-
-    /// @notice Authorized oracle signers (multisig-style allowlist).
-    mapping(address => bool) public authorizedOracles;
-
-    /// @notice Replay protection for oracle callbacks.
-    mapping(bytes32 => bool) public consumedCallbackDigests;
-
-    /// @notice Agent tier encoded at mint (drives downstream risk gates).
-    mapping(uint256 => uint8) public agentTier;
-
-    /// @notice Last validated oracle digest per token.
-    mapping(uint256 => bytes32) public lastValidatedDigest;
-
-    /// @notice ZK-gated mutation controller (A¹ Ancestral living memory).
     address public mutationController;
+    uint256 private _nextTokenId = 1;
 
-    error NotAuthorizedOracle(address caller);
-    error NotAuthorizedMutationController(address caller);
-    error CallbackAlreadyConsumed(bytes32 digest);
-    error InvalidOracleSignature();
-    error InvalidTier(uint8 tier);
+    struct MutationRecord {
+        bytes32 seed;
+        uint256 commitment;
+        uint256 quality;
+        uint64 mutatedAt;
+    }
+
+    mapping(uint256 => address) private _owners;
+    mapping(uint256 => MutationRecord) public mutations;
+
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    event Mutation(
+        uint256 indexed tokenId,
+        bytes32 seed,
+        uint256 commitment,
+        uint256 quality
+    );
+
+    error NotOwner();
+    error NotMutationController();
     error TokenDoesNotExist(uint256 tokenId);
+    error InvalidRecipient();
 
-    event OracleAuthorized(address indexed oracle, bool authorized);
-    event AgentMinted(uint256 indexed tokenId, address indexed to, uint8 tier, string initialUri);
-    event UriUpdatedByOracle(
-        uint256 indexed tokenId,
-        address indexed oracle,
-        string newUri,
-        bytes32 callbackDigest
-    );
-    event UriUpdatedByController(
-        uint256 indexed tokenId,
-        address indexed controller,
-        string newUri,
-        bytes32 entropyDigest,
-        uint8 newTier
-    );
-
-    constructor(address initialOwner) ERC721("YieldSwarm Agent", "YSAGENT") Ownable(initialOwner) {
-        authorizedOracles[initialOwner] = true;
+    modifier onlyController() {
+        if (msg.sender != mutationController) revert NotMutationController();
+        _;
     }
 
-    /// @inheritdoc ERC721URIStorage
-    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
-        _requireOwned(tokenId);
-        return super.tokenURI(tokenId);
+    error ControllerAlreadySet();
+
+    constructor(string memory name_, string memory symbol_) {
+        name = name_;
+        symbol = symbol_;
     }
 
-    function setOracleAuthorized(address oracle, bool authorized) external onlyOwner {
-        authorizedOracles[oracle] = authorized;
-        emit OracleAuthorized(oracle, authorized);
+    function setMutationController(address controller_) external {
+        if (mutationController != address(0)) revert ControllerAlreadySet();
+        if (controller_ == address(0)) revert InvalidRecipient();
+        mutationController = controller_;
     }
 
-    function setMutationController(address controller) external onlyOwner {
-        mutationController = controller;
+    function ownerOf(uint256 tokenId) external view returns (address) {
+        address owner = _owners[tokenId];
+        if (owner == address(0)) revert TokenDoesNotExist(tokenId);
+        return owner;
     }
 
-    /// @notice ZK-verified mutation path — only MutationController after entropy proof.
-    function controllerMutateUri(
-        uint256 tokenId,
-        string calldata newUri,
-        bytes32 entropyDigest,
-        uint8 newTier
-    ) external nonReentrant {
-        if (msg.sender != mutationController) revert NotAuthorizedMutationController(msg.sender);
-        if (!_exists(tokenId)) revert TokenDoesNotExist(tokenId);
-        if (newTier == 0 || newTier > 5) revert InvalidTier(newTier);
-        if (consumedCallbackDigests[entropyDigest]) revert CallbackAlreadyConsumed(entropyDigest);
-
-        consumedCallbackDigests[entropyDigest] = true;
-        lastValidatedDigest[tokenId] = entropyDigest;
-        agentTier[tokenId] = newTier;
-        _setTokenURI(tokenId, newUri);
-        emit UriUpdatedByController(tokenId, msg.sender, newUri, entropyDigest, newTier);
-    }
-
-    /// @notice Mint a new agent NFT with tier metadata.
-    function mintAgent(address to, uint8 tier, string calldata initialUri) external onlyOwner returns (uint256 tokenId) {
-        if (tier == 0 || tier > 5) revert InvalidTier(tier);
+    function mint(address to) external returns (uint256 tokenId) {
+        if (to == address(0)) revert InvalidRecipient();
         tokenId = _nextTokenId++;
-        _safeMint(to, tokenId);
-        agentTier[tokenId] = tier;
-        _setTokenURI(tokenId, initialUri);
-        emit AgentMinted(tokenId, to, tier, initialUri);
+        _owners[tokenId] = to;
+        emit Transfer(address(0), to, tokenId);
     }
 
-    /// @notice Oracle callback — updates URI only after ECDSA validation of the callback payload.
-    /// @param tokenId Agent token to mutate.
-    /// @param newUri Validated metadata URI (IPFS/Arweave/https).
-    /// @param callbackDigest Unique digest for replay protection.
-    /// @param signature Oracle signature over keccak256(abi.encode(tokenId, newUri, callbackDigest, block.chainid)).
-    function oracleUpdateUri(
+    function mutate(
         uint256 tokenId,
-        string calldata newUri,
-        bytes32 callbackDigest,
-        bytes calldata signature
-    ) external nonReentrant {
-        if (!_exists(tokenId)) revert TokenDoesNotExist(tokenId);
-        if (!authorizedOracles[msg.sender]) revert NotAuthorizedOracle(msg.sender);
-        if (consumedCallbackDigests[callbackDigest]) revert CallbackAlreadyConsumed(callbackDigest);
-
-        bytes32 payloadHash = keccak256(abi.encode(tokenId, newUri, callbackDigest, block.chainid));
-        bytes32 ethSigned = payloadHash.toEthSignedMessageHash();
-        address signer = ECDSA.recover(ethSigned, signature);
-        if (!authorizedOracles[signer]) revert InvalidOracleSignature();
-
-        consumedCallbackDigests[callbackDigest] = true;
-        lastValidatedDigest[tokenId] = callbackDigest;
-        _setTokenURI(tokenId, newUri);
-        emit UriUpdatedByOracle(tokenId, msg.sender, newUri, callbackDigest);
-    }
-
-    function getAgentTier(uint256 tokenId) external view returns (uint8) {
-        _requireOwned(tokenId);
-        return agentTier[tokenId];
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
-    function _exists(uint256 tokenId) private view returns (bool) {
-        return _ownerOf(tokenId) != address(0);
+        bytes32 seed,
+        uint256 commitment,
+        uint256 quality
+    ) external onlyController {
+        if (_owners[tokenId] == address(0)) revert TokenDoesNotExist(tokenId);
+        mutations[tokenId] = MutationRecord({
+            seed: seed,
+            commitment: commitment,
+            quality: quality,
+            mutatedAt: uint64(block.timestamp)
+        });
+        emit Mutation(tokenId, seed, commitment, quality);
     }
 }

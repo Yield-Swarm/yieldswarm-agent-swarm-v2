@@ -2,62 +2,65 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {YieldSwarmNFT} from "../contracts/YieldSwarmNFT.sol";
 import {MutationController} from "../contracts/MutationController.sol";
-import {EntropyProofVerifier} from "../contracts/verifiers/EntropyProofVerifier.sol";
+import {YieldSwarmNFT} from "../contracts/YieldSwarmNFT.sol";
+import {MockEntropyVerifier} from "../contracts/MockEntropyVerifier.sol";
 
 contract MutationControllerTest is Test {
-    YieldSwarmNFT internal nft;
-    EntropyProofVerifier internal verifier;
-    MutationController internal controller;
+    MutationController controller;
+    YieldSwarmNFT nft;
+    MockEntropyVerifier verifier;
 
-    address internal admin = address(0xA11CE);
-    address internal relayer = address(0xBEEF);
+    address user = address(0xBEEF);
 
-  function setUp() public {
-    nft = new YieldSwarmNFT(admin);
-    verifier = new EntropyProofVerifier(admin);
-    controller = new MutationController(address(nft), address(verifier), admin);
+    function setUp() public {
+        verifier = new MockEntropyVerifier();
+        nft = new YieldSwarmNFT("YieldSwarm", "YSW");
+        controller = new MutationController(address(nft), address(verifier));
+        nft.setMutationController(address(controller));
+    }
 
-    vm.startPrank(admin);
-    nft.setMutationController(address(controller));
-    controller.grantRole(controller.RELAYER_ROLE(), relayer);
-    controller.grantRole(controller.AUTOMATION_ROLE(), relayer);
-    vm.stopPrank();
+    function testSubmitEntropyProofMutatesNft() public {
+        uint256 tokenId = nft.mint(user);
 
-    vm.prank(admin);
-    nft.mintAgent(admin, 2, "ipfs://genesis");
-  }
+        uint256[2] memory pubSignals = [uint256(0xabc123), uint256(92)];
+        uint256[2] memory proofA = [uint256(1), uint256(2)];
+        uint256[2][2] memory proofB = [[uint256(3), uint256(4)], [uint256(5), uint256(6)]];
+        uint256[2] memory proofC = [uint256(7), uint256(8)];
 
-  function testWeeklyMutationTrigger() public {
-    vm.warp(8 days);
-    vm.prank(relayer);
-    controller.triggerWeeklyMutation();
-    assertEq(controller.lastMutationWeek(), block.timestamp / 1 weeks);
-  }
+        vm.prank(user);
+        controller.submitEntropyProof(
+            tokenId,
+            bytes32(uint256(0xDEAD)),
+            pubSignals,
+            proofA,
+            proofB,
+            proofC
+        );
 
-  function testAttestedMutation() public {
-    uint256 commitment = 12345;
-    bytes32 blockHash = keccak256("entropy-block");
+        (
+            bytes32 seed,
+            uint256 commitment,
+            uint256 quality,
+        ) = nft.mutations(tokenId);
 
-    vm.prank(relayer);
-    controller.executeAgentMutationWithAttestation(
-      0,
-      3,
-      "ipfs://mutated",
-      commitment,
-      blockHash,
-      8000
-    );
+        assertEq(seed, bytes32(uint256(0xDEAD)));
+        assertEq(commitment, pubSignals[0]);
+        assertEq(quality, 92);
+    }
 
-    assertTrue(controller.consumedCommitments(commitment));
-    assertEq(nft.getAgentTier(0), 3);
-    assertEq(nft.tokenURI(0), "ipfs://mutated");
-  }
+    function testRevertsOnLowQuality() public {
+        uint256 tokenId = nft.mint(user);
+        uint256[2] memory pubSignals = [uint256(1), uint256(50)];
 
-  function testRejectsLowEntropyQuality() public {
-    vm.prank(relayer);
-    vm.expectRevert();
-    controller.executeAgentMutationWithAttestation(0, 3, "ipfs://x", 99, bytes32(uint256(1)), 1000);
-  }
+        vm.expectRevert(abi.encodeWithSelector(MutationController.InvalidQuality.selector, 50));
+        controller.submitEntropyProof(
+            tokenId,
+            bytes32(uint256(1)),
+            pubSignals,
+            [uint256(0), uint256(0)],
+            [[uint256(0), uint256(0)], [uint256(0), uint256(0)]],
+            [uint256(0), uint256(0)]
+        );
+    }
 }

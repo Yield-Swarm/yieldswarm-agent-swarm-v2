@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#040a12"/>
+  <title>5-Tier Marketplace — YieldSwarm NFT License Keys</title>
+  <meta name="description" content="Bronze to Diamond tiers. NFT license keys unlock APIs. 7% revenue share. Helix 14-lane agent access."/>
+  <link rel="stylesheet" href="/assets/helix-jacuzzi.css"/>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <main class="section">
+    <h1>5-Tier Service Marketplace</h1>
+    <p>Bronze → Diamond · NFT license keys unlock agent APIs · 7% revenue share to swarm treasury.</p>
+
+    <div class="card-grid" style="margin-top:1.5rem">
+      <article class="card">
+        <h3>🥉 Bronze</h3>
+        <p class="price">$49/mo</p>
+        <p>1 agent slot · Arena read API · Community support.</p>
+        <button class="btn btn-secondary" type="button" data-tier="bronze" data-amount="49">Subscribe</button>
+      </article>
+      <article class="card">
+        <h3>🥈 Silver</h3>
+        <p class="price">$149/mo</p>
+        <p>5 agents · Telemetry export · NFT key (basic).</p>
+        <button class="btn btn-secondary" type="button" data-tier="silver" data-amount="149">Subscribe</button>
+      </article>
+      <article class="card">
+        <h3>🥇 Gold</h3>
+        <p class="price">$499/mo</p>
+        <p>25 agents · ZK entropy proofs · Priority routing.</p>
+        <button class="btn btn-primary" type="button" data-tier="gold" data-amount="499">Subscribe</button>
+      </article>
+      <article class="card">
+        <h3>💎 Platinum</h3>
+        <p class="price">$1,499/mo</p>
+        <p>100 agents · Council vote · Custom Helix lane.</p>
+        <button class="btn btn-primary" type="button" data-tier="platinum" data-amount="1499">Subscribe</button>
+      </article>
+      <article class="card">
+        <h3>👑 Diamond</h3>
+        <p class="price">$4,999/mo</p>
+        <p>Unlimited agents · Full 14-lane solenoid · White-glove.</p>
+        <button class="btn btn-primary" type="button" data-tier="diamond" data-amount="4999">Subscribe</button>
+      </article>
+      <article class="card">
+        <h3>🔑 NFT License Key</h3>
+        <p class="price">$5 test</p>
+        <p>Mint test key on Sepolia. Validates marketplace rail.</p>
+        <button class="btn btn-secondary" type="button" data-tier="nft-test" data-amount="5">Mint Test Key</button>
+      </article>
+    </div>
+
+    <div id="payment-status" role="status" aria-live="polite"></div>
+
+    <section style="margin-top:2rem">
+      <h2>Recent Sales</h2>
+      <ul id="recent-sales" style="color:var(--muted);font-size:0.9rem"></ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">YieldSwarm Marketplace · L3 Revenue + L5 NFT Coils</footer>
+
+  <script src="/assets/helix-site.js"></script>
+  <script src="/integrations/neon-queries.js"></script>
+  <script src="/integrations/akash-wallet.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = YieldSwarmSite.renderNav('marketplace');
+    document.querySelectorAll('[data-tier]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const tier = btn.dataset.tier;
+        const amount = Number(btn.dataset.amount);
+        await YieldSwarmSite.runPaymentTest(amount, `marketplace-${tier}`);
+        try {
+          await YieldSwarmNeon.logSale({ tier, amountUsd: amount, source: 'marketplace' });
+          loadRecent();
+        } catch (e) { console.warn(e); }
+      });
+    });
+    async function loadRecent() {
+      try {
+        const data = await YieldSwarmNeon.queryRecentSales(8);
+        const ul = document.getElementById('recent-sales');
+        ul.innerHTML = (data.sales || [])
+          .map((s) => `<li>${s.product} — $${s.amountUsd} · ${s.createdAt}</li>`)
+          .join('') || '<li>No sales logged yet</li>';
+      } catch { /* offline */ }
+    }
+    loadRecent();
+  </script>
+</body>
+</html>

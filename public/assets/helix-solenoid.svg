@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="14-lane Helix solenoid">
+  <defs>
+    <radialGradient id="jacuzziGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5dfff0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#040a12" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="laneGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2ee8d6"/>
+      <stop offset="100%" stop-color="#1a9e92"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="200" cy="200" r="180" fill="url(#jacuzziGlow)"/>
+  <!-- Pentagram base -->
+  <polygon points="200,40 376,168 312,360 88,360 24,168" fill="none" stroke="#2ee8d6" stroke-width="1" opacity="0.35"/>
+  <!-- Quadrilateral inner -->
+  <rect x="100" y="100" width="200" height="200" fill="none" stroke="#f5c842" stroke-width="1" opacity="0.4" transform="rotate(45 200 200)"/>
+  <!-- 14 lanes as spiral arcs -->
+  <g filter="url(#glow)" fill="none" stroke="url(#laneGrad)" stroke-width="2">
+    <path d="M200 200 m0 -30 a30 30 0 1 1 0 60 a30 30 0 1 1 0 -60" opacity="0.9"/>
+    <path d="M200 200 m0 -50 a50 50 0 1 1 0 100 a50 50 0 1 1 0 -100" opacity="0.85"/>
+    <path d="M200 200 m0 -70 a70 70 0 1 1 0 140 a70 70 0 1 1 0 -140" opacity="0.8"/>
+    <path d="M200 200 m0 -90 a90 90 0 1 1 0 180 a90 90 0 1 1 0 -180" opacity="0.75"/>
+    <path d="M200 200 m0 -110 a110 110 0 1 1 0 220 a110 110 0 1 1 0 -220" opacity="0.7"/>
+    <path d="M200 200 m0 -130 a130 130 0 1 1 0 260 a130 130 0 1 1 0 -260" opacity="0.65"/>
+    <path d="M200 200 m0 -150 a150 150 0 1 1 0 300 a150 150 0 1 1 0 -300" opacity="0.6"/>
+  </g>
+  <!-- Lane markers (14) -->
+  <g font-family="monospace" font-size="9" fill="#5dfff0" text-anchor="middle">
+    <text x="200" y="55">L01</text><text x="318" y="95">L02</text><text x="355" y="200">L03</text>
+    <text x="318" y="305">L04</text><text x="200" y="350">L05</text><text x="82" y="305">L06</text>
+    <text x="45" y="200">L07</text><text x="82" y="95">L08</text><text x="140" y="70">L09</text>
+    <text x="260" y="70">L10</text><text x="330" y="150">L11</text><text x="330" y="250">L12</text>
+    <text x="70" y="250">L13</text><text x="70" y="150">L14</text>
+  </g>
+  <circle cx="200" cy="200" r="18" fill="#2ee8d6" opacity="0.6">
+    <animate attributeName="r" values="16;22;16" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <text x="200" y="204" text-anchor="middle" font-size="8" fill="#040a12" font-weight="bold">GEN</text>
+</svg>

@@ -1,188 +1,142 @@
-/**
- * Eastern layer ($E^1$) — Odysseus context router with zero-trust tenant isolation.
- *
- * Routes inference requests through SHA-256 tenant-scoped memory maps.
- * All input vectors are sanitized before entering any tenant context.
- */
+// src/infrastructure/odysseus-router.js
+'use strict';
 
-import crypto from "node:crypto";
+const crypto = require('crypto');
+const {
+  MultiLingualSolenoidEngine,
+  RosettaStoneLanguageCore,
+  SymbioticEvolutionEngine,
+  OmniDimensionalSafetyCanopy,
+  TeslaMeshEntropyCore,
+} = require('./entropy-core');
 
-/** @typedef {{ tenantHash: string, createdAt: string, messages: Array<{ role: string, content: string, at: string }>, metadata: Record<string, unknown> }} TenantContext */
-
-const MAX_CONTENT_LENGTH = 32_768;
-const MAX_MESSAGES = 256;
-const ALLOWED_ROLES = new Set(["system", "user", "assistant", "tool"]);
-
-/**
- * @param {string} tenantId
- * @returns {string} hex SHA-256 tenant hash (isolation key)
- */
-export function hashTenant(tenantId) {
-  if (typeof tenantId !== "string" || tenantId.trim().length < 8) {
-    throw new TypeError("tenantId must be a non-empty string (min 8 chars)");
-  }
-  return crypto.createHash("sha256").update(tenantId.trim(), "utf8").digest("hex");
-}
-
-/**
- * Sanitize a single message content string.
- * @param {unknown} raw
- * @returns {string}
- */
-export function sanitizeContent(raw) {
-  if (raw === null || raw === undefined) return "";
-  let text = String(raw)
-    .replace(/\0/g, "")
-    .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
-    .trim();
-  if (text.length > MAX_CONTENT_LENGTH) {
-    text = text.slice(0, MAX_CONTENT_LENGTH);
-  }
-  return text;
-}
-
-/**
- * Validate and sanitize an inbound message array.
- * @param {unknown} messages
- * @returns {Array<{ role: string, content: string }>}
- */
-export function sanitizeMessages(messages) {
-  if (!Array.isArray(messages)) {
-    throw new TypeError("messages must be an array");
-  }
-  if (messages.length > MAX_MESSAGES) {
-    throw new RangeError(`messages exceed max ${MAX_MESSAGES}`);
-  }
-
-  return messages.map((msg, idx) => {
-    if (!msg || typeof msg !== "object") {
-      throw new TypeError(`message[${idx}] must be an object`);
-    }
-    const role = String(/** @type {{ role?: unknown }} */ (msg).role || "").toLowerCase();
-    if (!ALLOWED_ROLES.has(role)) {
-      throw new TypeError(`message[${idx}] has invalid role: ${role}`);
-    }
-    const content = sanitizeContent(/** @type {{ content?: unknown }} */ (msg).content);
-    if (!content && role !== "system") {
-      throw new TypeError(`message[${idx}] content cannot be empty`);
-    }
-    return { role, content };
-  });
-}
-
-/**
- * Zero-trust tenant validation — rejects cross-tenant token reuse.
- * @param {object} opts
- * @param {string} opts.tenantId
- * @param {string} [opts.authTenantHash] hash presented by caller
- * @param {string} [opts.apiKey] optional API key bound to tenant
- * @returns {{ tenantHash: string, validated: true }}
- */
-export function validateTenant({ tenantId, authTenantHash, apiKey }) {
-  const tenantHash = hashTenant(tenantId);
-
-  if (authTenantHash && authTenantHash !== tenantHash) {
-    throw new Error("tenant hash mismatch — zero-trust rejection");
-  }
-
-  const expectedKey = process.env[`TENANT_KEY_${tenantHash.slice(0, 16).toUpperCase()}`];
-  if (expectedKey && apiKey !== expectedKey) {
-    throw new Error("invalid tenant API key");
-  }
-
-  return { tenantHash, validated: true };
-}
-
-/**
- * In-memory tenant context store (swap for Redis/Postgres in production).
- */
-export class OdysseusRouter {
+class QuadrilateralSolenoidRouter {
   constructor() {
-    /** @type {Map<string, TenantContext>} */
     this.contexts = new Map();
+    this.maxHistoryWindow = 32;
+    this.solenoidEngine = new MultiLingualSolenoidEngine();
+    this.rosetta = new RosettaStoneLanguageCore();
+    this.evolutionEngine = new SymbioticEvolutionEngine();
+    this.canopy = new OmniDimensionalSafetyCanopy();
+    this.teslaMesh = new TeslaMeshEntropyCore();
   }
 
-  /**
-   * @param {string} tenantId
-   * @returns {TenantContext}
-   */
-  getOrCreateContext(tenantId) {
-    const { tenantHash } = validateTenant({ tenantId });
-    let ctx = this.contexts.get(tenantHash);
-    if (!ctx) {
-      ctx = {
-        tenantHash,
-        createdAt: new Date().toISOString(),
-        messages: [],
-        metadata: {},
+  async processAxisMatrix(
+    tenantConfig,
+    pipelinePayloads,
+    rawHardwareTelemetry,
+    targetLocale = 'en'
+  ) {
+    if (
+      !tenantConfig ||
+      !tenantConfig.id ||
+      !Array.isArray(pipelinePayloads) ||
+      pipelinePayloads.length !== 14
+    ) {
+      throw new Error(
+        'X_AXIS_ISOLATION_FAULT: Invalid tenant profile or incomplete 14-pillar matrix.'
+      );
+    }
+
+    const tenantHash = crypto.createHash('sha256').update(tenantConfig.id).digest('hex');
+    if (!this.contexts.has(tenantHash)) {
+      this.contexts.set(tenantHash, {
+        history: [],
+        tier: tenantConfig.tier || 1,
+        initializedAt: Date.now(),
+      });
+    }
+    const ctx = this.contexts.get(tenantHash);
+
+    if (ctx.history.length > this.maxHistoryWindow) {
+      ctx.history = ctx.history.slice(-Math.floor(this.maxHistoryWindow * 0.5));
+    }
+
+    if (tenantConfig.fleetVin && rawHardwareTelemetry) {
+      this.teslaMesh.ingestFleetTelemetry(tenantConfig.fleetVin, {
+        battery_level: rawHardwareTelemetry.battery_level ?? 80,
+        grid_frequency: rawHardwareTelemetry.grid_frequency ?? 60.0,
+        outside_temp: rawHardwareTelemetry.outside_temp ?? rawHardwareTelemetry.gpu_temperature,
+        power_draw_kw: rawHardwareTelemetry.power_draw_kw ?? 0,
+        shift_state: rawHardwareTelemetry.shift_state ?? 'P',
+        timestamp: rawHardwareTelemetry.timestamp ?? Date.now(),
+      });
+    }
+
+    const throughputSample = pipelinePayloads.length * 12.5;
+    const evolutionStatus = this.evolutionEngine.evaluateAndMutate(
+      rawHardwareTelemetry,
+      throughputSample
+    );
+    const healthStatus = this.canopy.evaluateSystemHealth(
+      rawHardwareTelemetry,
+      pipelinePayloads.length
+    );
+
+    const executionPromises = pipelinePayloads.map(async (taskItem, index) => {
+      const laneId = index + 1;
+      const runtimeTarget = this.determineRuntimeTrack(laneId);
+
+      const sanitizedPrompt = (taskItem.prompt || '')
+        .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+        .trim();
+
+      const proofVerification = this.solenoidEngine.verifyMultilingualProof(
+        laneId,
+        runtimeTarget,
+        JSON.stringify({ data: taskItem.data, input: sanitizedPrompt }),
+        taskItem.nonce || 0
+      );
+
+      const logCode = proofVerification.success ? 'D1_VAULT_LOCK' : 'E1_THERMAL_OVERLOAD';
+      const localizedMsg = this.rosetta.translate(logCode, targetLocale);
+
+      let optimizedEndpoint = `LOCAL_BARE_METAL_AXIS_LANE_${laneId}`;
+      if (healthStatus.shieldingActive && laneId >= 3) {
+        optimizedEndpoint = 'MULTI_CLOUD_FAILOVER_ISOLATED_NODE';
+      }
+
+      return {
+        laneId,
+        runtime: runtimeTarget,
+        verified: proofVerification.success,
+        hashAnchor: proofVerification.computedHash,
+        statusUpdate: localizedMsg,
+        allocatedRoute: optimizedEndpoint,
+        activeGeneTrack: evolutionStatus ? evolutionStatus.activeAlgorithmTrack : 'sha256',
+        axisContext: {
+          X_Layer: 'Namespace_Isolated',
+          Y_Layer: 'Flow_Synchronized',
+          Z_Layer:
+            evolutionStatus && evolutionStatus.structuralShiftOccurred ? 'MUTATED' : 'NOMINAL',
+          W_Layer: targetLocale,
+        },
       };
-      this.contexts.set(tenantHash, ctx);
-    }
-    return ctx;
-  }
+    });
 
-  /**
-   * Route a request into an isolated tenant context.
-   * @param {object} input
-   * @param {string} input.tenantId
-   * @param {unknown} input.messages
-   * @param {string} [input.authTenantHash]
-   * @param {string} [input.apiKey]
-   * @returns {{ tenantHash: string, messages: Array<{ role: string, content: string, at: string }>, routedAt: string }}
-   */
-  route(input) {
-    const { tenantId, authTenantHash, apiKey } = input;
-    const { tenantHash } = validateTenant({ tenantId, authTenantHash, apiKey });
-    const sanitized = sanitizeMessages(input.messages);
-    const ctx = this.getOrCreateContext(tenantId);
+    const detailedMatrixResults = await Promise.all(executionPromises);
+    this.solenoidEngine.incrementSolenoidLoop();
 
-    const stamped = sanitized.map((m) => ({
-      ...m,
-      at: new Date().toISOString(),
-    }));
-
-    ctx.messages.push(...stamped);
-    if (ctx.messages.length > MAX_MESSAGES) {
-      ctx.messages = ctx.messages.slice(-MAX_MESSAGES);
-    }
+    ctx.history.push({
+      role: 'system',
+      timestamp: Date.now(),
+      stateRoot: this.solenoidEngine.stateChainHash,
+      evolutionGen: evolutionStatus ? evolutionStatus.generationId : 1,
+    });
 
     return {
-      tenantHash,
-      messages: ctx.messages,
-      routedAt: new Date().toISOString(),
+      layer: 'PDs1_QUADRILATERAL_AXIS_COMPLETE',
+      safetyProfile: healthStatus,
+      evolutionProfile: evolutionStatus,
+      matrix: detailedMatrixResults,
     };
   }
 
-  /**
-   * Prune tenant context (invoked on hardware threshold breach).
-   * @param {string} tenantId
-   * @param {number} [keepLast=32]
-   */
-  pruneContext(tenantId, keepLast = 32) {
-    const { tenantHash } = validateTenant({ tenantId });
-    const ctx = this.contexts.get(tenantHash);
-    if (!ctx) return { pruned: 0, tenantHash };
-    const before = ctx.messages.length;
-    ctx.messages = ctx.messages.slice(-keepLast);
-    return { pruned: before - ctx.messages.length, tenantHash };
-  }
-
-  /**
-   * Entropy-aware routing — adjusts keep window based on hardware quality (E¹ + O¹).
-   * @param {string} tenantId
-   * @param {number} entropyQuality 0-1 from zk-entropy-prover
-   */
-  routeWithEntropy(input, entropyQuality = 0.5) {
-    const result = this.route(input);
-    const keepLast = Math.max(8, Math.round(32 * entropyQuality));
-    if (entropyQuality < 0.4) {
-      this.pruneContext(input.tenantId, keepLast);
-    }
-    return { ...result, entropyQuality, contextWindow: keepLast };
+  determineRuntimeTrack(laneId) {
+    if (laneId === 3 || laneId === 10) return 'rust';
+    if (laneId === 2 || laneId === 4) return 'cuda';
+    return 'javascript';
   }
 }
 
-/** Singleton router for serverless / Next.js imports. */
-export const odysseusRouter = new OdysseusRouter();
-
-export default odysseusRouter;
+module.exports = { QuadrilateralSolenoidRouter };

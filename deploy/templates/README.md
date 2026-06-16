@@ -1,6 +1,6 @@
 # Plug-and-Play Deployment Templates
 
-Env-driven templates for multi-cloud, LLM routing, ZK entropy, and TON/Kairo layers.
+Env-driven templates for multi-cloud, LLM routing, ZK entropy, and TON/Kairo layers. **No hardcoded secrets.**
 
 ## Structure
 
@@ -8,34 +8,32 @@ Env-driven templates for multi-cloud, LLM routing, ZK entropy, and TON/Kairo lay
 deploy/templates/
 ├── cloud/
 │   ├── akash/ollama-worker.sdl.yml.tpl
-│   └── azure/tfc-workspace.env.tpl
-├── llm-router/litellm.config.yaml.tpl
-├── zk-entropy/scheduler.env.tpl
-└── ton-kairo/stack.env.tpl
+│   ├── akash/backend.sdl.tmpl.yml
+│   ├── azure/tfc-workspace.env.tpl
+│   ├── azure/container-instance.env.tmpl
+│   ├── aws/ecs-task.env.tmpl
+│   └── vast/on-demand.env.tmpl
+├── llm-router/
+├── zk-entropy/
+└── ton-kairo/
 ```
 
 ## Render
 
 ```bash
-cp config/layered.env.example .env
+cp deploy/env/layered.env.example .env   # or config/layered.env.example
 # fill secrets or: python3 scripts/vault-export-env.py > .env
 
-bash deploy/deploy-full-stack.sh --render-only
+./deploy/templates/lib/render-template.sh all
 # output: deploy/rendered/
 ```
 
 ## Deploy full stack
 
 ```bash
-bash deploy/deploy-full-stack.sh              # phases 1–4
-bash deploy/deploy-full-stack.sh --phase 1    # foundation only
-bash deploy/deploy-full-stack.sh --dry-run
-```
-
-## Docker Compose (local)
-
-```bash
+DRY_RUN=1 ./deploy/deploy-full-stack.sh --phase all
+./deploy/deploy-full-stack.sh --phase 2
 docker compose -f deploy/docker-compose.stack.yml up -d
 ```
 
-See `docs/DEPLOYMENT_PRIORITY_ORDER.md` for phase order and gates.
+See `docs/DEPLOYMENT_PRIORITY_ORDER.md` and `docs/DEPLOYMENT_PRIORITY.md` for phase order.

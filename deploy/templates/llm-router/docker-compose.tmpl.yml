@@ -1,0 +1,41 @@
+# Rendered: deploy/rendered/llm-router/docker-compose.yml
+services:
+  litellm:
+    image: ${YIELDSWARM_LITELLM_IMAGE:-ghcr.io/yieldswarm/litellm-router:main}
+    ports:
+      - "${LLM_ROUTER_PORT}:4000"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GROK_API_KEY: ${GROK_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      FIREWORKS_API_KEY: ${FIREWORKS_API_KEY}
+      COHERE_API_KEY: ${COHERE_API_KEY}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY}
+      TOGETHER_API_KEY: ${TOGETHER_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY}
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT}
+      LITELLM_MASTER_KEY: ${YIELDSWARM_ROUTER_API_KEY}
+      LLM__DEFAULT_MODEL: ${LLM__DEFAULT_MODEL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  odysseus:
+    image: ${ODYSSEUS_IMAGE}
+    ports:
+      - "${APP_PORT:-7000}:7000"
+    environment:
+      LLM__ROUTER_TYPE: ${LLM__ROUTER_TYPE}
+      LITELLM_URL: http://litellm:4000
+      YIELDSWARM_ROUTER_API_KEY: ${YIELDSWARM_ROUTER_API_KEY}
+      GREEK_LAYER__ACCESS_CONTROL_ENABLED: ${GREEK_LAYER__ACCESS_CONTROL_ENABLED}
+      EASTERN_LAYER__RECURSIVE_ROUTING: ${EASTERN_LAYER__RECURSIVE_ROUTING}
+    depends_on:
+      litellm:
+        condition: service_healthy
