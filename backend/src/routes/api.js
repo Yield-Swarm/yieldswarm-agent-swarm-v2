@@ -75,12 +75,18 @@ router.get('/telemetry/5090', asyncRoute(async (_req, res) => {
 }));
 
 router.post('/inference/route', asyncRoute(async (req, res) => {
-  const { prompt, taskType } = req.body || {};
+  const { prompt, taskType, priority, agentId } = req.body || {};
   if (!prompt) {
     res.status(400).json({ error: 'prompt required' });
     return;
   }
-  const result = await routeRequest(String(prompt), taskType || 'chat');
+  const t5090 = await cache.get('telemetry:5090', () => rtx5090.refreshTelemetry());
+  const result = await routeRequest(
+    String(prompt),
+    taskType || 'chat',
+    priority || 'normal',
+    { rtx5090: t5090, h100: {} },
+  );
   res.json(result);
 }));
 

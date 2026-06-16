@@ -1,6 +1,25 @@
-# Akash RTX 5090 Ollama Deploy
+# Akash RTX 5090 Deploy
 
-Production SDL + entrypoint for **RTX 5090 (32GB)** Ollama workers on Akash.
+Production SDLs for **RTX 5090 (32GB)** — **vLLM (recommended)** or Ollama (legacy).
+
+---
+
+## vLLM (recommended)
+
+```bash
+make build-vllm-rtx5090
+export DEPLOY_IMAGE=ghcr.io/yield-swarm/vllm-rtx5090:latest
+make deploy-akash-rtx5090-vllm
+curl http://<lease>:8000/v1/models
+```
+
+Set `RTX5090_VLLM_BASE_URL=http://<lease>:8000` on the integration backend.
+
+| File | Purpose |
+|------|---------|
+| `deploy/vllm-rtx5090/Dockerfile` | CUDA 12.4 + vLLM 0.6.0 |
+| `deploy/vllm-rtx5090/entrypoint.sh` | AWQ + continuous batching |
+| `deploy/akash-rtx5090-vllm.sdl.yml` | Akash SDL (:8000, :9090 metrics) |
 
 ---
 
@@ -84,8 +103,17 @@ Implementation: `backend/src/adapters/rtx5090Telemetry.js`
 
 ---
 
-## Related
+## ROI model
 
-- [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — Single Pane of Glass v2.0
-- [`docs/AKASH_DEPLOY.md`](AKASH_DEPLOY.md) — general Akash deploy
-- [`deploy/akash-bittensor-miner.sdl.yml`](../deploy/akash-bittensor-miner.sdl.yml) — RTX 3090 dual-purpose miner
+```bash
+make akash-roi-5090
+```
+
+At $0.72/hr you need ~70–90 tok/s @ $0.25/1M tokens and >75% utilization to break even.
+
+---
+
+## Master prompt + full task list
+
+- [`docs/MASTER_GOD_PROMPT.md`](MASTER_GOD_PROMPT.md)
+- [`docs/YIELDSWARM_ALPHA_OMEGA.md`](YIELDSWARM_ALPHA_OMEGA.md)

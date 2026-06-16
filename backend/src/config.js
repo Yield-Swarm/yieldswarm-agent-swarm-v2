@@ -91,10 +91,15 @@ export const config = {
     rtx5090Endpoint:
       process.env.RTX5090_ENDPOINT ||
       'http://r4r35icmll0m7o.ingress.5090.mel.val.akash.pub:11434',
+    rtx5090VllmBaseUrl: (process.env.RTX5090_VLLM_BASE_URL || process.env.RTX5090_OPENAI_URL || '').replace(/\/$/, ''),
     h100Endpoint: process.env.H100_ENDPOINT || process.env.H100_OLLAMA_ENDPOINT || '',
-    rtx5090Model: process.env.RTX5090_MODEL || 'qwen2.5:14b',
+    h100VllmBaseUrl: (process.env.H100_VLLM_BASE_URL || '').replace(/\/$/, ''),
+    rtx5090ApiMode: (process.env.RTX5090_API_MODE || 'auto').toLowerCase(),
+    rtx5090Model: process.env.RTX5090_MODEL || 'Qwen/Qwen2.5-14B-Instruct-AWQ',
     h100Model: process.env.H100_MODEL || 'llama3.1:70b',
     telemetryPollMs: int(process.env.RTX5090_TELEMETRY_POLL_MS, 15_000),
+    timeoutMs: int(process.env.INFERENCE_TIMEOUT_MS, 120_000),
+    hourlyCostUsd: Number(process.env.RTX5090_HOURLY_COST_USD || '0.72'),
     enabled: bool(process.env.INFERENCE_ROUTER_ENABLED, true),
   },
 
