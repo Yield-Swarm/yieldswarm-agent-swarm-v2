@@ -8,7 +8,7 @@
 |-------|--------|---------------|
 | **$D^1$ Greek** | Immutable boundaries | `contracts/YieldSwarmNFT.sol`, `contracts/MultiSplitLeasing.sol`, `deploy/entrypoint.monitor.sh` |
 | **$E^1$ Eastern** | Context & entropy | `src/infrastructure/odysseus-router.js`, `src/infrastructure/entropy-core.js` |
-| **$PDs^1$ Paradigm Shift** | ZK + trading + mutation | `circuits/entropy_proof.circom`, `src/infrastructure/dydx-bridge.js`, `functions/mutate-agent.js` |
+| **$PDs^1$ Paradigm Shift** | ZK + trading + mutation | `circuits/entropy_proof.circom`, `src/infrastructure/zk-entropy-prover.js`, `contracts/MutationController.sol`, `functions/mutate-agent.js` |
 | **Bare-metal** | vLLM scaling + credits | `deploy/Dockerfile.bert`, `deploy/entrypoint.bert.sh`, `src/infrastructure/sovereign-optimizer.js` |
 
 ## Quick start

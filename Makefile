@@ -37,6 +37,7 @@ A := deploy/akash
         deploy-production-full wire-domains \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
+        zk-trusted-setup zk-mutation-cycle \
         status logs clean production
 
 ## help: show this menu
@@ -297,6 +298,14 @@ akash-roi-5090:
 ## nft-mutation-batch: dry-run weekly Agent NFT mutations from Arena leaderboard
 nft-mutation-batch:
 	@python3 services/nft_mutation_engine.py --week $$(date +%U)
+
+## zk-trusted-setup: compile entropy_proof.circom + Groth16 ceremony
+zk-trusted-setup:
+	@bash scripts/zk-trusted-setup.sh
+
+## zk-mutation-cycle: dry-run one ZK mutation cycle (dev proof mode)
+zk-mutation-cycle:
+	@node --input-type=module -e "import { HardenedAuditEngine } from './src/infrastructure/entropy-core.js'; import { runMutationCycle } from './src/automation/zk-mutation-scheduler.js'; const e=new HardenedAuditEngine(); const r=await runMutationCycle(e,{vramUsedGb:14,tempC:68,utilizationPct:55}); console.log(JSON.stringify(r,null,2));"
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers

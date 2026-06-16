@@ -166,6 +166,20 @@ export class OdysseusRouter {
     ctx.messages = ctx.messages.slice(-keepLast);
     return { pruned: before - ctx.messages.length, tenantHash };
   }
+
+  /**
+   * Entropy-aware routing — adjusts keep window based on hardware quality (E¹ + O¹).
+   * @param {string} tenantId
+   * @param {number} entropyQuality 0-1 from zk-entropy-prover
+   */
+  routeWithEntropy(input, entropyQuality = 0.5) {
+    const result = this.route(input);
+    const keepLast = Math.max(8, Math.round(32 * entropyQuality));
+    if (entropyQuality < 0.4) {
+      this.pruneContext(input.tenantId, keepLast);
+    }
+    return { ...result, entropyQuality, contextWindow: keepLast };
+  }
 }
 
 /** Singleton router for serverless / Next.js imports. */

@@ -43,12 +43,41 @@ describe("entropy-core", () => {
   it("builds verifiable 64-block window", () => {
     const engine = new HardenedAuditEngine();
     for (let i = 0; i < 70; i++) {
-      engine.ingest({ vramUsedGb: 12 + i * 0.1, tempC: 65 + (i % 5) });
+      engine.ingest({ vramUsedGb: 12 + i * 0.1, tempC: 65 + (i % 5), timestamp: 1_700_000_000_000 + i });
     }
     expect(engine.getWindow().length).toBe(64);
     const v = engine.verifyChain();
     expect(v.valid).toBe(true);
     expect(engine.exportProofSeed().blockCount).toBe(64);
+  });
+
+  it("generates ZK seed with proof (dev mode)", async () => {
+    const engine = new HardenedAuditEngine();
+    engine.ingest({ vramUsedGb: 14, tempC: 68 });
+    const seed = await engine.generateSeedWithProof();
+    expect(seed.commitment).toBeDefined();
+    expect(seed.publicSignals.length).toBe(3);
+    expect(seed.entropyQuality).toBeGreaterThan(0);
+    expect(seed.pillar).toBe("A1-Ancestral");
+  });
+});
+
+describe("zk-entropy-prover", () => {
+  it("sanitizes telemetry within policy bounds", async () => {
+    const { sanitizeTelemetry, computeCommitment, generateDevProof, verifyProofLocally } =
+      await import("./zk-entropy-prover.js");
+    const witness = sanitizeTelemetry({ vramUsedGb: 12, tempC: 70 });
+    expect(witness.vramScaled).toBe(12000);
+    const commitment = await computeCommitment(witness);
+    expect(commitment).toBeTruthy();
+    const proof = await generateDevProof({ vramUsedGb: 12, tempC: 70 });
+    const v = await verifyProofLocally(proof);
+    expect(v.valid).toBe(true);
+  });
+
+  it("rejects out-of-policy telemetry", async () => {
+    const { sanitizeTelemetry } = await import("./zk-entropy-prover.js");
+    expect(() => sanitizeTelemetry({ vramUsedGb: 35, tempC: 70 })).toThrow(/vram/);
   });
 });
 
@@ -78,5 +107,12 @@ describe("sovereign-optimizer", () => {
     const opt = new SovereignOptimizer();
     const opp = opt.arbitrageOpportunity(100);
     expect(opp?.id).toBeDefined();
+  });
+
+  it("ranks higher with entropy quality bonus", () => {
+    const opt = new SovereignOptimizer();
+    const low = opt.rankWithEntropy({ entropyQuality: 0.1 });
+    const high = opt.rankWithEntropy({ entropyQuality: 0.95 });
+    expect(high[0].score).toBeGreaterThan(low[0].score);
   });
 });

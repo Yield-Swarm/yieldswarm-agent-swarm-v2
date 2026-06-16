@@ -3,6 +3,7 @@ bin/
 .odysseus/
 /build
 build/
+cache/
 coverage/
 crash.*.log
 crash.log
@@ -98,3 +99,4 @@ yarn-error.log*
 .odysseus/
 deploy/akash.env
 bin/
+lib/forge-std/
