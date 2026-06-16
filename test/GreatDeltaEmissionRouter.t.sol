@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {GreatDeltaEmissionRouter} from "GreatDeltaEmissionRouter.sol";
+import {GreatDeltaEmissionRouter} from "../contracts/GreatDeltaEmissionRouter.sol";
 
 contract GreatDeltaEmissionRouterTest is Test {
     GreatDeltaEmissionRouter router;
@@ -38,11 +38,11 @@ contract GreatDeltaEmissionRouterTest is Test {
         vm.deal(address(router), 100 ether);
     }
 
-    function testBpsDenominator() public view {
+    function testBpsDenominator() public {
         assertEq(router.BPS_DENOMINATOR(), 10_000);
     }
 
-    function testPreviewSplit50_30_15_5() public view {
+    function testPreviewSplit50_30_15_5() public {
         (uint256 toCore, uint256 toGrowth, uint256 toInsurance, uint256 toOps) = router
             .previewSplit(100);
 
@@ -53,7 +53,7 @@ contract GreatDeltaEmissionRouterTest is Test {
         assertEq(toCore + toGrowth + toInsurance + toOps, 100);
     }
 
-    function testPreviewSplitZeroDust() public view {
+    function testPreviewSplitZeroDust() public {
         uint256 amount = 1_000_000_007;
         (uint256 toCore, uint256 toGrowth, uint256 toInsurance, uint256 toOps) = router
             .previewSplit(amount);
