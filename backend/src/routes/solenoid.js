@@ -9,6 +9,7 @@ import {
   ingestTelemetryPulse,
   pruneContext,
   runAxisMatrix,
+  shiftSolenoidMode,
 } from '../adapters/solenoid.js';
 
 const router = Router();
@@ -39,6 +40,12 @@ router.post('/prune', asyncRoute(async (req, res) => {
 /** POST /api/telemetry/pulse — oracle bridge metric pulse per pillar */
 router.post('/pulse', asyncRoute(async (req, res) => {
   res.json(ingestTelemetryPulse(req.body || {}));
+}));
+
+/** POST /api/solenoid/shift — elevate quadrilateral → pentagram → 14× elevators */
+router.post('/shift', asyncRoute(async (req, res) => {
+  const { targetMode } = req.body || {};
+  res.json(shiftSolenoidMode(targetMode));
 }));
 
 /** POST /api/solenoid/matrix — full 14-pillar axis matrix execution */

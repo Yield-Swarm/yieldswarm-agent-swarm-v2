@@ -2,13 +2,14 @@
 'use strict';
 
 const crypto = require('crypto');
+const { SolenoidStateEngine } = require('./solenoid-engine');
 
-class MultiLingualSolenoidEngine {
+class MultiLingualSolenoidEngine extends SolenoidStateEngine {
   constructor() {
+    super();
     this.currentPillarIndex = 0;
     this.totalPillars = 14;
     this.difficultyTarget = '0000';
-    this.stateChainHash = crypto.createHash('sha256').update('YIELDSWARM_GENESIS_ROOT').digest('hex');
   }
 
   verifyMultilingualProof(pillarId, runTimeLanguage, blockData, nonce) {
@@ -16,14 +17,17 @@ class MultiLingualSolenoidEngine {
       return { success: false, computedHash: '' };
     }
     const contextPrefix = `PILLAR_${pillarId}_LANG_${runTimeLanguage.toUpperCase()}`;
-    const payloadToHash = `${contextPrefix}_${blockData}_${nonce}_${this.stateChainHash}`;
+    const sanitizedBlock = this.particilizeRawString(
+      typeof blockData === 'string' ? blockData : JSON.stringify(blockData),
+    );
+    const payloadToHash = `${contextPrefix}_${sanitizedBlock}_${nonce}_${this.stateChainHash}`;
 
     let evaluationHash = crypto.createHash('sha256').update(payloadToHash).digest('hex');
     if (runTimeLanguage === 'cuda' || runTimeLanguage === 'rust') {
       evaluationHash = crypto.createHash('sha256').update(evaluationHash).digest('hex');
     }
 
-    const isValidProof = evaluationHash.startsWith(this.difficultyTarget);
+    const isValidProof = evaluationHash.startsWith(this.difficultyPrefix);
     if (isValidProof) {
       this.stateChainHash = crypto
         .createHash('sha256')

@@ -14,6 +14,7 @@ const require = createRequire(import.meta.url);
 const infraPath = path.join(repoRoot, 'src', 'infrastructure');
 const { QuadrilateralSolenoidRouter } = require(path.join(infraPath, 'odysseus-router.js'));
 const { TelemetryValidationBridge } = require(path.join(infraPath, 'oracle-bridge.js'));
+const { solenoidEngine } = require(path.join(infraPath, 'solenoid-engine.js'));
 
 const router = new QuadrilateralSolenoidRouter();
 const telemetryBridge = new TelemetryValidationBridge();
@@ -57,6 +58,7 @@ function buildDefaultPillarPayloads() {
 }
 
 export function getSolenoidStatus() {
+  const engineStatus = solenoidEngine.getStatus();
   return {
     layer: 'PDs1_QUADRILATERAL_AXIS',
     pillars: PILLAR_NAMES.length,
@@ -65,8 +67,31 @@ export function getSolenoidStatus() {
     activeContexts: router.contexts.size,
     stateChainHash: router.solenoidEngine.stateChainHash,
     currentPillarIndex: router.solenoidEngine.currentPillarIndex,
+    activeSolenoidMode: engineStatus.activeSolenoidMode,
+    activeDimension: engineStatus.activeDimension,
+    pillarElevators: engineStatus.pillarElevators,
     timestamp: new Date().toISOString(),
   };
+}
+
+export function shiftSolenoidMode(targetMode) {
+  if (targetMode === 'PENTAGRAM') {
+    return { success: true, ...solenoidEngine.shiftToPentagramSolenoid() };
+  }
+  if (targetMode === '14X_ELEVATORS') {
+    return { success: true, ...solenoidEngine.launchPillarElevators() };
+  }
+  if (targetMode === 'QUADRILATERAL') {
+    solenoidEngine.activeSolenoidMode = 'QUADRILATERAL';
+    solenoidEngine.activeDimension = 2;
+    return {
+      success: true,
+      mode: solenoidEngine.activeSolenoidMode,
+      dimension: solenoidEngine.activeDimension,
+      stateChainHash: solenoidEngine.stateChainHash,
+    };
+  }
+  return { success: false, error: 'UNKNOWN_SOLENOID_MODE', targetMode };
 }
 
 export function applyThrottle(body = {}) {

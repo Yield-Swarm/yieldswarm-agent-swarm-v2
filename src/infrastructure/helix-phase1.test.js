@@ -22,6 +22,34 @@ describe('MultiLingualSolenoidEngine', () => {
     engine.incrementSolenoidLoop();
     expect(engine.currentPillarIndex).toBe((start + 1) % 14);
   });
+
+  it('particilizes control characters via SolenoidStateEngine', () => {
+    const engine = new MultiLingualSolenoidEngine();
+    expect(engine.particilizeRawString('ok\u0000bad')).toBe('okbad');
+  });
+});
+
+describe('SolenoidStateEngine', () => {
+  it('generates state anchors and shifts dimensions', async () => {
+    const { SolenoidStateEngine } = await import('./solenoid-engine.js');
+    const engine = new SolenoidStateEngine();
+    const anchor = engine.generateStateAnchor({ path: '/health' });
+    expect(anchor.stateAnchor).toMatch(/^0x[0-9a-f]{64}$/);
+    const pentagram = engine.shiftToPentagramSolenoid();
+    expect(pentagram.mode).toBe('PENTAGRAM');
+    expect(pentagram.dimension).toBe(3);
+    const elevators = engine.launchPillarElevators();
+    expect(elevators.mode).toBe('14X_ELEVATORS');
+    expect(elevators.pillars).toHaveLength(14);
+  });
+
+  it('enforces in-memory rate limit fallback without Redis', async () => {
+    const { SolenoidStateEngine } = await import('./solenoid-engine.js');
+    const engine = new SolenoidStateEngine();
+    const first = await engine.enforceRateLimit('test-ip', 2, 60);
+    expect(first.allowed).toBe(true);
+    expect(first.fallback).toBe(true);
+  });
 });
 
 describe('RosettaStoneLanguageCore', () => {
