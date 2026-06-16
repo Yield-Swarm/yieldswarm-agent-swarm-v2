@@ -1,0 +1,91 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+    inputs:
+      skip_akash:
+        description: Skip Akash lease steps
+        type: boolean
+        default: false
+      skip_vercel:
+        description: Skip Vercel deploy
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+env:
+  VAULT_ADDR: ${{ vars.VAULT_ADDR || 'https://vault.yieldswarm.io:8200' }}
+  VAULT_NAMESPACE: ${{ vars.VAULT_NAMESPACE }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Akash provider-services
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/akash-network/provider/main/install.sh | bash
+          echo "${PWD}/bin" >> "${GITHUB_PATH}"
+
+      - name: Load deployment secrets from Vault
+        uses: hashicorp/vault-action@v3
+        with:
+          url: ${{ env.VAULT_ADDR }}
+          namespace: ${{ env.VAULT_NAMESPACE }}
+          method: jwt
+          role: ${{ vars.VAULT_GITHUB_ROLE || 'yieldswarm-github-actions' }}
+          secrets: |
+            kv/data/yieldswarm/domains/runtime UD_API_KEY | UD_API_KEY ;
+            kv/data/yieldswarm/domains/runtime VERCEL_TOKEN | VERCEL_TOKEN ;
+            kv/data/yieldswarm/domains/runtime VERCEL_PROJECT_ID | VERCEL_PROJECT_ID ;
+            kv/data/yieldswarm/domains/runtime VERCEL_DEPLOY_HOOK | VERCEL_DEPLOY_HOOK ;
+            kv/data/yieldswarm/domains/runtime DATABASE_URL | DATABASE_URL ;
+            kv/data/yieldswarm/akash/runtime AKASH_KEY_NAME | AKASH_KEY_NAME ;
+            kv/data/yieldswarm/akash/runtime AKASH_ACCOUNT_ADDRESS | AKASH_ACCOUNT_ADDRESS ;
+            integrations/cloudflare api_token | CLOUDFLARE_API_TOKEN ;
+            integrations/cloudflare zone_id | CLOUDFLARE_ZONE_ID ;
+
+      - name: Configure deploy environment
+        run: |
+          cp deploy/config.env.example deploy/config.env
+          cp deploy/akash.env.example deploy/akash.env
+
+      - name: Preflight
+        run: make preflight
+
+      - name: Deploy Akash monolith + backend + Odysseus
+        if: ${{ github.event.inputs.skip_akash != 'true' }}
+        env:
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+        run: |
+          bash scripts/deploy-production-full.sh --only akash || true
+          bash scripts/deploy-production-full.sh --only akash-backend || true
+          bash scripts/deploy-production-full.sh --only odysseus || true
+
+      - name: Wire 17 domains
+        run: bash scripts/wire-production-domains.sh
+
+      - name: Deploy Vercel production
+        if: ${{ github.event.inputs.skip_vercel != 'true' }}
+        run: bash scripts/deploy-production-full.sh --only vercel
+
+      - name: Configure Neon on Vercel
+        run: bash scripts/deploy-production-full.sh --only neon
+
+      - name: Update frontend + start sovereign loops
+        run: |
+          bash scripts/deploy-production-full.sh --only frontend
+          bash scripts/deploy-production-full.sh --only monitoring
+
+      - name: Smoke test
+        run: bash scripts/smoke-test.sh || true
