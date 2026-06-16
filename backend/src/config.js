@@ -87,6 +87,22 @@ export const config = {
     enabled: bool(process.env.ODYSSEUS_ENABLED, true),
   },
 
+  inference: {
+    rtx5090Endpoint:
+      process.env.RTX5090_ENDPOINT ||
+      'http://r4r35icmll0m7o.ingress.5090.mel.val.akash.pub:11434',
+    rtx5090VllmBaseUrl: (process.env.RTX5090_VLLM_BASE_URL || process.env.RTX5090_OPENAI_URL || '').replace(/\/$/, ''),
+    h100Endpoint: process.env.H100_ENDPOINT || process.env.H100_OLLAMA_ENDPOINT || '',
+    h100VllmBaseUrl: (process.env.H100_VLLM_BASE_URL || '').replace(/\/$/, ''),
+    rtx5090ApiMode: (process.env.RTX5090_API_MODE || 'auto').toLowerCase(),
+    rtx5090Model: process.env.RTX5090_MODEL || 'Qwen/Qwen2.5-14B-Instruct-AWQ',
+    h100Model: process.env.H100_MODEL || 'llama3.1:70b',
+    telemetryPollMs: int(process.env.RTX5090_TELEMETRY_POLL_MS, 15_000),
+    timeoutMs: int(process.env.INFERENCE_TIMEOUT_MS, 120_000),
+    hourlyCostUsd: Number(process.env.RTX5090_HOURLY_COST_USD || '0.72'),
+    enabled: bool(process.env.INFERENCE_ROUTER_ENABLED, true),
+  },
+
   // Helix Chain cross-execution layer (genesis + YSLR + emission bridge).
   helix: {
     enabled: bool(process.env.HELIX_CHAIN_ENABLED, false),
@@ -109,6 +125,22 @@ export const config = {
     evmRpcUrl: process.env.EVM_RPC_URL || process.env.ETHEREUM_RPC_URL || '',
     slippageBps: int(process.env.SLIPPAGE_TOLERANCE, 50),
     enabled: bool(process.env.CROSS_CHAIN_MVP_ENABLED, true),
+  },
+
+  oracle: {
+    rpcUrl: process.env.SEPOLIA_RPC_URL || process.env.EVM_RPC_URL || '',
+    agentNftAddress: process.env.AGENT_NFT_CONTRACT || '',
+    mutationControllerAddress: process.env.MUTATION_CONTROLLER_CONTRACT || '',
+    relayerPrivateKey: process.env.ORACLE_RELAYER_PRIVATE_KEY || '',
+    arenaApiBase: (process.env.ARENA_API_BASE || process.env.YIELDSWARM_API_URL || 'http://127.0.0.1:8080').replace(/\/$/, ''),
+    enabled: bool(process.env.ORACLE_BRIDGE_ENABLED, true),
+  },
+
+  dydx: {
+    indexerUrl: (process.env.DYDX_API_BASE || 'https://indexer.dydx.trade/v4').replace(/\/$/, ''),
+    apiKey: process.env.DYDX_API_KEY || '',
+    subaccountId: process.env.DYDX_SUBACCOUNT_ID || '',
+    enabled: bool(process.env.DYDX_ENABLED, true),
   },
 };
 

@@ -54,7 +54,7 @@ flowchart TB
     %% ======================== INTELLIGENCE LAYER ========================
     subgraph Intelligence ["INTELLIGENCE + EXECUTION LAYER"]
         Odysseus["Odysseus<br/>(LiteLLM + ChromaDB)"]
-        ModelRouter["Model Router<br/>(Akash RTX 3090 aware)"]
+        ModelRouter["Model Router<br/>(Akash RTX 3090 / 5090 aware)"]
         SovereignRuntime["Sovereign Runtime<br/>(Self-Healing Leases)"]
         GreatDelta["Great Delta Emission Router"]
         AgentMarketplace["Agent Marketplace"]
@@ -63,7 +63,7 @@ flowchart TB
     %% ======================== SECRETS + INFRA ========================
     subgraph Infra ["SECRETS + INFRA LAYER"]
         Vault["HashiCorp Vault<br/>(Runtime Injection + AppRoles)"]
-        AkashInfra["Akash RTX 3090 Workers"]
+        AkashInfra["Akash RTX 3090 / 5090 Workers"]
         MultiCloudInfra["Multi-Cloud Capacity"]
     end
 

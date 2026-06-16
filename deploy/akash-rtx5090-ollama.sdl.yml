@@ -1,0 +1,85 @@
+---
+version: "2.0"
+
+# Akash SDL — RTX 5090 (32GB) Ollama inference worker
+# Light tasks: embedding, telemetry, masked prediction → qwen2.5:14b
+# Exposes Ollama :11434 globally + telemetry :8080
+#
+# Deploy:
+#   DEPLOY_IMAGE=ghcr.io/your-org/ollama-rtx5090:latest \
+#   AKASH_PROVIDER=provider.europlots.com \
+#   bash scripts/deploy-to-akash.sh deploy deploy/akash-rtx5090-ollama.sdl.yml
+
+services:
+  bert:
+    image: ${DEPLOY_IMAGE:-ghcr.io/yield-swarm/ollama-rtx5090:latest}
+    command:
+      - /bin/bash
+      - -lc
+      - /opt/yieldswarm/akash-rtx5090-entrypoint.sh
+    expose:
+      - port: 11434
+        as: 11434
+        to:
+          - global: true
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - TELEMETRY_PORT=8080
+      - OLLAMA_MODELS=llama3.1:8b,qwen2.5:14b
+      - VAULT_ADDR
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - VAULT_KV_MOUNT=yieldswarm
+      - VAULT_SECRET_PATHS=runtime/llm,runtime/akash
+    params:
+      storage:
+        ollama-cache:
+          mount: /root/.ollama
+          readOnly: false
+        shm:
+          mount: /dev/shm
+          readOnly: false
+    count: 1
+
+profiles:
+  compute:
+    bert:
+      resources:
+        cpu:
+          units: 4
+        memory:
+          size: 8Gi
+        storage:
+          - name: ollama-cache
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta3
+          - name: shm
+            size: 2Gi
+            attributes:
+              persistent: false
+              class: ram
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx5090
+                - model: rtx4090
+  placement:
+    akash:
+      pricing:
+        bert:
+          denom: uakt
+          amount: 12000
+
+deployment:
+  bert:
+    akash:
+      profile: bert
+      count: 1

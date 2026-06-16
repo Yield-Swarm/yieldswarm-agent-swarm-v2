@@ -1,0 +1,81 @@
+---
+version: "2.0"
+
+# Akash SDL — RTX 5090 (32GB) vLLM worker (continuous batching + OpenAI API)
+# Exposes :8000 (OpenAI /v1) + optional metrics
+#
+# Deploy:
+#   DEPLOY_IMAGE=ghcr.io/yield-swarm/vllm-rtx5090:latest \
+#   bash scripts/deploy-to-akash.sh deploy deploy/akash-rtx5090-vllm.sdl.yml
+
+services:
+  vllm-5090:
+    image: ${DEPLOY_IMAGE:-ghcr.io/yield-swarm/vllm-rtx5090:latest}
+    expose:
+      - port: 8000
+        as: 8000
+        to:
+          - global: true
+      - port: 9090
+        as: 9090
+        to:
+          - global: true
+    env:
+      - MODEL_NAME=Qwen/Qwen2.5-14B-Instruct-AWQ
+      - VLLM_QUANTIZATION=awq
+      - VLLM_GPU_MEMORY_UTILIZATION=0.92
+      - VLLM_MAX_MODEL_LEN=8192
+      - VLLM_ENABLE_METRICS=1
+      - VAULT_ADDR
+      - VAULT_ROLE_ID
+      - VAULT_WRAPPED_SECRET_ID
+      - VAULT_KV_MOUNT=yieldswarm
+      - VAULT_SECRET_PATHS=runtime/llm,runtime/akash
+    params:
+      storage:
+        model-cache:
+          mount: /root/.cache/huggingface
+          readOnly: false
+        shm:
+          mount: /dev/shm
+          readOnly: false
+    count: 1
+
+profiles:
+  compute:
+    vllm-5090:
+      resources:
+        cpu:
+          units: 6
+        memory:
+          size: 16Gi
+        storage:
+          - name: model-cache
+            size: 150Gi
+            attributes:
+              persistent: true
+              class: beta3
+          - name: shm
+            size: 4Gi
+            attributes:
+              persistent: false
+              class: ram
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx5090
+                - model: rtx4090
+  placement:
+    akash:
+      pricing:
+        vllm-5090:
+          denom: uakt
+          amount: 12000
+
+deployment:
+  vllm-5090:
+    akash:
+      profile: vllm-5090
+      count: 1

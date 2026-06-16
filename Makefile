@@ -36,6 +36,7 @@ A := deploy/akash
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
         deploy-production-full wire-domains \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
+        build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         status logs clean production
 
 ## help: show this menu
@@ -280,6 +281,22 @@ cloud-scheduler-report:
 ## cloud-scheduler-test: pytest scheduler + async queue
 cloud-scheduler-test:
 	python3 -m pytest tests/test_cloud_scheduler.py -q
+
+## build-vllm-rtx5090: build vLLM RTX 5090 Docker image
+build-vllm-rtx5090:
+	bash scripts/build-vllm-rtx5090-image.sh
+
+## deploy-akash-rtx5090-vllm: deploy vLLM SDL to Akash (requires DEPLOY_IMAGE + wallet)
+deploy-akash-rtx5090-vllm:
+	bash scripts/deploy-to-akash.sh deploy deploy/akash-rtx5090-vllm.sdl.yml
+
+## akash-roi-5090: print RTX 5090 break-even ROI model
+akash-roi-5090:
+	@python3 -c "from services.akash_roi import rtx5090_default; import json; print(json.dumps(rtx5090_default(), indent=2))"
+
+## nft-mutation-batch: dry-run weekly Agent NFT mutations from Arena leaderboard
+nft-mutation-batch:
+	@python3 services/nft_mutation_engine.py --week $$(date +%U)
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers
