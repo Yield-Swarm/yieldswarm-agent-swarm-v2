@@ -23,9 +23,38 @@ The 5 steps, in order:
 | 4 | Update frontend with real worker URLs | `make frontend` | `deploy/scripts/update-frontend-urls.sh` |
 | 5 | Start monitoring + sovereign loops | `make monitoring-up sovereign-up` | `deploy/scripts/start-monitoring.sh up` + `deploy/scripts/start-sovereign-loops.sh start` |
 
+See also **`DEPLOYMENT.md`** for multi-platform targets (`make deploy-all`, Vercel, Render).
+
 ---
 
-## GitHub Codespaces — exact commands
+## Akash Lease Manager (production supervisor)
+
+`akash/lease-manager.py` health-checks RTX 3090 workers, provisions replacements via Vault-injected deploy, and reports telemetry to the Arena dashboard.
+
+```bash
+# One-shot reconcile (cron-friendly)
+python3 akash/lease-manager.py --once
+
+# Long-lived daemon
+python3 akash/lease-manager.py
+
+# Register an existing worker URL
+python3 akash/lease-manager.py --add-worker https://<lease-uri> --add-dseq <dseq>
+```
+
+**Environment:**
+
+| Variable | Purpose |
+|----------|---------|
+| `VAULT_LOAD_AKASH` | Load wallet/RPC from Vault `runtime/akash` (default: true) |
+| `AKASH_DEPLOY_SCRIPT` | Default: `scripts/akash-deploy-with-vault.sh` |
+| `ARENA_TELEMETRY_URL` | POST fleet health to integration backend |
+| `DESIRED_WORKERS` | Target fleet size (default: 1) |
+| `HEALTH_CHECK_INTERVAL` | Poll seconds (default: 60) |
+
+SDL: `deploy/akash-bittensor-miner.sdl.yml` (Vault wrapped SecretID, tmpfs `/run/secrets`).
+
+---
 
 Run these in a fresh Codespace after cloning the repo:
 
