@@ -14,7 +14,10 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = REPO_ROOT / "telemetry" / "neon" / "schema.sql"
-FALLBACK_DIR = Path(os.environ.get("NEON_FALLBACK_DIR", ".data/neon"))
+
+
+def _fallback_dir() -> Path:
+    return Path(os.environ.get("NEON_FALLBACK_DIR", ".data/neon"))
 
 
 def neon_logging_enabled() -> bool:
@@ -29,8 +32,9 @@ def database_url() -> str | None:
 
 
 def _fallback_path(stream: str) -> Path:
-    FALLBACK_DIR.mkdir(parents=True, exist_ok=True)
-    return FALLBACK_DIR / f"{stream}.jsonl"
+    d = _fallback_dir()
+    d.mkdir(parents=True, exist_ok=True)
+    return d / f"{stream}.jsonl"
 
 
 def _append_fallback(stream: str, row: dict[str, Any]) -> str:
