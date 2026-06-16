@@ -45,13 +45,15 @@ class RuntimeSecrets:
 
 def _unwrap_secret_id(wrap_token: str) -> Optional[str]:
     """Consume a one-shot response-wrapped SecretID and return the plaintext."""
+    if not wrap_token:
+        return None
     try:
         import hvac  # type: ignore
     except ImportError:
         return None
 
     addr = os.getenv(VAULT_ADDR_ENV)
-    if not addr or not wrap_token:
+    if not addr:
         return None
 
     client = hvac.Client(url=addr)
@@ -59,7 +61,15 @@ def _unwrap_secret_id(wrap_token: str) -> Optional[str]:
         resp = client.sys.unwrap(wrap_token)
         data = resp.get("data", resp)
         if isinstance(data, dict):
-            return str(data.get("secret_id") or data.get("secretId") or "")
+            secret = data.get("secret_id") or data.get("secretId")
+            if secret:
+                return str(secret)
+        # Some wrap payloads nest under .data again
+        inner = data.get("data") if isinstance(data, dict) else None
+        if isinstance(inner, dict):
+            secret = inner.get("secret_id") or inner.get("secretId")
+            if secret:
+                return str(secret)
     except Exception:
         return None
     return None
@@ -74,6 +84,8 @@ def _approle_login() -> Optional[str]:
         secret_id = _unwrap_secret_id(wrap)
         if secret_id:
             os.environ[VAULT_SECRET_ID_ENV] = secret_id
+            os.environ.pop(VAULT_WRAPPED_SECRET_ID_ENV, None)
+            os.environ.pop(VAULT_SECRET_ID_WRAP_TOKEN_ENV, None)
 
     if not role_id or not secret_id:
         return None

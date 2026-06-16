@@ -64,6 +64,13 @@ Legacy paths (`akash/runtime`, `llm/*`) remain readable for backward compatibili
 
 ## Deploy
 
+### Preflight (run first)
+
+```bash
+./scripts/akash-preflight.sh
+# Checks: CLI, wallet >= 0.5 AKT, SDL placeholders, VAULT_TOKEN / wrap readiness
+```
+
 ### Automated (recommended)
 
 ```bash
@@ -71,16 +78,14 @@ export VAULT_ADDR=https://vault.yieldswarm.io:8200
 export VAULT_TOKEN=<ci-or-admin-token>
 export AGENT_SHARD_ID=0
 
-# Agent shard
+# Full lifecycle + state files + verify
 ./scripts/akash-deploy-with-vault.sh deploy/deploy-swarm-monolith.yaml
 
-# Bittensor miner
-export BT_NETUID=1
-./scripts/deploy-bittensor.sh
-
-# Generic lifecycle (mint + --env injection built in)
+# Or explicit pipeline
 ./scripts/deploy-to-akash.sh deploy deploy/deploy-swarm-monolith.yaml
 ```
+
+`akash-deploy-with-vault.sh` delegates to `deploy-to-akash.sh` (no longer stops at manifest-only).
 
 ### Manual wrap + deploy
 
@@ -154,7 +159,20 @@ export VAULT_TOKEN=...
 
 1. Never commit `VAULT_WRAPPED_SECRET_ID` or plaintext `VAULT_SECRET_ID` to git.
 2. Wrap tokens are single-use; re-deploy mints a fresh wrap.
-3. Pin `APPROLE_AKASH_CIDRS` to Akash provider egress in production.
-4. Cloud provider credentials (`providers/*`) are Terraform-only.
+3. SDLs use **key-only** env entries for secrets (`VAULT_WRAPPED_SECRET_ID` without inline values).
+4. Both monolith and bittensor SDLs mount `/run/secrets` as **ram tmpfs** (8Mi).
+5. `lib/secrets.py` and `akash/entrypoint.sh` both accept `VAULT_WRAPPED_SECRET_ID` or `VAULT_SECRET_ID_WRAP_TOKEN`, unwrap once, then clear wrap env vars.
+6. Pin `APPROLE_AKASH_CIDRS` to Akash provider egress in production.
+7. Cloud provider credentials (`providers/*`) are Terraform-only.
+
+### SDL checklist (no plaintext secrets)
+
+| SDL | Vault env keys | tmpfs `/run/secrets` |
+|-----|----------------|----------------------|
+| `deploy/deploy-swarm-monolith.yaml` | `VAULT_ROLE_ID`, `VAULT_WRAPPED_SECRET_ID` | yes |
+| `deploy/akash-bittensor-miner.sdl.yml` | same + `VAULT_KV_MOUNT` paths | yes |
+| `akash/deploy.yaml` | same | yes |
+
+Run `./scripts/akash-preflight.sh` to validate SDL + Vault bootstrap before mainnet deploy.
 
 See also: `SECRETS.md`, `akash/README.md`, `docs/AKASH_DEPLOY.md`
