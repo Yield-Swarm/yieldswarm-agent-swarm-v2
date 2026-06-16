@@ -28,6 +28,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: Production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      UD_API_KEY: ${{ secrets.UD_API_KEY }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -38,6 +46,8 @@ jobs:
           echo "${PWD}/bin" >> "${GITHUB_PATH}"
 
       - name: Load deployment secrets from Vault
+        id: vault
+        continue-on-error: true
         uses: hashicorp/vault-action@v3
         with:
           url: ${{ env.VAULT_ADDR }}
@@ -55,6 +65,12 @@ jobs:
             integrations/cloudflare api_token | CLOUDFLARE_API_TOKEN ;
             integrations/cloudflare zone_id | CLOUDFLARE_ZONE_ID ;
 
+      - name: Note Vault fallback
+        if: steps.vault.outcome == 'failure'
+        run: |
+          echo "::warning::Vault unreachable — using GitHub Environment secrets only"
+          echo "Set VAULT_ADDR to a reachable cluster or add secrets to the Production environment."
+
       - name: Configure deploy environment
         run: |
           cp deploy/config.env.example deploy/config.env
@@ -68,9 +84,9 @@ jobs:
         env:
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
         run: |
-          bash scripts/deploy-production-full.sh --only akash || true
-          bash scripts/deploy-production-full.sh --only akash-backend || true
-          bash scripts/deploy-production-full.sh --only odysseus || true
+          bash scripts/deploy-production-full.sh --only akash || echo "::warning::Akash monolith skipped"
+          bash scripts/deploy-production-full.sh --only akash-backend || echo "::warning::Akash backend skipped"
+          bash scripts/deploy-production-full.sh --only odysseus || echo "::warning::Odysseus skipped"
 
       - name: Wire 17 domains
         run: bash scripts/wire-production-domains.sh
