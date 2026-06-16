@@ -24,6 +24,21 @@ path "yieldswarm/data/cloud/vultr" {
 path "yieldswarm/data/cloud/digitalocean" {
   capabilities = ["read"]
 }
+path "yieldswarm/data/cloud/vast" {
+  capabilities = ["read"]
+}
+path "yieldswarm/data/cloud/gcp" {
+  capabilities = ["read"]
+}
+path "yieldswarm/data/cloud/aws" {
+  capabilities = ["read"]
+}
+path "yieldswarm/data/cloud/alibaba" {
+  capabilities = ["read"]
+}
+path "yieldswarm/data/cloud/akash" {
+  capabilities = ["read"]
+}
 
 # RPC / chain provider creds (Helius, Birdeye, Solana, etc.)
 path "yieldswarm/data/rpc/+" {

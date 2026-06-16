@@ -10,7 +10,8 @@
 #   ./vault/scripts/issue-secret-id.sh <role>            # default wrap_ttl=5m
 #   ./vault/scripts/issue-secret-id.sh <role> 15m
 #
-# <role> in: terraform | ci | akash-runtime | bittensor-runtime
+# <role> in: terraform | ci | akash-runtime | integration-backend | bittensor-runtime
+#            | odysseus-runtime | payments-runtime | multicloud-operator | beefcake-runtime
 #
 # Prints two values on stdout in shell-export form so it can be `eval`'d:
 #   VAULT_ROLE_ID=...
@@ -28,8 +29,8 @@ ROLE="${1:-}"
 WRAP_TTL="${2:-5m}"
 
 case "${ROLE}" in
-  terraform|ci|akash-runtime|integration-backend|bittensor-runtime|odysseus-runtime) ;;
-  *) echo "usage: $0 <terraform|ci|akash-runtime|integration-backend|bittensor-runtime|odysseus-runtime> [wrap_ttl]" >&2; exit 2 ;;
+  terraform|ci|akash-runtime|integration-backend|bittensor-runtime|odysseus-runtime|payments-runtime|multicloud-operator|beefcake-runtime) ;;
+  *) echo "usage: $0 <terraform|ci|akash-runtime|integration-backend|bittensor-runtime|odysseus-runtime|payments-runtime|multicloud-operator|beefcake-runtime> [wrap_ttl]" >&2; exit 2 ;;
 esac
 
 ROLE_ID="$(vault read -field=role_id "auth/approle/role/${ROLE}/role-id")"

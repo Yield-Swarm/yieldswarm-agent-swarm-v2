@@ -50,6 +50,33 @@ path "auth/approle/role/odysseus-runtime/role-id" {
   capabilities = ["read"]
 }
 
+path "auth/approle/role/payments-runtime/secret-id" {
+  capabilities      = ["update"]
+  min_wrapping_ttl  = "60s"
+  max_wrapping_ttl  = "600s"
+}
+path "auth/approle/role/payments-runtime/role-id" {
+  capabilities = ["read"]
+}
+
+path "auth/approle/role/multicloud-operator/secret-id" {
+  capabilities      = ["update"]
+  min_wrapping_ttl  = "60s"
+  max_wrapping_ttl  = "600s"
+}
+path "auth/approle/role/multicloud-operator/role-id" {
+  capabilities = ["read"]
+}
+
+path "auth/approle/role/beefcake-runtime/secret-id" {
+  capabilities      = ["update"]
+  min_wrapping_ttl  = "60s"
+  max_wrapping_ttl  = "600s"
+}
+path "auth/approle/role/beefcake-runtime/role-id" {
+  capabilities = ["read"]
+}
+
 path "auth/token/lookup-self" {
   capabilities = ["read"]
 }

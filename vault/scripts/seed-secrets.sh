@@ -66,6 +66,53 @@ put_if_set providers/digitalocean \
   spaces_access_id=DIGITALOCEAN_SPACES_ACCESS_ID \
   spaces_secret_key=DIGITALOCEAN_SPACES_SECRET_KEY
 
+# Multi-cloud burst providers (also mirrored under cloud/ for terraform.hcl)
+put_if_set providers/vast \
+  api_key=VAST_API_KEY
+
+put_if_set providers/gcp \
+  project_id=GCP_PROJECT_ID \
+  credentials_json=GOOGLE_APPLICATION_CREDENTIALS_JSON
+
+put_if_set providers/aws \
+  access_key_id=AWS_ACCESS_KEY_ID \
+  secret_access_key=AWS_SECRET_ACCESS_KEY \
+  region=AWS_REGION
+
+put_if_set providers/alibaba \
+  access_key_id=ALIBABA_ACCESS_KEY_ID \
+  access_key_secret=ALIBABA_ACCESS_KEY_SECRET
+
+put_if_set cloud/azure \
+  client_id=AZURE_CLIENT_ID \
+  client_secret=AZURE_CLIENT_SECRET \
+  tenant_id=AZURE_TENANT_ID \
+  subscription_id=AZURE_SUBSCRIPTION_ID
+
+put_if_set cloud/runpod \
+  api_key=RUNPOD_API_KEY
+
+put_if_set cloud/vast \
+  api_key=VAST_API_KEY
+
+put_if_set cloud/gcp \
+  project_id=GCP_PROJECT_ID \
+  credentials_json=GOOGLE_APPLICATION_CREDENTIALS_JSON
+
+put_if_set cloud/aws \
+  access_key_id=AWS_ACCESS_KEY_ID \
+  secret_access_key=AWS_SECRET_ACCESS_KEY \
+  region=AWS_REGION
+
+put_if_set cloud/alibaba \
+  access_key_id=ALIBABA_ACCESS_KEY_ID \
+  access_key_secret=ALIBABA_ACCESS_KEY_SECRET
+
+put_if_set cloud/akash \
+  key_name=AKASH_KEY_NAME \
+  mnemonic=AKASH_WALLET_MNEMONIC \
+  owner_address=AKASH_OWNER_ADDRESS
+
 # ---- RPC endpoints (consumed by both terraform/ and the Akash runtime) ----
 put_if_set rpc/solana \
   url=SOLANA_RPC_URL \
@@ -171,8 +218,57 @@ put_if_set integrations/stripe \
   webhook_secret=STRIPE_WEBHOOK_SECRET \
   publishable_key=STRIPE_PUBLISHABLE_KEY
 
+put_if_set payments/square \
+  access_token=SQUARE_ACCESS_TOKEN \
+  location_id=SQUARE_LOCATION_ID \
+  webhook_signature_key=SQUARE_WEBHOOK_SIGNATURE_KEY
+
+put_if_set payments/wise \
+  api_token=WISE_API_TOKEN \
+  profile_id=WISE_PROFILE_ID \
+  webhook_public_key=WISE_WEBHOOK_PUBLIC_KEY
+
+put_if_set payments/web3 \
+  hot_wallet_evm_private_key=HOT_WALLET_EVM_PRIVATE_KEY \
+  hot_wallet_solana_secret_key=HOT_WALLET_SOLANA_SECRET_KEY \
+  treasury_evm_address=TREASURY_EVM_ADDRESS \
+  treasury_solana_address=TREASURY_SOLANA_ADDRESS \
+  treasury_ton_address=TREASURY_TON_ADDRESS
+
+put_if_set integrations/square \
+  access_token=SQUARE_ACCESS_TOKEN \
+  location_id=SQUARE_LOCATION_ID \
+  webhook_signature_key=SQUARE_WEBHOOK_SIGNATURE_KEY
+
+put_if_set integrations/wise \
+  api_token=WISE_API_TOKEN \
+  profile_id=WISE_PROFILE_ID \
+  webhook_public_key=WISE_WEBHOOK_PUBLIC_KEY
+
 put_if_set integrations/mapbox \
   token=MAPBOX_TOKEN
+
+put_if_set external/mapbox \
+  token=MAPBOX_TOKEN
+
+put_if_set external/toncenter \
+  api_key=TON_API_KEY \
+  api_base=TON_API_BASE
+
+put_if_set integrations/tesla \
+  client_id=TESLA_CLIENT_ID \
+  client_secret=TESLA_CLIENT_SECRET \
+  private_key_path=TESLA_PRIVATE_KEY_PATH \
+  domain=TESLA_DOMAIN \
+  region=TESLA_REGION
+
+put_if_set internal/database \
+  url=DATABASE_URL \
+  neon_project_id=NEON_PROJECT_ID
+
+put_if_set internal/redis \
+  url=REDIS_URL \
+  password=REDIS_PASSWORD
 
 # ---- Odysseus orchestration ----
 put_if_set runtime/odysseus \
@@ -211,6 +307,17 @@ put_if_set runtime/bittensor \
   ollama_model=OLLAMA_MODEL
 
 # ---- Akash deploy operator config (deploy host, not container) ---------
+put_if_set akash/wallet \
+  key_name=AKASH_KEY_NAME \
+  mnemonic=AKASH_WALLET_MNEMONIC \
+  owner_address=AKASH_OWNER_ADDRESS
+
+put_if_set akash/deployment \
+  role_id=VAULT_ROLE_ID \
+  wrapped_secret_id=VAULT_WRAPPED_SECRET_ID \
+  chain_id=AKASH_CHAIN_ID \
+  node=AKASH_NODE
+
 put_if_set runtime/akash \
   key_name=AKASH_KEY_NAME \
   mnemonic=AKASH_WALLET_MNEMONIC \
