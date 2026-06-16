@@ -1,0 +1,41 @@
+# vLLM RTX 5090 inference worker — continuous batching enabled
+# Greek: pinned deps + resource limits. Eastern: dynamic batch scheduling.
+# Paradigm Shift: tier-aware model serving for Sovereign Optimizer routing.
+
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    VLLM_USE_V1=1 \
+    VLLM_GPU_MEMORY_UTILIZATION=0.92 \
+    VLLM_MAX_NUM_SEQS=64 \
+    VLLM_MAX_MODEL_LEN=32768 \
+    YIELDSWARM_GPU_MODEL=rtx5090
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir \
+    "vllm>=0.6.0" \
+    "fastapi>=0.110" \
+    "uvicorn[standard]>=0.27" \
+    "prometheus-client>=0.20"
+
+WORKDIR /app
+COPY deploy/entrypoint.bert.sh /entrypoint.sh
+COPY src/infrastructure/ /app/infrastructure/
+
+RUN chmod +x /entrypoint.sh
+
+# Resource guardrails (Greek layer hard limits)
+ENV THERMAL_LIMIT_C=85 \
+    VRAM_PRESSURE_PCT=92 \
+    HEALTH_PATH=/healthz
+
+EXPOSE 8000 9090
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -fsS "http://127.0.0.1:8000${HEALTH_PATH}" || exit 1
+
+ENTRYPOINT ["/entrypoint.sh"]

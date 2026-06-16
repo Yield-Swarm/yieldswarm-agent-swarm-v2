@@ -15,6 +15,7 @@
     "build:all": "npm run build && npm run build:frontend",
     "test": "vitest run && npm run test:frontend && npm run test:backend",
     "test:unit": "vitest run",
+    "test:god-prompt": "vitest run src/infrastructure/",
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
