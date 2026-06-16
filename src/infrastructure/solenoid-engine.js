@@ -56,6 +56,54 @@ class SolenoidStateEngine {
     return inputData.replace(/[\x00-\x1F\x7F-\x9F]/g, '').trim();
   }
 
+  truncateBuffer(input, maxBytes = 4096) {
+    if (input == null) return '';
+    const raw = Buffer.isBuffer(input) ? input : Buffer.from(String(input), 'utf8');
+    if (raw.length <= maxBytes) return raw.toString('utf8');
+    return raw.subarray(0, maxBytes).toString('utf8');
+  }
+
+  ingestTokenPayload(rawPayload) {
+    const truncated = this.truncateBuffer(rawPayload);
+    const cleaned = this.particilizeRawString(truncated);
+    const tokenHash = crypto.createHash('sha256').update(cleaned).digest('hex');
+    return { tokenHash, length: cleaned.length, preview: cleaned.slice(0, 128) };
+  }
+
+  scorePoolRisk(poolNode = {}) {
+    const aprValue = parseFloat(poolNode.apr) || 0;
+    const tvlValue = parseFloat(poolNode.tvl_usd ?? poolNode.tvl) || 0;
+    const protocolStabilityFactor = tvlValue > 10_000_000 ? 1.0 : 0.4;
+    const impermanentLossPenalty = 0.15;
+    const trueNetYield = aprValue * protocolStabilityFactor - impermanentLossPenalty;
+    const riskScore = Math.max(
+      0,
+      Math.min(100, Math.round((trueNetYield + impermanentLossPenalty) * 100 / (aprValue + 0.01))),
+    );
+    return {
+      chainSlug: poolNode.chain_slug || poolNode.chainSlug || 'unknown',
+      poolAddress: this.particilizeRawString(poolNode.pool_address || poolNode.poolAddress || ''),
+      netYield: parseFloat(trueNetYield.toFixed(4)),
+      riskScore,
+      tier: riskScore >= 70 ? 'low' : riskScore >= 40 ? 'medium' : 'high',
+      tvlUsd: tvlValue,
+    };
+  }
+
+  async ingestSseEvent(eventPayload) {
+    const cleaned = this.particilizeRawString(JSON.stringify(eventPayload ?? {}));
+    const anchor = this.generateStateAnchor({ sse: cleaned, mode: this.activeSolenoidMode });
+    const cacheKey = `helix:sse:${anchor.stateAnchor}`;
+    const parsed = typeof eventPayload === 'object' && eventPayload ? eventPayload : {};
+    const risk = parsed.apr !== undefined ? this.scorePoolRisk(parsed) : null;
+    await this.readThroughCache(
+      cacheKey,
+      async () => ({ anchor: anchor.stateAnchor, risk, receivedAt: Date.now() }),
+      120,
+    );
+    return { anchor: anchor.stateAnchor, risk, mode: this.activeSolenoidMode };
+  }
+
   generateStateAnchor(payloadBuffer, targetLocale = 'en') {
     const serialized =
       typeof payloadBuffer === 'string'
@@ -217,8 +265,7 @@ class SolenoidStateEngine {
 
 const solenoidEngine = new SolenoidStateEngine();
 
-module.exports = {
-  SolenoidStateEngine,
-  solenoidEngine,
-  PILLAR_ELEVATORS,
-};
+module.exports = solenoidEngine;
+module.exports.SolenoidStateEngine = SolenoidStateEngine;
+module.exports.solenoidEngine = solenoidEngine;
+module.exports.PILLAR_ELEVATORS = PILLAR_ELEVATORS;

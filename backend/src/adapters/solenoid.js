@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url);
 const infraPath = path.join(repoRoot, 'src', 'infrastructure');
 const { QuadrilateralSolenoidRouter } = require(path.join(infraPath, 'odysseus-router.js'));
 const { TelemetryValidationBridge } = require(path.join(infraPath, 'oracle-bridge.js'));
-const { solenoidEngine } = require(path.join(infraPath, 'solenoid-engine.js'));
+const solenoidEngine = require(path.join(infraPath, 'solenoid-engine.js'));
 
 const router = new QuadrilateralSolenoidRouter();
 const telemetryBridge = new TelemetryValidationBridge();
@@ -86,12 +86,39 @@ export function shiftSolenoidMode(targetMode) {
     solenoidEngine.activeDimension = 2;
     return {
       success: true,
-      mode: solenoidEngine.activeSolenoidMode,
-      dimension: solenoidEngine.activeDimension,
-      stateChainHash: solenoidEngine.stateChainHash,
+      newConfigurationMode: solenoidEngine.activeSolenoidMode,
+      dimensionLevel: solenoidEngine.activeDimension,
+      stateAnchor: solenoidEngine.stateChainHash,
     };
   }
   return { success: false, error: 'UNKNOWN_SOLENOID_MODE', targetMode };
+}
+
+export async function ingestSsePoolEvent(body = {}) {
+  return solenoidEngine.ingestSseEvent(body);
+}
+
+export async function getPentagramRiskSnapshot() {
+  const pool = await solenoidEngine.getPool();
+  if (!pool) {
+    return { live: false, pools: [], mode: solenoidEngine.activeSolenoidMode };
+  }
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query(
+      'SELECT chain_slug, pool_address, pool_name, apr, tvl_usd FROM pool_cache ORDER BY updated_at DESC LIMIT 50',
+    );
+    const pools = rows.map((row) => solenoidEngine.scorePoolRisk(row));
+    return {
+      live: true,
+      mode: solenoidEngine.activeSolenoidMode,
+      dimension: solenoidEngine.activeDimension,
+      pools,
+      timestamp: new Date().toISOString(),
+    };
+  } finally {
+    client.release();
+  }
 }
 
 export function applyThrottle(body = {}) {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { solenoidEngine } = require('../infrastructure/solenoid-engine');
+const solenoidEngine = require('../infrastructure/solenoid-engine');
 
 async function processPillarElevatorHeartbeat() {
   const status = solenoidEngine.getStatus();

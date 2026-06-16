@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
 const require = createRequire(import.meta.url);
-const { solenoidEngine } = require(path.join(repoRoot, 'src', 'infrastructure', 'solenoid-engine.js'));
+const solenoidEngine = require(path.join(repoRoot, 'src', 'infrastructure', 'solenoid-engine.js'));
 
 const RATE_LIMIT = Number(process.env.SOLENOID_RATE_LIMIT || 100);
 const RATE_WINDOW_SEC = Number(process.env.SOLENOID_RATE_WINDOW_SEC || 60);

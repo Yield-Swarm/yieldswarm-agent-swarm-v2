@@ -146,6 +146,11 @@ wss.on('connection', (ws) => {
 
 server.listen(config.port, config.host, () => {
   // eslint-disable-next-line no-console
+  console.log('=================================================================');
+  console.log(`🚀 HELIX CORE COMPILER ONLINE: TUNED TO RUNTIME PORT ${config.port}`);
+  console.log(`🏛️ CURRENT ACTIVE STRUCTURAL MODE: ${solenoidEngine.activeSolenoidMode}`);
+  console.log('=================================================================');
+  // eslint-disable-next-line no-console
   console.log(
     `[yieldswarm] integration server listening on http://${config.host}:${config.port}\n` +
       `  Portal:  /portal/\n` +
