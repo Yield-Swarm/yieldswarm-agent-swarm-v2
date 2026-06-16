@@ -99,12 +99,14 @@ class Config:
 
     @classmethod
     def from_env(cls) -> "Config":
+        default_deploy = str(SCRIPT_DIR.parent / "scripts" / "akash-deploy-with-vault.sh")
+        arena_hook = _env("ARENA_TELEMETRY_URL", _env("TELEMETRY_WEBHOOK", ""))
         return cls(
-            deploy_script=_env("AKASH_DEPLOY_SCRIPT", str(SCRIPT_DIR / "akash-deploy.sh")),
+            deploy_script=_env("AKASH_DEPLOY_SCRIPT", default_deploy),
             state_file=Path(_env("LEASE_STATE_FILE", str(SCRIPT_DIR / "state" / "workers.json"))),
             telemetry_json=Path(_env("TELEMETRY_JSON", str(SCRIPT_DIR / "telemetry" / "telemetry.json"))),
             telemetry_html=Path(_env("TELEMETRY_HTML", str(SCRIPT_DIR / "telemetry" / "index.html"))),
-            telemetry_webhook=_env("TELEMETRY_WEBHOOK", ""),
+            telemetry_webhook=arena_hook or _env("TELEMETRY_WEBHOOK", ""),
             log_file=_env("LEASE_MANAGER_LOG", ""),
             pid_file=Path(_env("LEASE_MANAGER_PIDFILE", str(SCRIPT_DIR / "state" / "lease-manager.pid"))),
             interval_seconds=_env_int("HEALTH_CHECK_INTERVAL", 60),
@@ -218,6 +220,43 @@ def check_worker_health(worker: Worker, cfg: Config) -> bool:
             logging.debug("health probe %s failed (attempt %d/%d)", probe, attempt, cfg.health_retries)
             time.sleep(cfg.health_retry_delay)
     return False
+
+
+# ---------------------------------------------------------------------------
+# Vault integration (deploy-host credentials)
+# ---------------------------------------------------------------------------
+def _load_vault_akash_config() -> None:
+    """Load Akash wallet + RPC from Vault KV when configured."""
+    if not _env_bool("VAULT_LOAD_AKASH", True):
+        return
+    if not os.environ.get("VAULT_ADDR"):
+        return
+    root = SCRIPT_DIR.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
+    try:
+        from lib.secrets import KV_MOUNT_DEFAULT, _read_kv_path, _approle_login
+        import hvac  # noqa: F401
+    except ImportError:
+        logging.debug("lib.secrets/hvac unavailable — skipping Vault config load")
+        return
+
+    token = os.environ.get("VAULT_TOKEN") or _approle_login()
+    if token:
+        os.environ.setdefault("VAULT_TOKEN", token)
+
+    data = _read_kv_path(KV_MOUNT_DEFAULT, "runtime/akash")
+    mapping = {
+        "key_name": "AKASH_KEY_NAME",
+        "mnemonic": "AKASH_WALLET_MNEMONIC",
+        "node": "AKASH_NODE",
+        "chain_id": "AKASH_CHAIN_ID",
+    }
+    for src, dst in mapping.items():
+        if data.get(src) and not os.environ.get(dst):
+            os.environ[dst] = str(data[src])
+    if data:
+        logging.info("loaded Akash deploy config from Vault (runtime/akash)")
 
 
 # ---------------------------------------------------------------------------
@@ -532,6 +571,7 @@ def _remove_pidfile(cfg: Config) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     _load_dotenv()
+    _load_vault_akash_config()
     parser = argparse.ArgumentParser(description="Akash GPU lease manager / auto-failover supervisor")
     parser.add_argument("--once", action="store_true", help="run a single reconcile pass and exit (cron mode)")
     parser.add_argument("--interval", type=int, help="override health-check interval in seconds")
