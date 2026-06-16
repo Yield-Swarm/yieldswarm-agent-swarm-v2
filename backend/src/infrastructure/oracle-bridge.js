@@ -4,6 +4,8 @@
 
 import { ethers } from 'ethers';
 
+export { logPillarTelemetry } from '../../../src/infrastructure/pillar-telemetry-log.js';
+
 const ORACLE_CONSUMER_ABI = [
   'function executeAgentMutation(uint256 tokenId, bytes32 requestId, bytes calldata response, bytes calldata err) external',
   'event MutationRequested(bytes32 indexed requestId, uint256 indexed tokenId)',
