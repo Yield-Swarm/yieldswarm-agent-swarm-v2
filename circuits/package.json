@@ -1,0 +1,24 @@
+{
+  "name": "@yieldswarm/entropy-zk-circuits",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Groth16 circuits for verifiable hardware entropy seeds (ZK¹ layer)",
+  "scripts": {
+    "compile": "bash scripts/compile.sh",
+    "setup": "bash scripts/setup.sh",
+    "verify-key": "bash scripts/export-verifier.sh",
+    "full-build": "npm run compile && npm run setup && npm run verify-key",
+    "test": "node scripts/test-local-proof.js"
+  },
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "snarkjs": "^0.7.4"
+  },
+  "devDependencies": {
+    "circom": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

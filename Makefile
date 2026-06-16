@@ -135,6 +135,14 @@ wire-domains:
 god-prompt-test:
 	npm run test:god-prompt
 
+## zk-test: run ZK entropy proof unit + e2e tests
+zk-test:
+	npm run test:zk
+
+## zk-build: compile Groth16 circuit + trusted setup
+zk-build:
+	cd circuits && npm install && npm run full-build
+
 deploy-vercel:
 	bash scripts/deploy-all.sh vercel
 

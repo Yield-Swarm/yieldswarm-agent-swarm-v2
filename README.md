@@ -1,5 +1,24 @@
 # YieldSwarm AgentSwarm OS v2.0
 
+## ZK Entropy Proof System (5 Helical Layers)
+
+Zero-knowledge proofs that entropy seeds derive from valid GPU telemetry without revealing raw data.
+
+| Layer | Module |
+|-------|--------|
+| D¹ Greek | `circuits/entropy_proof.circom`, input sanitization, ACL on `MutationController` |
+| E¹ Eastern | async `zk-entropy-prover.js`, optimizer feedback loops |
+| C¹+L¹ Helix | `zk-proof-queue.js` rhythmic scheduling |
+| ZK¹ | Groth16 + Poseidon, `EntropyProofVerifier.sol` |
+| PDs¹ | `executeMutationWithProof`, NFT co-evolution |
+
+```bash
+cd circuits && npm install && npm run full-build   # compile + trusted setup
+npm run test:zk                                     # 12 unit + e2e tests
+```
+
+Docs: `docs/ZK_ENTROPY_SYSTEM.md`, `docs/ZK_CIRCUIT_SPEC.md`, `docs/HELIX_ZK_OSCILLATOR.md`
+
 ## Overview
 10,080 AI Agents across 120 Cron Jobs
 Kimiclaw Consensus Council + SuperGrok Strategy Layer
