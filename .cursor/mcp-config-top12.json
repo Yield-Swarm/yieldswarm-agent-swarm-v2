@@ -1,0 +1,96 @@
+{
+  "mcpServers": {
+    "stripe": {
+      "command": "npx",
+      "args": ["-y", "@stripe/mcp@0.1.0"],
+      "env": {
+        "STRIPE_SECRET_KEY": "${env:STRIPE_SECRET_KEY}"
+      }
+    },
+    "aws": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-aws-kb-retrieval"],
+      "env": {
+        "AWS_ACCESS_KEY_ID": "${env:AWS_ACCESS_KEY_ID}",
+        "AWS_SECRET_ACCESS_KEY": "${env:AWS_SECRET_ACCESS_KEY}",
+        "AWS_REGION": "${env:AWS_REGION}"
+      }
+    },
+    "azure": {
+      "command": "npx",
+      "args": ["-y", "@azure/mcp@latest"],
+      "env": {
+        "AZURE_CLIENT_ID": "${env:AZURE_CLIENT_ID}",
+        "AZURE_CLIENT_SECRET": "${env:AZURE_CLIENT_SECRET}",
+        "AZURE_TENANT_ID": "${env:AZURE_TENANT_ID}",
+        "AZURE_SUBSCRIPTION_ID": "${env:AZURE_SUBSCRIPTION_ID}"
+      }
+    },
+    "databricks-sql": {
+      "command": "npx",
+      "args": ["-y", "@databricks/mcp-server-databricks-sql"],
+      "env": {
+        "DATABRICKS_HOST": "${env:DATABRICKS_HOST}",
+        "DATABRICKS_TOKEN": "${env:DATABRICKS_TOKEN}",
+        "DATABRICKS_HTTP_PATH": "${env:DATABRICKS_HTTP_PATH}"
+      }
+    },
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "linear-mcp-server"],
+      "env": {
+        "LINEAR_API_KEY": "${env:LINEAR_API_KEY}"
+      }
+    },
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${env:SLACK_BOT_TOKEN}",
+        "SLACK_TEAM_ID": "${env:SLACK_TEAM_ID}"
+      }
+    },
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:SENTRY_AUTH_TOKEN}"
+      }
+    },
+    "grafana-cloud": {
+      "command": "npx",
+      "args": ["-y", "@grafana/mcp-grafana"],
+      "env": {
+        "GRAFANA_URL": "${env:GRAFANA_URL}",
+        "GRAFANA_API_KEY": "${env:GRAFANA_API_KEY}"
+      }
+    },
+    "notion": {
+      "command": "npx",
+      "args": ["-y", "@notionhq/notion-mcp-server"],
+      "env": {
+        "NOTION_API_KEY": "${env:NOTION_API_KEY}"
+      }
+    },
+    "render": {
+      "url": "https://api.render.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:RENDER_API_KEY}"
+      }
+    },
+    "browserbase": {
+      "command": "npx",
+      "args": ["-y", "@browserbasehq/mcp-server-browserbase"],
+      "env": {
+        "BROWSERBASE_API_KEY": "${env:BROWSERBASE_API_KEY}",
+        "BROWSERBASE_PROJECT_ID": "${env:BROWSERBASE_PROJECT_ID}"
+      }
+    },
+    "huggingface": {
+      "command": "npx",
+      "args": ["-y", "@huggingface/mcp-server-huggingface"],
+      "env": {
+        "HF_TOKEN": "${env:HF_TOKEN}"
+      }
+    }
+  }
+}

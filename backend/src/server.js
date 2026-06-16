@@ -12,6 +12,7 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import config from './config.js';
+import { startCronJobs } from './jobs/cron.js';
 import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
@@ -110,6 +111,9 @@ const server = app.listen(config.port, config.host, () => {
       `  Great Delta: /api/great-delta/overview\n` +
       `  Helix:     /api/helix/status  /api/helix/activate`,
   );
+  if (config.cronJobsEnabled) {
+    startCronJobs();
+  }
 });
 
 export { app, server };
