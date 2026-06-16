@@ -1,4 +1,6 @@
-# Foundry
+# .data local revenue persistence (dev)
+.data/
+
 cache/
 out/
 foundry.lock

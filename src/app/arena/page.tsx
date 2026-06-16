@@ -365,7 +365,7 @@ function ArenaTelemetryContent(): JSX.Element {
   const [leaseUrls, setLeaseUrls] = useState<string[]>([]);
 
   const workerUrls = useMemo(() => {
-    const fromQuery = sanitizeWorkerUrls(searchParams.get("workers") ?? undefined);
+    const fromQuery = sanitizeWorkerUrls(searchParams?.get("workers") ?? undefined);
     if (fromQuery.length > 0) {
       return fromQuery;
     }

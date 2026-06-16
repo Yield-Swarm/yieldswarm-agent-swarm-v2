@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#040a12"/>
+  <title>Z15 Pro Sales — YieldSwarm Revenue Fountain (L3)</title>
+  <meta name="description" content="Antminer Z15 Pro premium bundles. Wise + on-chain payments. $5 test rail. NFT license keys. Target $43K."/>
+  <link rel="stylesheet" href="/assets/helix-jacuzzi.css"/>
+</head>
+<body>
+  <div id="nav-root"></div>
+
+  <main class="section">
+    <h1>Antminer Z15 Pro — L3 Revenue Jacuzzi Fountain</h1>
+    <p>26 units · Target <strong>$43,000</strong> · Swarm optimization + NFT license keys included.</p>
+
+    <div class="hero-visual" style="max-width:480px;margin:1.5rem 0">
+      <img src="/assets/jacuzzi-helix-l3-revenue.png" alt="Z15 revenue jacuzzi fountain with Helix energy flow" width="480" height="480" loading="lazy"/>
+    </div>
+
+    <article class="tier" id="test-5">
+      <p class="price">$5</p>
+      <h3>Payment Rail Test</h3>
+      <p>Verify Wise + on-chain + Neon logging. Required before mainnet bundles.</p>
+      <button class="btn btn-primary" type="button" id="btn-test-5">Run $5 Test Payment</button>
+    </article>
+
+    <article class="tier">
+      <p class="price">$5,999</p>
+      <h3>Fast Liquidation — 36.7% margin</h3>
+      <button class="btn btn-primary" type="button" data-buy="5999" data-product="z15-fast">Buy via Wise + On-chain</button>
+    </article>
+
+    <article class="tier">
+      <p class="price">$6,499</p>
+      <h3>Optimal — 48.1% margin + 1mo Swarm</h3>
+      <button class="btn btn-primary" type="button" data-buy="6499" data-product="z15-optimal">Buy Now</button>
+    </article>
+
+    <article class="tier">
+      <p class="price">$6,999</p>
+      <h3>Premium Bundle — 59.5% margin + NFT Keys</h3>
+      <button class="btn btn-primary" type="button" data-buy="6999" data-product="z15-premium">Buy + Mint NFT License</button>
+    </article>
+
+    <div id="payment-status" role="status" aria-live="polite"></div>
+
+    <p style="margin-top:2rem">
+      <a href="/marketplace">← Marketplace</a> ·
+      <a href="/council/status">Council Status</a> ·
+      <a href="/">Home</a>
+    </p>
+  </main>
+
+  <footer class="site-footer">YieldSwarm Z15 Sales · L3 Revenue Layer</footer>
+
+  <script src="/assets/helix-site.js"></script>
+  <script src="/integrations/neon-queries.js"></script>
+  <script>
+    document.getElementById('nav-root').innerHTML = YieldSwarmSite.renderNav('sales');
+    document.getElementById('btn-test-5').addEventListener('click', () =>
+      YieldSwarmSite.runPaymentTest(5, 'z15-rail-test'));
+    document.querySelectorAll('[data-buy]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const amount = Number(btn.dataset.buy);
+        const product = btn.dataset.product;
+        YieldSwarmSite.runPaymentTest(amount, product);
+      });
+    });
+  </script>
+</body>
+</html>

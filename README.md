@@ -1,11 +1,38 @@
 # YieldSwarm AgentSwarm OS v2.0
 
 ## Overview
-10,080 AI Agents across 120 Cron Jobs
-Kimiclaw Consensus Council + SuperGrok Strategy Layer
-Helix Chain + Hydrogen Particle Accelerated Shading Tree
-$APN on Pump.fun
-Unstoppable Domains integration
+
+**Jacuzzi-Helix 14-Lane Solenoid** — turquoise energy flow woven through pentagram + quadrilateral lanes (3-way running, 4×5×14 dimensions). Live site: [yieldswarm-v2.vercel.app](https://yieldswarm-v2.vercel.app)
+
+10,080 AI Agents across 120 Cron Jobs  
+Kimiclaw Consensus Council + SuperGrok Strategy Layer  
+Helix Chain + Hydrogen Particle Accelerated Shading Tree  
+$APN on Pump.fun · Unstoppable Domains integration
+
+### Site map (L0–L6)
+
+| Route | Layer | Purpose |
+|-------|-------|---------|
+| `/` | L0–L6 | Jacuzzi-Helix hero, 14-lane solenoid, live metrics |
+| `/sales` | L3 Revenue | Z15 Pro bundles + **$5 payment rail test** |
+| `/marketplace` | L3+L5 | 5-tier marketplace + NFT license keys |
+| `/council/status` | L1 Council | SepETH DAO + Helix live data |
+| `/payments` | L3 | Wise + Stripe + Web3 unified rails |
+| `/arena` | L2 | Telemetry dashboard |
+
+### Payment tests
+
+```bash
+# $5 Wise + on-chain test (logs to Neon when NEON_DATABASE_URL set)
+curl -X POST https://yieldswarm-v2.vercel.app/api/revenue/z15-test \
+  -H 'Content-Type: application/json' \
+  -d '{"amountUsd":5,"product":"z15-rail-test"}'
+
+# Live revenue metrics
+curl https://yieldswarm-v2.vercel.app/api/revenue/metrics
+```
+
+Copy env: `cp deploy/env/layered.env.example .env` — see `docs/DEPLOYMENT_PRIORITY.md`.
 
 ## Core AI Workspace
 Odysseus is integrated as the central self-hosted YieldSwarm workspace and
