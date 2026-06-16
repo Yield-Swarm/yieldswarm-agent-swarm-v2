@@ -4,6 +4,29 @@ import { SovereignOptimizer } from "./sovereign-optimizer.js";
 
 /** Quadrilateral / PoW / Rosetta coverage lives in helix-phase1.test.js */
 
+describe("telemetry-validation-bridge", () => {
+  it("pulses GPU telemetry into HardenedAuditEngine with pillar envelope", async () => {
+    const { pulseGpuTelemetry } = await import("./telemetry-validation-bridge.js");
+    const r = pulseGpuTelemetry({
+      pillarId: "04_akash_gpu_workers",
+      vramUsedGb: 8.5,
+      tempC: 62,
+      utilizationPct: 45,
+      gpuId: "nvidia-p40",
+    });
+    expect(r.pillarId).toBe("04_akash_gpu_workers");
+    expect(r.status).toBe("green");
+    expect(r.chainVerify.valid).toBe(true);
+    expect(r.auditBlock.blockVerificationHash).toHaveLength(64);
+  });
+
+  it("flags mayhem breach above VRAM and thermal ceiling", async () => {
+    const { pulseGpuTelemetry } = await import("./telemetry-validation-bridge.js");
+    const r = pulseGpuTelemetry({ vramUsedGb: 30, tempC: 85 });
+    expect(r.status).toBe("mayhem_breach");
+  });
+});
+
 describe("dydx-bridge", () => {
   it("enforces tier-1 notional cap", () => {
     expect(() =>

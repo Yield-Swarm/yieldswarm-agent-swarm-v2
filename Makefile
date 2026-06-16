@@ -308,6 +308,22 @@ zk-trusted-setup:
 zk-mutation-cycle:
 	@node --input-type=module -e "import { HardenedAuditEngine } from './src/infrastructure/entropy-core.js'; import { runMutationCycle } from './src/automation/zk-mutation-scheduler.js'; const e=new HardenedAuditEngine(); const r=await runMutationCycle(e,{vramUsedGb:14,tempC:68,utilizationPct:55}); console.log(JSON.stringify(r,null,2));"
 
+## integrate-akash-bert: health + endpoint discovery + telemetry for BERT Flask GPU worker
+integrate-akash-bert:
+	bash artifacts/scripts/integrate-akash-bert.sh
+
+## integrate-akash-bert-mayhem: full Mayhem Mode load on live /predict
+integrate-akash-bert-mayhem:
+	bash artifacts/scripts/integrate-akash-bert.sh --mayhem
+
+## deploy-custom-domains: pillar-scoped bert.$DOMAIN_ROOT + SSL anchor
+deploy-custom-domains:
+	bash artifacts/scripts/deploy-custom-domains.sh
+
+## deploy-custom-domains-dry: preview domain matrix without Cloudflare writes
+deploy-custom-domains-dry:
+	bash artifacts/scripts/deploy-custom-domains.sh --dry-run
+
 ## tfc-setup: TFC bootstrap from PR #3 — modular optional addon
 tfc-setup:
 	@cp -n deploy/terraform-tfc/terraform.tfvars.example deploy/terraform-tfc/terraform.tfvars 2>/dev/null || true
