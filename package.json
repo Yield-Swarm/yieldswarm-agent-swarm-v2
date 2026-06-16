@@ -24,6 +24,7 @@
     "@solana/web3.js": "^1.95.3",
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^4.5.0",
+    "@telegram-apps/analytics": "^1.6.4",
     "@tonconnect/sdk": "^3.0.5",
     "@tonconnect/ui-react": "^2.0.9",
     "ethers": "^6.13.2",
