@@ -56,6 +56,9 @@ Set `AKASH_LIVE=1` (and have the `akash` CLI authenticated) so
 fleet. All other subsystems are agnostic to whether the telemetry is live or
 simulated.
 
+For production deployment with self-healing leases and treasury rebalancing,
+see [SOVEREIGN_LOOPS.md](../SOVEREIGN_LOOPS.md).
+
 ## Economic model (accounting)
 
 - **Lease credits** are a balance-sheet asset (prepaid AKT). Provisioning and
