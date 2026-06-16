@@ -126,6 +126,22 @@ export const config = {
     slippageBps: int(process.env.SLIPPAGE_TOLERANCE, 50),
     enabled: bool(process.env.CROSS_CHAIN_MVP_ENABLED, true),
   },
+
+  oracle: {
+    rpcUrl: process.env.SEPOLIA_RPC_URL || process.env.EVM_RPC_URL || '',
+    agentNftAddress: process.env.AGENT_NFT_CONTRACT || '',
+    mutationControllerAddress: process.env.MUTATION_CONTROLLER_CONTRACT || '',
+    relayerPrivateKey: process.env.ORACLE_RELAYER_PRIVATE_KEY || '',
+    arenaApiBase: (process.env.ARENA_API_BASE || process.env.YIELDSWARM_API_URL || 'http://127.0.0.1:8080').replace(/\/$/, ''),
+    enabled: bool(process.env.ORACLE_BRIDGE_ENABLED, true),
+  },
+
+  dydx: {
+    indexerUrl: (process.env.DYDX_API_BASE || 'https://indexer.dydx.trade/v4').replace(/\/$/, ''),
+    apiKey: process.env.DYDX_API_KEY || '',
+    subaccountId: process.env.DYDX_SUBACCOUNT_ID || '',
+    enabled: bool(process.env.DYDX_ENABLED, true),
+  },
 };
 
 export default config;

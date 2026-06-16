@@ -28,11 +28,12 @@ flowchart LR
 
 1. Fund LINK on Sepolia.
 2. Create subscription at [functions.chain.link](https://functions.chain.link).
-3. Deploy `contracts/agent-nft/AgentNFT.sol`.
-4. Add contract as **consumer** on subscription.
-5. Upload encrypted secrets: `ARENA_API_KEY`, `ARENA_API_BASE`.
-6. Register JavaScript source: `functions-source/mutate-agent.js`.
-7. Set `donId` per Chainlink Sepolia docs (fun-ethereum-sepolia-1).
+3. Deploy `contracts/agent-nft/AgentNFT.sol` + `MutationController.sol`.
+4. Wire `AgentNFT.setMutationController(controller)` and `MutationController.setOracleRelayer(relayer)`.
+5. Add **MutationController** as **consumer** on subscription (Functions fulfillment target).
+6. Upload encrypted secrets: `ARENA_API_KEY`, `ARENA_API_BASE`.
+7. Register JavaScript source: `functions-source/mutate-agent.js`.
+8. Set `donId` per Chainlink Sepolia docs (fun-ethereum-sepolia-1).
 
 ---
 
@@ -51,6 +52,21 @@ Contract implements:
 
 - `checkUpkeep()` → true when `block.timestamp / 1 weeks > lastMutationWeek`
 - `performUpkeep()` → `triggerWeeklyMutation()`
+
+---
+
+## Off-chain oracle bridge (relayer)
+
+`backend/src/infrastructure/oracle-bridge.js` submits proofs to `MutationController.executeAgentMutation`:
+
+```bash
+# API dry-run (no private key)
+curl -X POST http://127.0.0.1:8080/api/oracle/sync \
+  -H 'Content-Type: application/json' \
+  -d '{"tokenId":0,"tier":3,"winRateBps":7500,"uri":"https://example.com/meta/0"}'
+
+# Live: set ORACLE_RELAYER_PRIVATE_KEY + MUTATION_CONTROLLER_CONTRACT
+```
 
 ---
 

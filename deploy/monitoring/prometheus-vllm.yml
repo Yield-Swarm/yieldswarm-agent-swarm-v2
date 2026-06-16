@@ -1,0 +1,13 @@
+# Prometheus scrape config for vLLM RTX 5090 (:9090/metrics)
+# Mount into Grafana Agent or prometheus.yml
+
+scrape_configs:
+  - job_name: yieldswarm-vllm-rtx5090
+    scrape_interval: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - '${RTX5090_METRICS_HOST:-localhost:9090}'
+        labels:
+          service: vllm-rtx5090
+          gpu: rtx5090

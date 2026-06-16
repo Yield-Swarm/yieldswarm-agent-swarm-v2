@@ -25,6 +25,8 @@ import { getHelixStatus } from '../adapters/helix.js';
 import * as crossChain from '../adapters/crossChain.js';
 import * as rtx5090 from '../adapters/rtx5090Telemetry.js';
 import { routeRequest } from '../infrastructure/odysseus-router.js';
+import * as oracle from '../adapters/oracle.js';
+import * as dydx from '../adapters/dydx.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -88,6 +90,52 @@ router.post('/inference/route', asyncRoute(async (req, res) => {
     { rtx5090: t5090, h100: {} },
   );
   res.json(result);
+}));
+
+/** Container / GPU telemetry edge route (Arena + sovereign loops) */
+router.get('/telemetry/container', asyncRoute(async (_req, res) => {
+  const data = await cache.get('telemetry:5090', () => rtx5090.refreshTelemetry());
+  res.json({
+    ...data,
+    service: 'vllm-rtx5090',
+    scrapedAt: new Date().toISOString(),
+  });
+}));
+
+/** Oracle sync status + mutation proof relay */
+router.get('/oracle/sync', asyncRoute(async (_req, res) => {
+  const data = await cache.get('oracle:status', () => oracle.getOracleStatus());
+  res.json(data);
+}));
+
+router.post('/oracle/sync', asyncRoute(async (req, res) => {
+  const body = req.body || {};
+  if (!body.tokenId) {
+    res.status(400).json({ error: 'tokenId required' });
+    return;
+  }
+  const result = await oracle.syncMutationProof(body);
+  res.json(result);
+}));
+
+/** dYdX v4 market + positions (primary trading layer) */
+router.get('/trading/dydx/health', asyncRoute(async (_req, res) => {
+  const data = await cache.get('dydx:health', () => dydx.getDydxHealth());
+  res.json(data);
+}));
+
+router.get('/trading/dydx/market/:ticker', asyncRoute(async (req, res) => {
+  const ticker = req.params.ticker || 'BTC-USD';
+  const data = await cache.get(`dydx:market:${ticker}`, () => dydx.getMarketPrice(ticker));
+  res.json(data);
+}));
+
+router.get('/trading/dydx/positions', asyncRoute(async (req, res) => {
+  const subaccount = req.query.subaccount || req.query.subaccountId;
+  const data = await cache.get(`dydx:positions:${subaccount || 'default'}`, () =>
+    dydx.getActivePositions(subaccount),
+  );
+  res.json(data);
 }));
 
 /** Helix Chain genesis + YSLR activation telemetry */

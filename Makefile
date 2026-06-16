@@ -35,7 +35,7 @@ A := deploy/akash
         cross-chain-preflight cross-chain-run cross-chain-test \
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
-        build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 \
+        build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         status logs clean production
 
 ## help: show this menu
@@ -284,6 +284,10 @@ deploy-akash-rtx5090-vllm:
 ## akash-roi-5090: print RTX 5090 break-even ROI model
 akash-roi-5090:
 	@python3 -c "from services.akash_roi import rtx5090_default; import json; print(json.dumps(rtx5090_default(), indent=2))"
+
+## nft-mutation-batch: dry-run weekly Agent NFT mutations from Arena leaderboard
+nft-mutation-batch:
+	@python3 services/nft_mutation_engine.py --week $$(date +%U)
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers
