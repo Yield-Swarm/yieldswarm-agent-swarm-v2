@@ -27,6 +27,7 @@ A := deploy/akash
         terraform-init terraform-plan terraform-apply terraform-destroy \
         frontend \
         monitoring-up monitoring-down sovereign-up sovereign-down \
+        tesla-keys tesla-register \
         status logs clean
 
 ## help: show this menu
@@ -144,6 +145,14 @@ status:
 ## logs: tail the sovereign + auto-heal logs
 logs:
 	@tail -n 50 -f .run/sovereign-loop.log .run/akash-auto-heal.log 2>/dev/null || echo "no logs yet"
+
+## tesla-keys: generate EC key pair and install public key for Vercel hosting
+tesla-keys:
+	@./scripts/setup-tesla-keys.sh
+
+## tesla-register: obtain partner token and register domain (TESLA_CLIENT_ID/SECRET/DOMAIN required)
+tesla-register:
+	@./scripts/register-tesla-fleet.sh $(or $(TESLA_REGION),na)
 
 ## clean: remove runtime state (.run) and generated tfvars
 clean:

@@ -1,0 +1,34 @@
+{
+  "_comment": "Sample Fleet Telemetry config for YieldSwarm. Apply via vehicle-command proxy after pairing virtual keys.",
+  "vins": ["REPLACE_WITH_VIN"],
+  "config": {
+    "hostname": "telemetry.your-registered-domain.com",
+    "port": 443,
+    "delivery_policy": "latest",
+    "prefer_typed": true,
+    "alert_types": ["service"],
+    "ca": "-----BEGIN CERTIFICATE-----\nREPLACE_WITH_TELEMETRY_SERVER_CA_PEM\n-----END CERTIFICATE-----\n",
+    "fields": {
+      "Location": { "interval_seconds": 10 },
+      "VehicleSpeed": { "interval_seconds": 10 },
+      "Soc": { "interval_seconds": 60 },
+      "EstBatteryRange": { "interval_seconds": 60 },
+      "Odometer": { "interval_seconds": 300 },
+      "DetailedChargeState": { "interval_seconds": 30 },
+      "ChargeAmps": { "interval_seconds": 30 },
+      "ChargeRate": { "interval_seconds": 30 },
+      "EnergyRemaining": { "interval_seconds": 60 },
+      "InsideTemp": { "interval_seconds": 60 },
+      "OutsideTemp": { "interval_seconds": 60 },
+      "Locked": { "interval_seconds": 60 },
+      "DoorState": { "interval_seconds": 60 },
+      "VehicleName": { "interval_seconds": 3600 }
+    }
+  },
+  "_yieldswarm_routing": {
+    "ingest_webhook": "https://api.yieldswarm.crypto/api/telemetry/tesla",
+    "odysseus_brain": "services/odysseus/main.py",
+    "sovereign_loop": "services/sovereign_runtime.py",
+    "great_delta_policy": "50/30/15/5"
+  }
+}
