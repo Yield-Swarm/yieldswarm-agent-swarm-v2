@@ -34,6 +34,7 @@ A := deploy/akash
         scale-akash-workers \
         cross-chain-preflight cross-chain-run cross-chain-test \
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
+        deploy-production-full wire-domains \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
         status logs clean production
 
@@ -121,6 +122,14 @@ production:
 ## deploy-all: full multi-platform stack (Vercel + Render + Akash + monitoring)
 deploy-all:
 	bash scripts/deploy-all.sh
+
+## deploy-production-full: Vault → Akash → 17 domains → Vercel → Neon → Odysseus
+deploy-production-full:
+	bash scripts/deploy-production-full.sh
+
+## wire-domains: wire 17 production subdomains (UD + Cloudflare + Vercel)
+wire-domains:
+	bash scripts/wire-production-domains.sh
 
 deploy-vercel:
 	bash scripts/deploy-all.sh vercel
