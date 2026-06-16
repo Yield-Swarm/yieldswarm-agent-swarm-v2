@@ -26,6 +26,7 @@ A := deploy/akash
         terraform-init terraform-plan terraform-apply terraform-destroy \
         frontend \
         monitoring-up monitoring-down sovereign-up sovereign-down \
+        cross-chain-preflight cross-chain-run cross-chain-test \
         status logs clean
 
 ## help: show this menu
@@ -119,6 +120,18 @@ sovereign-up:
 ## sovereign-down: stop sovereign loops
 sovereign-down:
 	bash $(S)/start-sovereign-loops.sh stop
+
+## cross-chain-preflight: GO/NO-GO for cross-chain execution layer
+cross-chain-preflight:
+	bash scripts/cross-chain-preflight.sh
+
+## cross-chain-run: one-shot strategy batch (dry-run unless CROSS_CHAIN_DRY_RUN=0)
+cross-chain-run:
+	python3 agents/cross_chain_executor.py
+
+## cross-chain-test: pytest cross-chain + Great Delta routing
+cross-chain-test:
+	python3 -m pytest tests/test_cross_chain.py -q
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers
