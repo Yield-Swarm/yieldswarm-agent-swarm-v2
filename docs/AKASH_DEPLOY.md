@@ -11,6 +11,8 @@ Deploy YieldSwarm workers to **Akash mainnet** using `provider-services` with
 | **SDL** | `deploy/deploy-swarm-monolith.yaml` (3× RTX 3090) |
 | **Preferred provider** | `akash18ga02jzaq8cw52anyhzkwta5wygufgu6zsz6xc` (provider.europlots.com) |
 
+**Vault + SDL catalog:** [`docs/VAULT_AKASH_DEPLOY.md`](VAULT_AKASH_DEPLOY.md) — backend, Bittensor miner, Odysseus render-time secrets.
+
 ---
 
 ## Codespace quick start (copy-paste)

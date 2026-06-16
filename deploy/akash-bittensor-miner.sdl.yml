@@ -43,9 +43,6 @@ services:
           mount: /root/.ollama
           readOnly: false
     count: 1
-    pricing:
-      denom: uakt
-      amount: 8000
 
 profiles:
   compute:

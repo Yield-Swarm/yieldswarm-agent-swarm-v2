@@ -28,8 +28,8 @@ ROLE="${1:-}"
 WRAP_TTL="${2:-5m}"
 
 case "${ROLE}" in
-  terraform|ci|akash-runtime|bittensor-runtime) ;;
-  *) echo "usage: $0 <terraform|ci|akash-runtime|bittensor-runtime> [wrap_ttl]" >&2; exit 2 ;;
+  terraform|ci|akash-runtime|integration-backend|bittensor-runtime|odysseus-runtime) ;;
+  *) echo "usage: $0 <terraform|ci|akash-runtime|integration-backend|bittensor-runtime|odysseus-runtime> [wrap_ttl]" >&2; exit 2 ;;
 esac
 
 ROLE_ID="$(vault read -field=role_id "auth/approle/role/${ROLE}/role-id")"

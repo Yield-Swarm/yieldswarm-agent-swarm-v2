@@ -1,33 +1,38 @@
 ---
-# Light integration API on Akash — Arena telemetry, sovereign state, treasury.
-# Image: ghcr.io/yield-swarm/yieldswarm-backend (build from backend/)
-# Deploy: ./scripts/deploy-production.sh akash-backend
+# Akash SDL — YieldSwarm integration backend (lightweight, no GPU)
+# Serves Arena + sovereign API on :8080. Secrets from HashiCorp Vault at boot.
+#
+# Deploy:
+#   ./scripts/akash-vault-prepare.sh integration-backend
+#   ./scripts/deploy-backend-akash.sh
 version: "2.0"
 
 services:
-  api:
-    image: ${BACKEND_IMAGE}
+  backend:
+    image: ${DEPLOY_IMAGE:-${BACKEND_IMAGE:-ghcr.io/yieldswarm/yieldswarm-backend:latest}}
     expose:
       - port: 8080
         as: 80
         to:
           - global: true
     env:
-      - NODE_ENV=production
       - PORT=8080
       - HOST=0.0.0.0
-      # Vault bootstrap (values from deployment create --env)
-      - VAULT_ADDR
-      - VAULT_ROLE_ID
-      - VAULT_WRAPPED_SECRET_ID
-      - AGENT_SHARD_ID
+      - NODE_ENV=production
+      - AKASH_OWNER_ADDRESS=${AKASH_OWNER_ADDRESS}
+      - AKASH_CONSOLE_API=${AKASH_CONSOLE_API:-https://console-api.akash.network/v1}
+      - ODYSSEUS_BRAIN_URL=${ODYSSEUS_BRAIN_URL:-}
+      - HEALTH_PATH=/api/health
+      # Vault AppRole (issue via scripts/akash-vault-prepare.sh)
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_WRAPPED_SECRET_ID=${VAULT_WRAPPED_SECRET_ID}
+      - VAULT_KV_MOUNT=yieldswarm
+      - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus
+      - VAULT_SKIP_VERIFY=${VAULT_SKIP_VERIFY:-false}
       - VAULT_AGENT_CONFIG=/etc/vault-agent/vault-agent.hcl
       - AGENT_ENV_FILE=/run/secrets/agent.env
-    params:
-      storage:
-        secrets:
-          mount: /run/secrets
-          readOnly: false
     readiness_probe:
       http_get:
         path: /api/health
@@ -35,40 +40,48 @@ services:
       initial_delay_seconds: 15
       period_seconds: 10
       timeout_seconds: 5
-      failure_threshold: 4
+      failure_threshold: 6
     liveness_probe:
       http_get:
         path: /api/health
         port: 8080
       initial_delay_seconds: 30
-      period_seconds: 15
+      period_seconds: 20
       timeout_seconds: 5
-      failure_threshold: 4
+      failure_threshold: 5
+    params:
+      storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
 
 profiles:
   compute:
-    api:
+    backend:
       resources:
         cpu:
-          units: 1.0
+          units: 4
         memory:
-          size: 1Gi
+          size: 8Gi
         storage:
+          - size: 4Gi
           - name: secrets
-            size: 8Mi
+            size: 16Mi
             attributes:
               persistent: false
               class: ram
-          - size: 2Gi
+
   placement:
     akash:
+      attributes:
+        host: akash
       pricing:
-        api:
+        backend:
           denom: uakt
-          amount: 1000
+          amount: 1500
 
 deployment:
-  api:
+  backend:
     akash:
-      profile: api
+      profile: backend
       count: 1
