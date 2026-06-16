@@ -1,0 +1,72 @@
+---
+# Akash SDL for a YieldSwarm Ollama GPU inference worker (e.g. RTX 5090).
+#
+# Exposes the Ollama HTTP API (11434) globally so the Model Router / Odysseus
+# and swarm agents can reach it at the lease's ingress hostname. Models are
+# preloaded on boot by docker/entrypoint-ollama.sh.
+#
+# Render/deploy with the existing tooling, e.g.:
+#   provider-services tx deployment create deploy/akash/ollama-worker.sdl.yml --from <wallet>
+#
+# Override OLLAMA_PULL_MODELS to change which models are preloaded.
+version: "2.0"
+
+services:
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:latest}
+    expose:
+      - port: 11434
+        as: 11434
+        to:
+          - global: true
+    env:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_PULL_MODELS=${OLLAMA_PULL_MODELS:-llama3.1:8b qwen2.5:14b}
+      - OLLAMA_PULL_TIMEOUT=${OLLAMA_PULL_TIMEOUT:-180}
+    # The stock ollama/ollama image only runs `ollama serve`; this command adds
+    # readiness-gated model preloading while keeping the server in foreground.
+    command:
+      - /bin/sh
+      - -c
+      - >
+        ollama serve & srv=$!;
+        for i in $(seq 1 "${OLLAMA_PULL_TIMEOUT:-180}"); do
+        curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1 && break;
+        kill -0 "$srv" 2>/dev/null || { wait "$srv"; exit 1; };
+        sleep 1; done;
+        for m in $(echo "${OLLAMA_PULL_MODELS:-llama3.1:8b qwen2.5:14b}" | tr ',' ' '); do
+        [ -n "$m" ] && ollama pull "$m" || true; done;
+        wait "$srv"
+
+profiles:
+  compute:
+    ollama-gpu:
+      resources:
+        cpu:
+          units: 8
+        memory:
+          size: 32Gi
+        storage:
+          - size: 120Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                # Primary target is the RTX 5090; the rest are acceptable fallbacks.
+                - model: rtx5090
+                - model: rtx4090
+                - model: a100
+                - model: h100
+  placement:
+    akash-gpu:
+      pricing:
+        ollama:
+          denom: uakt
+          amount: 100000
+
+deployment:
+  ollama:
+    akash-gpu:
+      profile: ollama-gpu
+      count: 1
