@@ -4,13 +4,13 @@ set -euo pipefail
 PROVIDER="${1:-}"
 
 if [[ -z "${PROVIDER}" ]]; then
-  echo "Usage: $0 <akash|vercel|render>"
+  echo "Usage: $0 <akash|vast|runpod|azure|gcp|aws|alibaba|vercel|render>"
   exit 1
 fi
 
 case "${PROVIDER}" in
-  akash)
-    exec "$(dirname "$0")/providers/akash.sh"
+  akash|vast|runpod|azure|gcp|aws|alibaba)
+    exec "$(dirname "$0")/providers/${PROVIDER}.sh" launch
     ;;
   vercel)
     exec "$(dirname "$0")/providers/vercel.sh"
