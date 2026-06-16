@@ -1,0 +1,70 @@
+# Cross-chain strategies (God Prompt P)
+# Consumed by services/cross_chain/executor.py and sovereign cron shards
+
+defaults:
+  dry_run: true
+  cron_interval_minutes: 15
+  shard_count: 120
+
+strategies:
+  solana_liquidity:
+    enabled: true
+    priority: 1  # quick win
+    params:
+      action: swap
+      slippage_bps: 50
+      expected_yield_bps: 15
+    vault_secrets:
+      - yieldswarm/data/rpc/solana
+      - yieldswarm/data/rpc/jupiter
+      - yieldswarm/data/rpc/raydium
+
+  uniswap_v4_hook:
+    enabled: true
+    priority: 2
+    params:
+      auction_type: dutch
+      mev_protection: true
+      duration_seconds: 300
+      expected_yield_bps: 25
+    vault_secrets:
+      - yieldswarm/data/runtime/wallets
+    contract: contracts/hooks/YieldSwarmAuctionHook.sol
+
+  dydx_perps:
+    enabled: false  # enable after DYDX_API_KEY in Vault
+    priority: 3
+    params:
+      action: hedge
+      market: BTC-USD
+      leverage: 2
+    vault_secrets:
+      - yieldswarm/data/integrations/dydx
+
+  altcoin_pow:
+    enabled: true
+    priority: 1
+    coins:
+      - bittensor   # live via Akash SDL
+      - grass       # Azure/GCP DePIN
+      - flux
+      - kaspa
+    vault_secrets:
+      - yieldswarm/data/runtime/bittensor
+
+great_delta:
+  policy: 50/30/15/5
+  buckets:
+    coreTreasury: 5000
+    growthTreasury: 3000
+    insuranceTreasury: 1500
+    opsTreasury: 500
+  on_chain_router: contracts/GreatDeltaEmissionRouter.sol
+
+sovereign_integration:
+  agent: agents/cross_chain_executor.py
+  loop: deploy/runtime/swarm_runner.py
+  state_dir: .run/
+  api:
+    - GET /api/cross-chain/overview
+    - POST /api/cross-chain/telemetry
