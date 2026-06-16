@@ -106,6 +106,36 @@ create_or_update_role odysseus-runtime \
   secret_id_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}" \
   token_bound_cidrs="${APPROLE_AKASH_CIDRS:-0.0.0.0/0}"
 
+# Payments rails (Vercel / Render — not Akash GPU)
+create_or_update_role payments-runtime \
+  token_policies="payments-runtime" \
+  token_ttl="1h" \
+  token_max_ttl="24h" \
+  token_num_uses=0 \
+  secret_id_ttl="30m" \
+  secret_id_num_uses=1 \
+  bind_secret_id=true
+
+# Multicloud burst operator (Beefcake, CI, terraform-adjacent scripts)
+create_or_update_role multicloud-operator \
+  token_policies="multicloud-operator" \
+  token_ttl="2h" \
+  token_max_ttl="24h" \
+  token_num_uses=0 \
+  secret_id_ttl="1h" \
+  secret_id_num_uses=1 \
+  bind_secret_id=true
+
+# AWS Beefcake 1 worker
+create_or_update_role beefcake-runtime \
+  token_policies="beefcake-runtime" \
+  token_ttl="4h" \
+  token_max_ttl="72h" \
+  token_num_uses=0 \
+  secret_id_ttl="1h" \
+  secret_id_num_uses=1 \
+  bind_secret_id=true
+
 # ---- (Optional) OIDC for human admins ----------------------------------
 if [ "${ENABLE_OIDC:-false}" = "true" ]; then
   ensure_auth oidc

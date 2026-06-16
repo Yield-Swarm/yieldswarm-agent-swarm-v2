@@ -2,6 +2,8 @@
 
 path "yieldswarm/data/runtime/payments"    { capabilities = ["read"] }
 path "yieldswarm/data/integrations/stripe" { capabilities = ["read"] }
+path "yieldswarm/data/payments/square"    { capabilities = ["read"] }
+path "yieldswarm/data/payments/wise"      { capabilities = ["read"] }
 path "yieldswarm/data/integrations/square" { capabilities = ["read"] }
 path "yieldswarm/data/integrations/wise"   { capabilities = ["read"] }
 
