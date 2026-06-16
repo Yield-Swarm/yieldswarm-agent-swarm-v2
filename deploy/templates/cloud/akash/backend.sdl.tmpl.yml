@@ -1,0 +1,62 @@
+---
+# Rendered from deploy/templates/cloud/akash/backend.sdl.tmpl.yml
+# Usage: ./deploy/templates/lib/render-template.sh akash
+version: "2.0"
+
+services:
+  backend:
+    image: ${BACKEND_IMAGE}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+      - TARGET_ENV=${TARGET_ENV}
+      - AKASH_OWNER_ADDRESS=${AKASH_OWNER_ADDRESS}
+      - AKASH_CONSOLE_API=${AKASH_CONSOLE_API}
+      - API_BASE=${API_BASE}
+      - GREEK_LAYER__ACCESS_CONTROL_ENABLED=${GREEK_LAYER__ACCESS_CONTROL_ENABLED}
+      - GREEK_LAYER__MAX_CONTEXT_WINDOW=${GREEK_LAYER__MAX_CONTEXT_WINDOW}
+      - EASTERN_LAYER__FEEDBACK_ENABLED=${EASTERN_LAYER__FEEDBACK_ENABLED}
+      - LLM__ROUTER_TYPE=${LLM__ROUTER_TYPE}
+      - LLM__DEFAULT_MODEL=${LLM__DEFAULT_MODEL}
+      - ZK__VERIFIER_ADDRESS=${ZK__VERIFIER_ADDRESS}
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_KV_MOUNT=${VAULT_KV_MOUNT}
+      - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus,runtime/llm
+      - AGENT_ENV_FILE=/run/secrets/agent.env
+    readiness_probe:
+      http_get:
+        path: /api/health
+        port: 8080
+      initial_delay_seconds: 15
+      period_seconds: 10
+    params:
+      storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
+
+profiles:
+  compute:
+    backend:
+      resources:
+        cpu:
+          units: "1.0"
+        memory:
+          size: 2Gi
+        storage:
+          - size: 512Mi
+  placement:
+    backend:
+      attributes:
+        host: akash
+  deployment:
+    backend:
+      max_replicas: 1

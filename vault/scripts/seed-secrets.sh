@@ -174,6 +174,15 @@ put_if_set integrations/stripe \
 put_if_set integrations/mapbox \
   token=MAPBOX_TOKEN
 
+# ---- ZK entropy (pillar 03) ----
+put_if_set runtime/zk \
+  verifier_address=ZK__VERIFIER_ADDRESS \
+  mutation_controller=MUTATION_CONTROLLER_ADDRESS \
+  nft_address=YIELDSWARM_NFT_ADDRESS \
+  circuit_wasm_path=ZK__CIRCUIT_WASM_PATH \
+  zkey_path=ZK__ZKEY_PATH \
+  vkey_path=ZK__VKEY_PATH
+
 # ---- Odysseus orchestration ----
 put_if_set runtime/odysseus \
   api_key=ODYSSEUS_API_KEY \

@@ -1,8 +1,25 @@
 # Environment Variables Catalog — YieldSwarm AgentSwarm OS v2.0
 
 > As of June 2026 · **Names only** — never commit values.  
+> **Layered template:** `deploy/env/layered.env.example`  
+> **Deploy order:** `docs/DEPLOYMENT_PRIORITY.md`  
+> **Vault injection:** `docs/VAULT_ENV_INJECTION.md`  
 > Template: `.env.example` · Vault seed: `vault/scripts/seed-secrets.sh`  
 > Council add-ons: `docs/COUNCIL_WISHLIST.md`
+
+---
+
+## 0. Quadrilateral axis layers (Phase 1)
+
+| Prefix | Axis | Purpose |
+|--------|------|---------|
+| `GREEK_LAYER__*` | D¹ | Access control, sanitization, context caps |
+| `EASTERN_LAYER__*` | E¹ | Feedback loops, recursive routing |
+| `ZK__*` | Z¹ | Circuit paths, verifier, mutation contracts |
+| `LLM__*` | Router | Odysseus + LiteLLM default model/type |
+| `DEFAULT_LOCALE`, `SUPPORTED_LOCALES` | W | Rosetta i18n |
+
+Full layered file: `deploy/env/layered.env.example`.
 
 ---
 
