@@ -28,26 +28,29 @@ export const DEFAULT_PROVIDERS = [
   { id: "alibaba", creditsUsd: 200, costPerGpuHourUsd: 1.60, latencyMs: 180, gpuTier: "A10", available: true },
 ];
 
-/**
- * Score provider for a workload profile (higher = better).
- * @param {ProviderProfile} p
- * @param {object} workload
- * @param {number} workload.latencyWeight 0-1
- * @param {number} workload.costWeight 0-1
- * @param {string} [workload.preferredGpu]
- */
+  /**
+   * Score provider for a workload profile (higher = better).
+   * @param {ProviderProfile} p
+   * @param {object} workload
+   * @param {number} workload.latencyWeight 0-1
+   * @param {number} workload.costWeight 0-1
+   * @param {string} [workload.preferredGpu]
+   * @param {number} [workload.entropyQuality] 0-1 from ZK entropy engine (U¹ feedback)
+   */
 export function scoreProvider(p, workload) {
   if (!p.available || p.creditsUsd <= 0) return -Infinity;
 
   const latencyWeight = workload.latencyWeight ?? 0.4;
   const costWeight = workload.costWeight ?? 0.6;
+  const entropyWeight = workload.entropyWeight ?? 0.15;
 
   const latencyScore = 1 / (1 + p.latencyMs / 100);
   const costScore = 1 / (1 + p.costPerGpuHourUsd);
   const gpuBonus = workload.preferredGpu && p.gpuTier.includes(workload.preferredGpu) ? 0.15 : 0;
   const creditBonus = Math.min(0.2, p.creditsUsd / DEFAULT_CREDIT_POOL_USD);
+  const entropyBonus = (workload.entropyQuality ?? 0) * entropyWeight;
 
-  return latencyWeight * latencyScore + costWeight * costScore + gpuBonus + creditBonus;
+  return latencyWeight * latencyScore + costWeight * costScore + gpuBonus + creditBonus + entropyBonus;
 }
 
 export class SovereignOptimizer {
@@ -73,6 +76,33 @@ export class SovereignOptimizer {
       .map((p) => ({ ...p, score: scoreProvider(p, workload) }))
       .filter((p) => p.score > -Infinity)
       .sort((a, b) => b.score - a.score);
+  }
+
+  /**
+   * Rank with ZK entropy quality feedback (O¹ + U¹ pillars).
+   * @param {object} workload
+   * @param {number} [workload.entropyQuality] 0-1
+   */
+  rankWithEntropy(workload = {}) {
+    return this.rank({
+      ...workload,
+      entropyWeight: workload.entropyWeight ?? 0.2,
+    });
+  }
+
+  /**
+   * Proof-generation speed feedback — deprioritize providers when entropy proofs are slow.
+   * @param {number} proofLatencyMs
+   * @param {number} entropyQuality
+   */
+  adjustForProofLatency(proofLatencyMs, entropyQuality = 0.5) {
+    const penalty = Math.min(0.3, proofLatencyMs / 60_000);
+    for (const p of this.providers) {
+      if (p.id === "akash" || p.id === "vast") {
+        p._latencyPenalty = penalty * (1 - entropyQuality);
+      }
+    }
+    return { penalty, entropyQuality };
   }
 
   /**

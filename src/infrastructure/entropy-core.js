@@ -3,9 +3,11 @@
  *
  * Ingests hardware telemetry into a rolling 64-block window and compiles
  * append-only state chains with deterministic blockVerificationHash.
+ * Integrates ZK¹ entropy proofs for verifiable living memory (A¹ + U¹).
  */
 
 import crypto from "node:crypto";
+import { entropyQualityScore, generateGroth16Proof } from "./zk-entropy-prover.js";
 
 export const WINDOW_SIZE = 64;
 
@@ -122,13 +124,14 @@ export class HardenedAuditEngine {
     return block;
   }
 
-  /** Recompute hashes after window trim. */
+  /** Recompute hashes after window trim — reset indices to 0..n-1. */
   _rechainWindow() {
     let prev = this.genesisHash;
     for (let i = 0; i < this.chain.length; i++) {
       const block = this.chain[i];
       block.index = i;
       block.prevHash = prev;
+      block.sampleHash = this.hashSample(block.sample);
       block.blockVerificationHash = this.computeBlockVerificationHash(prev, block.sampleHash, i);
       prev = block.blockVerificationHash;
     }
@@ -181,6 +184,58 @@ export class HardenedAuditEngine {
 
   getWindow() {
     return [...this.chain];
+  }
+
+  /**
+   * Compute rolling entropy quality for O¹ oscillator + sovereign routing.
+   * @returns {number} 0–1 quality score
+   */
+  entropyQuality() {
+    if (this.chain.length === 0) return 0;
+    const recent = this.chain.slice(-8);
+    const scores = recent.map((b) => entropyQualityScore(b.sample));
+    return scores.reduce((a, b) => a + b, 0) / scores.length;
+  }
+
+  /**
+   * Generate ZK entropy seed + proof from latest window block (A¹ Ancestral memory).
+   * Raw metrics stay private; only commitment + public signals are exported.
+   * @param {object} [opts]
+   * @param {number} [opts.blockIndex] defaults to latest block
+   * @returns {Promise<object>}
+   */
+  async generateSeedWithProof(opts = {}) {
+    const idx = opts.blockIndex ?? this.chain.length - 1;
+    if (idx < 0 || idx >= this.chain.length) {
+      throw new RangeError("no blocks in window — ingest telemetry first");
+    }
+
+    const block = this.chain[idx];
+    const chainVerify = this.verifyChain();
+    if (!chainVerify.valid) {
+      throw new Error(`chain invalid: ${chainVerify.errors.join("; ")}`);
+    }
+
+    const proofBundle = await generateGroth16Proof({
+      ...block.sample,
+      nonce: block.index,
+    });
+
+    const seed = this.exportProofSeed();
+
+    return {
+      pillar: "A1-Ancestral",
+      testimony: "U1-Living-Logos",
+      windowRoot: seed.windowRoot,
+      blockVerificationHash: block.blockVerificationHash,
+      blockIndex: block.index,
+      entropyQuality: this.entropyQuality(),
+      commitment: proofBundle.commitment,
+      publicSignals: proofBundle.publicSignals,
+      proof: proofBundle.proof,
+      devMode: proofBundle.devMode ?? false,
+      generatedAt: new Date().toISOString(),
+    };
   }
 }
 

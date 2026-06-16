@@ -28,7 +28,11 @@ contract YieldSwarmNFT is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     /// @notice Last validated oracle digest per token.
     mapping(uint256 => bytes32) public lastValidatedDigest;
 
+    /// @notice ZK-gated mutation controller (A¹ Ancestral living memory).
+    address public mutationController;
+
     error NotAuthorizedOracle(address caller);
+    error NotAuthorizedMutationController(address caller);
     error CallbackAlreadyConsumed(bytes32 digest);
     error InvalidOracleSignature();
     error InvalidTier(uint8 tier);
@@ -41,6 +45,13 @@ contract YieldSwarmNFT is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         address indexed oracle,
         string newUri,
         bytes32 callbackDigest
+    );
+    event UriUpdatedByController(
+        uint256 indexed tokenId,
+        address indexed controller,
+        string newUri,
+        bytes32 entropyDigest,
+        uint8 newTier
     );
 
     constructor(address initialOwner) ERC721("YieldSwarm Agent", "YSAGENT") Ownable(initialOwner) {
@@ -56,6 +67,29 @@ contract YieldSwarmNFT is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     function setOracleAuthorized(address oracle, bool authorized) external onlyOwner {
         authorizedOracles[oracle] = authorized;
         emit OracleAuthorized(oracle, authorized);
+    }
+
+    function setMutationController(address controller) external onlyOwner {
+        mutationController = controller;
+    }
+
+    /// @notice ZK-verified mutation path — only MutationController after entropy proof.
+    function controllerMutateUri(
+        uint256 tokenId,
+        string calldata newUri,
+        bytes32 entropyDigest,
+        uint8 newTier
+    ) external nonReentrant {
+        if (msg.sender != mutationController) revert NotAuthorizedMutationController(msg.sender);
+        if (!_exists(tokenId)) revert TokenDoesNotExist(tokenId);
+        if (newTier == 0 || newTier > 5) revert InvalidTier(newTier);
+        if (consumedCallbackDigests[entropyDigest]) revert CallbackAlreadyConsumed(entropyDigest);
+
+        consumedCallbackDigests[entropyDigest] = true;
+        lastValidatedDigest[tokenId] = entropyDigest;
+        agentTier[tokenId] = newTier;
+        _setTokenURI(tokenId, newUri);
+        emit UriUpdatedByController(tokenId, msg.sender, newUri, entropyDigest, newTier);
     }
 
     /// @notice Mint a new agent NFT with tier metadata.
