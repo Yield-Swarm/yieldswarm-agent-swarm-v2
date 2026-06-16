@@ -34,7 +34,7 @@ A := deploy/akash
         scale-akash-workers \
         cross-chain-preflight cross-chain-run cross-chain-test \
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
-        deploy-production-full wire-domains \
+        deploy-production-full wire-domains god-prompt-test \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
         status logs clean production
 
@@ -130,6 +130,10 @@ deploy-production-full:
 ## wire-domains: wire 17 production subdomains (UD + Cloudflare + Vercel)
 wire-domains:
 	bash scripts/wire-production-domains.sh
+
+## god-prompt-test: run helical architecture unit tests
+god-prompt-test:
+	npm run test:god-prompt
 
 deploy-vercel:
 	bash scripts/deploy-all.sh vercel
