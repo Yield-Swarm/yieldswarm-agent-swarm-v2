@@ -20,13 +20,14 @@ endif
 S := deploy/scripts
 A := deploy/akash
 
-.PHONY: help deploy all preflight vault-check akash-deploy-vault \
+.PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault \
+        akash-deploy-vault akash-bittensor akash-odysseus akash-backend \
         login build push images \
         akash-lease akash-heal akash-heal-stop \
-        terraform-init terraform-plan terraform-apply terraform-destroy \
-        frontend \
+        terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
+        frontend vercel render \
         monitoring-up monitoring-down sovereign-up sovereign-down \
-        status logs clean
+        status logs clean production
 
 ## help: show this menu
 help:
@@ -58,6 +59,58 @@ vault-check:
 ## akash-deploy-vault: production Akash deploy with Vault runtime injection
 akash-deploy-vault:
 	bash $(S)/akash-production-deploy.sh
+
+## akash-bittensor: deploy Bittensor miner SDL (requires BT_NETUID)
+akash-bittensor:
+	bash scripts/deploy-production.sh akash-bittensor
+
+## akash-odysseus: deploy Odysseus GPU worker with Vault SDL
+akash-odysseus:
+	bash scripts/deploy-production.sh akash-odysseus
+
+## akash-backend: deploy light integration API on Akash
+akash-backend:
+	bash scripts/deploy-production.sh akash-backend
+
+## vault-bootstrap: run Vault setup + seed (requires VAULT_TOKEN)
+vault-bootstrap:
+	bash scripts/deploy-production.sh vault
+
+## seed-vault: seed KV from operator environment
+seed-vault:
+	bash vault/scripts/seed-secrets.sh
+
+## azure-apply: apply root terraform/ (Azure Container Apps)
+azure-apply:
+	bash scripts/deploy-production.sh azure
+
+## vercel: show Vercel deploy instructions / trigger hook
+vercel:
+	bash scripts/deploy-production.sh vercel
+
+## render: show Render blueprint instructions
+render:
+	bash scripts/deploy-production.sh render
+
+## production: unified multi-platform entry (see scripts/deploy-production.sh)
+production:
+	bash scripts/deploy-production.sh all
+
+## deploy-all: full multi-platform stack (Vercel + Render + Akash + monitoring)
+deploy-all:
+	bash scripts/deploy-all.sh
+
+deploy-vercel:
+	bash scripts/deploy-all.sh vercel
+
+deploy-render:
+	bash scripts/deploy-all.sh render
+
+deploy-akash:
+	bash scripts/deploy-all.sh akash
+
+deploy-akash-bittensor:
+	bash scripts/deploy-all.sh akash-bittensor
 
 # ---- STEP 1: images -------------------------------------------------------
 ## login: docker login to GHCR (uses GHCR_TOKEN/GHCR_USER)

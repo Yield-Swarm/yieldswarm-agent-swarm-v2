@@ -12,13 +12,27 @@
 |----------|---------|
 | `VAULT_ADDR` | HashiCorp Vault server URL |
 | `VAULT_NAMESPACE` | Enterprise namespace (optional) |
+| `VAULT_TOKEN` | Operator/admin token (deploy host only — never in SDL/git) |
 | `VAULT_AUTH_METHOD` | `jwt`, `approle`, or `token` |
 | `VAULT_JWT_AUTH_PATH` | JWT login path |
 | `VAULT_JWT_ROLE` | JWT role name |
 | `VAULT_JWT_FILE` | Service account JWT file (Akash) |
 | `VAULT_TOKEN_FILE` | Token file path |
+| `VAULT_ROLE_ID` | AppRole role_id (non-sensitive; injected via `--env` at Akash deploy) |
+| `VAULT_WRAPPED_SECRET_ID` | One-shot response-wrap token (Akash bootstrap) |
+| `VAULT_SECRET_ID_WRAP_TOKEN` | Alias for wrapped SecretID (`issue-secret-id.sh`) |
+| `VAULT_AKASH_ROLE` | AppRole to mint: `akash-runtime` or `bittensor-runtime` |
+| `VAULT_WRAP_TTL` | Wrap TTL at deploy time (default `600s`) |
+| `VAULT_INJECT_RUNTIME_SECRETS` | `auto` / `yes` / `no` — deploy script injection |
+| `USE_VAULT_AKASH` | Route `deploy.sh` step 2 through Vault SDL deploy |
+| `VAULT_LOAD_AKASH` | Load Akash wallet config from Vault on deploy host |
+| `VAULT_AKASH_SECRET_PATH` | KV path for deploy-host Akash config |
+| `AGENT_SHARD_ID` | Shard index `0..119` for per-shard KV |
+| `AGENT_ENV_FILE` | Vault Agent render target (default `/run/secrets/agent.env`) |
 | `ODYSSEUS_RUNTIME_VAULT_PATH` | KV path for Odysseus runtime |
 | `ODYSSEUS_DEPLOY_VAULT_PATH` | KV path for deploy-only secrets |
+
+**Akash runtime injection:** see `docs/VAULT_AKASH_RUNTIME.md`.
 
 ---
 
@@ -200,6 +214,23 @@ See `docs/COUNCIL_WISHLIST.md` for enable steps.
 
 ---
 
+## 13. Platform deploy (Vercel / Render / Akash / Azure)
+
+| Variable | Platform | Purpose |
+|----------|----------|---------|
+| `GHCR_OWNER`, `GHCR_TOKEN`, `IMAGE_TAG` | All containers | Image registry |
+| `AKASH_KEY_NAME`, `AKASH_SDL`, `AKASH_NODE` | Akash | Lease creation |
+| `BT_NETUID`, `BT_NETWORK` | Akash Bittensor | Subnet targeting |
+| `BACKEND_IMAGE`, `ODYSSEUS_IMAGE` | Akash SDL | Container image refs |
+| `VERCEL_DEPLOY_HOOK` | Vercel | Post-deploy frontend trigger |
+| `KAIRO_API_BASE`, `MAPBOX_TOKEN` | Vercel | Frontend env (dashboard aliases) |
+| `RENDER_API_KEY`, `RENDER_SERVICE_ID` | Render | Fallback API redeploy |
+| `TF_ENABLE_RENDER`, `TF_ENABLE_FLY`, `TF_ENABLE_HETZNER` | Terraform fallback | Toggle providers |
+| `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID` | Azure | Via Vault `providers/azure` |
+| `TFC_ORGANIZATION`, `TFC_WORKSPACE` | Terraform Cloud | Remote state (`Helixchainprod`) |
+
+---
+
 ## How to load secrets safely
 
 ```bash
@@ -216,4 +247,5 @@ source scripts/lib/vault-env.sh
 vault_export_env kv/data/yieldswarm/runtime/llm
 ```
 
-**Total tracked variables:** ~120+ across all sections above.
+**Total tracked variables:** ~180 across all sections above.  
+**Spin-up runbook:** `PRODUCTION_SPINUP.md`

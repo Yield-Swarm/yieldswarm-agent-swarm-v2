@@ -463,6 +463,16 @@ class SovereignController:
         mutation_actions, mutation_metrics = self.mutation_loop.run(agents, cycle)
         lease_actions, lease_metrics = self.lease_loop.run(leases)
 
+        cross_chain_actions: list = []
+        cross_chain_metrics: dict = {}
+        try:
+            from cross_chain_execution_loop import CrossChainExecutionLoop  # noqa: PLC0415
+
+            cross_chain_actions, cross_chain_metrics = CrossChainExecutionLoop().run(cycle)
+        except Exception:
+            cross_chain_actions = []
+            cross_chain_metrics = {"executions": 0, "estimated_revenue_usd": 0.0}
+
         nav_usd = 5_000_000.0
         treasury_actions, treasury_metrics = self.treasury_loop.run(positions, nav_usd)
 
@@ -488,6 +498,8 @@ class SovereignController:
             "lease_metrics": lease_metrics,
             "treasury_actions": treasury_actions,
             "treasury_metrics": treasury_metrics,
+            "cross_chain_actions": cross_chain_actions,
+            "cross_chain_metrics": cross_chain_metrics,
             "delta_grid": delta_grid,
             "vault_snapshot": asdict(snapshot),
         }

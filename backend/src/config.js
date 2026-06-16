@@ -33,6 +33,9 @@ export const config = {
   // Polling / cache behaviour
   cacheTtlMs: int(process.env.TELEMETRY_CACHE_TTL_MS, 15_000),
   upstreamTimeoutMs: int(process.env.UPSTREAM_TIMEOUT_MS, 6_000),
+  httpRetries: int(process.env.HTTP_RETRIES, 2),
+  httpRetryDelayMs: int(process.env.HTTP_RETRY_DELAY_MS, 400),
+  cronJobsEnabled: bool(process.env.CRON_JOBS_ENABLED, true),
 
   akash: {
     // Akash Console indexer API — live network capacity + provider health and
@@ -96,6 +99,16 @@ export const config = {
       process.env.HELIX_CONTROL_PLANE_URL ||
       process.env.GREAT_DELTA_INGEST_URL ||
       '',
+  },
+
+  dex: {
+    jupiterApiKey: process.env.JUPITER_API_KEY || '',
+    jupiterBaseUrl: (process.env.JUPITER_API_URL || 'https://quote-api.jup.ag/v6').replace(/\/$/, ''),
+    uniswapV4PoolManager: process.env.UNISWAP_V4_POOL_MANAGER || '',
+    uniswapV4HookAddress: process.env.UNISWAP_V4_HOOK_ADDRESS || '',
+    evmRpcUrl: process.env.EVM_RPC_URL || process.env.ETHEREUM_RPC_URL || '',
+    slippageBps: int(process.env.SLIPPAGE_TOLERANCE, 50),
+    enabled: bool(process.env.CROSS_CHAIN_MVP_ENABLED, true),
   },
 };
 

@@ -1,0 +1,41 @@
+# Render Blueprint — YieldSwarm Integration Backend
+# https://render.com/docs/blueprint-spec
+#
+# Deploy: connect repo in Render dashboard or `render blueprint apply render.yaml`
+# Secrets: set in Render dashboard (never commit values). Mirror names from docs/ENV_VARS.md
+
+services:
+  - type: web
+    name: yieldswarm-api
+    runtime: node
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "8080"
+      - key: HOST
+        value: 0.0.0.0
+      # Solana / Akash telemetry (set in Render dashboard)
+      - key: SOLANA_RPC_URL
+        sync: false
+      - key: TREASURY_ADDRESS
+        sync: false
+      - key: EMISSION_ROUTER_ADDRESS
+        sync: false
+      - key: AKASH_CONSOLE_API_URL
+        sync: false
+      - key: TELEMETRY_CACHE_TTL_MS
+        value: "15000"
+      # Optional Vault read (token from Render secret store)
+      - key: VAULT_ADDR
+        sync: false
+      - key: VAULT_TOKEN
+        sync: false

@@ -249,12 +249,81 @@ def handle_worker_telemetry(arguments: MutableMapping[str, Any]) -> Dict[str, An
     )
 
 
+def handle_dex_quote(arguments: MutableMapping[str, Any]) -> Dict[str, Any]:
+    chain = _required_string(arguments, "chain")
+    payload = {
+        "chain": chain,
+        "input_mint": arguments.get("input_mint"),
+        "output_mint": arguments.get("output_mint"),
+        "amount": arguments.get("amount"),
+        "token_in": arguments.get("token_in"),
+        "token_out": arguments.get("token_out"),
+        "amount_in_wei": arguments.get("amount_in_wei"),
+        "slippage_bps": arguments.get("slippage_bps"),
+    }
+
+    dex_url = _env_url("YIELDSWARM_DEX_API_URL")
+    if dex_url:
+        return _post_json(dex_url, "/dex/quote", payload)
+
+    if chain in {"solana", "jupiter"}:
+        from services.cross_chain.jupiter import JupiterClient, SOL_MINT, USDC_MINT  # noqa: PLC0415
+
+        client = JupiterClient()
+        quote = client.quote(
+            input_mint=str(arguments.get("input_mint") or SOL_MINT),
+            output_mint=str(arguments.get("output_mint") or USDC_MINT),
+            amount=int(arguments.get("amount") or 1_000_000),
+        )
+        return _result("quoted", "Jupiter quote returned.", quote)
+
+    if chain in {"ethereum", "evm", "uniswap_v4"}:
+        from services.cross_chain.uniswap_v4 import UniswapV4HookClient  # noqa: PLC0415
+
+        client = UniswapV4HookClient()
+        auction = client.simulate_auction(
+            pool_id=str(arguments.get("pool_id") or ("0x" + "aa" * 32)),
+            bid_amount_wei=int(arguments.get("amount_in_wei") or 10**15),
+            bidder=str(arguments.get("bidder") or "0x0000000000000000000000000000000000000001"),
+        )
+        return _result("simulated", "Uniswap V4 auction simulated.", auction)
+
+    return _result("adapter_missing", "Set YIELDSWARM_DEX_API_URL or use chain=solana|ethereum.", payload)
+
+
+def handle_dex_swap(arguments: MutableMapping[str, Any]) -> Dict[str, Any]:
+    chain = _required_string(arguments, "chain")
+    dry_run = _bool(arguments.get("dry_run"), True)
+    payload = {
+        "chain": chain,
+        "dry_run": dry_run,
+        "quote": arguments.get("quote"),
+        "user_public_key": arguments.get("user_public_key"),
+        "recipient": arguments.get("recipient"),
+    }
+
+    if dry_run:
+        return _result("dry_run", "DEX swap prepared but not broadcast.", payload)
+
+    dex_url = _env_url("YIELDSWARM_DEX_API_URL")
+    if dex_url:
+        return _post_json(dex_url, "/dex/swap", payload)
+
+    return _result(
+        "adapter_missing",
+        "Set YIELDSWARM_DEX_API_URL and dry_run=false for live swaps.",
+        payload,
+    )
+
+
 TOOL_HANDLERS: Dict[str, Callable[[MutableMapping[str, Any]], Dict[str, Any]]] = {
     "yieldswarm_akash_lease": handle_akash_lease,
     "yieldswarm_treasury_rebalance": handle_treasury_rebalance,
     "yieldswarm_emission_router_query": handle_emission_router_query,
     "yieldswarm_wallet_operation": handle_wallet_operation,
     "yieldswarm_worker_telemetry": handle_worker_telemetry,
+    "yieldswarm_dex_quote": handle_dex_quote,
+    "yieldswarm_dex_swap": handle_dex_swap,
 }
 
 

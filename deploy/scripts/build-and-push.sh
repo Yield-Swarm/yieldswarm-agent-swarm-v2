@@ -4,7 +4,7 @@
 #
 #   deploy/scripts/build-and-push.sh [component ...]
 #
-# With no args, builds & pushes all three images (worker, agents, dashboard).
+# With no args, builds & pushes all images (worker, agents, dashboard, backend).
 # Set DRY_RUN=1 to print the commands without executing them.
 # Set PUSH=0 to build locally without pushing.
 # =============================================================================
@@ -19,11 +19,12 @@ declare -A DOCKERFILES=(
   [worker]="deploy/docker/Dockerfile.worker"
   [agents]="deploy/docker/Dockerfile.agents"
   [dashboard]="deploy/docker/Dockerfile.dashboard"
+  [backend]="deploy/docker/Dockerfile.backend"
 )
 
 COMPONENTS=("$@")
 if [[ ${#COMPONENTS[@]} -eq 0 ]]; then
-  COMPONENTS=(worker agents dashboard)
+  COMPONENTS=(worker agents dashboard backend)
 fi
 
 run() {
@@ -63,7 +64,7 @@ main() {
   local c ref df
   for c in "${COMPONENTS[@]}"; do
     df="${DOCKERFILES[$c]:-}"
-    [[ -n "$df" ]] || die "unknown component: $c (valid: worker agents dashboard)"
+    [[ -n "$df" ]] || die "unknown component: $c (valid: worker agents dashboard backend)"
     ref="$(image_ref "$c")"
     step "Building ${c} -> ${ref}"
 

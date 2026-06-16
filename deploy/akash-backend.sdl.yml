@@ -9,7 +9,7 @@ version: "2.0"
 
 services:
   backend:
-    image: ${DEPLOY_IMAGE:-ghcr.io/yieldswarm/yieldswarm-backend:latest}
+    image: ${DEPLOY_IMAGE:-${BACKEND_IMAGE:-ghcr.io/yieldswarm/yieldswarm-backend:latest}}
     expose:
       - port: 8080
         as: 80
@@ -19,18 +19,20 @@ services:
       - PORT=8080
       - HOST=0.0.0.0
       - NODE_ENV=production
-      # Non-secret routing (owner can also come from Vault runtime/akash)
       - AKASH_OWNER_ADDRESS=${AKASH_OWNER_ADDRESS}
       - AKASH_CONSOLE_API=${AKASH_CONSOLE_API:-https://console-api.akash.network/v1}
-      - ODYSSEUS_BRAIN_URL=${ODYSSEUS_BRAIN_URL:-http://127.0.0.1:8090}
+      - ODYSSEUS_BRAIN_URL=${ODYSSEUS_BRAIN_URL:-}
       - HEALTH_PATH=/api/health
-      # Vault AppRole — issue via scripts/akash-vault-prepare.sh (never commit)
+      # Vault AppRole (issue via scripts/akash-vault-prepare.sh)
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_ROLE_ID=${VAULT_ROLE_ID}
       - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_WRAPPED_SECRET_ID=${VAULT_WRAPPED_SECRET_ID}
       - VAULT_KV_MOUNT=yieldswarm
       - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus
       - VAULT_SKIP_VERIFY=${VAULT_SKIP_VERIFY:-false}
+      - VAULT_AGENT_CONFIG=/etc/vault-agent/vault-agent.hcl
+      - AGENT_ENV_FILE=/run/secrets/agent.env
     readiness_probe:
       http_get:
         path: /api/health
