@@ -31,6 +31,20 @@ GOVERNANCE_MODEL_COUNT = 100
 # Sovereign governance delta target (agents/iteration_100_sovereign_loops.py)
 GOVERNANCE_DELTA_TARGET = 0.82
 
+# Cross-chain execution venues (God Prompt P — docs/CROSS_CHAIN_EXECUTION.md)
+CROSS_CHAIN_VENUES = (
+    "uniswap_v4",   # EVM hooks + Dutch auctions
+    "jupiter",      # Solana swap aggregation
+    "orca",         # Solana concentrated liquidity
+    "raydium",      # Solana AMM pools
+    "dydx",         # perpetual futures hedge + yield
+    "pow_mining",   # Bittensor + altcoin PoW expansion
+)
+
+# All cross-chain gross revenue MUST pass through TREASURY_SPLIT_BPS before settlement
+CROSS_CHAIN_DRY_RUN_DEFAULT = True
+CROSS_CHAIN_LATENCY_GUARDRAIL_MS = LATENCY_GUARDRAIL_MS  # 80ms ingest guardrail
+
 COUNCIL_ROLES = (
     ("deity-001", "Kimiclaw", "head_of_consensus_council"),
     ("deity-002", "Council Seat 02", "primary_deity"),

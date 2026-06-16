@@ -32,6 +32,7 @@ A := deploy/akash
         start-sovereign-consensus stop-sovereign-consensus restart-sovereign-consensus \
         multicloud-preflight multicloud-cost-report multicloud-launch multicloud-teardown \
         scale-akash-workers smoke smoke-test merge-all-prs \
+        cross-chain-preflight cross-chain-run cross-chain-test \
         status logs clean production
 
 ## help: show this menu
@@ -219,7 +220,6 @@ merge-all-prs:
 	@echo ""
 	@echo "Dry run above. To merge locally:  bash scripts/merge-all-prs.sh"
 	@echo "To merge + push main:            bash scripts/merge-all-prs.sh --push"
-	@echo "Include kairo/tesla/multicloud:  bash scripts/merge-all-prs.sh --push --include-optional"
 
 # ---- multi-cloud 30-day utilization --------------------------------------
 ## multicloud-preflight: GO/NO-GO across Vault, Akash, and optional cloud APIs
@@ -241,6 +241,18 @@ multicloud-teardown:
 ## scale-akash-workers: run lease-manager reconcile (add workers / failover)
 scale-akash-workers:
 	@python3 akash/lease-manager.py --once
+
+## cross-chain-preflight: GO/NO-GO for cross-chain execution layer
+cross-chain-preflight:
+	bash scripts/cross-chain-preflight.sh
+
+## cross-chain-run: one-shot strategy batch (dry-run unless CROSS_CHAIN_DRY_RUN=0)
+cross-chain-run:
+	python3 agents/cross_chain_executor.py
+
+## cross-chain-test: pytest cross-chain + Great Delta routing
+cross-chain-test:
+	python3 -m pytest tests/test_cross_chain.py tests/test_cross_chain_mvp.py -q
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers

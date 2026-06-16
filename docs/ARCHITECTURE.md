@@ -105,17 +105,19 @@ flowchart TB
 
 ---
 
-## Deployment status (current PR stack)
+## Deployment status (production — merged to main)
 
-| Component | Status | Branch / artifact |
-|-----------|--------|-------------------|
-| Vault → Akash injection | In PR | `cursor/vault-akash-injection-9c82` |
-| Sovereign loops live | In PR | `cursor/sovereign-loops-live-9c82` |
-| Akash preflight + europlots deploy | In PR | `cursor/akash-real-deploy-9c82` |
-| God Prompt swarm (MCP, deploy-all, funding) | In PR | `cursor/god-prompt-swarm-9c82` |
-| Production multi-platform spin-up | PR #25 | `cursor/production-prep-9c82` |
-| Helix genesis API | On `main` | `scripts/activate-helix.sh` |
-| Live Akash lease (europlots) | **Human-blocked** | Fund wallet + `VAULT_TOKEN` |
+| Component | Status |
+|-----------|--------|
+| Vault → Akash injection | Merged |
+| Sovereign loops live | Merged |
+| Akash preflight + europlots deploy | Merged |
+| God Prompt swarm (MCP, deploy-all, funding) | Merged |
+| Kairo ride booking | Merged |
+| Tesla Fleet API | Merged |
+| Multi-cloud 30-day scheduler | Merged |
+| Cross-chain execution (MVP + full) | Merged |
+| Live Akash lease (europlots) | **Human-blocked** — fund wallet + `VAULT_TOKEN` |
 
 ---
 
@@ -136,6 +138,37 @@ flowchart TB
 
 ---
 
+## 30-Day Async Multi-Cloud Layer (v2.2)
+
+```mermaid
+flowchart TB
+  subgraph CentralBrain["Central Brain — Cron 10min"]
+    CS[CloudScheduler]
+    AQ[Async Job Queue]
+    UT[Unified Telemetry]
+    CS --> AQ --> UT
+  end
+
+  subgraph Sovereign["Sovereign 900s"]
+    SR[swarm_runner.py]
+    CSA[cloud_scheduler_agent]
+    CC[cross_chain_executor]
+    SR --> CSA
+    SR --> CC
+  end
+
+  CSA --> CS
+  CS --> Akash & Vast & RunPod & Azure & GCP
+  Akash --> Revenue[Bittensor + Inference]
+  Revenue --> GD[Great Delta 50/30/15/5]
+  UT --> GD
+  CC --> GD
+```
+
+See `docs/MULTI_CLOUD_30DAY_PLAN.md` and `docs/CROSS_CHAIN_EXECUTION.md`.
+
+---
+
 ## Related docs
 
 | Doc | Purpose |
@@ -145,3 +178,6 @@ flowchart TB
 | [`STACK_STATUS.md`](../STACK_STATUS.md) | Health board + endpoints |
 | [`DOMAINS.md`](../DOMAINS.md) | UD wiring runbook |
 | [`HELIX-EXECUTION.md`](../HELIX-EXECUTION.md) | Activation tracks |
+| [`MULTI_CLOUD_30DAY_PLAN.md`](MULTI_CLOUD_30DAY_PLAN.md) | Async scheduler + 30-day harvest |
+| [`CROSS_CHAIN_EXECUTION.md`](CROSS_CHAIN_EXECUTION.md) | DeFi execution layer |
+| [`FINAL_DEPLOYMENT_RUNBOOK.md`](FINAL_DEPLOYMENT_RUNBOOK.md) | Merge + smoke + sovereign |
