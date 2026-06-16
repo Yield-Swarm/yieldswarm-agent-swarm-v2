@@ -29,8 +29,9 @@ A := deploy/akash
         frontend vercel render \
         monitoring-up monitoring-down sovereign-up sovereign-down \
         tesla-keys tesla-register \
+        start-sovereign-consensus stop-sovereign-consensus restart-sovereign-consensus \
         multicloud-preflight multicloud-cost-report multicloud-launch multicloud-teardown \
-        scale-akash-workers \
+        scale-akash-workers smoke smoke-test merge-all-prs \
         status logs clean production
 
 ## help: show this menu
@@ -190,6 +191,35 @@ sovereign-up:
 ## sovereign-down: stop sovereign loops
 sovereign-down:
 	bash $(S)/start-sovereign-loops.sh stop
+
+## start-sovereign-consensus: one-command autonomous loops (alias of sovereign-up)
+start-sovereign-consensus: sovereign-up
+	@echo "Sovereign Consensus running — check: make status"
+
+## stop-sovereign-consensus: stop autonomous loops
+stop-sovereign-consensus: sovereign-down
+	@echo "Sovereign Consensus stopped"
+
+## restart-sovereign-consensus: stop, pause, start
+restart-sovereign-consensus: stop-sovereign-consensus
+	@sleep 3
+	@$(MAKE) start-sovereign-consensus
+
+## smoke-test: structural + unit integration smoke suite
+smoke-test:
+	bash scripts/smoke-test.sh
+
+## smoke: comprehensive post-merge master smoke test
+smoke:
+	bash scripts/master-smoke-test.sh
+
+## merge-all-prs: safe stacked PR merge (add --push via script args)
+merge-all-prs:
+	bash scripts/merge-all-prs.sh --dry-run
+	@echo ""
+	@echo "Dry run above. To merge locally:  bash scripts/merge-all-prs.sh"
+	@echo "To merge + push main:            bash scripts/merge-all-prs.sh --push"
+	@echo "Include kairo/tesla/multicloud:  bash scripts/merge-all-prs.sh --push --include-optional"
 
 # ---- multi-cloud 30-day utilization --------------------------------------
 ## multicloud-preflight: GO/NO-GO across Vault, Akash, and optional cloud APIs
