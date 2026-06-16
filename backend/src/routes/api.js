@@ -23,6 +23,8 @@ import { getVaultTelemetry } from '../adapters/vaultTelemetry.js';
 import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
 import { getHelixStatus } from '../adapters/helix.js';
 import * as crossChain from '../adapters/crossChain.js';
+import * as rtx5090 from '../adapters/rtx5090Telemetry.js';
+import { routeRequest } from '../infrastructure/odysseus-router.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -64,6 +66,22 @@ router.get('/telemetry/akash', asyncRoute(async (_req, res) => {
 router.get('/telemetry/odysseus', asyncRoute(async (_req, res) => {
   const snapshot = await cache.get('odysseus:telemetry', () => odysseus.getTelemetry());
   res.json(toOdysseusTelemetryPayload(snapshot));
+}));
+
+/** RTX 5090 Ollama hardware telemetry (Arena + sovereign loops) */
+router.get('/telemetry/5090', asyncRoute(async (_req, res) => {
+  const data = await cache.get('telemetry:5090', () => rtx5090.refreshTelemetry());
+  res.json(data);
+}));
+
+router.post('/inference/route', asyncRoute(async (req, res) => {
+  const { prompt, taskType } = req.body || {};
+  if (!prompt) {
+    res.status(400).json({ error: 'prompt required' });
+    return;
+  }
+  const result = await routeRequest(String(prompt), taskType || 'chat');
+  res.json(result);
 }));
 
 /** Helix Chain genesis + YSLR activation telemetry */

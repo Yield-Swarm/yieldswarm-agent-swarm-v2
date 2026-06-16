@@ -108,6 +108,7 @@ const server = app.listen(config.port, config.host, () => {
       `  Vault:   /dashboard/sovereign-dashboard.html\n` +
       `  API:     /api/arena/overview\n` +
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
+      `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +
       `  Helix:     /api/helix/status  /api/helix/activate`,
   );

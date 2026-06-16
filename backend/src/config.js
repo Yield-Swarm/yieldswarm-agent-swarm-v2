@@ -87,6 +87,17 @@ export const config = {
     enabled: bool(process.env.ODYSSEUS_ENABLED, true),
   },
 
+  inference: {
+    rtx5090Endpoint:
+      process.env.RTX5090_ENDPOINT ||
+      'http://r4r35icmll0m7o.ingress.5090.mel.val.akash.pub:11434',
+    h100Endpoint: process.env.H100_ENDPOINT || process.env.H100_OLLAMA_ENDPOINT || '',
+    rtx5090Model: process.env.RTX5090_MODEL || 'qwen2.5:14b',
+    h100Model: process.env.H100_MODEL || 'llama3.1:70b',
+    telemetryPollMs: int(process.env.RTX5090_TELEMETRY_POLL_MS, 15_000),
+    enabled: bool(process.env.INFERENCE_ROUTER_ENABLED, true),
+  },
+
   // Helix Chain cross-execution layer (genesis + YSLR + emission bridge).
   helix: {
     enabled: bool(process.env.HELIX_CHAIN_ENABLED, false),

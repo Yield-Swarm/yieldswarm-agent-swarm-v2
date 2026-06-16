@@ -6,6 +6,8 @@ import cron from 'node-cron';
 import * as akash from '../adapters/akash.js';
 import * as treasury from '../adapters/treasury.js';
 import * as emission from '../adapters/emissionRouter.js';
+import * as rtx5090 from '../adapters/rtx5090Telemetry.js';
+import config from '../config.js';
 
 const jobs = [];
 
@@ -33,6 +35,14 @@ export function startCronJobs(opts = {}) {
   jobs.push(cron.schedule(schedules.akash, safeJob('akash-poll', () => akash.getWorkers())));
   jobs.push(cron.schedule(schedules.treasury, safeJob('treasury-poll', () => treasury.getTreasurySplits())));
   jobs.push(cron.schedule(schedules.emission, safeJob('emission-poll', () => emission.getEmissions())));
+
+  if (config.inference.enabled && config.inference.rtx5090Endpoint) {
+    const interval = setInterval(
+      safeJob('rtx5090-telemetry', () => rtx5090.refreshTelemetry()),
+      config.inference.telemetryPollMs,
+    );
+    jobs.push({ stop: () => clearInterval(interval) });
+  }
 
   console.log(`[cron] started ${jobs.length} background poll(s)`);
   return stopCronJobs;
