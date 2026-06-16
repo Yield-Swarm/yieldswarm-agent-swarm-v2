@@ -122,6 +122,9 @@ done
 
 # Local stack probes (optional — warn if not running)
 probe_optional "backend-api-health" "${BACKEND_URL}/api/health"
+probe_optional "backend-kairo-health" "${BACKEND_URL}/api/kairo/health"
+probe_optional "backend-kairo-depin" "${BACKEND_URL}/api/kairo/depin/status"
+probe_optional "backend-kairo-fare" "${BACKEND_URL}/api/kairo/fare"
 probe_optional "backend-akash-telemetry" "${BACKEND_URL}/api/telemetry/akash"
 probe_optional "sovereign-runtime" "${SOVEREIGN_URL}/health"
 
