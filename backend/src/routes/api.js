@@ -18,6 +18,7 @@ import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
 import * as odysseus from '../adapters/odysseus.js';
 import * as integrations from '../adapters/integrations.js';
+import * as dex from '../adapters/dex.js';
 import { getVaultTelemetry } from '../adapters/vaultTelemetry.js';
 import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
 import { getHelixStatus } from '../adapters/helix.js';
@@ -100,6 +101,30 @@ router.get('/governance/consensus/status', asyncRoute(async (_req, res) => {
 
 router.post('/governance/consensus/run', asyncRoute(async (req, res) => {
   const data = await integrations.runGovernanceConsensus(req.body || {});
+  res.json(data);
+}));
+
+router.get('/dex/health', asyncRoute(async (_req, res) => {
+  const data = await cache.get('dex:health', () => dex.getDexHealth());
+  res.json(data);
+}));
+
+router.post('/dex/quote', asyncRoute(async (req, res) => {
+  const { chain, ...params } = req.body || {};
+  const data = await cache.get(
+    `dex:quote:${chain || 'solana'}:${params.input_mint || params.inputMint || 'default'}`,
+    async () => {
+      if (chain === 'ethereum' || chain === 'evm') {
+        return dex.quoteUniswapV4(params);
+      }
+      return dex.quoteJupiter({
+        inputMint: params.input_mint || params.inputMint,
+        outputMint: params.output_mint || params.outputMint,
+        amount: params.amount,
+        slippageBps: params.slippage_bps || params.slippageBps,
+      });
+    },
+  );
   res.json(data);
 }));
 

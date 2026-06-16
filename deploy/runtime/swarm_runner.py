@@ -31,6 +31,7 @@ AGENT_FILES = [
     REPO_ROOT / "agents" / "akash-optimizer.py",
     REPO_ROOT / "agents" / "openclaw-scaler.py",
     REPO_ROOT / "agents" / "chainlink-vault-manager.py",
+    REPO_ROOT / "agents" / "cross_chain_mvp.py",
     REPO_ROOT / "mining" / "equipment-wallet-connector.py",
 ]
 

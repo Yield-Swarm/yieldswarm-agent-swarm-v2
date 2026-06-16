@@ -97,6 +97,16 @@ export const config = {
       process.env.GREAT_DELTA_INGEST_URL ||
       '',
   },
+
+  dex: {
+    jupiterApiKey: process.env.JUPITER_API_KEY || '',
+    jupiterBaseUrl: (process.env.JUPITER_API_URL || 'https://quote-api.jup.ag/v6').replace(/\/$/, ''),
+    uniswapV4PoolManager: process.env.UNISWAP_V4_POOL_MANAGER || '',
+    uniswapV4HookAddress: process.env.UNISWAP_V4_HOOK_ADDRESS || '',
+    evmRpcUrl: process.env.EVM_RPC_URL || process.env.ETHEREUM_RPC_URL || '',
+    slippageBps: int(process.env.SLIPPAGE_TOLERANCE, 50),
+    enabled: bool(process.env.CROSS_CHAIN_MVP_ENABLED, true),
+  },
 };
 
 export default config;
