@@ -1,0 +1,17 @@
+{
+  "name": "yieldswarm-entropy-circuits",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ZK circuits for hardware telemetry entropy proofs",
+  "scripts": {
+    "compile": "bash scripts/compile.sh",
+    "setup": "bash scripts/trusted-setup.sh",
+    "build": "npm run compile && npm run setup",
+    "export-vkey": "npx snarkjs zkey export verificationkey build/entropy_proof_final.zkey build/verification_key.json"
+  },
+  "devDependencies": {
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "snarkjs": "^0.7.5"
+  }
+}

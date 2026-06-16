@@ -1,4 +1,12 @@
-*.bak
+# Foundry
+cache/
+out/
+foundry.lock
+
+circuits/build/
+circuits/node_modules/
+circuits/package-lock.json
+
 bin/
 .odysseus/
 /build
