@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
+import sys
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
@@ -453,6 +455,48 @@ class SovereignController:
         )
 
     def run_cycle(self) -> Dict:
+        """Execute one sovereign cycle via the unified production runtime."""
+        use_runtime = os.getenv("SOVEREIGN_USE_RUNTIME", "1").lower() in ("1", "true", "yes")
+        if use_runtime:
+            repo_root = Path(__file__).resolve().parents[1]
+            if str(repo_root) not in sys.path:
+                sys.path.insert(0, str(repo_root))
+            from services.sovereign_runtime import SovereignRuntime
+
+            runtime = SovereignRuntime(
+                state_path=self.state_path,
+                dashboard_path=self.dashboard_path,
+            )
+            report = runtime.run_cycle()
+            return {
+                "timestamp_utc": _iso_utc(_utc_now()),
+                "cycle": report.get("cycle", 0),
+                "tick": report.get("tick", 0),
+                "lease_actions": report.get("heal", {}).get("actions", []),
+                "lease_metrics": {
+                    "healed_or_renewed": len(report.get("heal", {}).get("actions", [])),
+                    "total_leases": len(runtime.core.state.workers),
+                    "health_ratio": report.get("healthy_worker_ratio", 0.0),
+                    "avg_sla": report.get("healthy_worker_ratio", 0.0),
+                },
+                "treasury_actions": report.get("treasury_policy_actions", []),
+                "treasury_metrics": {
+                    "rebalances": len(report.get("treasury_policy_actions", [])),
+                    "weighted_apy": report.get("blended_apy", 0.0),
+                    "capital_deployed_usd": report.get("net_worth_usd", 0.0),
+                },
+                "delta_grid": {
+                    "sovereign_index": report.get("progress", 0.0),
+                    "autopilot_ready": report.get("healthy_worker_ratio", 0.0) >= 0.75,
+                    "axes": [],
+                },
+                "vault_snapshot": {
+                    "nav_usd": report.get("net_worth_usd", 0.0),
+                    "realized_apy": report.get("blended_apy", 0.0),
+                },
+                "runtime": report,
+            }
+
         state = self._load_state()
         cycle = int(state.get("cycle", 99)) + 1
 
