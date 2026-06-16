@@ -26,6 +26,8 @@ A := deploy/akash
         terraform-init terraform-plan terraform-apply terraform-destroy \
         frontend \
         monitoring-up monitoring-down sovereign-up sovereign-down \
+        multicloud-preflight multicloud-cost-report multicloud-launch multicloud-teardown \
+        scale-akash-workers \
         status logs clean
 
 ## help: show this menu
@@ -119,6 +121,27 @@ sovereign-up:
 ## sovereign-down: stop sovereign loops
 sovereign-down:
 	bash $(S)/start-sovereign-loops.sh stop
+
+# ---- multi-cloud 30-day utilization --------------------------------------
+## multicloud-preflight: GO/NO-GO across Vault, Akash, and optional cloud APIs
+multicloud-preflight:
+	bash scripts/multicloud-preflight.sh
+
+## multicloud-cost-report: daily utilization + spend snapshot → .run/
+multicloud-cost-report:
+	bash scripts/multicloud-cost-report.sh
+
+## multicloud-launch: burst worker (PROVIDER=akash|vast|runpod|azure|gcp WORKLOAD=...)
+multicloud-launch:
+	bash scripts/multicloud/launch-worker.sh
+
+## multicloud-teardown: tear down burst resources (PROVIDER=...)
+multicloud-teardown:
+	bash scripts/multicloud/teardown-worker.sh
+
+## scale-akash-workers: run lease-manager reconcile (add workers / failover)
+scale-akash-workers:
+	@python3 akash/lease-manager.py --once
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers

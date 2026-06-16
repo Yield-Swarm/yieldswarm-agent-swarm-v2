@@ -1,0 +1,69 @@
+{
+  "mcpServers": {
+    "yieldswarm": {
+      "command": "python3",
+      "args": ["mcp_servers/yieldswarm_server.py"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "VAULT_ADDR": "${env:VAULT_ADDR}",
+        "YIELDSWARM_DRY_RUN": "true"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "cwd": "${workspaceFolder}"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "time": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-time"]
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${env:DATABASE_URL}"],
+      "disabled": true,
+      "comment": "Enable when DATABASE_URL (Neon) is set — God Prompt G"
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${env:BRAVE_API_KEY}"
+      },
+      "disabled": true,
+      "comment": "Enable with BRAVE_API_KEY for provider doc search"
+    }
+  },
+  "_meta": {
+    "description": "YieldSwarm top MCP servers for parallel Cursor agents",
+    "setup": "docs/CURSOR_CLOUD_SETUP.md",
+    "linear": "Authenticate Linear via Cursor IDE MCP panel (not in this file)",
+    "vault_paths": {
+      "runpod": "kv/yieldswarm/cloud/runpod",
+      "vast": "kv/yieldswarm/cloud/vast",
+      "azure": "kv/yieldswarm/cloud/azure",
+      "gcp": "kv/yieldswarm/cloud/gcp",
+      "akash": "kv/yieldswarm/cloud/akash",
+      "tesla": "kv/yieldswarm/integrations/tesla"
+    }
+  }
+}
