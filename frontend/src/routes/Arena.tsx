@@ -154,6 +154,34 @@ function ArenaInner() {
           </div>
         </div>
         <div className="card">
+          <div className="card__label">Helix Chain</div>
+          <div
+            className="card__value"
+            style={{ color: overview?.helix?.activated ? "#3ddc97" : "#ff5470" }}
+          >
+            {overview?.helix?.phase ?? "—"}
+          </div>
+          <div className="ysw-muted">
+            {overview?.helix?.readinessScore ? `ready ${overview.helix.readinessScore}` : "genesis"}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card__label">ZK Mayhem</div>
+          <div
+            className="card__value"
+            style={{
+              color: overview?.zkMayhem?.enabled && overview?.zkMayhem?.circuitBuilt ? "#c77dff" : "#ff5470",
+            }}
+          >
+            {overview?.zkMayhem?.circuitBuilt ? "armed" : "dev"}
+          </div>
+          <div className="ysw-muted">
+            {overview?.zkMayhem?.lastCycle?.quality != null
+              ? `q=${overview.zkMayhem.lastCycle.quality.toFixed(2)}`
+              : `min q ${overview?.zkMayhem?.minEntropyQuality ?? 0.5}`}
+          </div>
+        </div>
+        <div className="card">
           <div className="card__label">Session</div>
           {authToken ? (
             <div className="card__value" style={{ color: "#3ddc97" }}>

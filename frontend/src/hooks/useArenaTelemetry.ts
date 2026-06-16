@@ -29,6 +29,23 @@ export type ArenaOverview = {
     live?: boolean;
     rows?: Array<{ rank: number; agentId: string; rewardsApn: number }>;
   };
+  helix?: {
+    activated?: boolean;
+    phase?: string;
+    readinessScore?: string;
+    genesisHash?: string | null;
+  };
+  zkMayhem?: {
+    enabled?: boolean;
+    circuitBuilt?: boolean;
+    minEntropyQuality?: number;
+    lastCycle?: {
+      at?: string | null;
+      commitment?: string | null;
+      quality?: number | null;
+      skipped?: boolean;
+    } | null;
+  };
 };
 
 const OVERVIEW_URL =
