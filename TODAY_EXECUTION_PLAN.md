@@ -74,6 +74,7 @@ Keep a dedicated Cursor agent running `docs/SWARM_CONDUCTOR.md`. It coordinates 
 
 | Doc | Purpose |
 |-----|---------|
+| `docs/ROYAL_DECREE_30DAY_SPRINT.md` | Royal Decree 7-day + 30-day sprint |
 | `docs/AKASH_DEPLOY.md` | Full deploy guide |
 | `docs/AKASH_DEPLOY_WAVE_COORDINATION.md` | Akash wave A–E rules |
 | `docs/SWARM_CONDUCTOR.md` | Meta-agent prompt |
