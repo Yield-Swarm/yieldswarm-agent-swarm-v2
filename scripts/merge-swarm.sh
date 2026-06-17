@@ -50,8 +50,19 @@ echo ""
 
 echo ""
 echo "==> Pending merges (manual — open PRs to development first)"
-echo "  1. origin/cursor/odysseus-brain-e512      → development → main"
-echo "  2. origin/cursor/mega-round-integration-e512 → development → main"
+if git merge-base --is-ancestor origin/cursor/odysseus-brain-e512 main 2>/dev/null; then
+  echo "  ✓ origin/cursor/odysseus-brain-e512 — already in main"
+else
+  echo "  1. origin/cursor/odysseus-brain-e512      → development → main"
+fi
+if git merge-base --is-ancestor origin/cursor/mega-round-integration-e512 main 2>/dev/null; then
+  echo "  ✓ origin/cursor/mega-round-integration-e512 — already in main"
+else
+  echo "  2. origin/cursor/mega-round-integration-e512 → development → main"
+fi
+echo ""
+echo "Hardened merge runner:"
+echo "  ./artifacts/scripts/mega-round-integration-merge.sh"
 echo ""
 echo "==> Optional review branch"
 echo "  origin/cursor/helix-chain-activation-597f → development only (144 files, vault overlap)"
