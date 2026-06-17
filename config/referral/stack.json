@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "unlockThresholdPct": 40,
+  "categories": [
+    {
+      "id": "banks",
+      "label": "Crypto-friendly banks",
+      "links": [
+        { "id": "varo", "name": "Varo", "url": "https://varo.com", "affiliate": false },
+        { "id": "chime", "name": "Chime", "url": "https://chime.com", "affiliate": false },
+        { "id": "revolut", "name": "Revolut", "url": "https://revolut.com", "affiliate": false }
+      ]
+    },
+    {
+      "id": "exchanges",
+      "label": "Exchanges",
+      "links": [
+        { "id": "coinbase", "name": "Coinbase", "url": "https://coinbase.com", "affiliate": true },
+        { "id": "kraken", "name": "Kraken", "url": "https://kraken.com", "affiliate": true },
+        { "id": "blockchain", "name": "Blockchain.com", "url": "https://blockchain.com", "affiliate": true },
+        { "id": "bitcoincom", "name": "Bitcoin.com", "url": "https://bitcoin.com", "affiliate": true },
+        { "id": "telegram-wallet", "name": "Telegram Wallet", "url": "https://wallet.tg", "affiliate": false }
+      ]
+    },
+    {
+      "id": "cloud",
+      "label": "Cloud + growth",
+      "links": [
+        { "id": "azure", "name": "Microsoft Azure", "url": "https://azure.microsoft.com", "affiliate": true },
+        { "id": "aws", "name": "AWS", "url": "https://aws.amazon.com", "affiliate": true },
+        { "id": "alibaba", "name": "Alibaba Cloud", "url": "https://www.alibabacloud.com", "affiliate": true },
+        { "id": "gcp", "name": "Google Cloud", "url": "https://cloud.google.com", "affiliate": true },
+        { "id": "google-ads", "name": "Google Ads", "url": "https://ads.google.com", "affiliate": true },
+        { "id": "google-analytics", "name": "Google Analytics", "url": "https://analytics.google.com", "affiliate": false }
+      ]
+    },
+    {
+      "id": "ai-agents",
+      "label": "Agent & AI customer stack",
+      "links": [
+        { "id": "cursor", "name": "Cursor", "url": "https://cursor.com", "affiliate": true },
+        { "id": "grok", "name": "SuperGrok", "url": "https://x.ai", "affiliate": false },
+        { "id": "gemini", "name": "Gemini", "url": "https://gemini.google.com", "affiliate": false },
+        { "id": "claude", "name": "Claude", "url": "https://claude.ai", "affiliate": true },
+        { "id": "chatgpt", "name": "ChatGPT", "url": "https://chat.openai.com", "affiliate": false },
+        { "id": "kimi", "name": "Kimi", "url": "https://kimi.moonshot.cn", "affiliate": false },
+        { "id": "groq", "name": "Groq", "url": "https://groq.com", "affiliate": true },
+        { "id": "akash", "name": "Akash Network", "url": "https://akash.network", "affiliate": false },
+        { "id": "runpod", "name": "Runpod", "url": "https://runpod.io", "affiliate": true },
+        { "id": "vast", "name": "Vast.ai", "url": "https://vast.ai", "affiliate": true },
+        { "id": "vulture", "name": "Vulture", "url": "https://vulture.com", "affiliate": false },
+        { "id": "huggingface", "name": "Hugging Face", "url": "https://huggingface.co", "affiliate": false }
+      ]
+    },
+    {
+      "id": "apis",
+      "label": "APIs",
+      "links": [
+        { "id": "ankr", "name": "Ankr", "url": "https://ankr.com", "affiliate": true },
+        { "id": "alchemy", "name": "Alchemy", "url": "https://alchemy.com", "affiliate": true },
+        { "id": "quicknode", "name": "QuickNode", "url": "https://quicknode.com", "affiliate": true }
+      ]
+    },
+    {
+      "id": "comms",
+      "label": "Email & comms",
+      "links": [
+        { "id": "resend", "name": "Resend", "url": "https://resend.com", "affiliate": true },
+        { "id": "superhuman", "name": "Superhuman", "url": "https://superhuman.com", "affiliate": false },
+        { "id": "comet", "name": "Comet", "url": "https://comet.com", "affiliate": false },
+        { "id": "perplexity", "name": "Perplexity", "url": "https://perplexity.ai", "affiliate": true },
+        { "id": "atomic-mail", "name": "Atomic Mail", "url": "https://atomicmail.io", "affiliate": false },
+        { "id": "yahoo-mail", "name": "Yahoo Mail", "url": "https://mail.yahoo.com", "affiliate": false }
+      ]
+    }
+  ]
+}

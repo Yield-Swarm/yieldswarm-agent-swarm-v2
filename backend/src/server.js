@@ -18,6 +18,7 @@ import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
 import helixRouter from './routes/helix.js';
 import solenoidRouter from './routes/solenoid.js';
+import referralRouter from './routes/referral.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -43,6 +44,7 @@ app.use('/api/helix', helixRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
+app.use('/api/referral', referralRouter);
 app.use('/', toolsRouter);
 
 // ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------
@@ -98,6 +100,15 @@ app.get('/marketplace', (_req, res) =>
   res.sendFile(path.join(repoRoot, 'redesign', 'marketplace-exciting.html')),
 );
 
+// New-to-crypto on-ramp landing (referral funnel + wallet connect).
+app.get('/new-to-crypto', (_req, res) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'self' https:; img-src 'self' data: https:;",
+  );
+  res.sendFile(path.join(repoRoot, 'artifacts', 'new-to-crypto-landing.html'));
+});
+
 app.get('/', (_req, res) => res.redirect('/portal/'));
 
 app.use((_req, res) => res.status(404).json({ error: 'not found' }));
@@ -114,7 +125,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +
-      `  Helix:     /api/helix/status  /api/helix/activate`,
+      `  Helix:     /api/helix/status  /api/helix/activate\n` +
+      `  On-ramp:   /new-to-crypto  /api/referral/stack`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

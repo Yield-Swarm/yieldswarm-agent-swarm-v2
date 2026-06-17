@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'self' https:; img-src 'self' data: https:; font-src 'self' https:;" />
+  <title>New to Crypto? · YieldSwarm On-Ramp</title>
+  <meta name="description" content="Claim $1,850 cloud credit, your Tester Mutant Agent, and unlock prorated TAO staking rewards. Built for Denver builders and AgentSwarm newcomers." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ys: { bg: '#060611', panel: '#101324', accent: '#22c55e', gold: '#eab308', muted: '#9aa9c4' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background: radial-gradient(circle at top right, rgba(34,197,94,.15), transparent 40%), #060611; }
+    .glow { box-shadow: 0 0 40px rgba(34,197,94,.2); }
+    .modal-backdrop { background: rgba(0,0,0,.75); backdrop-filter: blur(8px); }
+    .progress-bar { transition: width .4s ease; }
+  </style>
+</head>
+<body class="text-white min-h-screen antialiased">
+
+<header class="border-b border-white/10 bg-black/30 sticky top-0 z-40 backdrop-blur">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="font-bold text-lg"><span class="text-ys-accent">Yield</span>Swarm</div>
+    <button id="btn-connect-top" class="px-4 py-2 rounded-lg bg-ys-accent text-black font-semibold text-sm hover:opacity-90">Connect Wallet</button>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-12 space-y-16">
+
+  <!-- Hero -->
+  <section class="text-center space-y-6">
+    <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ys-gold/20 text-ys-gold text-sm border border-ys-gold/30">
+      Live proof: 0.217 TAO Kraken withdrawal → Bittensor node
+    </p>
+    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">
+      New to Crypto?<br />
+      <span class="text-ys-accent">Start with $1,850 cloud credit</span>
+    </h1>
+    <p class="text-ys-muted text-lg max-w-2xl mx-auto">
+      Run GPU miners, Akash clusters, and AgentSwarm nodes — plus get your own <strong>Tester Mutant Agent</strong> and a path to prorated TAO/SOL staking rewards.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <button id="btn-claim" class="px-8 py-4 rounded-xl bg-ys-accent text-black font-bold text-lg glow">Connect Wallet to Claim</button>
+      <button id="btn-progress" class="px-8 py-4 rounded-xl border border-white/20 hover:border-ys-accent/50 font-semibold">View 40% Progress</button>
+    </div>
+  </section>
+
+  <!-- Value props -->
+  <section class="grid md:grid-cols-3 gap-6">
+    <div class="bg-ys-panel border border-white/10 rounded-2xl p-6">
+      <div class="text-ys-accent text-3xl font-bold">$1,850</div>
+      <div class="text-sm text-ys-muted mt-1">Cloud credit stack</div>
+      <p class="text-sm mt-3 text-white/80">Azure, AWS, GCP, Akash, Runpod, Vast.ai — fund your first mining cluster.</p>
+    </div>
+    <div class="bg-ys-panel border border-white/10 rounded-2xl p-6">
+      <div class="text-ys-gold text-3xl font-bold">Mutant</div>
+      <div class="text-sm text-ys-muted mt-1">Tester Agent included</div>
+      <p class="text-sm mt-3 text-white/80">Lightweight referral + yield tracker you fully own. Upgrade to production agents on AgentSwarm OS.</p>
+    </div>
+    <div class="bg-ys-panel border border-white/10 rounded-2xl p-6">
+      <div class="text-white text-3xl font-bold">40%</div>
+      <div class="text-sm text-ys-muted mt-1">Stack unlock threshold</div>
+      <p class="text-sm mt-3 text-white/80">Complete 40% of referral links → unlock prorated pooled TAO staking eligibility on our Bittensor node.</p>
+    </div>
+  </section>
+
+  <!-- Referral stack -->
+  <section>
+    <h2 class="text-2xl font-bold mb-2">Your referral stack</h2>
+    <p class="text-ys-muted text-sm mb-6">Click links to track progress. Each completion generates a cryptographic state anchor.</p>
+    <div id="stack-grid" class="space-y-8"></div>
+  </section>
+
+  <!-- Bittensor -->
+  <section class="bg-ys-panel border border-ys-gold/30 rounded-2xl p-8">
+    <h2 class="text-2xl font-bold text-ys-gold">Bittensor Node Rewards</h2>
+    <p class="text-ys-muted mt-2 max-w-3xl">
+      Rewards split: <span id="split-user">60%</span> to your stake · <span id="split-treasury">40%</span> to node ops/treasury.
+      Staking returns are <em>variable</em> — never guaranteed APY.
+    </p>
+    <div class="mt-6 h-3 bg-black/40 rounded-full overflow-hidden">
+      <div id="hero-progress" class="progress-bar h-full bg-gradient-to-r from-ys-accent to-ys-gold" style="width:0%"></div>
+    </div>
+    <p class="text-sm text-ys-muted mt-2"><span id="hero-progress-label">0</span>% toward staking unlock</p>
+  </section>
+
+  <!-- Disclaimers -->
+  <footer class="text-xs text-ys-muted border-t border-white/10 pt-8 space-y-2">
+    <p>Affiliate disclosure: Some links are referral or affiliate partnerships. We may earn commission at no extra cost to you.</p>
+    <p>Not financial advice. Crypto staking rewards vary with network conditions. Cloud credits subject to partner terms.</p>
+    <p>YieldSwarm · Denver builder stack · <a href="/portal/" class="text-ys-accent underline">Portal</a></p>
+  </footer>
+</main>
+
+<!-- Wallet Modal -->
+<div id="wallet-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4" role="dialog" aria-modal="true">
+  <div class="bg-ys-panel border border-white/15 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold">Connect Wallet</h3>
+      <button class="modal-close text-2xl text-ys-muted hover:text-white" aria-label="Close">&times;</button>
+    </div>
+    <p class="text-sm text-ys-muted mb-4">EVM (MetaMask) or Solana (Phantom). No keys leave your wallet.</p>
+    <div class="space-y-3">
+      <button id="connect-evm" class="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 hover:border-ys-accent/50 text-left font-medium">🦊 MetaMask / EVM</button>
+      <button id="connect-sol" class="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 hover:border-ys-accent/50 text-left font-medium">👻 Phantom / Solana</button>
+    </div>
+    <p id="wallet-status" class="text-sm mt-4 text-ys-muted"></p>
+    <p id="wallet-error" class="text-sm mt-2 text-red-400 hidden"></p>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div id="progress-modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4" role="dialog" aria-modal="true">
+  <div class="bg-ys-panel border border-white/15 rounded-2xl w-full max-w-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold">Referral Progress</h3>
+      <button class="modal-close text-2xl text-ys-muted hover:text-white">&times;</button>
+    </div>
+    <div class="text-4xl font-bold text-ys-accent" id="modal-pct">0%</div>
+    <p class="text-ys-muted text-sm mt-1"><span id="modal-count">0</span> / <span id="modal-total">0</span> links · need <span id="modal-required">0</span> for unlock</p>
+    <div class="mt-4 h-4 bg-black/40 rounded-full overflow-hidden">
+      <div id="modal-bar" class="progress-bar h-full bg-ys-accent" style="width:0%"></div>
+    </div>
+    <p id="modal-unlock" class="mt-4 text-sm text-ys-gold hidden">Staking eligibility unlocked</p>
+    <p id="modal-agent" class="mt-2 text-sm text-ys-muted"></p>
+    <p id="modal-anchor" class="mt-2 text-xs font-mono text-white/40 break-all"></p>
+  </div>
+</div>
+
+<script>
+const API = window.REFERRAL_API || '/api/referral';
+let wallet = null;
+let chain = 'evm';
+let stackData = null;
+
+function $(id) { return document.getElementById(id); }
+
+function openModal(id) { $(id).classList.remove('hidden'); }
+function closeModals() {
+  ['wallet-modal', 'progress-modal'].forEach(id => $(id).classList.add('hidden'));
+}
+
+document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', closeModals));
+['wallet-modal', 'progress-modal'].forEach(id => {
+  $(id).addEventListener('click', e => { if (e.target.id === id) closeModals(); });
+});
+
+async function api(path, opts) {
+  const r = await fetch(API + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.statusText);
+  return r.json();
+}
+
+async function loadStack() {
+  stackData = await api('/stack');
+  $('split-user').textContent = stackData.rewardSplit.userStakePct.toFixed(0) + '%';
+  $('split-treasury').textContent = stackData.rewardSplit.nodeOpsTreasuryPct.toFixed(0) + '%';
+  $('modal-total').textContent = stackData.totalLinks;
+  $('modal-required').textContent = stackData.requiredLinks;
+
+  const grid = $('stack-grid');
+  grid.innerHTML = stackData.categories.map(cat => `
+    <div>
+      <h3 class="text-lg font-semibold text-ys-accent mb-3">${cat.label}</h3>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${cat.links.map(link => `
+          <button data-link="${link.id}" class="referral-link text-left p-3 rounded-xl bg-white/5 border border-white/10 hover:border-ys-accent/40 text-sm">
+            <span class="font-medium">${link.name}</span>
+            ${link.affiliate ? '<span class="ml-2 text-xs text-ys-gold">affiliate</span>' : ''}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.referral-link').forEach(btn => {
+    btn.addEventListener('click', () => handleLinkClick(btn.dataset.link));
+  });
+}
+
+function updateProgressUI(p) {
+  const pct = p.progressPct || 0;
+  $('hero-progress').style.width = pct + '%';
+  $('hero-progress-label').textContent = pct;
+  $('modal-pct').textContent = pct + '%';
+  $('modal-count').textContent = p.completedCount;
+  $('modal-bar').style.width = pct + '%';
+  $('modal-unlock').classList.toggle('hidden', !p.stakingUnlocked);
+  $('modal-agent').textContent = p.mutantAgentId ? `Agent: ${p.mutantAgentId}` : '';
+  $('modal-anchor').textContent = p.stateChainHash ? `stateChain: ${p.stateChainHash.slice(0, 32)}…` : '';
+}
+
+async function refreshProgress() {
+  if (!wallet) return;
+  const p = await api(`/progress/${encodeURIComponent(wallet)}?chain=${chain}`);
+  updateProgressUI(p);
+}
+
+async function handleLinkClick(linkId) {
+  if (!wallet) {
+    openModal('wallet-modal');
+    $('wallet-status').textContent = 'Connect wallet first to track progress.';
+    return;
+  }
+  try {
+    const utm = new URLSearchParams({ utm_source: 'yieldswarm', utm_medium: 'landing', utm_campaign: 'new-to-crypto' }).toString();
+    const result = await api('/track', { method: 'POST', body: JSON.stringify({ wallet, linkId, chain, utm }) });
+    updateProgressUI(result.progress);
+    const url = result.link.url + (result.link.url.includes('?') ? '&' : '?') + utm;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function connectEVM() {
+  if (!window.ethereum) throw new Error('MetaMask not detected');
+  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+  wallet = accounts[0];
+  chain = 'evm';
+  localStorage.setItem('ys_wallet', wallet);
+  localStorage.setItem('ys_chain', chain);
+}
+
+async function connectSOL() {
+  const provider = window.solana;
+  if (!provider?.isPhantom) throw new Error('Phantom not detected');
+  const resp = await provider.connect();
+  wallet = resp.publicKey.toString();
+  chain = 'solana';
+  localStorage.setItem('ys_wallet', wallet);
+  localStorage.setItem('ys_chain', chain);
+}
+
+async function claimBundle() {
+  const result = await api('/claim', { method: 'POST', body: JSON.stringify({ wallet, chain }) });
+  updateProgressUI(result.progress);
+  $('wallet-status').textContent = `Claimed! Agent ${result.mutantAgentId} · $${result.cloudCreditUsd} credit`;
+  return result;
+}
+
+async function handleConnect(connectFn) {
+  $('wallet-error').classList.add('hidden');
+  $('wallet-status').textContent = 'Connecting…';
+  try {
+    await connectFn();
+    await claimBundle();
+    await refreshProgress();
+    closeModals();
+    $('btn-connect-top').textContent = wallet.slice(0, 6) + '…' + wallet.slice(-4);
+  } catch (e) {
+    $('wallet-error').textContent = e.message;
+    $('wallet-error').classList.remove('hidden');
+    $('wallet-status').textContent = '';
+  }
+}
+
+$('btn-claim').addEventListener('click', () => openModal('wallet-modal'));
+$('btn-connect-top').addEventListener('click', () => openModal('wallet-modal'));
+$('btn-progress').addEventListener('click', async () => {
+  if (wallet) await refreshProgress();
+  openModal('progress-modal');
+});
+$('connect-evm').addEventListener('click', () => handleConnect(connectEVM));
+$('connect-sol').addEventListener('click', () => handleConnect(connectSOL));
+
+(async () => {
+  wallet = localStorage.getItem('ys_wallet');
+  chain = localStorage.getItem('ys_chain') || 'evm';
+  await loadStack();
+  if (wallet) {
+    $('btn-connect-top').textContent = wallet.slice(0, 6) + '…' + wallet.slice(-4);
+    await refreshProgress();
+  }
+})();
+</script>
+</body>
+</html>

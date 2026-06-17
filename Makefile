@@ -345,3 +345,12 @@ tesla-register:
 clean:
 	rm -rf .run deploy/terraform/auto.tfvars.json deploy/terraform/active-backend.json deploy/terraform/fallback-url.txt
 	@echo "cleaned runtime state"
+
+## new-to-crypto: open on-ramp landing (backend must be running)
+new-to-crypto:
+	@echo "Open http://127.0.0.1:8080/new-to-crypto"
+	@command -v xdg-open >/dev/null && xdg-open http://127.0.0.1:8080/new-to-crypto || true
+
+## referral-api-test: smoke referral stack + state anchors
+referral-api-test:
+	cd backend && npm test -- src/adapters/referral.test.js
