@@ -324,6 +324,18 @@ deploy-custom-domains:
 deploy-custom-domains-dry:
 	bash artifacts/scripts/deploy-custom-domains.sh --dry-run
 
+## deploy-bert-domain-vault: live bert.$$DOMAIN_ROOT via Vault Cloudflare creds
+deploy-bert-domain-vault:
+	bash artifacts/scripts/deploy-bert-domain-from-vault.sh
+
+## bert-workload-swarm: route RAG/memory tasks to live /predict
+bert-workload-swarm:
+	bash artifacts/scripts/deploy-bert-workload-swarm.sh
+
+## bert-workload-mayhem: full batch swarm load on /predict
+bert-workload-mayhem:
+	BERT_SWARM_MAYHEM=1 bash artifacts/scripts/deploy-bert-workload-swarm.sh
+
 ## tfc-setup: TFC bootstrap from PR #3 — modular optional addon
 tfc-setup:
 	@cp -n deploy/terraform-tfc/terraform.tfvars.example deploy/terraform-tfc/terraform.tfvars 2>/dev/null || true

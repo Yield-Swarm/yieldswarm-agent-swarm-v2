@@ -3,39 +3,21 @@
  * Used by Akash BERT worker integration and Mayhem Mode harnesses.
  */
 
-import { HardenedAuditEngine } from "./entropy-core.js";
-import { logPillarTelemetry } from "./pillar-telemetry-log.js";
+import { createRequire } from 'node:module';
+import { logPillarTelemetry } from './pillar-telemetry-log.js';
+
+const require = createRequire(import.meta.url);
+const { HardenedAuditEngine } = require('./entropy-core.js');
 
 /** P40 envelope + Mayhem sim ceiling */
 export const DEFAULT_ENVELOPE = {
   maxVramGb: 28,
   maxTempC: 81,
-  gpuModel: "nvidia-p40",
+  gpuModel: 'nvidia-p40',
 };
 
-/**
- * @typedef {object} PulseResult
- * @property {string} pillarId
- * @property {string} status
- * @property {object} envelope
- * @property {object} sample
- * @property {object} auditBlock
- * @property {object} proofSeed
- * @property {object} chainVerify
- */
-
-/**
- * @param {object} opts
- * @param {string} opts.pillarId
- * @param {number} opts.vramUsedGb
- * @param {number} opts.tempC
- * @param {number} [opts.utilizationPct]
- * @param {string} [opts.gpuId]
- * @param {object} [opts.envelope]
- * @returns {PulseResult}
- */
 export function pulseGpuTelemetry(opts) {
-  const pillarId = opts.pillarId || "04_akash_gpu_workers";
+  const pillarId = opts.pillarId || '04_akash_gpu_workers';
   const envelope = { ...DEFAULT_ENVELOPE, ...(opts.envelope || {}) };
 
   const sample = {
@@ -46,17 +28,23 @@ export function pulseGpuTelemetry(opts) {
     timestamp: Date.now(),
   };
 
-  let status = "green";
-  if (sample.vramUsedGb > envelope.maxVramGb) status = "vram_pressure";
-  if (sample.tempC > envelope.maxTempC) status = "thermal_pressure";
+  let status = 'green';
+  if (sample.vramUsedGb > envelope.maxVramGb) status = 'vram_pressure';
+  if (sample.tempC > envelope.maxTempC) status = 'thermal_pressure';
   if (sample.vramUsedGb > envelope.maxVramGb && sample.tempC > envelope.maxTempC) {
-    status = "mayhem_breach";
+    status = 'mayhem_breach';
   }
 
   const engine = new HardenedAuditEngine();
-  const auditBlock = engine.ingest(sample);
-  const proofSeed = engine.exportProofSeed();
-  const chainVerify = engine.verifyChain();
+  const auditBlock = engine.registerExecutionBlock(
+    { tenantHash: pillarId, payload: { pillarId, status } },
+    {
+      gpu_temperature: sample.tempC,
+      vram_used_bytes: Math.round(sample.vramUsedGb * 1_000_000_000),
+      tokens_per_sec: sample.utilizationPct ?? 0,
+      timestamp: sample.timestamp,
+    },
+  );
 
   const result = {
     pillarId,
@@ -64,16 +52,14 @@ export function pulseGpuTelemetry(opts) {
     envelope,
     sample,
     auditBlock: {
-      index: auditBlock.index,
       blockVerificationHash: auditBlock.blockVerificationHash,
-      sealedAt: auditBlock.sealedAt,
+      entropyWindowDepth: auditBlock.entropyWindowDepth,
+      integrityConfirmed: auditBlock.integrityConfirmed,
     },
-    proofSeed,
-    chainVerify,
-    entropyQuality: engine.entropyQuality(),
+    chainVerify: { valid: auditBlock.integrityConfirmed, errors: [] },
   };
 
-  logPillarTelemetry(pillarId, "gpu_telemetry_pulse", result);
+  logPillarTelemetry(pillarId, 'gpu_telemetry_pulse', result);
   return result;
 }
 

@@ -18,6 +18,7 @@ import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
 import helixRouter from './routes/helix.js';
 import solenoidRouter from './routes/solenoid.js';
+import bertRouter from './routes/bert.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -43,6 +44,7 @@ app.use('/api/helix', helixRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
+app.use('/api/bert', bertRouter);
 app.use('/', toolsRouter);
 
 // ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------
@@ -52,6 +54,9 @@ app.get('/vault', (_req, res) =>
 );
 app.get('/vault-dashboard', (_req, res) =>
   res.sendFile(path.join(repoRoot, 'dashboard', 'sovereign-dashboard.html')),
+);
+app.get('/gpu-credits', (_req, res) =>
+  res.sendFile(path.join(repoRoot, 'dashboard', 'gpu-credit-yield.html')),
 );
 
 // ---- Kairo static surfaces -------------------------------------------------

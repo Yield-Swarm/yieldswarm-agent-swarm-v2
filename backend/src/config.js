@@ -142,6 +142,14 @@ export const config = {
     subaccountId: process.env.DYDX_SUBACCOUNT_ID || '',
     enabled: bool(process.env.DYDX_ENABLED, true),
   },
+
+  akashBert: {
+    ingressUrl: (process.env.AKASH_BERT_INGRESS_URL || '').replace(/\/$/, ''),
+    dseq: process.env.AKASH_BERT_DSEQ || '1781638160905',
+    hourlyCostUsd: Number(process.env.AKASH_BERT_HOURLY_COST_USD || 0.17),
+    timeoutMs: int(process.env.AKASH_BERT_TIMEOUT_MS, 60_000),
+    enabled: bool(process.env.AKASH_BERT_ENABLED, true),
+  },
 };
 
 export default config;

@@ -18,6 +18,14 @@ source "${ROOT}/scripts/lib/vault-env.sh" 2>/dev/null || true
 [[ -f deploy/config.env ]] && set -a && source deploy/config.env && set +a
 [[ -f .env ]] && set -a && source .env && set +a
 
+log()  { echo "[$(date -u +%FT%TZ)] [deploy-custom-domains] $*" >&2; }
+warn() { log "WARN: $*"; }
+
+if [[ -n "${VAULT_ADDR:-}" ]]; then
+  vault_export_env kv/data/yieldswarm/integrations/cloudflare 2>/dev/null || true
+  vault_export_env kv/data/yieldswarm/domains/runtime 2>/dev/null || true
+fi
+
 DOMAIN_ROOT="${DOMAIN_ROOT:-${ROOT_DOMAIN:-yieldswarm.crypto}}"
 AKASH_BERT_INGRESS_URL="${AKASH_BERT_INGRESS_URL:-https://9pktq0lijpeij3bm3gfj02q7fo.ingress.h4i-dedicated.eu-sw-2.digitalfrontier.so}"
 DRY_RUN=0
@@ -27,9 +35,6 @@ RUN_DIR="${RUN_DIR:-${ROOT}/.run}"
 DOMAIN_MATRIX=(
   "bert.${DOMAIN_ROOT}:04_akash_gpu_workers:bert-flask-inference"
 )
-
-log()  { echo "[$(date -u +%FT%TZ)] [deploy-custom-domains] $*" >&2; }
-warn() { log "WARN: $*"; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

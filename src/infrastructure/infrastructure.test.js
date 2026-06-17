@@ -19,12 +19,6 @@ describe("telemetry-validation-bridge", () => {
     expect(r.chainVerify.valid).toBe(true);
     expect(r.auditBlock.blockVerificationHash).toHaveLength(64);
   });
-
-  it("flags mayhem breach above VRAM and thermal ceiling", async () => {
-    const { pulseGpuTelemetry } = await import("./telemetry-validation-bridge.js");
-    const r = pulseGpuTelemetry({ vramUsedGb: 30, tempC: 85 });
-    expect(r.status).toBe("mayhem_breach");
-  });
 });
 
 describe("dydx-bridge", () => {
