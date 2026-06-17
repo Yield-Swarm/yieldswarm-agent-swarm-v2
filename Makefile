@@ -33,6 +33,7 @@ A := deploy/akash
         multicloud-preflight multicloud-cost-report multicloud-launch multicloud-teardown \
         scale-akash-workers \
         cross-chain-preflight cross-chain-run cross-chain-test \
+        run-all-onchain run-all-onchain-dry \
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
         deploy-production-full wire-domains \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
@@ -271,6 +272,14 @@ cross-chain-run:
 ## cross-chain-test: pytest cross-chain + Great Delta routing
 cross-chain-test:
 	python3 -m pytest tests/test_cross_chain.py tests/test_cross_chain_mvp.py -q
+
+## run-all-onchain: full on-chain stack — Helix + cross-chain + ZK + NFT mutations (LIVE)
+run-all-onchain:
+	bash scripts/run-all-onchain.sh --start-backend
+
+## run-all-onchain-dry: simulate all on-chain rails without live txs
+run-all-onchain-dry:
+	bash scripts/run-all-onchain.sh --dry-run --start-backend --skip-loops
 
 ## cloud-scheduler-tick: one async multi-cloud scheduler cycle
 cloud-scheduler-tick:
