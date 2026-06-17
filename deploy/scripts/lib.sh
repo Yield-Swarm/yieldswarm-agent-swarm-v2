@@ -41,6 +41,11 @@ load_config() {
     set -a; # shellcheck disable=SC1090
     source "$appenv"; set +a
   fi
+  local localenv="${REPO_ROOT}/.env.local"
+  if [[ -f "$localenv" ]]; then
+    set -a; # shellcheck disable=SC1090
+    source "$localenv"; set +a
+  fi
 
   # ---- defaults (only set when unset) ----
   : "${GHCR_OWNER:=}"

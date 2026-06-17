@@ -52,6 +52,7 @@ export HELIX_CHAIN_ENABLED=1
 
 step "2/5 Persist genesis receipt"
 node --input-type=module <<'NODE'
+import './backend/src/load-env.js';
 import { activateHelixChain } from './backend/src/adapters/helix.js';
 
 const result = await activateHelixChain({ source: 'activate-helix.sh', force: false });
@@ -120,7 +121,7 @@ step "5/5 Verify Helix Chain status"
 if helix_route_ok; then
   curl -sf "${BACKEND_URL}/api/helix/status" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const j=JSON.parse(d);console.log('activated:',j.activated,'phase:',j.phase,'genesis:',j.genesisHash?.slice(0,16)+'…','readiness:',j.readinessScore)})"
 else
-  node --input-type=module -e "import { getHelixStatus } from './backend/src/adapters/helix.js'; const j=await getHelixStatus(); console.log('activated:',j.activated,'phase:',j.phase,'genesis:',j.genesisHash?.slice(0,16)+'…','readiness:',j.readinessScore)"
+  node --input-type=module -e "import './backend/src/load-env.js'; import { getHelixStatus } from './backend/src/adapters/helix.js'; const j=await getHelixStatus(); console.log('activated:',j.activated,'phase:',j.phase,'genesis:',j.genesisHash?.slice(0,16)+'…','readiness:',j.readinessScore)"
 fi
 
 echo ""

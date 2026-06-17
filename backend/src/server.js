@@ -8,6 +8,7 @@
  *   3. Proxy Kairo + sovereign surfaces and resolve legacy static links.
  */
 
+import './load-env.js';
 import express from 'express';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';

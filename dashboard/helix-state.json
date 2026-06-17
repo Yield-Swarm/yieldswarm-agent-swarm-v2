@@ -1,20 +1,28 @@
 {
-  "activated": false,
-  "phase": "genesis-pending",
-  "genesisHash": null,
-  "activatedAt": null,
-  "activatedBy": null,
+  "activated": true,
+  "phase": "genesis-active",
+  "genesisHash": "e98051bae5a17c561e82db056696ee8d5be55e1490241eef99f72632e16009b7",
+  "activatedAt": "2026-06-17T15:41:33.097Z",
+  "activatedBy": "activate-helix.sh",
   "yslr": {
-    "phase": "pending",
+    "phase": "listening",
     "signalsProcessed": 0,
-    "lastSignalAt": null
+    "lastSignalAt": "2026-06-17T15:41:33.097Z"
   },
   "tracks": {
-    "domains": "pending",
+    "domains": "ready",
     "akash": "pending",
-    "terraform": "pending",
+    "terraform": "ready",
     "vault": "pending",
-    "sovereign": "pending"
+    "sovereign": "ready"
   },
-  "receipts": []
+  "receipts": [
+    {
+      "type": "genesis",
+      "hash": "e98051bae5a17c561e82db056696ee8d5be55e1490241eef99f72632e16009b7",
+      "at": "2026-06-17T15:41:33.097Z",
+      "source": "activate-helix.sh",
+      "emissionRouter": null
+    }
+  ]
 }

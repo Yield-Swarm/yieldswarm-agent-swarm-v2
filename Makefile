@@ -346,6 +346,14 @@ clean:
 	rm -rf .run deploy/terraform/auto.tfvars.json deploy/terraform/active-backend.json deploy/terraform/fallback-url.txt
 	@echo "cleaned runtime state"
 
+## bootstrap-local: load .env.local secrets + activate Helix Chain
+bootstrap-local:
+	bash scripts/bootstrap-local-platform.sh
+
+## bootstrap-local-dry: show Helix activation plan without starting loops
+bootstrap-local-dry:
+	bash scripts/bootstrap-local-platform.sh --dry-run
+
 ## new-to-crypto: open on-ramp landing (backend must be running)
 new-to-crypto:
 	@echo "Open http://127.0.0.1:8080/new-to-crypto"
