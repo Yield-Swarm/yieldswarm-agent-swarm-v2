@@ -13,6 +13,7 @@ Usage: render-template.sh <target|all>
 
 Targets:
   akash       Render Akash SDL from templates/cloud/akash/
+  openclaw    Render OpenClaw mining SDL
   azure       Render Azure env bundle
   aws         Render AWS ECS env bundle
   vast        Render Vast.ai on-demand env bundle
@@ -110,8 +111,15 @@ render_ton_kairo() {
     "$RENDER_DIR/ton-kairo/stack.env"
 }
 
+render_openclaw() {
+  render_one \
+    "$TEMPLATES_ROOT/cloud/akash/openclaw.sdl.tmpl.yml" \
+    "$RENDER_DIR/cloud/akash/openclaw.sdl.yml"
+}
+
 render_all() {
   render_akash
+  render_openclaw
   render_azure
   render_aws
   render_vast
@@ -127,6 +135,7 @@ main() {
   mkdir -p "$RENDER_DIR"
   case "$target" in
     akash) render_akash ;;
+    openclaw) render_openclaw ;;
     azure) render_azure ;;
     aws) render_aws ;;
     vast) render_vast ;;

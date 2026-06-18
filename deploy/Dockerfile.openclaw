@@ -1,0 +1,50 @@
+# deploy/Dockerfile.openclaw
+# OpenClaw dual-mining image: XMRig (CPU/RandomX) + optional GPU miner (Kaspa/Bittensor)
+# Build: docker build -f deploy/Dockerfile.openclaw -t ghcr.io/yield-swarm/openclaw-miner:latest .
+# Env: see deploy/env/layered.env.example (MINING_* block)
+
+FROM ubuntu:22.04
+
+ARG XMRIG_VERSION=6.21.3
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl jq python3 tini \
+    libhwloc15 \
+    && rm -rf /var/lib/apt/lists/*
+
+# XMRig (CPU — Monero RandomX)
+RUN curl -fsSL "https://github.com/xmrig/xmrig/releases/download/v${XMRIG_VERSION}/xmrig-${XMRIG_VERSION}-linux-x64.tar.gz" \
+    | tar -xz -C /opt \
+    && mv /opt/xmrig-${XMRIG_VERSION} /opt/xmrig
+
+# GPU miner placeholder dir (mount lolminer/bminer at runtime or extend image)
+RUN mkdir -p /opt/gpu-miner /app /run/mining
+
+WORKDIR /app
+COPY deploy/openclaw/entrypoint.mining.sh /app/entrypoint.mining.sh
+COPY deploy/entrypoint.monitor.sh /app/deploy/entrypoint.monitor.sh
+COPY scripts/hardware-guard.sh /app/scripts/hardware-guard.sh
+COPY src/infrastructure/entropy-core.js /app/src/infrastructure/entropy-core.js
+COPY src/infrastructure/zk-entropy-core.js /app/src/infrastructure/zk-entropy-core.js
+COPY mining/telemetry-pulse.py /app/mining/telemetry-pulse.py
+COPY mining/helix-ingest.js /app/mining/helix-ingest.js
+
+RUN chmod +x /app/entrypoint.mining.sh /app/deploy/entrypoint.monitor.sh /app/scripts/hardware-guard.sh
+
+ENV MINING_MODE=openclaw \
+    MINING_CPU_COIN=xmr \
+    MINING_GPU_COIN=kaspa \
+    XMRIG_THREADS=0 \
+    TEMP_CEILING_C=83 \
+    VRAM_CEILING_GB=29.5 \
+    TELEMETRY_INTERVAL_SEC=30 \
+    MINING_TELEMETRY_URL=http://127.0.0.1:8080/api/mining/telemetry
+
+EXPOSE 8080 9090
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:8080/health || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["/app/entrypoint.mining.sh"]

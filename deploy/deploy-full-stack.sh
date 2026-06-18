@@ -167,10 +167,25 @@ phase_4_hardening() {
   log "Phase 4 complete"
 }
 
+phase_mining() {
+  step "Mining mode: OpenClaw pure-credit arbitrage"
+  render_templates
+  run "chmod +x deploy/deploy-openclaw-test.sh deploy/full-stack-mining-scale.sh scripts/profitability-tracker-pure-credit.sh deploy/templates/cloud/vast/deploy.sh"
+  if [[ "${MINING_BUILD_IMAGE:-0}" == "1" ]] && command -v docker >/dev/null 2>&1; then
+    run "docker build -f deploy/Dockerfile.openclaw -t ${OPENCLAW_IMAGE:-ghcr.io/yield-swarm/openclaw-miner:latest} ."
+  fi
+  if [[ "${MINING_TEST_DEPLOY:-0}" == "1" ]]; then
+    run "./deploy/deploy-openclaw-test.sh"
+  fi
+  run "./scripts/profitability-tracker-pure-credit.sh"
+  log "Mining phase complete — see docs/MINING_ARBITRAGE.md"
+}
+
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --phase) PHASE="$2"; shift 2 ;;
+      --mining) PHASE="mining"; shift ;;
       --dry-run) DRY_RUN=1; shift ;;
       -h|--help) usage; exit 0 ;;
       *) echo "Unknown arg: $1" >&2; usage; exit 1 ;;
@@ -191,6 +206,7 @@ main() {
     2) phase_2_core ;;
     3) phase_3_applications ;;
     4) phase_4_hardening ;;
+    mining) phase_mining ;;
     all)
       phase_1_foundation
       phase_2_core

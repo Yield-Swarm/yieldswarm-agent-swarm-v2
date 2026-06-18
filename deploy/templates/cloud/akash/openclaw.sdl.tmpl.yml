@@ -1,0 +1,61 @@
+---
+# deploy/templates/cloud/akash/openclaw.sdl.tmpl.yml
+# Render: deploy/templates/lib/render-template.sh cloud/akash/openclaw.sdl.tmpl.yml
+version: "2.0"
+
+services:
+  openclaw-miner:
+    image: ${OPENCLAW_IMAGE}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      - port: 9090
+        as: 9090
+        to:
+          - global: true
+    env:
+      - MINING_ENABLED=${MINING_ENABLED:-1}
+      - MINING_CPU_COIN=${MINING_CPU_COIN:-xmr}
+      - MINING_GPU_COIN=${MINING_GPU_COIN:-kaspa}
+      - XMR_POOL_URL=${XMR_POOL_URL}
+      - XMR_WALLET=${XMR_WALLET}
+      - KASPA_POOL_URL=${KASPA_POOL_URL}
+      - KASPA_WALLET=${KASPA_WALLET}
+      - TEMP_CEILING_C=${TEMP_CEILING_C:-83}
+      - VRAM_CEILING_GB=${VRAM_CEILING_GB:-29.5}
+      - MINING_TELEMETRY_URL=${MINING_TELEMETRY_URL}
+      - CLOUD_PROVIDER=akash
+      - INSTANCE_ID=${INSTANCE_ID:-openclaw-akash}
+      - OPENCLAW_INSTANCE_INDEX=${OPENCLAW_INSTANCE_INDEX:-0}
+      - TOS_ALLOWED_PROVIDERS=${TOS_ALLOWED_PROVIDERS:-vast,runpod,akash,cherry}
+
+profiles:
+  compute:
+    openclaw-miner:
+      resources:
+        cpu:
+          units: "${OPENCLAW_CPU_UNITS:-64}"
+        memory:
+          size: ${OPENCLAW_MEMORY:-512Gi}
+        storage:
+          - size: ${OPENCLAW_STORAGE:-1Ti}
+        gpu:
+          units: ${OPENCLAW_GPU_COUNT:-4}
+          attributes:
+            vendor:
+              nvidia:
+                - model: ${OPENCLAW_GPU_MODEL:-rtx4090}
+  placement:
+    akash:
+      pricing:
+        openclaw-miner:
+          denom: uakt
+          amount: ${OPENCLAW_PRICE_UAKT:-120000}
+
+deployment:
+  openclaw-miner:
+    akash:
+      profile: openclaw-miner
+      count: 1

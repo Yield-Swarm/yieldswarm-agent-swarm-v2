@@ -18,6 +18,7 @@ import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
 import helixRouter from './routes/helix.js';
 import solenoidRouter from './routes/solenoid.js';
+import miningRouter from './routes/mining.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -41,6 +42,7 @@ app.use('/api/kairo', kairoRouter);
 app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
 app.use('/api/solenoid', solenoidRouter);
+app.use('/api/mining', miningRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
 app.use('/', toolsRouter);

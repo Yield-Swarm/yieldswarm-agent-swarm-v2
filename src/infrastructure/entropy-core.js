@@ -238,6 +238,32 @@ class HardenedAuditEngine {
     this.MAX_WINDOW_CAPACITY = 64;
   }
 
+  /**
+   * Ingest OpenClaw mining telemetry (Pillar 5 entropy + Pillar 7 ancestral).
+   * @param {object} miningMetrics — { instanceId, vramUsedGb, tempC, hashrateHps, provider, cpuCoin, gpuCoin }
+   */
+  ingestMiningMetrics(miningMetrics) {
+    const hardwareTelemetry = {
+      vram_used_bytes: Math.round((Number(miningMetrics.vramUsedGb) || 0) * 1024 ** 3),
+      gpu_temperature: Number(miningMetrics.tempC) || 0,
+      tokens_per_sec: Math.round((Number(miningMetrics.hashrateHps) || Number(miningMetrics.gpuUtilPct) || 0) * 10),
+      timestamp: miningMetrics.timestamp || Date.now(),
+    };
+    return this.registerExecutionBlock(
+      {
+        tenantHash: miningMetrics.instanceId || 'openclaw-mining',
+        payload: {
+          source: 'openclaw-mining',
+          cpuCoin: miningMetrics.cpuCoin,
+          gpuCoin: miningMetrics.gpuCoin,
+          provider: miningMetrics.provider,
+          creditBurnMode: miningMetrics.creditBurnMode !== false,
+        },
+      },
+      hardwareTelemetry,
+    );
+  }
+
   registerExecutionBlock(executionEvent, hardwareTelemetry) {
     if (!executionEvent || !hardwareTelemetry) {
       throw new Error('AUDIT_EXCEPTION: Missing core parameters.');
