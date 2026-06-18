@@ -22,6 +22,7 @@ crash.log
 .data/
 .odysseus/
 .run/
+deploy/openclaw-test/state/
 data/
 # debug
 # dependencies

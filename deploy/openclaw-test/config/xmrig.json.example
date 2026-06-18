@@ -1,0 +1,5 @@
+{
+  "autosave": true,
+  "cpu": { "enabled": true, "huge-pages": true, "priority": 5 },
+  "pools": [{ "url": "POOL_URL", "user": "WALLET", "pass": "x", "rig-id": "openclaw-test" }]
+}

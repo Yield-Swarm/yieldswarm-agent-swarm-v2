@@ -345,3 +345,15 @@ tesla-register:
 clean:
 	rm -rf .run deploy/terraform/auto.tfvars.json deploy/terraform/active-backend.json deploy/terraform/fallback-url.txt
 	@echo "cleaned runtime state"
+
+## openclaw-test: dry-run 5-instance OpenClaw test (~$50 budget)
+openclaw-test:
+	DRY_RUN=1 bash deploy/deploy-openclaw-test.sh
+
+## openclaw-test-live: live deploy (requires VAST_API_KEY or Akash CLI)
+openclaw-test-live:
+	DRY_RUN=0 bash deploy/deploy-openclaw-test.sh
+
+## openclaw-monitor: poll test instance state + API telemetry
+openclaw-monitor:
+	bash deploy/openclaw/monitor-instances.sh

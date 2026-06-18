@@ -1,0 +1,28 @@
+# YieldSwarm OpenClaw test worker — telemetry + agent scaler hook (no baked miners).
+# For pool mining, operators must supply their own image and verify provider ToS.
+FROM python:3.12-slim-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    WORKER_ROLE=openclaw-gpu \
+    WORKLOAD_MODE=openclaw
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    jq \
+    bc \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY deploy/openclaw/entrypoint.sh /app/deploy/openclaw/entrypoint.sh
+COPY deploy/entrypoint.monitor.sh /app/deploy/entrypoint.monitor.sh
+COPY agents/openclaw-scaler.py /app/agents/openclaw-scaler.py
+COPY agents/_bootstrap.py /app/agents/_bootstrap.py
+COPY depin/docker/entrypoint.sh /app/depin/entrypoint.sh
+
+RUN chmod +x /app/deploy/openclaw/entrypoint.sh /app/deploy/entrypoint.monitor.sh /app/depin/entrypoint.sh
+
+EXPOSE 8080 9090
+
+ENTRYPOINT ["/app/deploy/openclaw/entrypoint.sh"]
