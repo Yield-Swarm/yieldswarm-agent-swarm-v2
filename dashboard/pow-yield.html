@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PoW / OpenClaw Yield · Pillar 13</title>
+<style>
+  :root { --bg:#04060a; --panel:#0a0f16; --line:#14e08a; --txt:#d7ffe9; --muted:#6f8c7f; --amber:#ffcf4d; }
+  body { margin:0; background:var(--bg); color:var(--txt); font-family:ui-monospace,monospace; padding:24px; }
+  h1 { color:var(--line); font-size:18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin:20px 0; }
+  .card { background:var(--panel); border:1px solid #0f2a20; border-radius:12px; padding:16px; }
+  .stat { font-size:22px; font-weight:700; }
+  .muted { color:var(--muted); font-size:12px; }
+  .neg { color:#ff5470; } .pos { color:var(--line); }
+  table { width:100%; border-collapse:collapse; margin-top:16px; font-size:13px; }
+  th,td { border-bottom:1px solid #0f2a20; padding:8px; text-align:left; }
+</style>
+</head>
+<body>
+<h1>OpenClaw / PoW Yield <span class="muted">pillar 13_treasury_yield</span></h1>
+<p class="muted" id="mode"></p>
+<div class="grid" id="totals"></div>
+<table><thead><tr><th>#</th><th>Provider</th><th>Mode</th><th>Burn/d</th><th>Gross/d</th><th>Net/d</th><th>BE h</th></tr></thead><tbody id="rows"></tbody></table>
+<script>
+const API = window.POW_YIELD_API || '/api/treasury/pow-yield';
+async function load() {
+  const d = await (await fetch(API)).json();
+  document.getElementById('mode').textContent =
+    `${d.workload_mode} · ${d.revenue_model} · ${d.instance_count} instances · ${d.disclaimer || ''}`;
+  const t = d.totals || {};
+  document.getElementById('totals').innerHTML = `
+    <div class="card"><div class="muted">Daily burn</div><div class="stat neg">$${(t.daily_burn_usd??0).toFixed(2)}</div></div>
+    <div class="card"><div class="muted">Est. gross</div><div class="stat">$${(t.estimated_daily_gross_usd??0).toFixed(2)}</div></div>
+    <div class="card"><div class="muted">Est. net</div><div class="stat ${(t.estimated_daily_net_usd??0)>=0?'pos':'neg'}">$${(t.estimated_daily_net_usd??0).toFixed(2)}</div></div>
+    <div class="card"><div class="muted">Monthly net</div><div class="stat">$${(t.estimated_monthly_net_usd??0).toFixed(2)}</div></div>`;
+  document.getElementById('rows').innerHTML = (d.instances||[]).map(r => `
+    <tr>
+      <td>${r.instance_id}</td><td>${r.provider}</td><td>${r.workload_mode}</td>
+      <td class="neg">$${r.daily_burn_usd}</td><td>$${r.est_gross_usd}</td>
+      <td class="${r.est_net_usd>=0?'pos':'neg'}">$${r.est_net_usd}</td>
+      <td>${r.break_even_hours ?? '—'}</td>
+    </tr>`).join('');
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

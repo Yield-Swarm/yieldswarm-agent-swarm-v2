@@ -26,10 +26,10 @@ curl -sf "${API_BASE}/api/helix/status" 2>/dev/null \
   | jq '{activated,phase,readinessScore,tracks}' 2>/dev/null \
   || echo "  (backend not reachable)"
 
-curl -sf "${API_BASE}/api/arena/overview" 2>/dev/null \
-  | jq '{helix:.helix, workers:(.akash.workers|length)}' 2>/dev/null \
-  || true
+curl -sf "${API_BASE}/api/treasury/pow-yield" 2>/dev/null \
+  | jq '{mode:.workload_mode,instances:.instance_count,net:.totals.estimated_daily_net_usd}' 2>/dev/null \
+  || echo "  (pow-yield API not reachable — start backend)"
 
 echo ""
-echo "Thermal guard: deploy/entrypoint.monitor.sh @ ${TEMP_THRESHOLD_CELSIUS:-83}°C"
+echo "Dashboard: ${API_BASE}/pow-yield"
 echo "Re-run: watch -n 60 $0"

@@ -1,0 +1,59 @@
+version: "2.0"
+
+# OpenClaw test fleet — 5 replicas @ ~$50/month budget (pillar 04 + 13)
+# Deploy: make openclaw-test-akash-live
+
+services:
+  openclaw-worker:
+    image: yieldswarm/openclaw:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      - port: 9090
+        as: 9090
+        to:
+          - global: true
+    env:
+      - WORKLOAD_MODE=dual-yield
+      - API_BASE=http://127.0.0.1:8080
+      - NODE_ENV=production
+      - WORKER_ROLE=openclaw-gpu
+      - TEMP_THRESHOLD_CELSIUS=83
+      - HEARTBEAT_INTERVAL_SECONDS=420
+      - LATENCY_GUARDRAIL_MS=80
+      - TREASURY_SPLIT=50,30,15,5
+      - POW_MINING_COINS=bittensor,grass,kaspa
+    command:
+      - /app/deploy/openclaw/entrypoint.sh
+
+profiles:
+  compute:
+    openclaw-gpu:
+      resources:
+        cpu:
+          units: 8
+        memory:
+          size: 32Gi
+        storage:
+          - size: 50Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx3090
+                - model: rtx4090
+                - model: a100
+  placement:
+    openclaw-test:
+      pricing:
+        openclaw-worker:
+          denom: uakt
+          amount: 200000
+  deployment:
+    openclaw-worker:
+      openclaw-test:
+        profile: openclaw-gpu
+        count: 5

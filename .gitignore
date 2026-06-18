@@ -23,6 +23,7 @@ crash.log
 .odysseus/
 .run/
 deploy/openclaw-test/state/
+deploy/akash/openclaw-test-5.live.yml
 data/
 # debug
 # dependencies

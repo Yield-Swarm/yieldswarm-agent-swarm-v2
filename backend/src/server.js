@@ -53,6 +53,9 @@ app.get('/vault', (_req, res) =>
 app.get('/vault-dashboard', (_req, res) =>
   res.sendFile(path.join(repoRoot, 'dashboard', 'sovereign-dashboard.html')),
 );
+app.get('/pow-yield', (_req, res) =>
+  res.sendFile(path.join(repoRoot, 'dashboard', 'pow-yield.html')),
+);
 
 // ---- Kairo static surfaces -------------------------------------------------
 app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
@@ -114,7 +117,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +
-      `  Helix:     /api/helix/status  /api/helix/activate`,
+      `  Helix:     /api/helix/status  /api/helix/activate\n` +
+      `  PoW yield: /pow-yield  /api/treasury/pow-yield`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

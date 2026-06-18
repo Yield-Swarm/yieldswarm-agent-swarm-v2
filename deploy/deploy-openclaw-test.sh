@@ -169,20 +169,9 @@ deploy_vast_instance() {
   ok "vast instance #$idx requested (offer $offer_id)"
 }
 
-deploy_akash_instance() {
-  local idx="$1"
-  local sdl="${OPENCLAW_AKASH_SDL:-infra/akash/openclaw-worker-r3090.sdl.yml}"
-  if [[ "$DRY_RUN" == "1" ]]; then
-    log "[dry-run] akash lease #$idx sdl=$sdl"
-    echo "{\"instance\":$idx,\"provider\":\"akash\",\"sdl\":\"$sdl\",\"status\":\"dry-run\"}" \
-      >> deploy/openclaw-test/state/instances.jsonl
-    return
-  fi
-  if [[ -x deploy/akash/create-lease.sh ]]; then
-    OPENCLAW_INSTANCE_INDEX="$idx" bash deploy/akash/create-lease.sh "$sdl" || warn "akash lease #$idx failed"
-  else
-    warn "deploy/akash/create-lease.sh not found"
-  fi
+deploy_akash_fleet() {
+  step "Deploy Akash fleet ($NUM_INSTANCES replicas, single deployment)"
+  bash "${REPO_ROOT}/deploy/akash/deploy-openclaw-test-akash.sh"
 }
 
 deploy_instances() {
@@ -193,7 +182,9 @@ deploy_instances() {
     log "→ instance #$i"
     case "$CLOUD_PROVIDER" in
       vast) deploy_vast_instance "$i" ;;
-      akash) deploy_akash_instance "$i" ;;
+      akash)
+        if [[ "$i" -eq 1 ]]; then deploy_akash_fleet; fi
+        ;;
       *) log "[scaffold] instance #$i on $CLOUD_PROVIDER" ;;
     esac
     sleep 2

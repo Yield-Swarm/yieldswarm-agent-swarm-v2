@@ -357,3 +357,11 @@ openclaw-test-live:
 ## openclaw-monitor: poll test instance state + API telemetry
 openclaw-monitor:
 	bash deploy/openclaw/monitor-instances.sh
+
+## openclaw-test-akash: dry-run 5-replica Akash SDL fleet
+openclaw-test-akash:
+	DRY_RUN=1 CLOUD_PROVIDER=akash bash deploy/akash/deploy-openclaw-test-akash.sh
+
+## openclaw-test-akash-live: live Akash fleet (requires provider-services CLI)
+openclaw-test-akash-live:
+	DRY_RUN=0 CLOUD_PROVIDER=akash bash deploy/akash/deploy-openclaw-test-akash.sh

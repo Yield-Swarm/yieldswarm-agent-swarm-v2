@@ -28,6 +28,7 @@ import * as rtx5090 from '../adapters/rtx5090Telemetry.js';
 import { routeRequest } from '../infrastructure/odysseus-router.js';
 import * as oracle from '../adapters/oracle.js';
 import * as dydx from '../adapters/dydx.js';
+import { getPowYieldSnapshot } from '../adapters/powYield.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -249,6 +250,11 @@ router.get('/great-delta/health', asyncRoute(async (_req, res) => {
 
 router.get('/great-delta/overview', asyncRoute(async (_req, res) => {
   const data = await cache.get('great-delta:overview', () => greatDelta.getGreatDeltaOverview());
+  res.json(data);
+}));
+
+router.get('/treasury/pow-yield', asyncRoute(async (_req, res) => {
+  const data = await cache.get('treasury:pow-yield', () => Promise.resolve(getPowYieldSnapshot()));
   res.json(data);
 }));
 
