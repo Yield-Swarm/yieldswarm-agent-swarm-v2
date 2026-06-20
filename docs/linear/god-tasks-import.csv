@@ -1,0 +1,56 @@
+ID,Title,Phase,Priority,Status,Reward SOL,Labels
+1,"Multi-display sync: Earth wallpaper → live DePIN dashboard",1,P0,in_progress,0.05,god-task,splatter-tech
+2,"Cable management TEE swarm: air-gap wires + MPC Lit",1,P1,planned,0.03,god-task,splatter-tech
+3,"SILVA screen agent: quarantined LLM Arena leaderboard",1,P1,planned,0.04,god-task,splatter-tech
+4,"Brown couch command throne: voice-to-agent Android Tab bridge",1,P2,planned,0.03,god-task,splatter-tech
+5,"White box node bootstrap: MacBook Mavericks ops relay",1,P1,planned,0.03,god-task,splatter-tech
+6,"Network lockdown v2: admin/guest/agent WiFi zones",1,P0,planned,0.05,god-task,splatter-tech
+7,"Clutter audit swarm: table items → Notion + OpenZeppelin alerts",1,P2,planned,0.02,god-task,splatter-tech
+8,"Vizio standby agent: Wake-on-LAN + remote GPU yield",1,P2,planned,0.03,god-task,splatter-tech
+9,"Floor hazard elimination: safe cable routing script",1,P3,planned,0.01,god-task,splatter-tech
+10,"HQ visual splatter: optimized layout renders for Gamma deck",1,P1,in_progress,0.04,god-task,splatter-tech
+11,"521-agent FSD suite: Tesla → TAO/Helix/Qubic pipeline",2,P0,in_progress,0.1,god-task,splatter-tech
+12,"ElizaOS/LangGraph/CrewAI consensus + Vector DB + IPFS",2,P1,planned,0.08,god-task,splatter-tech
+13,"ZKML Arena: sandboxed leaderboard + DID/SBT reputation",2,P0,in_progress,0.1,god-task,splatter-tech
+14,"TON $75K grant agent: submission + Squads/JitoSOL",2,P1,planned,0.15,god-task,splatter-tech
+15,"Agent Referral Engine v2: 10K users + Meta ads + SOL rewards",2,P1,planned,0.08,god-task,splatter-tech
+16,"Multi-LLM swarm router: SuperGrok + Gemini + Polsia handoff",2,P0,in_progress,0.07,god-task,splatter-tech
+17,"Prompt injection defense: real-time quarantine for 521 agents",2,P0,in_progress,0.06,god-task,splatter-tech
+18,"ValhallA institutional portal: GPU Credit Yield 32.3% APY",2,P1,planned,0.05,god-task,splatter-tech
+19,"Papa Odin vault: 20% net yield treasury 50/30/15/5",2,P0,in_progress,0.08,god-task,splatter-tech
+20,"Runic Language scripting core: APK + desktop Samsung Tab",2,P2,planned,0.04,god-task,splatter-tech
+21,"AgentSwarm OS Telegram bridge: Kimiclaw/Consensus Council",2,P1,planned,0.05,god-task,splatter-tech
+22,"Quarantined LLM battle arena: HyperTicks-style prop simulation",2,P2,planned,0.06,god-task,splatter-tech
+23,"169/169 deity wallet normalizer: ethers v6 + ZEC FROST",2,P1,planned,0.07,god-task,splatter-tech
+24,"Air-gapped agent model: SGX/TDX + human oversight ZK",2,P1,planned,0.08,god-task,splatter-tech
+25,"Swarm self-healing: auto-rotate session keys on failure",2,P0,in_progress,0.06,god-task,splatter-tech
+26,"Helium 60 hotspot: Colorado Springs Utilities permitting API",3,P1,planned,0.08,god-task,splatter-tech
+27,"Grass nodes multi-cloud: Azure/AWS + SmartThings dashboard",3,P1,planned,0.06,god-task,splatter-tech
+28,"18x RTX 4090 rental marketplace: Runpod yield aggregator",3,P0,planned,0.1,god-task,splatter-tech
+29,"Antminer + IoT gateway: BLE/WiFi Android telemetry",3,P1,planned,0.05,god-task,splatter-tech
+30,"S&P Global API vault optimizer: cross-chain DeFi on Helix",3,P2,planned,0.07,god-task,splatter-tech
+31,"Starlink API: backup comms for Colorado ops",3,P2,planned,0.04,god-task,splatter-tech
+32,"CHIPS Zone + OEDIT grant hunter: $200K/yr applications",3,P1,planned,0.2,god-task,splatter-tech
+33,"Plotra DM follow-up: BD + Lead Smart Contract hiring",3,P2,planned,0.03,god-task,splatter-tech
+34,"1-human-1-vote governance: Squads legal entity wrapper",3,P2,planned,0.05,god-task,splatter-tech
+35,"DePIN hardware yield calculator: real-time APY on ValhallA",3,P1,in_progress,0.06,god-task,splatter-tech
+36,"Power gen permitting: Colorado Springs Utilities matcher",3,P2,planned,0.05,god-task,splatter-tech
+37,"UCCS/Mines partnership: AI/ML talent pipeline",3,P3,planned,0.02,god-task,splatter-tech
+38,"Mining investment platform: Antminers + Helium fusion vault",3,P1,in_progress,0.08,god-task,splatter-tech
+39,"Cross-chain execution: ETH Safe/4337 + SOL Kamino/Drift",3,P0,in_progress,0.1,god-task,splatter-tech
+40,"Treasury risk matrix v2: 55 tasks + EOD 5% drawdown rules",3,P0,in_progress,0.1,god-task,splatter-tech
+41,"Prop firm verifier swarm: ownership + payout transparency",4,P1,planned,0.05,god-task,splatter-tech
+42,"Prop firm 5% target: EOD drawdown + SOL payout routing",4,P1,planned,0.06,god-task,splatter-tech
+43,"Bug bounty ethics layer: white-hat logistics API scans",4,P1,planned,0.08,god-task,splatter-tech
+44,"xAI FSD hackathon submission: 521 agents + X Money crypto",4,P0,planned,0.15,god-task,splatter-tech
+45,"Meta ads optimizer: institutional $250/day A/B split",4,P1,planned,0.06,god-task,splatter-tech
+46,"Bittensor SN11 + SN1/SN8: decentralized intel feed",4,P1,in_progress,0.08,god-task,splatter-tech
+47,"HyperTicks 55% off simulator: prop arena in AgentSwarm OS",4,P2,planned,0.05,god-task,splatter-tech
+48,"SOL reward distributor: bug bounty + task micro-payouts",4,P0,in_progress,0.1,god-task,splatter-tech
+49,"Prompt engineering god mode: 55 tasks as cursor prompts",4,P1,in_progress,0.04,god-task,splatter-tech
+50,"Ethical hack bounty board: Linear issues + SOL bounties",4,P1,planned,0.06,god-task,splatter-tech
+51,"v2.1 business plan sync: risk matrix + 18-mo roadmap",5,P1,planned,0.05,god-task,splatter-tech
+52,"Flutter APK + desktop hybrid: MacBook + Motorola 2026",5,P2,planned,0.04,god-task,splatter-tech
+53,"Notion Integration Status hub: real-time webhooks",5,P1,in_progress,0.05,god-task,splatter-tech
+54,"Arena prize pool allocator: 5% budget to top performers",5,P1,planned,0.05,god-task,splatter-tech
+55,"GOD MODE CAPSTONE: SuperGrok + Kimiclaw unbreakable cofounder",5,P0,in_progress,0.25,god-task,splatter-tech

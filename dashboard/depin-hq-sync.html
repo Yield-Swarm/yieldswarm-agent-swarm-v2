@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>HQ DePIN Sync — God Task #1</title>
+  <link rel="stylesheet" href="/assets/helix-jacuzzi.css"/>
+  <style>
+    body { padding: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .live-dot { color: #5dfff0; }
+    iframe.earth { width: 100%; height: 200px; border: 1px solid rgba(46,232,214,0.3); border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="brand" href="/">YieldSwarm HQ</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/council/status">Council</a>
+      <a href="/arena">Arena</a>
+    </div>
+    <span class="status-pill status-live">God Task #1 LIVE</span>
+  </nav>
+
+  <h1>Admin HQ — Multi-Display DePIN Sync</h1>
+  <p>Earth wallpaper lane → live Helium (60 nodes) + Grass (Azure/AWS) yield dashboard.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>🌍 Earth Lane</h3>
+      <iframe class="earth" title="Earth view" loading="lazy"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=-105.1%2C38.7%2C-104.5%2C39.2&layer=mapnik"></iframe>
+      <p style="font-size:0.8rem;color:var(--muted)">Colorado Springs HQ region</p>
+    </div>
+    <div class="card">
+      <h3>📡 Helium Hotspots</h3>
+      <p class="value" id="helium-count">60</p>
+      <p class="label">Nodes (configured)</p>
+      <p id="helium-status" class="live-dot">● polling…</p>
+    </div>
+    <div class="card">
+      <h3>🌿 Grass Nodes</h3>
+      <p class="value" id="grass-count">—</p>
+      <p class="label">Azure / AWS workers</p>
+      <p id="grass-status" class="live-dot">● polling…</p>
+    </div>
+    <div class="card">
+      <h3>⚡ Combined APY</h3>
+      <p class="value" id="combined-apy">32.3%</p>
+      <p class="label">ValhallA target (task 18)</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:2rem">Arena Telemetry</h2>
+  <pre id="arena-json" style="background:#081018;padding:1rem;border-radius:8px;overflow:auto;font-size:0.75rem;max-height:320px"></pre>
+
+  <script>
+    async function refresh() {
+      try {
+        const res = await fetch('/api/arena/overview', { cache: 'no-store' });
+        const data = await res.json();
+        document.getElementById('arena-json').textContent = JSON.stringify(data, null, 2);
+        const akash = data.akash?.workers?.length ?? 0;
+        document.getElementById('grass-count').textContent = String(akash || '—');
+        document.getElementById('grass-status').textContent = data.connectionsHealthy
+          ? `● ${data.connectionsHealthy}/${data.connectionsTotal} connections`
+          : '● degraded';
+        document.getElementById('helium-status').textContent = '● configured via DEPIN_HELIUM_HOTSPOT_KEYS';
+      } catch (e) {
+        document.getElementById('arena-json').textContent = String(e);
+      }
+    }
+    refresh();
+    setInterval(refresh, 30000);
+  </script>
+</body>
+</html>
