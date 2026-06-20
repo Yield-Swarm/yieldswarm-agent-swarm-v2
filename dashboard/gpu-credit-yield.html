@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GPU Credit Yield · Pillar 13</title>
+<style>
+  :root { --bg:#04060a; --panel:#0a0f16; --line:#14e08a; --txt:#d7ffe9; --muted:#6f8c7f; --amber:#ffcf4d; }
+  body { margin:0; background:var(--bg); color:var(--txt); font-family:ui-monospace,monospace; padding:24px; }
+  h1 { color:var(--line); font-size:18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin:20px 0; }
+  .card { background:var(--panel); border:1px solid #0f2a20; border-radius:12px; padding:16px; }
+  .stat { font-size:24px; font-weight:700; }
+  .muted { color:var(--muted); font-size:12px; }
+  table { width:100%; border-collapse:collapse; margin-top:16px; font-size:13px; }
+  th,td { border-bottom:1px solid #0f2a20; padding:8px; text-align:left; }
+  .neg { color:#ff5470; } .pos { color:var(--line); }
+</style>
+</head>
+<body>
+<h1>GPU Credit Yield Dashboard <span class="muted">pillar 13_treasury_yield</span></h1>
+<p class="muted">Akash BERT P40 burn → Great Delta 50/30/15/5 treasury routing</p>
+<div class="grid" id="totals"></div>
+<table><thead><tr><th>Worker</th><th>GPU</th><th>$/hr</th><th>Daily burn</th><th>Est. net/day</th><th>Break-even h</th></tr></thead><tbody id="workers"></tbody></table>
+<script>
+const API = (window.GPU_YIELD_API || '/api/treasury/gpu-credits');
+async function load() {
+  const r = await fetch(API);
+  const d = await r.json();
+  const t = d.totals || {};
+  document.getElementById('totals').innerHTML = `
+    <div class="card"><div class="muted">Workers</div><div class="stat">${t.workers ?? 0}</div></div>
+    <div class="card"><div class="muted">Daily burn</div><div class="stat neg">$${(t.daily_burn_usd??0).toFixed(2)}</div></div>
+    <div class="card"><div class="muted">Est. daily net</div><div class="stat ${(t.estimated_daily_net_usd??0)>=0?'pos':'neg'}">$${(t.estimated_daily_net_usd??0).toFixed(2)}</div></div>
+    <div class="card"><div class="muted">Est. monthly net</div><div class="stat">$${(t.estimated_monthly_net_usd??0).toFixed(2)}</div></div>`;
+  document.getElementById('workers').innerHTML = (d.workers||[]).map(w => `
+    <tr>
+      <td>${w.worker_id}</td><td>${w.gpu_model}</td><td>$${w.hourly_cost_usd}</td>
+      <td class="neg">$${w.daily_burn_usd}</td>
+      <td class="${w.estimated_daily_net_usd>=0?'pos':'neg'}">$${w.estimated_daily_net_usd}</td>
+      <td>${w.break_even_hours ?? '—'}</td>
+    </tr>`).join('');
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

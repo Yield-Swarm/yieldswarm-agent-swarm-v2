@@ -28,6 +28,8 @@ import * as rtx5090 from '../adapters/rtx5090Telemetry.js';
 import { routeRequest } from '../infrastructure/odysseus-router.js';
 import * as oracle from '../adapters/oracle.js';
 import * as dydx from '../adapters/dydx.js';
+import * as gpuCreditYield from '../adapters/gpuCreditYield.js';
+import * as akashBert from '../adapters/akashBert.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -293,6 +295,18 @@ router.get('/cross-chain/overview', asyncRoute(async (_req, res) => {
   res.json(data);
 }));
 
+/** GPU Credit Yield Dashboard — pillar 13_treasury_yield */
+router.get('/treasury/gpu-credits', asyncRoute(async (_req, res) => {
+  const data = await cache.get('treasury:gpu-credits', () => gpuCreditYield.getGpuCreditYieldDashboard());
+  res.json(data);
+}));
+
+/** Akash BERT worker status — pillar 04_akash_gpu_workers */
+router.get('/bert/status', asyncRoute(async (_req, res) => {
+  const data = await cache.get('bert:status', () => akashBert.getBertWorkerStatus());
+  res.json(data);
+}));
+
 router.post('/cross-chain/telemetry', asyncRoute(async (req, res) => {
   const result = await crossChain.ingestTelemetry(req.body || {});
   res.json({ accepted: true, ...result });
@@ -302,7 +316,7 @@ router.post('/cross-chain/telemetry', asyncRoute(async (req, res) => {
  * Single aggregated payload that powers the Arena dashboard in one round-trip.
  */
 router.get('/arena/overview', asyncRoute(async (_req, res) => {
-  const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix, xchain, zkMayhem] = await Promise.all([
+  const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix, xchain, zkMayhem, gpuCredits, bertStatus] = await Promise.all([
     cache.get('akash:workers', () => akash.getWorkers()),
     cache.get('telemetry:emission', () => emission.getEmissions()),
     cache.get('telemetry:treasury', () => treasury.getTreasurySplits()),
@@ -312,6 +326,8 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     cache.get('telemetry:helix', () => getHelixStatus()),
     cache.get('cross-chain:overview', () => crossChain.getCrossChainOverview()),
     cache.get('telemetry:zk-mayhem', () => getZkMayhemStatus()),
+    cache.get('treasury:gpu-credits', () => gpuCreditYield.getGpuCreditYieldDashboard()),
+    cache.get('bert:status', () => akashBert.getBertWorkerStatus()),
   ]);
 
   const connections = {
@@ -324,6 +340,8 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     helixChain: { connected: helix.activated, source: helix.phase },
     crossChain: { connected: xchain.live, source: xchain.source },
     zkMayhem: { connected: zkMayhem.enabled && zkMayhem.circuitBuilt, source: zkMayhem.service },
+    bertWorker: { connected: bertStatus.live, source: bertStatus.service },
+    gpuCreditYield: { connected: gpuCredits.live, source: gpuCredits.pillar },
   };
   const connectedCount = Object.values(connections).filter((c) => c.connected).length;
 
@@ -341,6 +359,8 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     helix,
     crossChain: xchain,
     zkMayhem,
+    gpuCreditYield: gpuCredits,
+    bertWorker: bertStatus,
   });
 }));
 

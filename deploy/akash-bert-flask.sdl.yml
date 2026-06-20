@@ -1,0 +1,53 @@
+---
+# Akash SDL — BERT Flask masked-word inference worker (nvidia-p40).
+# Pillar: 04_akash_gpu_workers | Service: bert-flask-inference
+#
+# Deploy:
+#   export BERT_FLASK_IMAGE=ghcr.io/yieldswarm/bert-flask:latest
+#   provider-services tx deployment create deploy/akash-bert-flask.sdl.yml --from <wallet>
+#
+# Live lease DSEQ 1781638160905 reference — replace image with your built Flask BERT container.
+version: "2.0"
+
+services:
+  bert-flask:
+    image: ${BERT_FLASK_IMAGE:-ghcr.io/yieldswarm/bert-flask:latest}
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+    env:
+      - BERT_MODEL=bert-base-uncased
+      - WORKER_PILLAR=04_akash_gpu_workers
+      - WORKER_SERVICE=bert-flask-inference
+
+profiles:
+  compute:
+    bert-p40:
+      resources:
+        cpu:
+          units: 4
+        memory:
+          size: 16Gi
+        storage:
+          - size: 40Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: p40
+                - model: rtx3090
+  placement:
+    akash-gpu:
+      pricing:
+        bert-flask:
+          denom: uakt
+          amount: 50000
+
+deployment:
+  bert-flask:
+    akash-gpu:
+      profile: bert-p40
+      count: 1
