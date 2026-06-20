@@ -17,7 +17,7 @@
     { "src": "/integrations/(.*)", "dest": "/integrations/$1" },
     { "src": "/sales", "dest": "/sales.html" },
     { "src": "/marketplace", "dest": "/marketplace.html" },
-    { "src": "/council/(.*)", "dest": "/council/$1" },
+    { "src": "/dashboard/(.*)", "dest": "/dashboard/$1" },
     { "src": "/kairo", "dest": "/kairo/frontend/index.html" },
     { "src": "/kairo/(.*)", "dest": "/kairo/frontend/$1" },
     { "src": "/dashboard/(.*)", "dest": "/dashboard/$1" },

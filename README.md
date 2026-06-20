@@ -34,6 +34,16 @@ curl https://yieldswarm-v2.vercel.app/api/revenue/metrics
 
 Copy env: `cp deploy/env/layered.env.example .env` — see `docs/DEPLOYMENT_PRIORITY.md`.
 
+### 55 God Tasks (SPLATTER TECH)
+
+Full registry: `docs/GOD_TASKS_55.md` · Linear import: `docs/linear/god-tasks-import.csv`
+
+```bash
+./scripts/god-task.sh list          # all 55 tasks
+./scripts/god-task.sh 55            # capstone deploy
+./scripts/yieldswarm-deploy.sh --dry-run
+```
+
 ## Core AI Workspace
 Odysseus is integrated as the central self-hosted YieldSwarm workspace and
 agent-orchestration layer. It is the default interface for the 10,080 mutated
