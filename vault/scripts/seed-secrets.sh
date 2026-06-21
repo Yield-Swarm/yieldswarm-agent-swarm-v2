@@ -255,6 +255,22 @@ put_if_set runtime/shadow \
   arena_program_id=ARENA_PROGRAM_ID \
   swarm_ops_program_id=SWARM_OPS_PROGRAM_ID
 
+# ---- IoT Hub (FWA_37KN9S-IoT home network) -----------------------------
+put_if_set iot/network \
+  network_id=IOT_NETWORK_ID \
+  gateway_ip=IOT_GATEWAY_IP \
+  subnet=IOT_SUBNET
+
+put_if_set iot/devices \
+  helium_hotspot_keys=DEPIN_HELIUM_HOTSPOT_KEYS \
+  smartthings_token=SMARTTHINGS_BRIDGE_TOKEN \
+  appletv_ip=IOT_APPLETV_IP \
+  xfinity_gateway_ip=IOT_XFINITY_GATEWAY_IP
+
+put_if_set runtime/iot \
+  iot_hub_url=IOT_HUB_URL \
+  network_id=IOT_NETWORK_ID
+
 # ---- Akash deploy operator config (deploy host, not container) ---------
 put_if_set runtime/akash \
   key_name=AKASH_KEY_NAME \

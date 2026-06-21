@@ -1,0 +1,66 @@
+# Physical devices on FWA_37KN9S-IoT — sync with IoT Hub registry
+version: 1
+network_id: FWA_37KN9S-IoT
+
+devices:
+  - id: xfinity-gateway-001
+    name: Xfinity Router
+    type: xfinity_router
+    ip: 192.168.1.1
+    mac: null
+    zone: admin
+    capabilities: [routing, dhcp, firewall, wifi_ap]
+    check: http_ping
+    metadata:
+      provider: Comcast Xfinity
+      role: gateway
+
+  - id: appletv-living-room
+    name: Apple TV
+    type: apple_tv
+    ip: 192.168.1.161
+    mac: null
+    zone: admin
+    capabilities: [media, airplay, homekit]
+    check: icmp
+    metadata:
+      room: living_room
+      model: Apple TV 4K
+
+  - id: helium-hnt-odu-0012
+    name: Helium Hotspot HNT-ODU-0012
+    type: helium_hotspot
+    ip: null
+    hostname: HNT-ODU-0012
+    mac: null
+    zone: iot
+    capabilities: [depin, lorawan, helium_rewards]
+    check: helium_api
+    metadata:
+      hotspot_id: HNT-ODU-0012
+      maker: ODU
+      depin: helium
+
+  - id: wifi-extender-east
+    name: Xfinity WiFi Extender (East)
+    type: wifi_extender
+    ip: 192.168.1.171
+    mac: null
+    zone: admin
+    capabilities: [mesh, wifi_repeater]
+    check: icmp
+    metadata:
+      placement: east_hall
+      parent: xfinity-gateway-001
+
+  - id: wifi-extender-west
+    name: Xfinity WiFi Extender (West)
+    type: wifi_extender
+    ip: 192.168.1.172
+    mac: null
+    zone: admin
+    capabilities: [mesh, wifi_repeater]
+    check: icmp
+    metadata:
+      placement: west_hall
+      parent: xfinity-gateway-001

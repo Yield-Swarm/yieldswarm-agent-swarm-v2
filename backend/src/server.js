@@ -20,6 +20,7 @@ import helixRouter from './routes/helix.js';
 import solenoidRouter from './routes/solenoid.js';
 import nexusRouter from './routes/nexus.js';
 import shadowRouter from './routes/shadow.js';
+import iotRouter from './routes/iot.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,6 +45,7 @@ app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
 app.use('/api/nexus', nexusRouter);
 app.use('/api/shadow', shadowRouter);
+app.use('/api/iot', iotRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
@@ -120,7 +122,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Great Delta: /api/great-delta/overview\n` +
       `  Helix:     /api/helix/status  /api/helix/activate\n` +
       `  Nexus:     /api/nexus/status  /api/nexus/registry\n` +
-      `  Shadow:    /api/shadow/status  /api/shadow/vault/injection/:provider`,
+      `  Shadow:    /api/shadow/status  /api/shadow/vault/injection/:provider\n` +
+      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

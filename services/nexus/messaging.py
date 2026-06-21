@@ -85,3 +85,19 @@ class MessagingBus:
             topic="arena_score",
             payload={"agent_id": agent_id, "score_bps": score_bps},
         )
+
+    def route_device_status(self, network_id: str, summary: dict[str, Any]) -> SolenoidMessage:
+        return self.publish(
+            source="iot_hub",
+            target="nexus",
+            topic="device_status",
+            payload={"network_id": network_id, "summary": summary},
+        )
+
+    def route_device_heartbeat(self, device_id: str, status: str, metrics: dict[str, Any] | None = None) -> SolenoidMessage:
+        return self.publish(
+            source="iot_hub",
+            target="nexus",
+            topic="device_heartbeat",
+            payload={"device_id": device_id, "status": status, "metrics": metrics or {}},
+        )

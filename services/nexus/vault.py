@@ -36,5 +36,6 @@ class NexusVaultClient:
             "nexus": ["treasury/manifest", "treasury/mining_roots", "runtime/backend"],
             "helix": ["treasury/mining_roots", "iotex/hub", "runtime/wallets"],
             "shadow": ["runtime/backend", "runtime/zk"],
+            "iot_hub": ["iot/devices", "iot/network", "runtime/core"],
         }
         return [f"{self.mount}/data/{p}" for p in mapping.get(solenoid_key, [])]

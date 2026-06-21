@@ -1,0 +1,37 @@
+# IoT Hub — home network manifest
+version: 1
+network_id: FWA_37KN9S-IoT
+network_name: FWA_37KN9S-IoT
+description: Xfinity FWA gateway + LAN device mesh (Colorado HQ)
+
+gateway:
+  provider: xfinity
+  model: XB7-T
+  ip: 192.168.1.1
+  subnet: 192.168.1.0/24
+  dhcp_range: 192.168.1.2-192.168.1.254
+
+zones:
+  admin:
+    ssid_suffix: ""
+    vlan: null
+  guest:
+    ssid_suffix: "-Guest"
+    vlan: null
+  iot:
+    ssid: FWA_37KN9S-IoT
+    vlan: null
+
+coordinator:
+  nexus_solenoid: iot_hub
+  bus_topics:
+    heartbeat: device_heartbeat
+    status: device_status
+    alert: device_alert
+  sync_interval_seconds: 60
+
+monitoring:
+  ping_timeout_ms: 1500
+  ping_count: 2
+  stale_after_seconds: 300
+  dry_run_env: IOT_HUB_DRY_RUN

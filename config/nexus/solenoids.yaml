@@ -39,6 +39,16 @@ solenoids:
       - yieldswarm/data/runtime/backend
       - yieldswarm/data/runtime/zk
 
+  iot_hub:
+    id: 4
+    name: IoT Hub
+    role: home_network_devices
+    endpoint_env: IOT_HUB_URL
+    vault_policy: iot-hub-runtime
+    vault_paths:
+      - yieldswarm/data/iot/devices
+      - yieldswarm/data/iot/network
+
 multicloud:
   providers: [akash, azure, vast, runpod, gcp, aws]
   budgets_config: config/multicloud/budgets.env.example
