@@ -99,6 +99,10 @@ phase_1_foundation() {
   if [[ -f deploy/scripts/validate-config.sh ]]; then
     run "./deploy/scripts/validate-config.sh"
   fi
+  if [[ -f scripts/domains/deploy-ipfs-blockchain.sh ]]; then
+    step "yieldswarm.blockchain IPFS verify + Telegram §6"
+    run "./scripts/domains/deploy-ipfs-blockchain.sh" || log "Domain deploy step skipped or failed — see docs/IPFS_YIELDSWARM_BLOCKCHAIN.md"
+  fi
   log "Phase 1 complete — verify DNS (Cloudflare) and storage (Neon/IPFS/Pinata) manually"
 }
 

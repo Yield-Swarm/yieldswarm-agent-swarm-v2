@@ -56,14 +56,19 @@ setMany(
 ## Repo commands
 
 ```bash
-# Verify gateways
-bash scripts/domains/verify-ipfs-cid.sh
+# Full post-pin orchestrator (verify → HELIX log → Telegram if configured)
+npm run domains:deploy-blockchain
 
-# Telegram §6 (after configuring chat IDs)
+# Verify gateways only
+npm run domains:verify-ipfs
+
+# Telegram §6 (requires TELEGRAM_BOT_TOKEN + TELEGRAM_YIELDSWARM_CHAT_ID)
 export TELEGRAM_BOT_TOKEN=...
 export TELEGRAM_YIELDSWARM_CHAT_ID=...
-bash scripts/domains/broadcast-telegram-deploy.sh
+npm run domains:broadcast-telegram
 ```
+
+`deploy/deploy-full-stack.sh` phase 1 also runs `domains:deploy-blockchain` when the manifest is present.
 
 ## HELIX ledger
 

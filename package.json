@@ -26,6 +26,7 @@
     "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "domains:verify-ipfs": "bash scripts/domains/verify-ipfs-cid.sh",
     "domains:broadcast-telegram": "bash scripts/domains/broadcast-telegram-deploy.sh",
+    "domains:deploy-blockchain": "bash scripts/domains/deploy-ipfs-blockchain.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
