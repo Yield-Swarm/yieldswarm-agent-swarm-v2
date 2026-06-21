@@ -73,6 +73,11 @@ put_if_set rpc/solana \
   birdeye_api_key=BIRDEYE_API_KEY \
   jupiter_api_key=JUPITER_API_KEY
 
+put_if_set integrations/alchemy \
+  api_key=ALCHEMY_API_KEY \
+  app_name=ALCHEMY_APP_NAME \
+  manifest_path=config/alchemy/christophers-first-app.json
+
 put_if_set rpc/ethereum \
   url=ETHEREUM_RPC_URL \
   alchemy_api_key=ALCHEMY_API_KEY \

@@ -21,6 +21,7 @@ import solenoidRouter from './routes/solenoid.js';
 import nexusRouter from './routes/nexus.js';
 import shadowRouter from './routes/shadow.js';
 import iotRouter from './routes/iot.js';
+import rpcRouter from './routes/rpc.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -46,6 +47,7 @@ app.use('/api/helix', helixRouter);
 app.use('/api/nexus', nexusRouter);
 app.use('/api/shadow', shadowRouter);
 app.use('/api/iot', iotRouter);
+app.use('/api/rpc', rpcRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
