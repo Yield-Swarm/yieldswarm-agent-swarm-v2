@@ -39,7 +39,8 @@ contract TokenStakingPool is Ownable, ReentrancyGuard {
 
         IERC721(address(agentNft)).transferFrom(msg.sender, address(this), tokenId);
 
-        uint8 tier = agentNft.getAgentTier(tokenId);
+        // YieldSwarmNFT v1 uses flat weight; tier boosts live on agent-nft/AgentNFT.
+        uint8 tier = 1;
         uint256 weight = baseWeightBps + uint256(tier) * 500;
 
         stakes[tokenId] = StakeInfo({ owner: msg.sender, stakedAt: block.timestamp, weight: weight });

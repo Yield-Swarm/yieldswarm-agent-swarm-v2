@@ -104,3 +104,20 @@ cd onchain && anchor build   # requires Anchor 0.30.1
 ```
 
 Programs registered in `onchain/Cargo.toml` and `onchain/Anchor.toml`.
+
+## Phase 2 EVM (Solidity)
+
+Layer-parallel smart contracts in `contracts/solenoid/` interlock with the Rust runtime:
+
+| Layer | EVM | Rust/Anchor |
+|-------|-----|-------------|
+| Nexus | `contracts/solenoid/Nexus.sol` | `services/nexus/` |
+| Helix | `contracts/solenoid/Helix.sol` | `onchain/programs/helix/` |
+| Shadow | `contracts/solenoid/Shadow.sol` | `onchain/programs/arena/` |
+
+```bash
+forge install foundry-rs/forge-std OpenZeppelin/openzeppelin-contracts
+FOUNDRY_PROFILE=solenoid forge test -vv
+```
+
+See `docs/SOLENOID_PHASE2_EVM.md`.
