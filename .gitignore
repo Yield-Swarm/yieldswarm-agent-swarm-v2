@@ -23,7 +23,9 @@ crash.log
 .odysseus/
 .run/
 data/
-# debug
+# Kairo Flutter clean-architecture data layer (not repo /data/)
+!kairo/mobile/lib/data/
+!kairo/mobile/lib/data/**
 # dependencies
 deploy/config.env
 deploy/rendered/

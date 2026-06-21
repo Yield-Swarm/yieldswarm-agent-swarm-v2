@@ -3,6 +3,15 @@
 Kairo turns every driver into a cryptographically identified YieldSwarm node.
 Signed driving telemetry flows into the Mandelbrot / Tree of Life reward mesh.
 
+## Mobile app (Flutter)
+
+```bash
+cd kairo/mobile
+flutter pub get && flutter run
+```
+
+See `docs/KAIRO_FLUTTER_FOUNDATION.md` for architecture and TestFlight checklist.
+
 ## Features
 
 - **Persistent identity** — secp256k1 keys with EVM (`0x…`) and IoTeX (`io1…`) addresses

@@ -105,4 +105,14 @@ router.post('/telemetry', asyncRoute(async (req, res) => {
   res.status(202).json(result);
 }));
 
+/** Alias for Flutter signed batch ingest (Mandelbrot pipeline). */
+router.post('/telemetry/ingest', asyncRoute(async (req, res) => {
+  const body = req.body || {};
+  const payload = body.signedBatch
+    ? body
+    : { driver_id: body.driver_id, payload: body.payload || body };
+  const result = await kairo.submitTelemetry(payload);
+  res.status(202).json(result);
+}));
+
 export default router;
