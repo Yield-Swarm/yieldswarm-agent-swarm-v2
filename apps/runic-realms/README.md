@@ -54,6 +54,34 @@ cd apps/runic-realms/client && npm run build
 - **Ironwarden** — tank  
 - **Goldseeker** — Midas miner (bonus compute weight)  
 
+## Swarm bridge
+
+| Layer | Integration |
+|-------|-------------|
+| Apollo Nexus | `/api/nexus/status` |
+| Helix | `/api/solenoid/pulse` + treasury |
+| Shadow | `/api/shadow/arena/status` |
+| **Alchemy** | Dynamic RPC across 18+ chains (`/api/chains/alchemy`) |
+| **Plotra** | Deity agent registration + pixel avatar (`plotra.xyz`) |
+
+### Alchemy chains
+
+Set `ALCHEMY_API_KEY` — compute jobs anchor to a deterministic chain via `alchemyRouter.js`.
+
+```bash
+curl http://localhost:8099/api/chains/alchemy
+```
+
+### Plotra deity agents
+
+On first connect, characters register as Plotra agents and paint a class-motif genesis avatar.
+
+```bash
+curl http://localhost:8099/api/agent/plotra/YOUR_TELEGRAM_ID
+```
+
+Set `PLOTRA_SIMULATE=1` for offline dev without calling plotra.xyz.
+
 ## Roadmap (not yet in v0.1)
 
 Guilds · PvP arenas · world bosses · on-chain loot rarity · $RUNE staking/governance

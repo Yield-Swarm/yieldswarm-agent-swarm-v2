@@ -4,6 +4,8 @@ import http from 'node:http';
 import { attachGameWebSocket, getSession } from './ws/handler.js';
 import { RUNE_TOKEN } from './game/compute.js';
 import { CLASSES } from './game/classes.js';
+import { listChains, probeAllChains } from './game/swarmBridge.js';
+import { loadPlotraAgent, getPlotraState } from './agents/plotraAgents.js';
 
 const PORT = Number(process.env.RUNIC_REALMS_PORT || 8099);
 
@@ -20,7 +22,36 @@ app.get('/api/meta', (_req, res) => {
     token: RUNE_TOKEN,
     classes: CLASSES,
     chains: ['runic', 'apollo_nexus', 'helix', 'shadow', 'codex', 'rosetta', 'odysseus'],
+    alchemy: listChains(false),
   });
+});
+
+/** Alchemy multi-chain health probe */
+app.get('/api/chains/alchemy', async (_req, res) => {
+  const chains = await probeAllChains();
+  res.json({
+    provider: 'alchemy',
+    configured: Boolean(process.env.ALCHEMY_API_KEY),
+    live: chains.filter((c) => c.live).length,
+    total: chains.length,
+    chains,
+  });
+});
+
+/** Plotra deity agent identity */
+app.get('/api/agent/plotra/:telegramId', async (req, res) => {
+  const record = await loadPlotraAgent(req.params.telegramId);
+  if (!record) return res.status(404).json({ error: 'not_registered' });
+  res.json(record);
+});
+
+app.get('/api/agent/plotra/:telegramId/state', async (req, res) => {
+  try {
+    const state = await getPlotraState(req.params.telegramId);
+    res.json(state);
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
 });
 
 /** Leaderboard stub — top performers earn RUNE payouts */

@@ -1,10 +1,17 @@
 /**
- * Bridge gameplay compute to YieldSwarm solenoids (Apollo Nexus, Helix, Shadow, Odysseus).
+ * Bridge gameplay compute to YieldSwarm solenoids + Alchemy multi-chain RPC router.
  */
+
+import { routeComputeJob, probeAllChains, listChains } from '../chain/alchemyRouter.js';
+import { registerPlotraDeity, loadPlotraAgent, plotraAvatarUrl } from '../agents/plotraAgents.js';
 
 const INTEGRATION_BASE = process.env.YIELDSWARM_API_BASE || 'http://127.0.0.1:8080';
 
-export async function submitComputeJob(job, playerId) {
+export { listChains, probeAllChains, registerPlotraDeity, loadPlotraAgent, plotraAvatarUrl };
+
+export async function submitComputeJob(job, playerId, context = {}) {
+  const alchemy = await routeComputeJob(job);
+
   const payload = {
     playerId,
     jobId: job.id,
@@ -12,10 +19,20 @@ export async function submitComputeJob(job, playerId) {
     proof: job.proof,
     chains: job.chains,
     midasGoldEquivalent: job.midasGoldEquivalent,
+    alchemy,
     source: 'runic-realms',
   };
 
-  const results = { nexus: null, helix: null, shadow: null, odysseus: null, simulated: true };
+  const results = {
+    nexus: null,
+    helix: null,
+    shadow: null,
+    odysseus: null,
+    codex: null,
+    rosetta: null,
+    alchemy,
+    simulated: alchemy.simulated !== false,
+  };
 
   try {
     const nexus = await fetch(`${INTEGRATION_BASE}/api/nexus/status`).then((r) => r.json());
@@ -32,10 +49,15 @@ export async function submitComputeJob(job, playerId) {
       body: JSON.stringify({
         pillarId: 13,
         name: 'runic_realms_compute',
-        metrics: { compute_jobs: 1, rune_midas: job.midasGoldEquivalent },
+        metrics: {
+          compute_jobs: 1,
+          rune_midas: job.midasGoldEquivalent,
+          alchemy_chain: alchemy.chain,
+          block: alchemy.blockNumber,
+        },
       }),
     });
-    results.helix = { ok: true };
+    results.helix = { ok: true, chain: alchemy.chain };
   } catch {
     results.helix = { ok: false };
   }
@@ -46,6 +68,26 @@ export async function submitComputeJob(job, playerId) {
   } catch {
     results.shadow = { ok: false };
   }
+
+  try {
+    await fetch(`${INTEGRATION_BASE}/api/helix/treasury`).then((r) => r.json());
+    results.codex = { ok: true, layer: 'helix_treasury' };
+  } catch {
+    results.codex = { ok: false };
+  }
+
+  if (context.telegramId) {
+    const plotra = await loadPlotraAgent(context.telegramId);
+    if (plotra) {
+      results.plotra = { ok: true, view_url: plotra.view_url, agent_id: plotra.agent_id };
+    }
+  }
+
+  results.rosetta = {
+    ok: true,
+    sanscript: job.sanscript,
+    anchor: alchemy.jobAnchor,
+  };
 
   return { payload, results };
 }

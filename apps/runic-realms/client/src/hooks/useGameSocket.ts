@@ -20,6 +20,8 @@ export type Character = {
   runeBalance: number;
   inventory: { id: string; name: string; rarity: string }[];
   cooldowns: Record<string, number>;
+  plotraViewUrl?: string;
+  plotraAgentId?: string;
 };
 
 export type Dungeon = {
@@ -45,6 +47,7 @@ export function useGameSocket(telegramId: string, classId: string, name: string)
   const [dungeon, setDungeon] = useState<Dungeon | null>(null);
   const [combatTarget, setCombatTarget] = useState<Monster | null>(null);
   const [lastLoot, setLastLoot] = useState<string | null>(null);
+  const [plotra, setPlotra] = useState<{ view_url: string; agent_id: string } | null>(null);
   const [runePulse, setRunePulse] = useState(0);
   const [log, setLog] = useState<string[]>([]);
 
@@ -66,7 +69,17 @@ export function useGameSocket(telegramId: string, classId: string, name: string)
         case 'welcome':
           setCharacter(msg.character as Character);
           setDungeon(msg.dungeon as Dungeon);
+          if (msg.plotra) setPlotra(msg.plotra as { view_url: string; agent_id: string });
           pushLog('Entered the Runic Realms');
+          break;
+        case 'plotra_ready':
+          setPlotra(msg.plotra as { view_url: string; agent_id: string });
+          setCharacter((c) => c ? {
+            ...c,
+            plotraViewUrl: (msg.plotra as { view_url: string }).view_url,
+            plotraAgentId: (msg.plotra as { agent_id: string }).agent_id,
+          } : c);
+          pushLog('Plotra deity identity manifesting…');
           break;
         case 'dungeon':
           setDungeon(msg.dungeon as Dungeon);
@@ -120,6 +133,7 @@ export function useGameSocket(telegramId: string, classId: string, name: string)
     lastLoot,
     runePulse,
     log,
+    plotra,
     engage: (monsterId: string) => send({ type: 'engage', monsterId }),
     skill: (skillId: string) => send({ type: 'skill', skillId }),
     mine: (nodeId: string) => send({ type: 'mine', nodeId }),

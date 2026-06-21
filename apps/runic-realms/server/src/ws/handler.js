@@ -4,6 +4,7 @@ import { createCharacter, CLASSES } from './game/classes.js';
 import { generateDungeon } from './game/dungeon.js';
 import { harvestCompute } from './game/compute.js';
 import { submitComputeJob } from './game/swarmBridge.js';
+import { registerPlotraDeity, plotraAvatarUrl } from './agents/plotraAgents.js';
 import {
   grantLoot,
   monsterCounterAttack,
@@ -30,11 +31,23 @@ export function attachGameWebSocket(server) {
     if (!session) {
       const character = createCharacter(classId, telegramId, name);
       const dungeon = generateDungeon(telegramId, 1);
-      session = { character, dungeon, combatTarget: null };
+      session = { character, dungeon, combatTarget: null, plotra: null };
       sessions.set(telegramId, session);
+      registerPlotraDeity(character).then((plotra) => {
+        session.plotra = plotra;
+        character.plotraViewUrl = plotraAvatarUrl(plotra);
+        character.plotraAgentId = plotra.agent_id;
+        send(ws, { type: 'plotra_ready', plotra: { view_url: plotra.view_url, agent_id: plotra.agent_id } });
+      }).catch(() => {});
     }
 
-    send(ws, { type: 'welcome', character: session.character, dungeon: publicDungeon(session.dungeon), classes: CLASSES });
+    send(ws, {
+      type: 'welcome',
+      character: session.character,
+      dungeon: publicDungeon(session.dungeon),
+      classes: CLASSES,
+      plotra: session.plotra ? { view_url: session.plotra.view_url, agent_id: session.plotra.agent_id } : null,
+    });
 
     ws.on('message', (raw) => {
       try {
@@ -114,7 +127,9 @@ async function castSkill(ws, session, skillId) {
     return;
   }
 
-  const bridge = await submitComputeJob(result.compute.job, session.character.id);
+  const bridge = await submitComputeJob(result.compute.job, session.character.id, {
+    telegramId: playerId,
+  });
   session.character.runeBalance = Math.round(
     (session.character.runeBalance + result.compute.runeEarned) * 10000,
   ) / 10000;
@@ -167,7 +182,7 @@ async function mineNode(ws, session, nodeId) {
     (session.character.runeBalance + compute.runeEarned) * 10000,
   ) / 10000;
 
-  const bridge = await submitComputeJob(compute.job, session.character.id);
+  const bridge = await submitComputeJob(compute.job, session.character.id, { telegramId: playerId });
   send(ws, {
     type: 'mined',
     node,

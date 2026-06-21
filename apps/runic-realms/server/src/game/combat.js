@@ -70,7 +70,7 @@ export async function grantLoot(player, monster, floor) {
     player.xp = 0;
   }
 
-  const bridge = await submitComputeJob(compute.job, player.id);
+  const bridge = await submitComputeJob(compute.job, player.id, { telegramId: player.telegramId });
   return { item, compute, bridge, runeEarned: compute.runeEarned + monster.runeDrop };
 }
 

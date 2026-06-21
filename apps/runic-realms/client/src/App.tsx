@@ -61,9 +61,22 @@ export function App() {
   return (
     <div className="screen screen--game">
       <header className="top-bar">
-        <div>
-          <strong>{game.character.displayName}</strong>
-          <span>Lv.{game.character.level} {game.character.classId}</span>
+        <div className="top-bar__identity">
+          {game.plotra?.view_url ? (
+            <a
+              href={game.plotra.view_url}
+              target="_blank"
+              rel="noreferrer"
+              className="plotra-avatar"
+              title="Plotra deity canvas"
+            >
+              ◈
+            </a>
+          ) : null}
+          <div>
+            <strong>{game.character.displayName}</strong>
+            <span>Lv.{game.character.level} {game.character.classId}</span>
+          </div>
         </div>
         <span className={`conn ${game.connected ? 'live' : ''}`}>
           {game.connected ? '● LIVE' : '○ …'}
