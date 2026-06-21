@@ -22,6 +22,9 @@ yieldswarm/
 │   ├── square          # Square Web Payments + webhooks
 │   ├── wise            # Wise payouts / inbound
 │   └── web3            # Hot wallet keys for on/off ramps
+├── treasury/
+│   └── mining_roots    # base_etc, zec, prl, tao, base_*, iotex, btc_via_iopay
+├── iotex/              # IoTeX hub: treasury, btc_bridge, nexus_treasury_solana
 ├── akash/
 │   ├── wallet          # Mnemonic, key name, owner address
 │   └── deployment      # AppRole wrap tokens, chain/node metadata
@@ -135,6 +138,36 @@ Env vars: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_WEBHOOK_SIGNATURE
 { "url": "redis://...", "password": "..." }
 ```
 
+### Treasury mining roots — `yieldswarm/treasury/mining_roots`
+
+```json
+{
+  "base_etc": "0x3ec1E8B08c2f543b23fD6B21CD812bB31f2E9F00",
+  "zec": "t1KCti3km9DJLxYot3t7NgzYW2FpTnVCvrY",
+  "prl": "29L3dA5XvXUthBJeanarcTij6e5fdtAD81PxQMfEEQQ9",
+  "tao": "5GwCZMWxtmkjpMzA7p1EFynRFicebo8FNjjqoVugxNMkSQSF",
+  "base_hype": "0x856e90EDd6d167355FcB6c35a8A857FFCA011Aa0",
+  "base_cbeth": "0x455156dFDc95084A8e84e8d734a036A9a2e11Af0",
+  "base_btc": "0x1353f846DB707F6739591d294c80740607F1A87a",
+  "iotex": "0x8f3d03e4c0f36670aa1b6f1e7befa85d50c3a567",
+  "btc_via_iopay": "bc1qssmlvhth0sm4xslnvf5a7nlv038u3txkc3l0u8"
+}
+```
+
+Env vars: `MINING_ROOT_*`, `IOTEX_TREASURY`, `IOTEX_BTC_BRIDGE`
+
+### IoTeX hub — `yieldswarm/iotex`
+
+```json
+{
+  "treasury": "0x8f3d03e4c0f36670aa1b6f1e7befa85d50c3a567",
+  "btc_bridge": "bc1qssmlvhth0sm4xslnvf5a7nlv038u3txkc3l0u8",
+  "nexus_treasury_solana": "kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN"
+}
+```
+
+Policy: `vault/policies/iotex-treasury.hcl`
+
 ---
 
 ## AppRoles and policies
@@ -146,6 +179,7 @@ Env vars: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_WEBHOOK_SIGNATURE
 | `multicloud-operator` | `multicloud-operator` | Ops hosts (Beefcake, CI burst) |
 | `beefcake-runtime` | `beefcake-runtime` | AWS Beefcake 1 worker |
 | `terraform` / `ci` | `terraform` / `ci` | Terraform plan/apply |
+| `helix-runtime` | `iotex-treasury` | Helix yield routing (IoTeX + mining roots) |
 
 Mint wrapped SecretIDs:
 

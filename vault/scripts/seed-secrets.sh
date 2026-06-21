@@ -208,7 +208,28 @@ put_if_set runtime/backend \
   split_core_bps=SPLIT_CORE_BPS \
   split_growth_bps=SPLIT_GROWTH_BPS \
   split_insurance_bps=SPLIT_INSURANCE_BPS \
-  split_ops_bps=SPLIT_OPS_BPS
+  split_ops_bps=SPLIT_OPS_BPS \
+  nexus_treasury_solana=NEXUS_TREASURY_SOLANA \
+  iotex_treasury=IOTEX_TREASURY \
+  iotex_btc_bridge=IOTEX_BTC_BRIDGE
+
+# ---- Treasury mining roots (Helix yield routing) ----
+put_if_set treasury/mining_roots \
+  base_etc=MINING_ROOT_BASE_ETC \
+  zec=MINING_ROOT_ZEC \
+  prl=MINING_ROOT_PRL \
+  tao=MINING_ROOT_TAO \
+  base_hype=MINING_ROOT_BASE_HYPE \
+  base_cbeth=MINING_ROOT_BASE_CBETH \
+  base_btc=MINING_ROOT_BASE_BTC \
+  iotex=IOTEX_TREASURY \
+  btc_via_iopay=IOTEX_BTC_BRIDGE
+
+# ---- IoTeX IOPAY hub (Helix Solenoid 2) ----
+put_if_set iotex \
+  treasury=IOTEX_TREASURY \
+  btc_bridge=IOTEX_BTC_BRIDGE \
+  nexus_treasury_solana=NEXUS_TREASURY_SOLANA
 
 # ---- Bittensor miner (Akash dual-purpose worker) ----
 put_if_set runtime/bittensor \

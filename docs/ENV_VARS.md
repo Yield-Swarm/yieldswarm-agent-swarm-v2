@@ -113,6 +113,17 @@ Full layered file: `deploy/env/layered.env.example`.
 | `YIELDSWARM_HELIX_EMISSION_ROUTER` | Helix emission router address for agent tools |
 | `HELIX_CONTROL_PLANE_URL` | Great Delta / Helix ingest control plane |
 | `YIELDSWARM_EMISSION_ROUTER_URL` | Backend URL for `yieldswarm_emission_router_query` tool |
+| `NEXUS_TREASURY_SOLANA` | Primary Nexus Treasury (Solana) |
+| `MINING_ROOT_BASE_ETC` | ETC mining root address |
+| `MINING_ROOT_ZEC` | Zcash mining root |
+| `MINING_ROOT_PRL` | PRL mining root (Solana) |
+| `MINING_ROOT_TAO` | Bittensor mining root |
+| `MINING_ROOT_BASE_HYPE` | Base HYPE mining root |
+| `MINING_ROOT_BASE_CBETH` | Base cbETH mining root |
+| `MINING_ROOT_BASE_BTC` | Base BTC mining root |
+| `IOTEX_TREASURY` | IoTeX hub primary treasury (Helix Solenoid 2) |
+| `IOTEX_BTC_BRIDGE` | BTC via IOPAY bridge address |
+| `TREASURY_MANIFEST_PATH` | Override path to `TREASURY_MANIFEST.json` |
 | `ZEC_SHIELDED_KEY` | Zcash shielded |
 | `ERC4337_BUNDLER_KEY` | Account abstraction bundler |
 | `INFURA_PROJECT_ID`, `INFURA_API_KEY`, `INFURA_SOL_MAINNET_RPC` | Infura RPC |

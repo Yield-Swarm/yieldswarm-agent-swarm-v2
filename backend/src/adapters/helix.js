@@ -16,6 +16,7 @@ import * as akash from './akash.js';
 import * as emission from './emissionRouter.js';
 import { getVaultTelemetry } from './vaultTelemetry.js';
 import { getSovereignState } from './sovereign.js';
+import { getHelixIotexRoutingStatus } from './iotexYield.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
@@ -134,6 +135,16 @@ export async function getHelixStatus() {
       vaultTargetUsd: sovereign.vault_target_usd ?? 5_000_000,
       workers: sovereign.counts?.workers ?? 0,
     },
+    iotexHub: (() => {
+      const iotex = getHelixIotexRoutingStatus();
+      return {
+        ready: iotex.iotexHub.configured,
+        treasury: iotex.iotexHub.primary,
+        btcBridge: iotex.iotexHub.btcBridge,
+        inflowCount: iotex.recentInflowCount,
+        manifestVersion: iotex.iotexHub.manifestVersion,
+      };
+    })(),
     generatedAt: new Date().toISOString(),
   };
 }

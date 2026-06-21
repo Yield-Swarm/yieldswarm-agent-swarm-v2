@@ -117,6 +117,24 @@ export const config = {
       '',
   },
 
+  // Nexus Treasury + mining roots + IoTeX IOPAY hub (TREASURY_MANIFEST.json overrides).
+  treasury: {
+    nexusSolana: process.env.NEXUS_TREASURY_SOLANA || '',
+    iotexTreasury: process.env.IOTEX_TREASURY || '',
+    iotexBtcBridge: process.env.IOTEX_BTC_BRIDGE || '',
+    miningRoots: {
+      baseEtc: process.env.MINING_ROOT_BASE_ETC || '',
+      zec: process.env.MINING_ROOT_ZEC || '',
+      prl: process.env.MINING_ROOT_PRL || '',
+      tao: process.env.MINING_ROOT_TAO || '',
+      baseHype: process.env.MINING_ROOT_BASE_HYPE || '',
+      baseCbeth: process.env.MINING_ROOT_BASE_CBETH || '',
+      baseBtc: process.env.MINING_ROOT_BASE_BTC || '',
+    },
+    manifestPath:
+      process.env.TREASURY_MANIFEST_PATH || 'config/treasury/TREASURY_MANIFEST.json',
+  },
+
   dex: {
     jupiterApiKey: process.env.JUPITER_API_KEY || '',
     jupiterBaseUrl: (process.env.JUPITER_API_URL || 'https://quote-api.jup.ag/v6').replace(/\/$/, ''),
