@@ -153,6 +153,25 @@ wire_command() {
   curl -sfS "${API_BASE}/api/command/overview" >> "${LOG_DIR}/command.json" 2>>"${DEPLOY_LOG}" || true
 }
 
+start_swarm_core_binary() {
+  local bin="${SWARM_CORE_BIN:-${REPO_ROOT}/bin/swarm-core}"
+  if [[ ! -x "${bin}" ]]; then
+    log "swarm-core binary not found — run ./scripts/build-binary.sh"
+    return 0
+  fi
+  if [[ "${DRY_RUN}" == "1" ]]; then
+    log "[dry-run] would start ${bin}"
+    return 0
+  fi
+  if [[ -f "${LOG_DIR}/swarm-core.pid" ]] && kill -0 "$(cat "${LOG_DIR}/swarm-core.pid")" 2>/dev/null; then
+    log "swarm-core already running (pid $(cat "${LOG_DIR}/swarm-core.pid"))"
+    return 0
+  fi
+  log "Starting swarm-core release binary"
+  nohup "${bin}" >> "${LOG_DIR}/swarm-core.log" 2>&1 &
+  echo $! > "${LOG_DIR}/swarm-core.pid"
+}
+
 print_urls() {
   local ip
   ip="$(hostname -I 2>/dev/null | awk '{print $1}' || echo '127.0.0.1')"
@@ -165,6 +184,7 @@ print_urls() {
   log "React panel:    http://${ip}:5173/sovereign  (cd frontend && npm run dev)"
   log "Audit log:      ${DEPLOY_LOG}"
   log "Bifröst log:    .run/bifrost/deployment.log"
+  log "swarm-core:     ${SWARM_CORE_BIN:-${REPO_ROOT}/bin/swarm-core}"
 }
 
 main() {
@@ -174,6 +194,7 @@ main() {
   validate_sovereign
   cross_bifrost
   start_backend
+  start_swarm_core_binary
   wire_sovereign
   wire_command
   print_urls
