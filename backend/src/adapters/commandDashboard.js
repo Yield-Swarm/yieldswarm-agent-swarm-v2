@@ -13,6 +13,7 @@ import { getVaultTelemetry } from './vaultTelemetry.js';
 import { getDomainsOverview } from './unstoppableDomains.js';
 import * as akash from './akash.js';
 import * as solana from './solana.js';
+import { getSovereignLoopsStatus } from './sovereignLoops.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
@@ -46,6 +47,7 @@ export async function getCommandOverview() {
     akashWorkers,
     solanaPing,
     elevators,
+    sovereignLoops,
   ] = await Promise.all([
     getNexusStatus().catch((e) => ({ error: e.message, ok: false })),
     getHelixStatus().catch((e) => ({ error: e.message, ok: false })),
@@ -56,6 +58,7 @@ export async function getCommandOverview() {
     akash.getWorkers().catch(() => ({ workers: [], live: false })),
     solana.ping().catch(() => ({ live: false })),
     loadElevators(),
+    getSovereignLoopsStatus().catch((e) => ({ error: e.message, state: 'unavailable' })),
   ]);
 
   const agentCount = nexus?.registry?.agentCount ?? 0;
@@ -128,5 +131,13 @@ export async function getCommandOverview() {
       yslr: helix?.yslr,
     },
     nexus_resources: nexus?.resources || null,
+    sovereign_loops: {
+      version: sovereignLoops?.version ?? '1.0.0-Beta',
+      state: sovereignLoops?.state ?? '—',
+      tickCount: sovereignLoops?.tickCount ?? 0,
+      credentialsOk: sovereignLoops?.credentialsOk ?? false,
+      chainBalances: sovereignLoops?.chainBalances ?? {},
+      recent_logs: (sovereignLoops?.logs ?? []).slice(-5),
+    },
   };
 }

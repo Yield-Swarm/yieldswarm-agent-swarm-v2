@@ -258,6 +258,28 @@
     }
     .clock { font-family: var(--mono); color: var(--line); }
 
+    .sovereign-logs {
+      font-family: var(--mono);
+      font-size: 0.7em;
+      line-height: 1.5;
+      max-height: 220px;
+      overflow-y: auto;
+      background: #060c10;
+      border: 1px solid var(--grid);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .sovereign-logs .log-line {
+      display: grid;
+      grid-template-columns: 11em 8em 1fr;
+      gap: 0.75rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #0c1818;
+      min-height: 1.5em;
+    }
+    .sovereign-logs .log-ts { color: var(--muted); }
+    .sovereign-logs .log-phase { color: var(--line); }
+
     /* TV overscan safe zone */
     @media (min-width: 1920px) {
       body { padding: 48px 64px 64px; }
@@ -319,6 +341,22 @@
       <div id="domains-status" class="label">—</div>
     </div>
   </div>
+
+  <section style="margin-bottom:2rem">
+    <h3>Sovereign Loops — v1.0.0-Beta</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h2>Loop State</h2>
+        <div class="stat stat-sm" id="sovereign-state" style="color:var(--line)">—</div>
+        <div class="label" id="sovereign-tick">Tick: —</div>
+        <div class="label" id="sovereign-chains" style="margin-top:0.75rem;font-family:var(--mono);font-size:0.75em">—</div>
+      </div>
+      <div class="card">
+        <h2>Chronological Log</h2>
+        <div class="sovereign-logs" id="sovereign-logs"></div>
+      </div>
+    </div>
+  </section>
 
   <section>
     <h3>14 Spiritual Elevators — TFC¹ Layer</h3>
@@ -445,6 +483,29 @@
       $('refresh-note').textContent = `Updated ${new Date(data.timestamp).toLocaleTimeString()} · next poll ${POLL_MS / 1000}s`;
     }
 
+    async function refreshSovereignLoops() {
+      try {
+        const res = await fetch(API + '/api/sovereign/loops', { cache: 'no-store' });
+        if (!res.ok) return;
+        const loops = await res.json();
+        $('sovereign-state').textContent = loops.state || '—';
+        $('sovereign-tick').textContent = `Tick: ${loops.tickCount ?? 0} · creds: ${loops.credentialsOk ? 'ok' : 'missing'}`;
+        const bal = loops.chainBalances || {};
+        $('sovereign-chains').textContent = Object.entries(bal)
+          .map(([k, v]) => `${k}: $${Math.round(v).toLocaleString()}`)
+          .join(' · ');
+        const logEl = $('sovereign-logs');
+        const lines = (loops.logs || []).slice(-12).reverse();
+        logEl.innerHTML = lines.map((l) => `
+          <div class="log-line">
+            <span class="log-ts">${(l.ts || '').slice(11, 19)}</span>
+            <span class="log-phase">${l.phase || '—'}</span>
+            <span>${l.message || ''}</span>
+          </div>
+        `).join('') || '<div class="log-line"><span>—</span><span>—</span><span>Awaiting first tick</span></div>';
+      } catch { /* non-fatal */ }
+    }
+
     async function refresh() {
       try {
         const res = await fetch(API + '/api/command/overview', { cache: 'no-store' });
@@ -464,7 +525,9 @@
     tickClock();
     setInterval(tickClock, 1000);
     refresh();
+    refreshSovereignLoops();
     setInterval(refresh, POLL_MS);
+    setInterval(refreshSovereignLoops, POLL_MS);
 
     // TV remote: focus navigation
     document.addEventListener('keydown', (e) => {

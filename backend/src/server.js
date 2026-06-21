@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import config from './config.js';
 import { startCronJobs } from './jobs/cron.js';
+import { initSovereignLoopEngine } from './adapters/sovereignLoops.js';
 import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
@@ -127,10 +128,16 @@ const server = app.listen(config.port, config.host, () => {
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +
-      `  Helix:     /api/helix/status  /api/helix/activate`,
+      `  Helix:     /api/helix/status  /api/helix/activate\n` +
+      `  Loops:     /api/sovereign/loops`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();
+  }
+  if (process.env.SOVEREIGN_LOOP_AUTO_START !== '0') {
+    initSovereignLoopEngine().catch((err) => {
+      console.warn('[sovereign-loops] init skipped:', err.message);
+    });
   }
 });
 
