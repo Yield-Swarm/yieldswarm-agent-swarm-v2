@@ -117,3 +117,8 @@ yarn-error.log*
 deploy/akash.env
 bin/
 lib/forge-std/
+
+# Anchor / Solana build artifacts
+target/
+.anchor/
+test-ledger/

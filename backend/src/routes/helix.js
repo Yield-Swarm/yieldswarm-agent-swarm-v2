@@ -4,6 +4,7 @@
 
 import { Router } from 'express';
 import { activateHelixChain, getHelixStatus } from '../adapters/helix.js';
+import { quoteHelixSettlement } from '../adapters/helixBridge.js';
 
 const router = Router();
 
@@ -42,6 +43,20 @@ router.post('/activate', asyncRoute(async (req, res) => {
     source: req.body?.source || 'api',
   });
   res.status(result.alreadyActive ? 200 : 201).json(result);
+}));
+
+/**
+ * POST /api/helix/settlement/quote — dry-run harvest quote (Solenoid 2).
+ * Body: { agentPubkey?, originChainId?, targetChainId?, amount? }
+ */
+router.post('/settlement/quote', asyncRoute(async (req, res) => {
+  const quote = await quoteHelixSettlement({
+    agentPubkey: req.body?.agentPubkey,
+    originChainId: req.body?.originChainId,
+    targetChainId: req.body?.targetChainId,
+    amount: Number(req.body?.amount || 0),
+  });
+  res.json(quote);
 }));
 
 export default router;
