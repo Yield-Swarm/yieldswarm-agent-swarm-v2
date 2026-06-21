@@ -21,6 +21,7 @@
     "sdk:build": "cd packages/cross-chain-sdk && npm run build",
     "dashboard:dev": "cd app/dashboard && npm run dev",
     "dashboard:build": "cd packages/cross-chain-sdk && npm run build && cd ../../app/dashboard && npm run build",
+    "tv:dev": "next dev",
     "circuits:build": "cd circuits && npm run build",
     "deploy:render": "bash deploy/templates/lib/render-template.sh all",
     "deploy:stack": "bash deploy/deploy-full-stack.sh",

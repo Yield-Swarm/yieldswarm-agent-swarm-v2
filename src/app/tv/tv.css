@@ -1,0 +1,320 @@
+/* TV Command Center — 1080p/4K dark dashboard */
+
+.tv-shell {
+  min-height: 100vh;
+  background: #06080f;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(61, 255, 168, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(110, 181, 255, 0.06), transparent);
+  color: #e8edf5;
+}
+
+.tv-body {
+  margin: 0;
+  min-height: 100vh;
+  background: #06080f;
+  color: #e8edf5;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.tv-root {
+  min-height: 100vh;
+  padding: clamp(1rem, 2vw, 2rem) clamp(1.25rem, 3vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.5vw, 1.5rem);
+}
+
+.tv-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
+}
+
+.tv-brand h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #3dffa8, #6eb5ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tv-tagline {
+  margin: 0.25rem 0 0;
+  font-size: clamp(0.75rem, 1.2vw, 1rem);
+  color: #8b9cb8;
+}
+
+.tv-domains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.domain-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: clamp(0.65rem, 1vw, 0.85rem);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #8b9cb8;
+}
+
+.domain-chip.resolved {
+  border-color: rgba(61, 255, 168, 0.35);
+  color: #c8f7e4;
+}
+
+.tv-clock {
+  font-size: clamp(0.85rem, 1.3vw, 1.1rem);
+  font-variant-numeric: tabular-nums;
+  color: #8b9cb8;
+  text-align: right;
+}
+
+.tv-error {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #ff9b9b;
+}
+
+.tv-hero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.hero-card {
+  background: rgba(18, 26, 43, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: clamp(1rem, 2vw, 1.75rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.card-label {
+  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b9cb8;
+}
+
+.hero-value {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.hero-value.accent {
+  color: #3dffa8;
+}
+
+.hero-value.green {
+  color: #3dffa8;
+}
+
+.hero-sub {
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  color: #8b9cb8;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  color: #6b7d9a;
+}
+
+.progress-bar {
+  margin-top: 0.75rem;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1a9e66, #3dffa8);
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.tv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  flex: 1;
+}
+
+.tv-panel {
+  background: rgba(18, 26, 43, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: clamp(1rem, 1.5vw, 1.5rem);
+}
+
+.tv-panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+  font-weight: 600;
+}
+
+.panel-sub {
+  margin: -0.5rem 0 0.75rem;
+  font-size: 0.8rem;
+  color: #8b9cb8;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.live-dot.on {
+  background: #3dffa8;
+  box-shadow: 0 0 8px rgba(61, 255, 168, 0.6);
+}
+
+.live-dot.off {
+  background: #4a5568;
+}
+
+.cloud-list,
+.balance-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cloud-list li,
+.balance-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+}
+
+.cloud-name {
+  font-weight: 500;
+}
+
+.cloud-detail,
+.balance-list li span:first-of-type {
+  color: #8b9cb8;
+}
+
+.balance-list strong {
+  font-variant-numeric: tabular-nums;
+  color: #3dffa8;
+}
+
+.chain-dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chain-dl dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8b9cb8;
+}
+
+.chain-dl dd {
+  margin: 0.2rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+}
+
+.mining-panel {
+  margin-top: auto;
+}
+
+.mining-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.5rem;
+}
+
+.mining-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mining-chain {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6eb5ff;
+}
+
+.mining-addr {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: #8b9cb8;
+}
+
+.tv-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+  color: #6b7d9a;
+}
+
+.live-tag {
+  color: #3dffa8;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 900px) {
+  .tv-hero,
+  .tv-grid {
+    grid-template-columns: 1fr;
+  }
+  .tv-header {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .tv-domains {
+    justify-content: center;
+  }
+  .tv-clock {
+    text-align: center;
+  }
+}
