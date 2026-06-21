@@ -2,3 +2,5 @@ export { CrossChainClient, HELIX_CHAIN_ID, fetchBridgeStateOrThrow } from './cli
 export type { HarvestEvent, YieldReceivedEvent } from './client';
 export { BridgeListener, subscribeBridgeLogs } from './listener';
 export type { BridgeEvent, BridgeListenerOptions } from './listener';
+export * from './iotex';
+export * from '../treasury/manifest';

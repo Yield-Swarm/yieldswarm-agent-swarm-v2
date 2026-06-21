@@ -27,6 +27,20 @@ CREATE TABLE IF NOT EXISTS cross_chain_harvests (
 
 CREATE INDEX idx_cross_chain_origin ON cross_chain_harvests(origin_chain);
 
+CREATE TABLE IF NOT EXISTS iotex_yield_events (
+  id BIGSERIAL PRIMARY KEY,
+  signature TEXT NOT NULL UNIQUE,
+  destination TEXT NOT NULL,
+  amount BIGINT NOT NULL,
+  source_chain_id INTEGER,
+  iotex_treasury TEXT,
+  btc_bridge_hash TEXT,
+  relayer_pubkey TEXT,
+  recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_iotex_yield_destination ON iotex_yield_events(destination);
+
 CREATE TABLE IF NOT EXISTS shard_snapshots (
   id BIGSERIAL PRIMARY KEY,
   shard_id BIGINT NOT NULL,

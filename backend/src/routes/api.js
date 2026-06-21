@@ -24,6 +24,7 @@ import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters
 import { getHelixStatus } from '../adapters/helix.js';
 import { getZkMayhemStatus } from '../adapters/zkMayhem.js';
 import * as crossChain from '../adapters/crossChain.js';
+import { getTreasuryManifest, getIotexHub, listMiningRoots } from '../lib/treasury-manifest.js';
 import * as rtx5090 from '../adapters/rtx5090Telemetry.js';
 import { routeRequest } from '../infrastructure/odysseus-router.js';
 import * as oracle from '../adapters/oracle.js';
@@ -296,6 +297,21 @@ router.get('/cross-chain/overview', asyncRoute(async (_req, res) => {
 router.post('/cross-chain/telemetry', asyncRoute(async (req, res) => {
   const result = await crossChain.ingestTelemetry(req.body || {});
   res.json({ accepted: true, ...result });
+}));
+
+router.get('/treasury/manifest', asyncRoute(async (_req, res) => {
+  const data = await cache.get('treasury:manifest', () => getTreasuryManifest());
+  res.json(data);
+}));
+
+router.get('/treasury/iotex', asyncRoute(async (_req, res) => {
+  const data = await cache.get('treasury:iotex', () => getIotexHub());
+  res.json(data);
+}));
+
+router.get('/treasury/mining-roots', asyncRoute(async (_req, res) => {
+  const data = await cache.get('treasury:mining-roots', () => listMiningRoots());
+  res.json({ roots: data });
 }));
 
 /**

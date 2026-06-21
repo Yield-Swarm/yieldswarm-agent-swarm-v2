@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 
+pub mod chains;
 pub mod errors;
 pub mod events;
 pub mod instructions;
@@ -30,5 +31,28 @@ pub mod cross_chain {
         source_chain_id: u32,
     ) -> Result<()> {
         instructions::receive_cross_chain_yield::handler(ctx, amount, source_chain_id)
+    }
+
+    pub fn configure_treasury_routing(
+        ctx: Context<ConfigureTreasuryRouting>,
+        iotex_treasury: [u8; 20],
+        btc_bridge_hash: [u8; 32],
+        default_destination: u8,
+    ) -> Result<()> {
+        instructions::configure_treasury_routing::handler(
+            ctx,
+            iotex_treasury,
+            btc_bridge_hash,
+            default_destination,
+        )
+    }
+
+    pub fn route_cross_chain_yield(
+        ctx: Context<RouteCrossChainYield>,
+        amount: u64,
+        source_chain_id: u32,
+        destination: u8,
+    ) -> Result<()> {
+        instructions::route_cross_chain_yield::handler(ctx, amount, source_chain_id, destination)
     }
 }

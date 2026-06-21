@@ -4,4 +4,8 @@ use anchor_lang::prelude::*;
 pub enum CrossChainError {
     #[msg("Unauthorized relayer")]
     UnauthorizedRelayer,
+    #[msg("Invalid yield destination")]
+    InvalidDestination,
+    #[msg("Amount must be greater than zero")]
+    ZeroAmount,
 }

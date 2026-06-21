@@ -137,6 +137,38 @@ Env vars: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_WEBHOOK_SIGNATURE
 
 ---
 
+### Treasury manifest — `yieldswarm/treasury/*` + `yieldswarm/iotex/*`
+
+```json
+// treasury/manifest
+{
+  "nexus_treasury_solana": "kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN",
+  "treasury_manifest_path": "config/TREASURY_MANIFEST.json"
+}
+
+// treasury/mining_roots
+{
+  "base_etc": "0x3ec1...",
+  "zec": "t1KC...",
+  "tao": "5GwC...",
+  "iotex": "0x8f3d03e4c0f36670aa1b6f1e7befa85d50c3a567",
+  "btc_via_iopay": "bc1qssmlvhth0sm4xslnvf5a7nlv038u3txkc3l0u8"
+}
+
+// iotex/hub
+{
+  "primary": "0x8f3d03e4c0f36670aa1b6f1e7befa85d50c3a567",
+  "btc_bridge": "bc1qssmlvhth0sm4xslnvf5a7nlv038u3txkc3l0u8"
+}
+
+// iotex/api
+{ "api_key": "..." }
+```
+
+Policy: `vault/policies/treasury-runtime.hcl` · Canonical file: `config/TREASURY_MANIFEST.json`
+
+---
+
 ## AppRoles and policies
 
 | AppRole | Policy | Consumer |
@@ -146,6 +178,7 @@ Env vars: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_WEBHOOK_SIGNATURE
 | `multicloud-operator` | `multicloud-operator` | Ops hosts (Beefcake, CI burst) |
 | `beefcake-runtime` | `beefcake-runtime` | AWS Beefcake 1 worker |
 | `terraform` / `ci` | `terraform` / `ci` | Terraform plan/apply |
+| `treasury-runtime` | `treasury-runtime` | Helix cross-chain + IoTeX relayer |
 
 Mint wrapped SecretIDs:
 

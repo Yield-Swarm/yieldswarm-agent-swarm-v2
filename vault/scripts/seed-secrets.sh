@@ -219,6 +219,29 @@ put_if_set runtime/bittensor \
   network=BT_NETWORK \
   ollama_model=OLLAMA_MODEL
 
+# ---- Treasury manifest + IoTeX hub (public addresses; keys stay empty unless set) ----
+put_if_set treasury/manifest \
+  nexus_treasury_solana=NEXUS_TREASURY_SOLANA \
+  treasury_manifest_path=TREASURY_MANIFEST_PATH
+
+put_if_set treasury/mining_roots \
+  base_etc=MINING_ROOT_BASE_ETC \
+  zec=MINING_ROOT_ZEC \
+  prl=MINING_ROOT_PRL \
+  tao=MINING_ROOT_TAO \
+  base_hype=MINING_ROOT_BASE_HYPE \
+  base_cbeth=MINING_ROOT_BASE_CBETH \
+  base_btc=MINING_ROOT_BASE_BTC \
+  iotex=IOTEX_TREASURY \
+  btc_via_iopay=IOTEX_BTC_BRIDGE
+
+put_if_set iotex/hub \
+  primary=IOTEX_TREASURY \
+  btc_bridge=IOTEX_BTC_BRIDGE
+
+put_if_set iotex/api \
+  api_key=IOTEX_API_KEY
+
 # ---- Akash deploy operator config (deploy host, not container) ---------
 put_if_set runtime/akash \
   key_name=AKASH_KEY_NAME \

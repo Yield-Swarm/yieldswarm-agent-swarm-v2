@@ -52,6 +52,20 @@ strategies:
     vault_secrets:
       - yieldswarm/data/runtime/bittensor
 
+  iotex_iopay:
+    enabled: true
+    priority: 2
+    params:
+      chain_id: 4689
+      destinations:
+        - iotex_treasury
+        - btc_via_iopay
+      manifest: config/TREASURY_MANIFEST.json
+    vault_secrets:
+      - yieldswarm/data/treasury/mining_roots
+      - yieldswarm/data/iotex/hub
+      - yieldswarm/data/iotex/api
+
 great_delta:
   policy: 50/30/15/5
   buckets:

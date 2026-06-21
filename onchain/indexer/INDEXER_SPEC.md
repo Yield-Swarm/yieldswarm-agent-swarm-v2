@@ -8,7 +8,7 @@ The indexer ingests on-chain events from `cross_chain`, `swarm_ops`, `coordinato
 
 | Program | Events / accounts | Table |
 |---------|-------------------|-------|
-| `cross_chain` | `EventLog`, `CrossChainYieldReceived`, `RemoteHarvestTriggered` | `cross_chain_harvests` |
+| `cross_chain` | `EventLog`, `CrossChainYieldReceived`, `RemoteHarvestTriggered`, `IotexYieldRouted` | `cross_chain_harvests`, `iotex_yield_events` |
 | `swarm_ops` | `AgentPermissionRegistry`, strategy proposals | `agent_yield_events` |
 | `coordinator` | `ShardVault`, `VaultCoordinator` | `shard_snapshots` (future) |
 | `yield_vault` | deposit/withdraw/harvest | `agent_yield_events` |
@@ -39,6 +39,7 @@ The indexer ingests on-chain events from `cross_chain`, `swarm_ops`, `coordinato
 `EventLog.kind`:
 - `1` — harvest trigger (`EVENT_KIND_HARVEST_TRIGGER`)
 - `2` — yield received (`EVENT_KIND_YIELD_RECEIVED`)
+- `3` — IoTeX inflow (`EVENT_KIND_IOTEX_INFLOW`)
 
 Map `chain_id` to Helix (`0x484c58`) or Solana (`0`) per `sdk/src/cross-chain/client.ts`.
 

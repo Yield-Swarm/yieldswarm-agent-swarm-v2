@@ -75,6 +75,14 @@ export default function App() {
               <dt>Last harvest</dt>
               <dd>{bridge.lastHarvestTs ? new Date(bridge.lastHarvestTs * 1000).toLocaleString() : '—'}</dd>
             </div>
+            <div>
+              <dt>IoTeX treasury</dt>
+              <dd className="mono">{bridge.iotexTreasury.slice(0, 14)}…</dd>
+            </div>
+            <div>
+              <dt>BTC via IOPAY</dt>
+              <dd className="mono">{bridge.btcBridge.slice(0, 14)}…</dd>
+            </div>
           </dl>
           {publicKey && (
             <button type="button" className="btn primary" onClick={() => void bridge.triggerHarvest()}>

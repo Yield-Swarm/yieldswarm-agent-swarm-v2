@@ -3,12 +3,24 @@ import {
   PublicKey,
   Transaction,
   TransactionInstruction,
-  SystemProgram,
 } from '@solana/web3.js';
 import { PROGRAM_IDS } from '../index';
 import { bridgeStatePda, parseBridgeState } from '../accounts/parsers';
+import {
+  CHAIN_IOTEX,
+  YIELD_DEST_BTC_IOPAY,
+  YIELD_DEST_IOTEX,
+  YIELD_DEST_NEXUS,
+  YieldDestination,
+  treasuryRoutingPda,
+} from './iotex';
+import { getIotexRoutingConfig } from '../treasury/manifest';
 
 export const HELIX_CHAIN_ID = 0x484c58; // "HLX"
+
+export { CHAIN_IOTEX, YIELD_DEST_NEXUS, YIELD_DEST_IOTEX, YIELD_DEST_BTC_IOPAY };
+export type { YieldDestination };
+export { resolveIotexRoutingFromManifest, treasuryRoutingPda } from './iotex';
 
 export interface HarvestEvent {
   authority: PublicKey;
@@ -93,8 +105,71 @@ export class CrossChainClient {
     const tx = new Transaction().add(ix);
     tx.feePayer = authority;
     tx.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
-    // Caller signs and sends — return serialized for wallet adapter
     return tx.serialize({ requireAllSignatures: false }).toString('base64');
+  }
+
+  buildRouteYieldIx(
+    relayer: PublicKey,
+    treasury: PublicKey,
+    amount: bigint,
+    sourceChainId: number,
+    destination: YieldDestination,
+  ): TransactionInstruction {
+    const [bridgeState] = bridgeStatePda();
+    const [routingConfig] = treasuryRoutingPda();
+    const payload = Buffer.alloc(13);
+    payload.writeBigUInt64LE(amount, 0);
+    payload.writeUInt32LE(sourceChainId, 8);
+    payload.writeUInt8(destination, 12);
+    return new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: relayer, isSigner: true, isWritable: false },
+        { pubkey: bridgeState, isSigner: false, isWritable: true },
+        { pubkey: routingConfig, isSigner: false, isWritable: true },
+        { pubkey: treasury, isSigner: false, isWritable: true },
+      ],
+      data: Buffer.concat([
+        Buffer.from([0x7b, 0x2a, 0x9e, 0x4c, 0x1f, 0x8d, 0x6b, 0x3a]),
+        payload,
+      ]),
+    });
+  }
+
+  /** Route yield to IoTeX treasury per TREASURY_MANIFEST.json. */
+  buildRouteToIotexIx(
+    relayer: PublicKey,
+    treasury: PublicKey,
+    amount: bigint,
+    sourceChainId: number = CHAIN_IOTEX,
+  ): TransactionInstruction {
+    return this.buildRouteYieldIx(
+      relayer,
+      treasury,
+      amount,
+      sourceChainId,
+      YIELD_DEST_IOTEX,
+    );
+  }
+
+  /** Route yield to BTC address via IOPAY bridge. */
+  buildRouteToBtcIopayIx(
+    relayer: PublicKey,
+    treasury: PublicKey,
+    amount: bigint,
+    sourceChainId: number = CHAIN_IOTEX,
+  ): TransactionInstruction {
+    return this.buildRouteYieldIx(
+      relayer,
+      treasury,
+      amount,
+      sourceChainId,
+      YIELD_DEST_BTC_IOPAY,
+    );
+  }
+
+  getManifestRouting() {
+    return getIotexRoutingConfig();
   }
 }
 

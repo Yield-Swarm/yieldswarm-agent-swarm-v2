@@ -7,6 +7,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { splitAmount } from '../lib/great-delta-split.js';
+import { getIotexHub, getTreasuryManifest } from '../lib/treasury-manifest.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../../..');
@@ -39,6 +40,8 @@ export async function getCrossChainOverview() {
   const treasuryTotals = lastRun?.treasury_totals_usd || {};
   const totalGross = Object.values(treasuryTotals).reduce((a, b) => a + Number(b || 0), 0);
   const projectedSplit = splitAmount(totalGross);
+  const manifest = getTreasuryManifest();
+  const iotex = getIotexHub();
 
   return {
     live: Boolean(lastRun),
@@ -50,10 +53,19 @@ export async function getCrossChainOverview() {
     treasury_totals_usd: treasuryTotals,
     projected_great_delta_split: projectedSplit,
     receipt_count: history ? Object.keys(history).length : 0,
+    nexus_treasury: manifest.nexus_treasury.solana,
+    iotex_hub: iotex,
+    routing_destinations: [
+      { id: 'nexus_treasury', chain: 'solana', address: manifest.nexus_treasury.solana },
+      { id: 'iotex_treasury', chain: 'iotex', address: iotex.primary },
+      { id: 'btc_via_iopay', chain: 'bitcoin', address: iotex.btc_bridge },
+    ],
     venues: {
       uniswap_v4: { chain: 'ethereum', status: 'scaffold' },
       solana: { venues: ['jupiter', 'orca', 'raydium'], status: 'jupiter_quotes' },
       dydx: { chain: 'dydx', status: 'scaffold' },
+      iotex: { chain: 'iotex', status: 'manifest_routing', treasury: iotex.primary },
+      iopay_btc: { chain: 'bitcoin', status: 'bridge_configured', address: iotex.btc_bridge },
       pow: { coins: ['bittensor', 'grass', 'flux', 'kaspa'], status: 'bittensor_live' },
     },
   };

@@ -4,12 +4,15 @@ import {
   CrossChainClient,
   BridgeListener,
   HELIX_CHAIN_ID,
+  TREASURY_MANIFEST_DEFAULT,
 } from '@yieldswarm/onchain-sdk';
 
 export interface CrossChainBridgeState {
   totalReceived: bigint;
   lastHarvestTs: number;
   loading: boolean;
+  iotexTreasury: string;
+  btcBridge: string;
   triggerHarvest: () => Promise<void>;
 }
 
@@ -51,5 +54,12 @@ export function useCrossChainBridge(): CrossChainBridgeState {
     await refresh();
   }, [client, publicKey, refresh]);
 
-  return { totalReceived, lastHarvestTs, loading, triggerHarvest };
+  return {
+    totalReceived,
+    lastHarvestTs,
+    loading,
+    iotexTreasury: TREASURY_MANIFEST_DEFAULT.iotex_hub.primary,
+    btcBridge: TREASURY_MANIFEST_DEFAULT.iotex_hub.btc_bridge,
+    triggerHarvest,
+  };
 }

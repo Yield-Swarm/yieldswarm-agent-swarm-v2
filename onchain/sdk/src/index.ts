@@ -26,5 +26,7 @@ export type ProgramName = keyof typeof PROGRAM_IDS;
 
 export * from './accounts/parsers';
 export * from './cross-chain';
+export * from './treasury/defaults';
+export * from './treasury/manifest';
 export * from './yield/fetchYieldRoutes';
 
