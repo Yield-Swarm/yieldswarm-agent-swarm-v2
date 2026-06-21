@@ -147,6 +147,11 @@ phase_3_applications() {
   fi
 
   log "Phase 3 complete — deploy NFT contracts separately (forge script)"
+
+  step "Bifröst Rainbow Bridge (IPFS + blockchain gateways)"
+  if [[ -f scripts/deploy-ipfs-blockchain.sh ]]; then
+    run "./scripts/deploy-ipfs-blockchain.sh --dry-run" || true
+  fi
 }
 
 phase_4_hardening() {
