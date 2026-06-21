@@ -19,7 +19,7 @@ Three prebuilt Akash SDL tiers match the current YieldSwarm architecture. Pick b
 
 ## Tier A — Integration Backend (lightweight)
 
-**File:** `deploy/akash-backend.sdl.yml`
+**File:** `deploy/akash-backend.sdl.yml` (minimal upload ref: `deploy/akash-backend.sdl.minimal.yml`)
 
 | Resource | Spec |
 |----------|------|
@@ -27,8 +27,10 @@ Three prebuilt Akash SDL tiers match the current YieldSwarm architecture. Pick b
 | Memory | 8 GiB |
 | Storage | 20 GiB persistent |
 | Pricing | 1500 uakt (provider bid) |
-| Image | `ghcr.io/<owner>/yieldswarm-backend:<tag>` |
-| Port | 8080 global (`/api/health`, `/api/arena/overview`, `/dashboard/`) |
+| Image | `ghcr.io/yieldswarm/yieldswarm-backend:latest` |
+| Port | 8080 global (`/api/health`, `/api/helix/*`, `/api/arena/overview`) |
+
+**Vault paths injected at boot:** `runtime/backend`, `runtime/akash`, `rpc/solana`, `runtime/odysseus`, `treasury/mining_roots`, `iotex`
 
 **Key env (inject at deploy or via Vault):**
 

@@ -1,10 +1,13 @@
 ---
-# Akash SDL — YieldSwarm integration backend (lightweight, no GPU)
-# Serves Arena + sovereign API on :8080. Secrets from HashiCorp Vault at boot.
+# Akash SDL v2.0 — YieldSwarm integration backend (Helix + IoTeX treasury routing)
+# Serves Arena API, Helix /api/helix/*, sovereign telemetry on :8080.
+# Secrets from HashiCorp Vault at boot (treasury/mining_roots + iotex hub).
 #
 # Deploy:
 #   ./scripts/akash-vault-prepare.sh integration-backend
 #   ./scripts/deploy-backend-akash.sh
+#
+# Minimal reference (upload v2.0): deploy/akash-backend.sdl.minimal.yml
 version: "2.0"
 
 services:
@@ -12,13 +15,14 @@ services:
     image: ${DEPLOY_IMAGE:-${BACKEND_IMAGE:-ghcr.io/yieldswarm/yieldswarm-backend:latest}}
     expose:
       - port: 8080
-        as: 80
+        as: 8080
         to:
           - global: true
     env:
       - PORT=8080
       - HOST=0.0.0.0
       - NODE_ENV=production
+      - HELIX_CHAIN_ENABLED=${HELIX_CHAIN_ENABLED:-1}
       - AKASH_OWNER_ADDRESS=${AKASH_OWNER_ADDRESS}
       - AKASH_CONSOLE_API=${AKASH_CONSOLE_API:-https://console-api.akash.network/v1}
       - ODYSSEUS_BRAIN_URL=${ODYSSEUS_BRAIN_URL:-}
@@ -29,7 +33,7 @@ services:
       - VAULT_SECRET_ID=${VAULT_SECRET_ID}
       - VAULT_WRAPPED_SECRET_ID=${VAULT_WRAPPED_SECRET_ID}
       - VAULT_KV_MOUNT=yieldswarm
-      - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus
+      - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus,treasury/mining_roots,iotex
       - VAULT_SKIP_VERIFY=${VAULT_SKIP_VERIFY:-false}
       - VAULT_AGENT_CONFIG=/etc/vault-agent/vault-agent.hcl
       - AGENT_ENV_FILE=/run/secrets/agent.env
@@ -43,7 +47,7 @@ services:
       failure_threshold: 6
     liveness_probe:
       http_get:
-        path: /api/health
+        path: /api/helix/health
         port: 8080
       initial_delay_seconds: 30
       period_seconds: 20
@@ -64,7 +68,7 @@ profiles:
         memory:
           size: 8Gi
         storage:
-          - size: 4Gi
+          - size: 20Gi
           - name: secrets
             size: 16Mi
             attributes:
@@ -78,7 +82,7 @@ profiles:
       pricing:
         backend:
           denom: uakt
-          amount: 1500
+          amount: 1500   # ~$1.50–2.50/day depending on provider
 
 deployment:
   backend:
