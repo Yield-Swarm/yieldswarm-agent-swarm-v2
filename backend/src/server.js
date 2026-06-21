@@ -112,6 +112,10 @@ app.get('/marketplace', (_req, res) =>
   res.sendFile(path.join(repoRoot, 'redesign', 'marketplace-exciting.html')),
 );
 
+// ---- Runic Realms Telegram Mini App (build client first) -----------------
+const runicDist = path.join(repoRoot, 'apps', 'runic-realms', 'client', 'dist');
+app.use('/runic', express.static(runicDist, { index: 'index.html' }));
+
 app.get('/', (_req, res) => res.redirect('/portal/'));
 
 app.use((_req, res) => res.status(404).json({ error: 'not found' }));
