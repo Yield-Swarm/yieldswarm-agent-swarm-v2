@@ -117,5 +117,12 @@ yarn-debug.log*
 yarn-error.log*
 .odysseus/
 deploy/akash.env
+# Bifröst bridge deploy — never commit secrets or local audit logs
+.run/bifrost/
+bifrost/deployment.log
+bifrost/.env
+bifrost/secrets/
+config/bifrost.local.*
+config/bifrost.secrets.*
 bin/
 lib/forge-std/
