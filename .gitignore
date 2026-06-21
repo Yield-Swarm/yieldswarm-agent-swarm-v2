@@ -1,6 +1,10 @@
 # .data local revenue persistence (dev)
 .data/
 
+# Rust / Anchor build artifacts
+target/
+crates/*/target/
+
 cache/
 out/
 foundry.lock
