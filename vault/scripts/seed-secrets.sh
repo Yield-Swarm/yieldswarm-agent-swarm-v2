@@ -219,6 +219,42 @@ put_if_set runtime/bittensor \
   network=BT_NETWORK \
   ollama_model=OLLAMA_MODEL
 
+# ---- Tri-Solenoid runtime bundles (Nexus / Helix / Shadow) ---------------
+put_if_set treasury/manifest \
+  version=TREASURY_MANIFEST_VERSION \
+  nexus_solana=NEXUS_TREASURY_SOLANA \
+  manifest_json=TREASURY_MANIFEST_JSON
+
+put_if_set treasury/mining_roots \
+  base_etc=MINING_ROOT_BASE_ETC \
+  zec=MINING_ROOT_ZEC \
+  prl=MINING_ROOT_PRL \
+  tao=MINING_ROOT_TAO \
+  base_hype=MINING_ROOT_BASE_HYPE \
+  base_cbeth=MINING_ROOT_BASE_CBETH \
+  base_btc=MINING_ROOT_BASE_BTC \
+  iotex=MINING_ROOT_IOTEX \
+  btc_via_iopay=MINING_ROOT_BTC_IOPAY
+
+put_if_set iotex/hub \
+  primary=IOTEX_HUB_PRIMARY \
+  btc_bridge=IOTEX_HUB_BTC_BRIDGE
+
+put_if_set runtime/nexus \
+  nexus_chain_url=NEXUS_CHAIN_URL \
+  orchestrator_key=NEXUS_ORCHESTRATOR_KEY \
+  max_agents=NEXUS_MAX_AGENTS
+
+put_if_set runtime/helix \
+  helix_chain_url=HELIX_CHAIN_URL \
+  helix_program_id=HELIX_PROGRAM_ID \
+  helix_chain_bridge_key=HELIX_CHAIN_BRIDGE_KEY
+
+put_if_set runtime/shadow \
+  shadow_chain_url=SHADOW_CHAIN_URL \
+  arena_program_id=ARENA_PROGRAM_ID \
+  swarm_ops_program_id=SWARM_OPS_PROGRAM_ID
+
 # ---- Akash deploy operator config (deploy host, not container) ---------
 put_if_set runtime/akash \
   key_name=AKASH_KEY_NAME \

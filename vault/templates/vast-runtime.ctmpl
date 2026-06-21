@@ -1,0 +1,35 @@
+# Vault Agent template — Vast.ai GPU instances (dynamic secret injection)
+# Consumed by burst workers launched from Nexus multicloud manager.
+
+{{- with secret "yieldswarm/data/providers/runpod" }}
+RUNPOD_API_KEY={{ .Data.data.api_key }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/llm" }}
+OPENAI_API_KEY={{ .Data.data.openai_api_key }}
+ANTHROPIC_API_KEY={{ .Data.data.anthropic_api_key }}
+GROK_API_KEY={{ .Data.data.grok_api_key }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/helix" }}
+HELIX_CHAIN_URL={{ .Data.data.helix_chain_url }}
+HELIX_PROGRAM_ID={{ .Data.data.helix_program_id }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/shadow" }}
+SHADOW_CHAIN_URL={{ .Data.data.shadow_chain_url }}
+ARENA_PROGRAM_ID={{ .Data.data.arena_program_id }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/zk" }}
+ZK__VERIFIER_ADDRESS={{ .Data.data.verifier_address }}
+MUTATION_CONTROLLER_ADDRESS={{ .Data.data.mutation_controller }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/rpc/solana" }}
+SOLANA_RPC_URL={{ .Data.data.url }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/nexus" }}
+NEXUS_CHAIN_URL={{ .Data.data.nexus_chain_url }}
+{{- end }}

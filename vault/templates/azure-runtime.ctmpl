@@ -1,0 +1,35 @@
+# Vault Agent template — Azure VM / Container Instances (dynamic secret injection)
+# Deploy via vault-agent sidecar; writes /etc/yieldswarm/nexus.env
+
+{{- with secret "yieldswarm/data/runtime/nexus" }}
+NEXUS_CHAIN_URL={{ .Data.data.nexus_chain_url }}
+NEXUS_ORCHESTRATOR_KEY={{ .Data.data.orchestrator_key }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/core" }}
+AGENTSWARM_MASTER_KEY={{ .Data.data.agentswarm_master_key }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/providers/azure" }}
+AZURE_CLIENT_ID={{ .Data.data.client_id }}
+AZURE_CLIENT_SECRET={{ .Data.data.client_secret }}
+AZURE_TENANT_ID={{ .Data.data.tenant_id }}
+AZURE_SUBSCRIPTION_ID={{ .Data.data.subscription_id }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/cloud/azure" }}
+AZURE_RESOURCE_GROUP={{ .Data.data.resource_group }}
+AZURE_LOCATION={{ .Data.data.location }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/treasury/manifest" }}
+TREASURY_MANIFEST_VERSION={{ .Data.data.version }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/helix" }}
+HELIX_CHAIN_URL={{ .Data.data.helix_chain_url }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/shadow" }}
+SHADOW_CHAIN_URL={{ .Data.data.shadow_chain_url }}
+{{- end }}

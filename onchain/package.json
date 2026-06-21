@@ -1,0 +1,24 @@
+{
+  "name": "yieldswarm-onchain",
+  "private": true,
+  "workspaces": [
+    "sdk",
+    "app"
+  ],
+  "scripts": {
+    "build:sdk": "npm run build -w @yieldswarm/onchain-sdk",
+    "build:app": "npm run build -w @yieldswarm/onchain-app",
+    "dev:app": "npm run dev -w @yieldswarm/onchain-app",
+    "test": "anchor test",
+    "test:sdk": "npm run build:sdk"
+  },
+  "devDependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@types/chai": "^4.3.16",
+    "@types/mocha": "^10.0.7",
+    "chai": "^4.4.1",
+    "mocha": "^10.7.3",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^5.5.4"
+  }
+}

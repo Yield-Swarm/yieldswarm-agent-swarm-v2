@@ -1,0 +1,21 @@
+[package]
+name = "arena"
+version = "0.1.0"
+description = "Shadow Chain Arena — agent competition, reputation, and rewards (Kyle's chain)"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "arena"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build"]
+
+[dependencies]
+anchor-lang = "0.30.1"
+swarm_ops = { path = "../swarm_ops", features = ["cpi"] }

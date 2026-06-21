@@ -26,6 +26,11 @@ class RuntimeSecrets:
     payments: Mapping[str, str] = field(default_factory=dict)
     odysseus: Mapping[str, str] = field(default_factory=dict)
     bittensor: Mapping[str, str] = field(default_factory=dict)
+    nexus: Mapping[str, str] = field(default_factory=dict)
+    helix: Mapping[str, str] = field(default_factory=dict)
+    shadow: Mapping[str, str] = field(default_factory=dict)
+    zk: Mapping[str, str] = field(default_factory=dict)
+    treasury: Mapping[str, str] = field(default_factory=dict)
 
     def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
         for bucket in (
@@ -37,6 +42,11 @@ class RuntimeSecrets:
             self.payments,
             self.odysseus,
             self.bittensor,
+            self.nexus,
+            self.helix,
+            self.shadow,
+            self.zk,
+            self.treasury,
         ):
             if key in bucket:
                 return bucket[key]
@@ -154,6 +164,11 @@ def load_runtime_secrets(mount: str = KV_MOUNT_DEFAULT) -> RuntimeSecrets:
         payments=_read_kv_path(mount, "runtime/payments"),
         odysseus=_read_kv_path(mount, "runtime/odysseus"),
         bittensor=_read_kv_path(mount, "runtime/bittensor"),
+        nexus=_read_kv_path(mount, "runtime/nexus"),
+        helix=_read_kv_path(mount, "runtime/helix"),
+        shadow=_read_kv_path(mount, "runtime/shadow"),
+        zk=_read_kv_path(mount, "runtime/zk"),
+        treasury=_read_kv_path(mount, "treasury/mining_roots"),
     )
 
 

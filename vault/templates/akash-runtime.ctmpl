@@ -1,0 +1,36 @@
+# Vault Agent template — Akash SDL workload (dynamic secret injection)
+# Mount at /vault/templates/akash-runtime.ctmpl in Akash containers.
+# Rendered env file consumed by sovereign_core and agent workers.
+
+{{- with secret "yieldswarm/data/runtime/core" }}
+AGENTSWARM_MASTER_KEY={{ .Data.data.agentswarm_master_key }}
+DATABASE_ENCRYPTION_KEY={{ .Data.data.database_encryption_key }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/backend" }}
+EMISSION_ROUTER_ADDRESS={{ .Data.data.emission_router_address }}
+TREASURY_ADDRESS={{ .Data.data.treasury_address }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/zk" }}
+ZK__VERIFIER_ADDRESS={{ .Data.data.verifier_address }}
+MUTATION_CONTROLLER_ADDRESS={{ .Data.data.mutation_controller }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/shadow" }}
+SHADOW_CHAIN_URL={{ .Data.data.shadow_chain_url }}
+ARENA_PROGRAM_ID={{ .Data.data.arena_program_id }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/nexus" }}
+NEXUS_CHAIN_URL={{ .Data.data.nexus_chain_url }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/runtime/helix" }}
+HELIX_CHAIN_URL={{ .Data.data.helix_chain_url }}
+HELIX_PROGRAM_ID={{ .Data.data.helix_program_id }}
+{{- end }}
+
+{{- with secret "yieldswarm/data/rpc/solana" }}
+SOLANA_RPC_URL={{ .Data.data.url }}
+{{- end }}

@@ -1,0 +1,50 @@
+# Solenoid Registry — Nexus Chain (Solenoid 1) orchestration map
+version: 1
+max_agents: 521
+treasury_manifest: config/TREASURY_MANIFEST.json
+
+solenoids:
+  nexus:
+    id: 1
+    name: Nexus Chain
+    role: orchestration
+    endpoint_env: NEXUS_CHAIN_URL
+    vault_policy: nexus-runtime
+    vault_paths:
+      - yieldswarm/data/treasury/manifest
+      - yieldswarm/data/treasury/mining_roots
+      - yieldswarm/data/runtime/backend
+
+  helix:
+    id: 2
+    name: Helix Reverberator
+    role: cross_chain_yield
+    program: helix
+    alias: helix
+    endpoint_env: HELIX_CHAIN_URL
+    vault_policy: helix-runtime
+    vault_paths:
+      - yieldswarm/data/treasury/mining_roots
+      - yieldswarm/data/iotex/hub
+      - yieldswarm/data/runtime/wallets
+
+  shadow:
+    id: 3
+    name: Shadow Chain
+    role: arena_competition
+    program: arena
+    endpoint_env: SHADOW_CHAIN_URL
+    vault_policy: shadow-chain-runtime
+    vault_paths:
+      - yieldswarm/data/runtime/backend
+      - yieldswarm/data/runtime/zk
+
+multicloud:
+  providers: [akash, azure, vast, runpod, gcp, aws]
+  budgets_config: config/multicloud/budgets.env.example
+  workloads_config: config/multicloud/workloads.yaml
+
+messaging:
+  bus: nexus_internal
+  max_queue_depth: 10000
+  default_ttl_seconds: 300
