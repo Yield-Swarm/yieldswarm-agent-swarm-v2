@@ -16,4 +16,12 @@ pub enum ShardCoordinatorError {
     Unauthorized,
     #[msg("Zero amount transfer")]
     ZeroAmount,
+    #[msg("Shard sweeps are paused")]
+    SweepsPaused,
+    #[msg("Invalid sweep destination for shard type")]
+    InvalidSweepRoute,
+    #[msg("Mining root mismatch")]
+    MiningRootMismatch,
+    #[msg("Treasury registry owner mismatch")]
+    TreasuryRegistryMismatch,
 }

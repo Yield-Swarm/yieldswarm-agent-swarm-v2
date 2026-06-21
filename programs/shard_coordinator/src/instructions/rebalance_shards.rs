@@ -4,6 +4,7 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 use crate::errors::ShardCoordinatorError;
 use crate::events::{ShardEventLog, EVENT_KIND_REBALANCE_IN, EVENT_KIND_REBALANCE_OUT};
 use crate::state::{CoordinatorState, ShardVault};
+use crate::instructions::create_shard_vault::validate_sweep_config;
 
 #[derive(Accounts)]
 pub struct RebalanceShards<'info> {
@@ -55,6 +56,15 @@ pub fn handler(ctx: Context<RebalanceShards>, transfer_amount: u64) -> Result<()
         source.shard_id != dest.shard_id,
         ShardCoordinatorError::Unauthorized
     );
+
+    // Rebalance only between shards with compatible sweep routing (same type + destination).
+    require!(
+        source.shard_type == dest.shard_type
+            && source.sweep_destination == dest.sweep_destination
+            && source.mining_root_kind == dest.mining_root_kind,
+        ShardCoordinatorError::InvalidSweepRoute
+    );
+    validate_sweep_config(source.shard_type, source.sweep_destination)?;
 
     let efficiency_gap = dest
         .efficiency_bps

@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use cross_chain::state::{DEST_MINING_ROOT, DEST_NEXUS_TREASURY, SWEEP_EXTERNAL_MINING, SWEEP_INTERNAL_SOLANA};
+
 use crate::errors::ShardCoordinatorError;
 use crate::events::{ShardEventLog, EVENT_KIND_SHARD_CREATED};
 use crate::state::{CoordinatorState, ShardVault, MAX_SHARDS};
@@ -32,8 +34,12 @@ pub fn handler(
     shard_id: u16,
     agent_authority: Pubkey,
     initial_efficiency_bps: u16,
+    shard_type: u8,
+    sweep_destination: u8,
+    mining_root_kind: u8,
 ) -> Result<()> {
     require!(shard_id < MAX_SHARDS, ShardCoordinatorError::ShardIdOutOfRange);
+    validate_sweep_config(shard_type, sweep_destination)?;
 
     let coordinator = &mut ctx.accounts.coordinator;
     coordinator.shard_count = coordinator
@@ -49,6 +55,9 @@ pub fn handler(
     vault.efficiency_bps = initial_efficiency_bps;
     vault.apy_bps = 0;
     vault.active = true;
+    vault.shard_type = shard_type;
+    vault.sweep_destination = sweep_destination;
+    vault.mining_root_kind = mining_root_kind;
     vault.bump = ctx.bumps.shard_vault;
 
     emit!(ShardEventLog {
@@ -60,5 +69,20 @@ pub fn handler(
         timestamp: Clock::get()?.unix_timestamp,
     });
 
+    Ok(())
+}
+
+pub fn validate_sweep_config(shard_type: u8, sweep_destination: u8) -> Result<()> {
+    match shard_type {
+        SWEEP_INTERNAL_SOLANA => require!(
+            sweep_destination == DEST_NEXUS_TREASURY,
+            ShardCoordinatorError::InvalidSweepRoute
+        ),
+        SWEEP_EXTERNAL_MINING => require!(
+            sweep_destination == DEST_MINING_ROOT,
+            ShardCoordinatorError::InvalidSweepRoute
+        ),
+        _ => return Err(ShardCoordinatorError::InvalidSweepRoute.into()),
+    }
     Ok(())
 }

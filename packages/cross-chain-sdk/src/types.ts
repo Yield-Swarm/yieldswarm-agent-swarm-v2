@@ -8,6 +8,27 @@ export interface CrossChainConfigAccount {
   lastNonce: bigint;
 }
 
+export interface TreasuryRegistryAccount {
+  authority: string;
+  nexusAuthority: string;
+  nexusTreasury: string;
+  pausedSweeps: boolean;
+  pausedInflows: boolean;
+  totalToNexus: bigint;
+  totalToMining: bigint;
+  miningRootCount: number;
+}
+
+export interface MiningRootAccount {
+  registry: string;
+  rootKind: number;
+  chainFamily: number;
+  address: string;
+  solanaRecipient: string;
+  totalRouted: bigint;
+  active: boolean;
+}
+
 export interface TreasuryVaultAccount {
   config: string;
   mint: string;
@@ -20,6 +41,17 @@ export interface EventLogPayload {
   assetAmount: bigint;
   agent: string;
   targetVault: string;
+  bridgeMessageHash: string;
+  timestamp: number;
+}
+
+export interface TreasuryRouteEventPayload {
+  routeDestination: number;
+  miningRootKind: number;
+  originChainId: bigint;
+  assetAmount: bigint;
+  solanaRecipient: string;
+  externalAddress: string;
   bridgeMessageHash: string;
   timestamp: number;
 }
@@ -50,6 +82,17 @@ export interface YieldVaultState {
   userDeposits: bigint;
   pendingReferralRewards: bigint;
   totalReceived: bigint;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface TreasuryBalancesState {
+  nexusTreasury: string;
+  totalToNexus: bigint;
+  totalToMining: bigint;
+  pausedSweeps: boolean;
+  pausedInflows: boolean;
+  miningRoots: MiningRootAccount[];
   loading: boolean;
   error: string | null;
 }

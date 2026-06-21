@@ -235,6 +235,28 @@ button:disabled {
   border-bottom: 1px solid var(--border);
 }
 
-.tx-log-panel li.muted {
+.subhead {
+  font-size: 0.9rem;
+  margin: 1.25rem 0 0.5rem;
   color: var(--muted);
+}
+
+.root-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.root-list li {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
 }

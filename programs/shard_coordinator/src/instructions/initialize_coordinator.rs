@@ -22,6 +22,7 @@ pub fn handler(
     mint: Pubkey,
     min_reserve_per_shard: u64,
     rebalance_threshold_bps: u16,
+    cross_chain_program: Pubkey,
 ) -> Result<()> {
     let coordinator = &mut ctx.accounts.coordinator;
     coordinator.authority = ctx.accounts.authority.key();
@@ -30,6 +31,7 @@ pub fn handler(
     coordinator.total_liquidity = 0;
     coordinator.min_reserve_per_shard = min_reserve_per_shard;
     coordinator.rebalance_threshold_bps = rebalance_threshold_bps;
+    coordinator.cross_chain_program = cross_chain_program;
     coordinator.bump = ctx.bumps.coordinator;
     Ok(())
 }

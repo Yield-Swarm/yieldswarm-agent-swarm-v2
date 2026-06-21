@@ -4,6 +4,7 @@ import { useYieldVault } from '@yieldswarm/cross-chain-sdk';
 import { VaultPanel } from './components/VaultPanel';
 import { RoutingPanel } from './components/RoutingPanel';
 import { TxPanel } from './components/TxPanel';
+import { TreasuryPanel } from './components/TreasuryPanel';
 import { useYieldRoutes } from './hooks/useYieldRoutes';
 
 export const App: FC = () => {
@@ -37,6 +38,7 @@ export const App: FC = () => {
           bestRoute={routes.bestRoute}
           loading={routes.loading}
         />
+        <TreasuryPanel />
         <TxPanel pendingReferralRewards={vault.pendingReferralRewards} onLog={appendLog} />
       </main>
 

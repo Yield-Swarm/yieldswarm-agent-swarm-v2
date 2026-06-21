@@ -96,5 +96,44 @@ SELECT
 FROM agent_performance_daily
 GROUP BY agent_pubkey;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_agent_win_rates_pubkey
-  ON mv_agent_win_rates (agent_pubkey);
+CREATE TABLE IF NOT EXISTS treasury_registry_snapshots (
+  id BIGSERIAL PRIMARY KEY,
+  nexus_treasury TEXT NOT NULL,
+  total_to_nexus BIGINT NOT NULL DEFAULT 0,
+  total_to_mining BIGINT NOT NULL DEFAULT 0,
+  paused_sweeps BOOLEAN NOT NULL DEFAULT FALSE,
+  paused_inflows BOOLEAN NOT NULL DEFAULT FALSE,
+  captured_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS treasury_route_events (
+  id BIGSERIAL PRIMARY KEY,
+  signature TEXT NOT NULL,
+  route_destination SMALLINT NOT NULL,
+  mining_root_kind SMALLINT NOT NULL,
+  origin_chain_id BIGINT NOT NULL,
+  asset_amount BIGINT NOT NULL,
+  solana_recipient TEXT NOT NULL,
+  external_address TEXT,
+  block_time TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_treasury_route_events_block_time
+  ON treasury_route_events (block_time DESC);
+
+CREATE TABLE IF NOT EXISTS shard_sweep_events (
+  id BIGSERIAL PRIMARY KEY,
+  signature TEXT NOT NULL,
+  shard_id SMALLINT NOT NULL,
+  sweep_amount BIGINT NOT NULL,
+  sweep_destination SMALLINT NOT NULL,
+  mining_root_kind SMALLINT NOT NULL,
+  shard_type SMALLINT NOT NULL,
+  solana_recipient TEXT NOT NULL,
+  block_time TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_shard_sweep_events_shard_id
+  ON shard_sweep_events (shard_id, block_time DESC);

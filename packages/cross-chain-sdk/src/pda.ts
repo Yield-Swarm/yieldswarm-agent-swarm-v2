@@ -55,6 +55,22 @@ export function coordinatorPda(
   return PublicKey.findProgramAddressSync([new TextEncoder().encode('coordinator')], programId);
 }
 
+export function treasuryRegistryPda(
+  programId: PublicKey = CROSS_CHAIN_PROGRAM_ID
+): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync([new TextEncoder().encode('treasury_registry')], programId);
+}
+
+export function miningRootPda(
+  rootKind: number,
+  programId: PublicKey = CROSS_CHAIN_PROGRAM_ID
+): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [new TextEncoder().encode('mining_root'), Uint8Array.of(rootKind)],
+    programId
+  );
+}
+
 export function proposalPda(
   proposalId: bigint,
   programId: PublicKey = SWARM_OPS_PROGRAM_ID

@@ -24,9 +24,9 @@ Solana Validator / RPC
 
 | Program ID | Events / Accounts |
 |------------|-------------------|
-| `CrossChn1111111111111111111111111111111111` | `EventLog`, `CrossChainConfig`, `TreasuryVault` |
+| `CrossChn1111111111111111111111111111111111` | `EventLog`, `TreasuryRouteEvent`, `TreasuryRegistry`, `MiningRoot` |
 | `SwarmOps111111111111111111111111111111111` | `StrategyProposal`, `AgentPermissionRegistry` |
-| `ShardCrd111111111111111111111111111111111` | `ShardEventLog`, `ShardVault`, `CoordinatorState` |
+| `ShardCrd111111111111111111111111111111111` | `ShardEventLog`, `ShardSweepEvent`, `ShardVault`, `CoordinatorState` |
 
 ## Geyser Plugin Filter Config
 
