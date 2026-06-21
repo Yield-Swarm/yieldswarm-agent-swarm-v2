@@ -203,7 +203,14 @@ router.post('/dex/quote', asyncRoute(async (req, res) => {
 }));
 
 router.get('/auth/session', asyncRoute(async (_req, res) => {
-  res.json({ authenticated: false, user: null, mode: process.env.AUTH_MODE || 'demo' });
+  const miningAuth = process.env.AGENTSWARM_MASTER_KEY ? 'vault-hmac' : 'demo';
+  res.json({
+    authenticated: Boolean(process.env.AGENTSWARM_MASTER_KEY && process.env.AGENTSWARM_MASTER_KEY !== '[REDACTED]'),
+    user: null,
+    mode: process.env.AUTH_MODE || 'vault-approle',
+    mining_auth: miningAuth,
+    mining_api: '/api/mining/auth',
+  });
 }));
 
 router.post('/auth/odysseus/handoff', asyncRoute(async (_req, res) => {

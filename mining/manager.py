@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from mining.config import load_mining_config
+from mining.auth import MiningAuthService
+from mining.rewards import RewardRouter
+from mining.fleet import FleetRegistry
 from mining.miners import MINER_REGISTRY, BaseMiner
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +24,9 @@ class UnifiedMiningManager:
 
     def __init__(self, miners: Optional[List[str]] = None):
         self.config = load_mining_config()
+        self.auth = MiningAuthService()
+        self.rewards = RewardRouter()
+        self.fleet = FleetRegistry(self.auth)
         self.run_dir = Path(self.config.run_dir)
         if not self.run_dir.is_absolute():
             self.run_dir = REPO_ROOT / self.run_dir
@@ -48,6 +54,9 @@ class UnifiedMiningManager:
             "ok": True,
             "timestamp": int(time.time()),
             "dry_run": self.config.dry_run,
+            "auth": self.auth.bootstrap_context().to_dict(),
+            "reward_routes": self.rewards.route_table(),
+            "fleet": self.fleet.status(),
             "wallets": self.config.redacted(),
             "running_count": running,
             "total": len(statuses),
@@ -55,6 +64,10 @@ class UnifiedMiningManager:
         }
 
     def start(self, name: Optional[str] = None) -> Dict[str, Any]:
+        auth_ctx = self.auth.bootstrap_context()
+        if not auth_ctx.ok:
+            return {"ok": False, "error": auth_ctx.error, "auth": auth_ctx.to_dict()}
+
         targets = [name] if name else list(self.miners.keys())
         results = {}
         for n in targets:
@@ -92,9 +105,26 @@ class UnifiedMiningManager:
                 paths[n] = {"ok": False, "error": err}
                 continue
             cfg = miner.build_config()
+            cfg = self.rewards.apply_to_miner_config(n, cfg)
             miner.config_file.write_text(json.dumps(cfg, indent=2))
-            paths[n] = {"ok": True, "path": str(miner.config_file)}
-        return {"ok": True, "configs": paths}
+            paths[n] = {"ok": True, "path": str(miner.config_file), "payout_wallet": cfg.get("payout_wallet")}
+        return {"ok": True, "configs": paths, "reward_routes": self.rewards.route_table()}
+
+    def deploy_production(self) -> Dict[str, Any]:
+        """Bootstrap auth, connect fleet, write configs, start miners."""
+        fleet = self.fleet.connect_all()
+        if not fleet.get("ok"):
+            return fleet
+        configs = self.write_configs()
+        start = self.start()
+        return {
+            "ok": start.get("ok", True),
+            "phase": "production_deploy",
+            "fleet": fleet,
+            "configs": configs,
+            "start": start,
+            "reward_routes": self.rewards.route_table(),
+        }
 
     def _persist_summary(self) -> None:
         summary = self.status()
@@ -103,7 +133,7 @@ class UnifiedMiningManager:
 
 def run_manager_cli(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="YieldSwarm unified mining manager")
-    parser.add_argument("command", choices=["start", "stop", "restart", "status", "config", "list"])
+    parser.add_argument("command", choices=["start", "stop", "restart", "status", "config", "list", "deploy"])
     parser.add_argument("--miner", "-m", help="Single miner (bittensor|monero|etc|grass|helium)")
     parser.add_argument("--json", action="store_true", help="JSON output")
     args = parser.parse_args(argv)
@@ -119,6 +149,8 @@ def run_manager_cli(argv: Optional[List[str]] = None) -> int:
         out = mgr.restart(args.miner)
     elif args.command == "config":
         out = mgr.write_configs()
+    elif args.command == "deploy":
+        out = mgr.deploy_production()
     else:
         out = mgr.status(args.miner)
 

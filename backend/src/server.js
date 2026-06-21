@@ -17,6 +17,7 @@ import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
 import helixRouter from './routes/helix.js';
+import miningRouter from './routes/mining.js';
 import solenoidRouter from './routes/solenoid.js';
 import toolsRouter from './routes/tools.js';
 
@@ -40,6 +41,7 @@ app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
 app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
+app.use('/api/mining', miningRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
