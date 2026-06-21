@@ -89,7 +89,7 @@ services:
     environment:
       PORT: "8080"
       LITELLM_URL: http://llm-router:4000
-      ODYSSEUS_WORKSPACE_URL: http://host.docker.internal:7000
+      ODYSSEUS_WORKSPACE_URL: http://odysseus-workspace:7000
       ODYSSEUS_CHROMA_MODE: http
       ODYSSEUS_CHROMA_HOST: chromadb
       ODYSSEUS_CHROMA_PORT: "8000"
@@ -106,6 +106,34 @@ services:
       - chromadb
       - llm-router
       - odysseus-sync
+      - odysseus-workspace
+    restart: unless-stopped
+
+  odysseus-workspace:
+    build:
+      context: .
+      dockerfile: odysseus-workspace/Dockerfile
+    image: ${ODYSSEUS_WORKSPACE_IMAGE:-ghcr.io/yieldswarm/odysseus-workspace:local}
+    environment:
+      NODE_ENV: production
+      ODYSSEUS_BIND_HOST: 0.0.0.0
+      ODYSSEUS_BIND_PORT: "7000"
+      AZURE_AI_FOUNDRY_ENDPOINT: ${AZURE_AI_FOUNDRY_ENDPOINT}
+      AZURE_AI_FOUNDRY_RESOURCE_ID: ${AZURE_AI_FOUNDRY_RESOURCE_ID}
+      AZURE_AI_FOUNDRY_KEY: ${AZURE_AI_FOUNDRY_KEY:-}
+      AZURE_AI_FOUNDRY_STRICT: ${AZURE_AI_FOUNDRY_STRICT:-0}
+      GEOD_CRON_ENABLED: ${GEOD_CRON_ENABLED:-1}
+      GEOD_CRON_EXPRESSION: ${GEOD_CRON_EXPRESSION:-*/15 * * * *}
+      GEOD_ENTROPY_SHARD_COUNT: ${GEOD_ENTROPY_SHARD_COUNT:-120}
+      LITELLM_BASE_URL: http://llm-router:4000/v1
+      ODYSSEUS_CHROMA_HOST: chromadb
+      ODYSSEUS_CHROMA_PORT: "8000"
+      ODYSSEUS_SKIP_FOUNDRY_VALIDATE: ${ODYSSEUS_SKIP_FOUNDRY_VALIDATE:-1}
+    ports:
+      - "${ODYSSEUS_WORKSPACE_PORT:-7000}:7000"
+    depends_on:
+      - chromadb
+      - llm-router
     restart: unless-stopped
 
 volumes:

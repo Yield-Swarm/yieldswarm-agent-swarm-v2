@@ -1,0 +1,27 @@
+{
+  "name": "@yieldswarm/odysseus-workspace",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Odysseus workspace initialization — Azure Todo-style config + AI Foundry + GEOD hooks",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "node --import tsx --test src/**/*.test.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}

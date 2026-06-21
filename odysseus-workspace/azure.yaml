@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: yieldswarm-odysseus-workspace
+metadata:
+  template: todo-nodejs-mongo@0.0.1-beta
+workflows:
+  up:
+    steps:
+      - azd: provision
+      - azd: deploy --all
+services:
+  odysseus-workspace:
+    project: ./odysseus-workspace
+    language: ts
+    host: appservice
+    hooks:
+      postprovision:
+        posix:
+          shell: sh
+          run: |
+            echo "Odysseus workspace provisioned — set AZURE_AI_FOUNDRY_KEY in App Service configuration"

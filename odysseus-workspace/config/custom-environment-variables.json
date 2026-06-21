@@ -1,0 +1,26 @@
+{
+  "server": {
+    "host": "ODYSSEUS_BIND_HOST",
+    "port": "ODYSSEUS_BIND_PORT"
+  },
+  "azureAiFoundry": {
+    "endpoint": "AZURE_AI_FOUNDRY_ENDPOINT",
+    "resourceId": "AZURE_AI_FOUNDRY_RESOURCE_ID",
+    "apiKey": "AZURE_AI_FOUNDRY_KEY",
+    "apiVersion": "AZURE_AI_FOUNDRY_API_VERSION"
+  },
+  "odysseus": {
+    "chromaHost": "ODYSSEUS_CHROMA_HOST",
+    "chromaPort": "ODYSSEUS_CHROMA_PORT",
+    "litellmBaseUrl": "LITELLM_BASE_URL"
+  },
+  "geod": {
+    "enabled": "GEOD_CRON_ENABLED",
+    "cronExpression": "GEOD_CRON_EXPRESSION",
+    "entropyShardCount": "GEOD_ENTROPY_SHARD_COUNT"
+  },
+  "observability": {
+    "applicationInsightsConnectionString": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+    "roleName": "APPLICATIONINSIGHTS_ROLE_NAME"
+  }
+}

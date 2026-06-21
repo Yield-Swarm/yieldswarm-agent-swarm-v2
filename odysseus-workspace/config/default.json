@@ -1,0 +1,26 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 7000
+  },
+  "azureAiFoundry": {
+    "endpoint": "https://yieldswarmazuurecustomm-resource.services.ai.azure.com/api/projects/yieldswarmazuurecustommmllm",
+    "resourceId": "/subscriptions/1aac4ca0-686f-43b7-92a4-d523d3ec47dc/resourceGroups/rg-cbreezy666-2775/providers/Microsoft.CognitiveServices/accounts/yieldswarmazuurecustomm-resource/projects/yieldswarmazuurecustommmllm",
+    "apiKey": "",
+    "apiVersion": "2024-05-01-preview"
+  },
+  "odysseus": {
+    "chromaHost": "chromadb",
+    "chromaPort": 8000,
+    "litellmBaseUrl": "http://llm-router:4000/v1"
+  },
+  "geod": {
+    "enabled": true,
+    "cronExpression": "*/15 * * * *",
+    "entropyShardCount": 120
+  },
+  "observability": {
+    "applicationInsightsConnectionString": "",
+    "roleName": "OdysseusWorkspace"
+  }
+}
