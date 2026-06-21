@@ -10,7 +10,7 @@
 #
 # Usage:
 #   ./scripts/deploy-ipfs-blockchain.sh              # full bridge restore
-#   ./scripts/deploy-ipfs-blockchain.sh --dry-run    # stage + manifest only
+#   ./scripts/deploy-ipfs-blockchain.sh --dry-run    # show paths + plan only
 #   ./scripts/deploy-ipfs-blockchain.sh --skip-build # reuse existing dist/
 #   ./scripts/deploy-ipfs-blockchain.sh --verify     # verify gateway only
 #   ./scripts/deploy-ipfs-blockchain.sh --help
@@ -21,21 +21,184 @@
 # =============================================================================
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIFROST_LIB="${SCRIPT_DIR}/lib/bifrost_pin.py"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-source "${REPO_ROOT}/deploy/scripts/lib.sh"
+# -----------------------------------------------------------------------------
+# Path resolution (must run before sourcing lib.sh — lib.sh overwrites SCRIPT_DIR)
+# -----------------------------------------------------------------------------
 
+# SCRIPT_DIR — absolute path to scripts/ (this file's directory)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# REPO_ROOT — monorepo root (parent of scripts/)
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# BIFROST_SCRIPT — this deploy entrypoint (saved before lib.sh overwrites SCRIPT_DIR)
+BIFROST_SCRIPT="${SCRIPT_DIR}/deploy-ipfs-blockchain.sh"
+
+# BIFROST_LIB — Python pin/manifest helper (underscore per Python convention)
+BIFROST_LIB="${SCRIPT_DIR}/lib/bifrost_pin.py"
+
+# DEPLOY_LOG — timestamped audit trail for every deploy step
+DEPLOY_LOG="${REPO_ROOT}/.run/deployment.log"
+
+# STAGING_DIR — ephemeral static site bundle uploaded to IPFS
+STAGING_DIR="${REPO_ROOT}/.run/bifrost-staging"
+
+# MANIFEST_OUT — generated realm → gateway map (gitignored)
+MANIFEST_OUT="${REPO_ROOT}/dashboard/bifrost-manifest.json"
+
+# Runtime flags (mutated by CLI args below)
 DRY_RUN=0
 SKIP_BUILD=0
 VERIFY_ONLY=0
 SKIP_PINATA=0
 ROOT_CID="${BIFROST_ROOT_CID:-}"
 
-STAGING_DIR="${REPO_ROOT}/.run/bifrost-staging"
-MANIFEST_OUT="${REPO_ROOT}/dashboard/bifrost-manifest.json"
+# IPFS_GATEWAY — public resolver base for pinned content
 IPFS_GATEWAY="${IPFS_GATEWAY:-https://gateway.pinata.cloud/ipfs}"
+
+# PIN_NAME — Pinata metadata label for this deployment
 PIN_NAME="${BIFROST_PIN_NAME:-yieldswarm-bifrost-$(date +%Y%m%d)}"
+
+# -----------------------------------------------------------------------------
+# Logging helpers (deployment.log + console)
+# -----------------------------------------------------------------------------
+
+log_deploy() {
+  local level="$1"
+  shift
+  local ts msg
+  ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  msg="[${ts}] [${level}] $*"
+  mkdir -p "$(dirname "${DEPLOY_LOG}")"
+  printf '%s\n' "${msg}" >> "${DEPLOY_LOG}"
+  case "${level}" in
+    ERROR) err "$*" ;;
+    WARN)  warn "$*" ;;
+    OK)    ok "$*" ;;
+    *)     log "$*" ;;
+  esac
+}
+
+# -----------------------------------------------------------------------------
+# Safety checks — validate paths before any deployment work
+# -----------------------------------------------------------------------------
+
+ensure_lib_directory() {
+  # Item 4: guarantee scripts/lib/ exists before referencing bifrost_pin.py
+  if [[ ! -d "${SCRIPT_DIR}/lib" ]]; then
+    log_deploy "INFO" "creating missing lib directory: ${SCRIPT_DIR}/lib"
+    mkdir -p "${SCRIPT_DIR}/lib"
+  fi
+}
+
+validate_paths() {
+  # Item 6: SCRIPT_DIR and REPO_ROOT must exist and be readable
+  if [[ ! -d "${SCRIPT_DIR}" ]]; then
+    log_deploy "ERROR" "SCRIPT_DIR does not exist: ${SCRIPT_DIR}"
+    exit 1
+  fi
+  if [[ ! -r "${SCRIPT_DIR}" ]]; then
+    log_deploy "ERROR" "SCRIPT_DIR is not readable: ${SCRIPT_DIR}"
+    exit 1
+  fi
+  if [[ ! -d "${REPO_ROOT}" ]]; then
+    log_deploy "ERROR" "REPO_ROOT does not exist: ${REPO_ROOT}"
+    exit 1
+  fi
+  if [[ ! -f "${REPO_ROOT}/package.json" ]]; then
+    log_deploy "ERROR" "REPO_ROOT does not look like YieldSwarm root (missing package.json): ${REPO_ROOT}"
+    exit 1
+  fi
+  if [[ ! -f "${BIFROST_LIB}" ]]; then
+    log_deploy "ERROR" "BIFROST_LIB helper missing: ${BIFROST_LIB}"
+    exit 1
+  fi
+  if [[ ! -x "${BIFROST_SCRIPT}" ]] && [[ -f "${BIFROST_SCRIPT}" ]]; then
+    log_deploy "WARN" "deploy-ipfs-blockchain.sh is not executable — run: chmod +x scripts/deploy-ipfs-blockchain.sh"
+  fi
+}
+
+is_gitignored() {
+  # Item 8: consult .gitignore before writing generated artifacts
+  local path="$1"
+  if ! command -v git >/dev/null 2>&1; then
+    return 1
+  fi
+  git -C "${REPO_ROOT}" check-ignore -q "${path}" 2>/dev/null
+}
+
+assert_safe_output_path() {
+  local path="$1"
+  local rel="${path#${REPO_ROOT}/}"
+
+  # Never overwrite secrets or deploy credentials
+  case "${rel}" in
+    .env|deploy/config.env|*.pem|*secret*|*credentials*)
+      log_deploy "ERROR" "refusing to write sensitive path: ${rel}"
+      exit 1
+      ;;
+  esac
+
+  if is_gitignored "${rel}"; then
+    log_deploy "INFO" "output path is gitignored (safe): ${rel}"
+  else
+    log_deploy "WARN" "output path is NOT gitignored — verify before commit: ${rel}"
+  fi
+}
+
+print_dry_run_plan() {
+  # Item 7: show computed paths and planned actions without side effects
+  step "DRY-RUN PLAN — no mutations will be applied"
+  cat <<EOF
+  SCRIPT_DIR     = ${SCRIPT_DIR}
+  REPO_ROOT      = ${REPO_ROOT}
+  BIFROST_LIB    = ${BIFROST_LIB}
+  DEPLOY_LOG     = ${DEPLOY_LOG}
+  STAGING_DIR    = ${STAGING_DIR}
+  MANIFEST_OUT   = ${MANIFEST_OUT}
+  IPFS_GATEWAY   = ${IPFS_GATEWAY}
+  PIN_NAME       = ${PIN_NAME}
+  ROOT_CID       = ${ROOT_CID:-<computed>}
+  SKIP_BUILD     = ${SKIP_BUILD}
+  SKIP_PINATA    = ${SKIP_PINATA}
+
+  Planned actions:
+    1. validate paths + lib directory
+    2. stage dashboard/, static HTML, frontend/dist → STAGING_DIR
+    3. run bifrost_pin.py (placeholder CID in dry-run)
+    4. write MANIFEST_OUT + dashboard/config.js
+    5. append audit lines to DEPLOY_LOG
+    6. final validation of deploy-ipfs-blockchain.sh
+EOF
+  log_deploy "INFO" "dry-run plan emitted"
+}
+
+final_validation() {
+  # Item 10: confirm bridge script exists and is executable
+  step "Final validation"
+  local self="${BIFROST_SCRIPT}"
+  if [[ ! -f "${self}" ]]; then
+    log_deploy "ERROR" "Bifröst bridge script missing: ${self}"
+    return 1
+  fi
+  if [[ ! -x "${self}" ]]; then
+    log_deploy "ERROR" "Bifröst bridge script not executable: ${self}"
+    return 1
+  fi
+  if [[ ! -f "${BIFROST_LIB}" ]]; then
+    log_deploy "ERROR" "BIFROST_LIB missing after deploy: ${BIFROST_LIB}"
+    return 1
+  fi
+  if [[ "${DRY_RUN}" == "0" && ! -f "${MANIFEST_OUT}" ]]; then
+    log_deploy "ERROR" "manifest not written: ${MANIFEST_OUT}"
+    return 1
+  fi
+  log_deploy "OK" "final validation passed — bridge script executable, helper present"
+  return 0
+}
+
+# Shared deploy helpers from deploy/scripts/lib.sh (logging, load_config, require, …)
+source "${REPO_ROOT}/deploy/scripts/lib.sh"
 
 usage() {
   sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
@@ -48,8 +211,8 @@ while [[ $# -gt 0 ]]; do
     --skip-build)  SKIP_BUILD=1; shift ;;
     --skip-pinata) SKIP_PINATA=1; shift ;;
     --verify)      VERIFY_ONLY=1; shift ;;
-    --cid)         ROOT_CID="$2"; shift 2 ;;
-    --gateway)     IPFS_GATEWAY="$2"; shift 2 ;;
+    --cid)         ROOT_CID="${2:?--cid requires a value}"; shift 2 ;;
+    --gateway)     IPFS_GATEWAY="${2:?--gateway requires a value}"; shift 2 ;;
     -h|--help)     usage 0 ;;
     *)             die "unknown arg: $1 (try --help)" ;;
   esac
@@ -63,21 +226,48 @@ banner() {
   ║  Local realm  →  IPFS pin  →  Helix / Nexus / Shadow gates   ║
   ╚══════════════════════════════════════════════════════════════╝
 EOF
+  log_deploy "INFO" "gateway=${IPFS_GATEWAY} dry_run=${DRY_RUN} log=${DEPLOY_LOG}"
   log "Gateway:    ${IPFS_GATEWAY}"
   log "Manifest:   ${MANIFEST_OUT#${REPO_ROOT}/}"
+  log "Deploy log: ${DEPLOY_LOG#${REPO_ROOT}/}"
   log "Dry run:    ${DRY_RUN}"
+}
+
+require_directory() {
+  local dir="$1"
+  local label="$2"
+  if [[ ! -d "${dir}" ]]; then
+    log_deploy "ERROR" "${label} directory missing: ${dir}"
+    exit 1
+  fi
 }
 
 stage_static_realm() {
   step "Staging static realm for IPFS"
+  log_deploy "INFO" "staging start → ${STAGING_DIR}"
+
+  if [[ "${DRY_RUN}" == "1" ]]; then
+    mkdir -p "${STAGING_DIR}"
+    warn "[dry-run] skipped full staging — would sync dashboard/, static HTML, frontend/dist"
+    log_deploy "INFO" "dry-run staging placeholder at ${STAGING_DIR}"
+    return 0
+  fi
+
   rm -rf "${STAGING_DIR}"
   mkdir -p "${STAGING_DIR}/dashboard" "${STAGING_DIR}/frontend/dist" "${STAGING_DIR}/public"
 
-  # Dashboards (command center, sovereign vault, static assets)
+  # Dashboards — exclude secrets and generated gitignored artifacts
   if [[ -d "${REPO_ROOT}/dashboard" ]]; then
-    rsync -a --exclude 'bifrost-staging' --exclude '.git' \
+    rsync -a \
+      --exclude 'bifrost-staging' \
+      --exclude '.git' \
+      --exclude 'bifrost-manifest.json' \
+      --exclude 'config.js' \
+      --exclude '.env' \
       "${REPO_ROOT}/dashboard/" "${STAGING_DIR}/dashboard/" 2>/dev/null \
       || cp -a "${REPO_ROOT}/dashboard/." "${STAGING_DIR}/dashboard/"
+  else
+    log_deploy "WARN" "dashboard/ not found — skipping dashboard staging"
   fi
 
   # Root static surfaces
@@ -92,12 +282,10 @@ stage_static_realm() {
   # Frontend production build
   if [[ "${SKIP_BUILD}" == "0" ]]; then
     step "Building frontend (Vite)"
-    if [[ "${DRY_RUN}" == "1" ]]; then
-      warn "[dry-run] would run: npm run build:frontend"
-    else
-      require node npm
-      (cd "${REPO_ROOT}/frontend" && npm run build)
-    fi
+    require_directory "${REPO_ROOT}/frontend" "frontend"
+    require node npm
+    (cd "${REPO_ROOT}/frontend" && npm run build) \
+      || { log_deploy "ERROR" "frontend build failed"; exit 1; }
   else
     warn "--skip-build: using existing frontend/dist if present"
   fi
@@ -106,7 +294,7 @@ stage_static_realm() {
     rsync -a "${REPO_ROOT}/frontend/dist/" "${STAGING_DIR}/frontend/dist/" 2>/dev/null \
       || cp -a "${REPO_ROOT}/frontend/dist/." "${STAGING_DIR}/frontend/dist/"
   else
-    warn "frontend/dist missing — arena bundle will be omitted from staging"
+    log_deploy "WARN" "frontend/dist missing — arena bundle omitted from staging"
   fi
 
   # Bridge index — entry point for IPFS gateway visitors
@@ -127,23 +315,30 @@ stage_static_realm() {
 </html>
 HTML
 
-  ok "Staged $(find "${STAGING_DIR}" -type f | wc -l | tr -d ' ') files → .run/bifrost-staging/"
+  local file_count
+  file_count="$(find "${STAGING_DIR}" -type f | wc -l | tr -d ' ')"
+  log_deploy "OK" "staged ${file_count} files → ${STAGING_DIR}"
+  ok "Staged ${file_count} files → .run/bifrost-staging/"
 }
 
 verify_bridge() {
   step "Verifying Rainbow Bridge gateway"
   require python3
+
   if [[ ! -f "${MANIFEST_OUT}" ]]; then
+    log_deploy "ERROR" "manifest not found: ${MANIFEST_OUT}"
     die "manifest not found: ${MANIFEST_OUT} — run deploy without --verify first"
   fi
+
   local cid gateway live
   cid="$(python3 -c "import json;print(json.load(open('${MANIFEST_OUT}'))['rootCid'])")"
   gateway="$(python3 -c "import json;print(json.load(open('${MANIFEST_OUT}'))['ipfsGateway'])")"
-  if python3 "${BIFROST_LIB}" --staging "${STAGING_DIR}" \
-      --manifest-out "${MANIFEST_OUT}" --repo-root "${REPO_ROOT}" \
-      --gateway "${gateway}" --cid "${cid}" --dry-run >/dev/null 2>&1; then
-    :
+
+  if [[ "${DRY_RUN}" == "1" ]]; then
+    warn "[dry-run] would verify gateway: ${gateway}/${cid}/"
+    return 0
   fi
+
   live="$(python3 - <<PY
 import json, urllib.request
 m = json.load(open("${MANIFEST_OUT}"))
@@ -158,8 +353,10 @@ except Exception:
 PY
 )"
   if [[ "$live" == "ok" ]]; then
+    log_deploy "OK" "gateway live ${gateway}/${cid}/"
     ok "Gateway live: ${gateway}/${cid}/"
   else
+    log_deploy "WARN" "gateway not reachable ${gateway}/${cid}/"
     warn "Gateway not yet reachable (propagation may take minutes): ${gateway}/${cid}/"
   fi
   cat "${MANIFEST_OUT}"
@@ -168,6 +365,15 @@ PY
 pin_and_manifest() {
   step "Pinning to IPFS and forging bifrost-manifest.json"
   require python3
+
+  assert_safe_output_path "${MANIFEST_OUT}"
+  assert_safe_output_path "${REPO_ROOT}/dashboard/config.js"
+
+  if [[ "${DRY_RUN}" == "1" ]]; then
+    warn "[dry-run] would run: python3 ${BIFROST_LIB} --staging ${STAGING_DIR} ..."
+    mkdir -p "${STAGING_DIR}"
+    mkdir -p "$(dirname "${MANIFEST_OUT}")"
+  fi
 
   local py_args=(
     --staging "${STAGING_DIR}"
@@ -188,12 +394,18 @@ pin_and_manifest() {
   fi
 
   local result
-  result="$(python3 "${BIFROST_LIB}" "${py_args[@]}")"
+  if ! result="$(python3 "${BIFROST_LIB}" "${py_args[@]}")"; then
+    log_deploy "ERROR" "bifrost_pin.py failed"
+    exit 1
+  fi
+
+  log_deploy "OK" "manifest written ${MANIFEST_OUT}"
   ok "Bridge manifest written"
   printf '%s\n' "$result"
 
   local cid
   cid="$(python3 -c "import json;print(json.load(open('${MANIFEST_OUT}'))['rootCid'])")"
+  log_deploy "INFO" "rootCid=${cid}"
   cat <<EOF
 
   ┌─ Rainbow Bridge RESTORED ─────────────────────────────────────
@@ -207,16 +419,31 @@ pin_and_manifest() {
   │ Local API bridge: ${API_BASE:-http://127.0.0.1:8080}
   │ Manifest: dashboard/bifrost-manifest.json
   │ Runtime:   dashboard/config.js (window.YIELDSWARM_CONFIG.bifrost)
+  │ Audit log: .run/deployment.log
   └───────────────────────────────────────────────────────────────
 EOF
 }
 
 main() {
+  ensure_lib_directory
+  validate_paths
   load_config
+
+  if [[ "${DRY_RUN}" == "1" && "${VERIFY_ONLY}" == "0" ]]; then
+    banner
+    print_dry_run_plan
+    stage_static_realm
+    pin_and_manifest
+    final_validation
+    ok "Bifröst dry-run complete — see .run/deployment.log"
+    exit 0
+  fi
+
   banner
 
   if [[ "${VERIFY_ONLY}" == "1" ]]; then
     verify_bridge
+    final_validation
     exit 0
   fi
 
@@ -227,6 +454,8 @@ main() {
     verify_bridge || true
   fi
 
+  final_validation
+  log_deploy "OK" "Bifröst deployment complete"
   ok "Bifröst deployment complete"
 }
 

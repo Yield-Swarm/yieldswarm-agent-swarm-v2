@@ -2,7 +2,14 @@
 """
 Bifröst bridge — pin staged static sites to IPFS and emit chain gateway manifest.
 
-Used by scripts/deploy-ipfs-blockchain.sh
+Module: scripts/lib/bifrost_pin.py
+Invoked by: scripts/deploy-ipfs-blockchain.sh (BIFROST_LIB)
+
+Responsibilities:
+  • Compute or accept an IPFS directory CID for the staged static realm
+  • Pin the CID on Pinata when credentials are present
+  • Emit dashboard/bifrost-manifest.json (realm → gateway map)
+  • Update dashboard/config.js with window.YIELDSWARM_CONFIG.bifrost
 """
 
 from __future__ import annotations

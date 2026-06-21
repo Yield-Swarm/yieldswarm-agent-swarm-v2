@@ -34,11 +34,15 @@ cp .env.example .env   # set PINATA_JWT (or PINATA_API_KEY + PINATA_SECRET)
 
 | Flag | Effect |
 |------|--------|
-| `--dry-run` | Stage + write manifest with placeholder CID |
+| `--dry-run` | Print resolved paths + planned actions; write placeholder manifest |
 | `--skip-build` | Reuse existing `frontend/dist` |
 | `--skip-pinata` | Local CID only, no Pinata API calls |
 | `--verify` | Check gateway reachability for existing manifest |
 | `--cid <cid>` | Use explicit root CID |
+
+## Audit log
+
+Every run appends to `.run/deployment.log` (gitignored) with timestamps, resolved paths, and step outcomes.
 
 ## Integration
 

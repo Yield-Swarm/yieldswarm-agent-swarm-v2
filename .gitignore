@@ -17,7 +17,7 @@ cache/
 coverage/
 crash.*.log
 crash.log
-# dashboard/config.js
+dashboard/config.js
 dashboard/bifrost-manifest.json
 /.data
 .data/
