@@ -24,3 +24,16 @@ CREATE TABLE IF NOT EXISTS cross_chain_harvests (
   treasury_pda TEXT,
   recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX idx_cross_chain_origin ON cross_chain_harvests(origin_chain);
+
+CREATE TABLE IF NOT EXISTS shard_snapshots (
+  id BIGSERIAL PRIMARY KEY,
+  shard_id BIGINT NOT NULL,
+  total_assets BIGINT NOT NULL DEFAULT 0,
+  target_weight_bps SMALLINT,
+  coordinator_pda TEXT,
+  recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_shard_snapshots_shard ON shard_snapshots(shard_id);

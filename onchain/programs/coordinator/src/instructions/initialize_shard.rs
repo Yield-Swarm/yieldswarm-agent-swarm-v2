@@ -17,6 +17,12 @@ pub struct InitializeShard<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(_ctx: Context<InitializeShard>, _shard_id: u64) -> Result<()> {
+pub fn handler(ctx: Context<InitializeShard>, shard_id: u64) -> Result<()> {
+    let vault = &mut ctx.accounts.shard_vault;
+    vault.shard_id = shard_id;
+    vault.authority = ctx.accounts.payer.key();
+    vault.total_assets = 0;
+    vault.target_weight_bps = 0;
+    vault.bump = ctx.bumps.shard_vault;
     Ok(())
 }

@@ -1,8 +1,16 @@
 {
   "name": "yieldswarm-onchain",
   "private": true,
+  "workspaces": [
+    "sdk",
+    "app"
+  ],
   "scripts": {
-    "test": "anchor test"
+    "build:sdk": "npm run build -w @yieldswarm/onchain-sdk",
+    "build:app": "npm run build -w @yieldswarm/onchain-app",
+    "dev:app": "npm run dev -w @yieldswarm/onchain-app",
+    "test": "anchor test",
+    "test:sdk": "npm run build:sdk"
   },
   "devDependencies": {
     "@coral-xyz/anchor": "^0.30.1",

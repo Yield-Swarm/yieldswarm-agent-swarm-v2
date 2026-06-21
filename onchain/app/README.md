@@ -1,14 +1,19 @@
-# Instance B — GP8 Dashboard (placeholder)
+# Instance B — GP8 Dashboard
 
-React dashboard for YieldSwarm on-chain programs. Instance B implements:
+React dashboard for YieldSwarm on-chain programs:
 
 - `@solana/wallet-adapter-react` integration
-- `useYieldVault`, `useBondingCurve`, `useReferralRewards` hooks
-- Routing panel (Kamino / Jito / Drift rates)
-
-Reuse patterns from `frontend/src/wallet/` for wallet modal consistency.
+- `useYieldVault`, `useCrossChainBridge` hooks
+- Routing panel (Kamino / Jito / Drift rates via `fetchYieldRoutes`)
 
 ```bash
-# After GP8 implementation:
-cd onchain/app && npm run dev
+cd onchain
+npm install
+npm run dev:app    # http://localhost:3000
+```
+
+Build:
+
+```bash
+npm run build:app
 ```
