@@ -20,6 +20,7 @@
     "anchor:build": "anchor build",
     "sdk:build": "cd packages/cross-chain-sdk && npm run build",
     "connectors:check": "cd crates/llm-connectors && cargo test",
+    "swarm-core:check": "cd apps/swarm-core && cargo test",
     "dashboard:dev": "cd app/dashboard && npm run dev",
     "dashboard:build": "cd packages/cross-chain-sdk && npm run build && cd ../../app/dashboard && npm run build",
     "tv:dev": "next dev",

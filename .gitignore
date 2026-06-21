@@ -4,6 +4,7 @@
 # Rust / Anchor build artifacts
 target/
 crates/*/target/
+apps/*/target/
 
 cache/
 out/

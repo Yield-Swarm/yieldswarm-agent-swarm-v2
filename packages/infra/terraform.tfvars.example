@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars locally — DO NOT commit real values.
+
+# admin_ssh_public_key = "ssh-rsa AAAA... inject-from-vault"
+azure_prod_location   = "Australia East"
+azure_backup_location = "Japan East"
+azure_dr_location     = "Indonesia Central"
+agent_count_total     = 10080
+cron_shard_count      = 120
+agents_per_shard      = 84

@@ -4,7 +4,7 @@ members = [
     "programs/swarm_ops",
     "programs/shard_coordinator",
 ]
-exclude = ["crates/llm-connectors"]
+exclude = ["crates/llm-connectors", "apps/swarm-core"]
 resolver = "2"
 
 [profile.release]

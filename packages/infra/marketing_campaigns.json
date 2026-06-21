@@ -1,0 +1,30 @@
+[
+  {
+    "id": "promo-elon",
+    "target_profile": "@elonmusk",
+    "persona_id": "elon",
+    "shard": 0,
+    "post_content": "The YieldSwarm particle accelerator has provisioned an autonomous @elonmusk agent container in Shard-0. First-principles execution routing, physics-constrained logic, and Mayhem Mode authorization enabled. Core alignment complete. #YieldSwarm #DePIN #AI"
+  },
+  {
+    "id": "promo-zuck",
+    "target_profile": "@finkd",
+    "persona_id": "zuck",
+    "shard": 1,
+    "post_content": "Announcing optimization parameters for the @finkd swarm instance. Integrated with open-source Llama alignment models across 120 asynchronous cross-chain shards. Building high-density decentralized compute. #OpenSource #Solana #AI"
+  },
+  {
+    "id": "promo-huberman",
+    "target_profile": "@HubermanLab",
+    "persona_id": "huberman",
+    "shard": 2,
+    "post_content": "The @HubermanLab agent vector is live in YieldSwarm core. On-chain analytic protocols calibrated for dopaminergic baselines and computational recovery schedules. Science-backed yield generation. #NeuroSwarm #Longevity"
+  },
+  {
+    "id": "promo-johnson",
+    "target_profile": "@BryanJohnson",
+    "persona_id": "johnson",
+    "shard": 3,
+    "post_content": "Don't Die. The @BryanJohnson agent container is committed to multi-region Azure hot-standby architecture. Tracking epigenetic state and longevity indicators autonomously 24/7. #Blueprint #DontDie #DecentralizedAI"
+  }
+]
