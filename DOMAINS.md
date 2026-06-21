@@ -13,6 +13,7 @@ endpoints, treasury crypto records, and subdomain layout.
 | Domain | Purpose | Primary host |
 |--------|---------|--------------|
 | `yieldswarm.crypto` (or your UD name) | Main YieldSwarm site | Vercel `v2-0-bay.vercel.app` |
+| `yieldswarm.blockchain` | IPFS decentralized site | CID `QmQUS42xN6Ej21baZZCMmxnirwzy9XFRPruqUYTof4vwTz` — see `docs/IPFS_YIELDSWARM_BLOCKCHAIN.md` |
 | `kairo.x` (or subdomain) | Kairo driver/customer app | Netlify/Vercel Kairo deploy |
 | `app.<domain>` | Application frontend | Vercel |
 | `api.<domain>` | Backend + Arena telemetry API | Akash worker / Cloudflare proxy |
