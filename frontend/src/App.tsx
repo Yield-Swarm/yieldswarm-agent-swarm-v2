@@ -4,6 +4,7 @@ import { WalletButton } from "@/wallet";
 import { Arena } from "./routes/Arena";
 import { Portal } from "./routes/Portal";
 import { Payments } from "./routes/Payments";
+import { SovereignCommand } from "./routes/SovereignCommand";
 
 export function App() {
   return (
@@ -23,6 +24,9 @@ export function App() {
           <NavLink to="/payments" className={navClass}>
             Payments
           </NavLink>
+          <NavLink to="/sovereign" className={navClass}>
+            Sovereign TV
+          </NavLink>
         </nav>
         <WalletButton />
       </header>
@@ -33,6 +37,7 @@ export function App() {
           <Route path="/arena" element={<Arena />} />
           <Route path="/portal" element={<Portal />} />
           <Route path="/payments" element={<Payments />} />
+          <Route path="/sovereign" element={<SovereignCommand />} />
           <Route path="*" element={<Navigate to="/arena" replace />} />
         </Routes>
       </main>

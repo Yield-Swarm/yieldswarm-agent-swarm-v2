@@ -75,6 +75,26 @@ export async function stopSovereignLoopDaemon() {
   return mgr.stopDaemon();
 }
 
+export async function forceSovereignRebalance() {
+  const mgr = await ensureEngine();
+  return mgr.forceRebalance();
+}
+
+export async function forceSovereignReplicate() {
+  const mgr = await ensureEngine();
+  return mgr.forceReplicate();
+}
+
+export async function forceSovereignPatch() {
+  const mgr = await ensureEngine();
+  return mgr.forcePatch();
+}
+
+export async function pauseResetSovereignLoops() {
+  const mgr = await ensureEngine();
+  return mgr.pauseAndReset();
+}
+
 export function checkSovereignLoopCredentials() {
   try {
     return { ok: true, ...assertSovereignCredentials() };

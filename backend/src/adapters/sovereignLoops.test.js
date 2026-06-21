@@ -81,5 +81,14 @@ describe('SovereignLoopManager', () => {
       LOOP_STATES.REPLICATING,
       LOOP_STATES.HEALING,
     ].includes(snap.state));
+    assert.ok(snap.metrics?.consolidated_treasury_usd > 0);
+  });
+
+  it('forceRebalance applies manual override', async () => {
+    const mgr = new SovereignLoopManager({ treasuryThresholdUsd: 100_000 });
+    mgr.chainBalances = { nexus: 500_000, helix: 200_000, shadow: 200_000, iotex: 200_000 };
+    const snap = await mgr.forceRebalance();
+    assert.equal(snap.state, LOOP_STATES.REBALANCING);
+    assert.ok(snap.logs.some((l) => l.phase === 'override'));
   });
 });

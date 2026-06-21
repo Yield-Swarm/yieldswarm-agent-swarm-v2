@@ -70,6 +70,7 @@ export class SovereignLoopManager {
     this.running = false;
     this._interval = null;
     this.credentialsOk = false;
+    this.penningTrapIntegrity = Number(process.env.HELIX_PENNING_TRAP_INTEGRITY || 0.88);
 
     try {
       assertSovereignCredentials();
@@ -241,6 +242,12 @@ export class SovereignLoopManager {
       }));
     }
 
+    this.penningTrapIntegrity = Number(
+      anomalyFeed.penning_trap_integrity
+      ?? anomalyFeed.penningTrapIntegrity
+      ?? this.penningTrapIntegrity,
+    );
+
     const heal = this.triggerPatchCycle(anomalyFeed);
     if (heal.patched) {
       this.state = LOOP_STATES.HEALING;
@@ -264,15 +271,121 @@ export class SovereignLoopManager {
     return this.snapshot();
   }
 
+  consolidatedTreasuryUsd() {
+    return Object.values(this.chainBalances).reduce((a, b) => a + b, 0);
+  }
+
+  replicationSurplusUsd() {
+    return Math.max(0, this.consolidatedTreasuryUsd() - this.replicationThresholdUsd);
+  }
+
+  /**
+   * Manual override — force economic rebalance from Nexus reserve.
+   */
+  async forceRebalance() {
+    if (!this.credentialsOk) {
+      this._pushLog(logEntry('error', 'Force rebalance skipped — credentials not configured'));
+      return this.snapshot();
+    }
+    for (const chain of CHAINS) {
+      if (chain !== 'nexus') {
+        this.chainBalances[chain] = this.treasuryThresholdUsd * 0.4;
+      }
+    }
+    this.state = LOOP_STATES.REBALANCING;
+    const economic = this.evaluateTreasuryHealth();
+    for (const t of economic.transfers) {
+      this.chainBalances[t.to] = (this.chainBalances[t.to] || 0) + t.amount_usd;
+      if (t.from === this.nexusReservePool) {
+        this.chainBalances.nexus = Math.max(0, (this.chainBalances.nexus || 0) - t.amount_usd);
+      }
+    }
+    this._pushLog(logEntry('override', 'Manual force rebalance executed', {
+      transfers: economic.transfers,
+      type: 'warning',
+    }));
+    await this.persist();
+    return this.snapshot();
+  }
+
+  /**
+   * Manual override — force replica provisioning.
+   */
+  async forceReplicate() {
+    if (!this.credentialsOk) {
+      this._pushLog(logEntry('error', 'Force replicate skipped — credentials not configured'));
+      return this.snapshot();
+    }
+    const boost = this.replicationThresholdUsd * 1.25;
+    const perChain = boost / CHAINS.length;
+    for (const chain of CHAINS) {
+      this.chainBalances[chain] = Math.max(this.chainBalances[chain] || 0, perChain);
+    }
+    this.state = LOOP_STATES.REPLICATING;
+    const replication = this.checkReplicationStatus();
+    this._pushLog(logEntry('override', 'Manual force replicate executed', {
+      deployment: replication.deployment,
+      surplus_usd: replication.surplus_usd,
+      type: 'system',
+    }));
+    await this.persist();
+    return this.snapshot();
+  }
+
+  /**
+   * Manual override — trigger self-heal patch cycle.
+   */
+  async forcePatch() {
+    if (!this.credentialsOk) {
+      this._pushLog(logEntry('error', 'Force patch skipped — credentials not configured'));
+      return this.snapshot();
+    }
+    this.penningTrapIntegrity = this.penningTrapMinIntegrity * 0.5;
+    this.state = LOOP_STATES.HEALING;
+    const heal = this.triggerPatchCycle({ penning_trap_integrity: this.penningTrapIntegrity });
+    this.penningTrapIntegrity = 0.92;
+    this._pushLog(logEntry('override', 'Manual patch cycle triggered', {
+      actions: heal.actions,
+      checkpoint: heal.checkpoint,
+      type: 'critical',
+    }));
+    await this.persist();
+    return this.snapshot();
+  }
+
+  /**
+   * Manual override — pause daemon and reset loop state to nominal idle.
+   */
+  async pauseAndReset() {
+    this.stopDaemon();
+    this.state = LOOP_STATES.IDLE;
+    this.tickCount = 0;
+    this._pushLog(logEntry('override', 'Loops paused and state reset', { type: 'system' }));
+    await this.persist();
+    return this.snapshot();
+  }
+
   snapshot() {
+    const consolidated = this.consolidatedTreasuryUsd();
+    const surplus = this.replicationSurplusUsd();
     return {
       version: '1.0.0-Beta',
       state: this.state,
       tickCount: this.tickCount,
       credentialsOk: this.credentialsOk,
+      running: this.running,
       chainBalances: { ...this.chainBalances },
       logs: [...this.logs],
       chains: CHAINS,
+      metrics: {
+        consolidated_treasury_usd: consolidated,
+        replication_surplus_usd: surplus,
+        replication_progress_pct: Math.min(
+          100,
+          Math.round((consolidated / Math.max(this.replicationThresholdUsd, 1)) * 100),
+        ),
+        penning_trap_integrity: this.penningTrapIntegrity,
+      },
       thresholds: {
         treasury_usd: this.treasuryThresholdUsd,
         replication_usd: this.replicationThresholdUsd,

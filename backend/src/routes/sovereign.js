@@ -6,7 +6,11 @@ import { Router } from 'express';
 import * as sovereign from '../adapters/sovereign.js';
 import {
   checkSovereignLoopCredentials,
+  forceSovereignPatch,
+  forceSovereignRebalance,
+  forceSovereignReplicate,
   getSovereignLoopsStatus,
+  pauseResetSovereignLoops,
   runSovereignLoopTick,
   startSovereignLoopDaemon,
   stopSovereignLoopDaemon,
@@ -66,6 +70,26 @@ router.post('/loops/stop', asyncRoute(async (_req, res) => {
 /** GET /api/sovereign/loops/credentials */
 router.get('/loops/credentials', asyncRoute(async (_req, res) => {
   res.json(checkSovereignLoopCredentials());
+}));
+
+/** POST /api/sovereign/loops/force-rebalance */
+router.post('/loops/force-rebalance', asyncRoute(async (_req, res) => {
+  res.json(await forceSovereignRebalance());
+}));
+
+/** POST /api/sovereign/loops/force-replicate */
+router.post('/loops/force-replicate', asyncRoute(async (_req, res) => {
+  res.json(await forceSovereignReplicate());
+}));
+
+/** POST /api/sovereign/loops/trigger-patch */
+router.post('/loops/trigger-patch', asyncRoute(async (_req, res) => {
+  res.json(await forceSovereignPatch());
+}));
+
+/** POST /api/sovereign/loops/pause-reset */
+router.post('/loops/pause-reset', asyncRoute(async (_req, res) => {
+  res.json(await pauseResetSovereignLoops());
 }));
 
 export default router;

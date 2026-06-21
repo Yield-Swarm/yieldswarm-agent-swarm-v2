@@ -14,6 +14,7 @@ import path from 'node:path';
 import config from './config.js';
 import { startCronJobs } from './jobs/cron.js';
 import { initSovereignLoopEngine } from './adapters/sovereignLoops.js';
+import { bootEnvConfig } from '../../envConfig.js';
 import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
@@ -135,6 +136,9 @@ const server = app.listen(config.port, config.host, () => {
     startCronJobs();
   }
   if (process.env.SOVEREIGN_LOOP_AUTO_START !== '0') {
+    bootEnvConfig().catch((err) => {
+      console.warn('[envConfig] validation skipped:', err.message);
+    });
     initSovereignLoopEngine().catch((err) => {
       console.warn('[sovereign-loops] init skipped:', err.message);
     });

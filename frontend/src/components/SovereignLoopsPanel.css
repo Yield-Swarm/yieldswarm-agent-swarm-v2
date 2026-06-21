@@ -1,0 +1,264 @@
+/* Sovereign Loops Panel — TV / Fire Stick optimized dark mode */
+
+.slp {
+  --slp-bg: #060c10;
+  --slp-grid: #0f1a1f;
+  --slp-text: #e8f4f0;
+  --slp-muted: #6b8a82;
+  --slp-emerald: #3ddc97;
+  --slp-amber: #ffb020;
+  --slp-cyan: #4ecdc4;
+  --slp-magenta: #e056fd;
+  --slp-red: #ff4757;
+  --slp-mono: "SF Mono", "Cascadia Code", "Consolas", monospace;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--slp-bg);
+  border: 1px solid var(--slp-grid);
+  border-radius: 16px;
+  min-height: 100%;
+}
+
+.slp-state {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--slp-grid);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+}
+
+.slp-state--emerald { --slp-accent: var(--slp-emerald); }
+.slp-state--amber { --slp-accent: var(--slp-amber); }
+.slp-state--cyan { --slp-accent: var(--slp-cyan); }
+.slp-state--magenta { --slp-accent: var(--slp-magenta); }
+.slp-state--red { --slp-accent: var(--slp-red); }
+
+.slp-pulse {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--slp-accent, var(--slp-emerald));
+  box-shadow: 0 0 12px var(--slp-accent, var(--slp-emerald));
+  animation: slp-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes slp-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.slp-state__label {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--slp-muted);
+}
+
+.slp-state__value {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 700;
+  color: var(--slp-accent, var(--slp-emerald));
+}
+
+.slp-state__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  font-family: var(--slp-mono);
+  font-size: 0.8rem;
+  color: var(--slp-muted);
+}
+
+.slp-ok { color: var(--slp-emerald); }
+.slp-warn { color: var(--slp-amber); }
+
+.slp-error {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--slp-red);
+  color: var(--slp-red);
+  font-family: var(--slp-mono);
+  font-size: 0.85rem;
+}
+
+.slp-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .slp-metrics { grid-template-columns: 1fr; }
+}
+
+.slp-metric {
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid var(--slp-grid);
+  background: #0a1218;
+}
+
+.slp-metric--wide { grid-column: span 1; }
+.slp-metric--alert { border-color: var(--slp-amber); }
+
+.slp-metric__label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--slp-muted);
+  margin-bottom: 0.5rem;
+}
+
+.slp-metric__label em {
+  font-style: normal;
+  color: var(--slp-cyan);
+}
+
+.slp-metric__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--slp-mono);
+  color: var(--slp-text);
+}
+
+.slp-progress {
+  position: relative;
+  height: 28px;
+  border-radius: 8px;
+  background: #0c1818;
+  overflow: hidden;
+  border: 1px solid var(--slp-grid);
+}
+
+.slp-progress__fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--slp-cyan), var(--slp-emerald));
+  transition: width 0.4s ease;
+}
+
+.slp-progress__pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--slp-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--slp-text);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.slp-terminal {
+  flex: 1;
+  min-height: 220px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--slp-grid);
+  background: #04080c;
+  font-family: var(--slp-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  contain: layout style;
+}
+
+.slp-log {
+  display: grid;
+  grid-template-columns: 5.5em 7em 1fr;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #0c1818;
+  min-height: 1.5em;
+}
+
+.slp-log__ts { color: var(--slp-muted); }
+.slp-log__phase { text-transform: lowercase; }
+.slp-log__msg { color: var(--slp-text); word-break: break-word; }
+
+.slp-log--warning .slp-log__phase,
+.slp-log--warning .slp-log__msg { color: var(--slp-amber); }
+.slp-log--critical .slp-log__phase,
+.slp-log--critical .slp-log__msg { color: var(--slp-red); }
+.slp-log--system .slp-log__phase,
+.slp-log--system .slp-log__msg { color: var(--slp-cyan); }
+.slp-log--info .slp-log__phase { color: var(--slp-muted); }
+
+.slp-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .slp-actions { grid-template-columns: repeat(2, 1fr); }
+}
+
+.slp-btn {
+  min-height: 52px;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: #0f1a22;
+  color: var(--slp-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+
+.slp-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.slp-btn--amber:focus-visible,
+.slp-btn--amber:hover:not(:disabled) {
+  border-color: var(--slp-amber);
+  box-shadow: 0 0 0 2px rgba(255, 176, 32, 0.35);
+  outline: none;
+}
+
+.slp-btn--cyan:focus-visible,
+.slp-btn--cyan:hover:not(:disabled) {
+  border-color: var(--slp-cyan);
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.35);
+  outline: none;
+}
+
+.slp-btn--magenta:focus-visible,
+.slp-btn--magenta:hover:not(:disabled) {
+  border-color: var(--slp-magenta);
+  box-shadow: 0 0 0 2px rgba(224, 86, 253, 0.35);
+  outline: none;
+}
+
+.slp-btn--emerald:focus-visible,
+.slp-btn--emerald:hover:not(:disabled) {
+  border-color: var(--slp-emerald);
+  box-shadow: 0 0 0 2px rgba(61, 220, 151, 0.35);
+  outline: none;
+}
+
+.slp-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* TV overscan */
+@media (min-width: 1920px) {
+  .slp { padding: 2rem; }
+  .slp-btn { min-height: 64px; font-size: 1rem; }
+}
