@@ -9,10 +9,13 @@
  */
 
 import express from 'express';
+import http from 'node:http';
+import { WebSocketServer } from 'ws';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import config from './config.js';
 import { startCronJobs } from './jobs/cron.js';
+import { solenoidAnchorMiddleware, solenoidEngine } from './middleware/solenoidAnchor.js';
 import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
@@ -31,6 +34,7 @@ const frontendDir = path.join(repoRoot, 'frontend');
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
+app.use(solenoidAnchorMiddleware);
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -112,9 +116,52 @@ app.get('/marketplace', (_req, res) =>
 
 app.get('/', (_req, res) => res.redirect('/portal/'));
 
+app.get('/health', (req, res) => {
+  const status = solenoidEngine.getStatus();
+  res.json({
+    status: 'NOMINAL',
+    anchor: req.stateAnchor,
+    mode: status.activeSolenoidMode,
+    dimension: status.activeDimension,
+  });
+});
+
 app.use((_req, res) => res.status(404).json({ error: 'not found' }));
 
-const server = app.listen(config.port, config.host, () => {
+const server = http.createServer(app);
+const wss = new WebSocketServer({ noServer: true });
+
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
+  });
+});
+
+wss.on('connection', (ws) => {
+  console.log('[HEARTBEAT] New streaming node docked to the central helix channel.');
+  ws.on('message', (message) => {
+    try {
+      const unpacked = JSON.parse(String(message));
+      const outboundAnchor = solenoidEngine.generateStateAnchor({ payload: unpacked });
+      ws.send(
+        JSON.stringify({
+          event: 'METRIC_RESONANCE_ACK',
+          stateAnchor: outboundAnchor.stateAnchor,
+          timestamp: Date.now(),
+        }),
+      );
+    } catch {
+      ws.send(JSON.stringify({ error: 'INVALID_MUTATION_STRING' }));
+    }
+  });
+});
+
+server.listen(config.port, config.host, () => {
+  // eslint-disable-next-line no-console
+  console.log('=================================================================');
+  console.log(`🚀 HELIX CORE COMPILER ONLINE: TUNED TO RUNTIME PORT ${config.port}`);
+  console.log(`🏛️ CURRENT ACTIVE STRUCTURAL MODE: ${solenoidEngine.activeSolenoidMode}`);
+  console.log('=================================================================');
   // eslint-disable-next-line no-console
   console.log(
     `[yieldswarm] integration server listening on http://${config.host}:${config.port}\n` +
@@ -127,7 +174,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +
-      `  Helix:     /api/helix/status  /api/helix/activate`,
+      `  Helix:     /api/helix/status  /api/helix/activate\n` +
+      `  Solenoid:  /api/solenoid/status  /api/solenoid/shift  ws://host:${config.port}`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

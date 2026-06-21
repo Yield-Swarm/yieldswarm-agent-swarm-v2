@@ -14,6 +14,18 @@ SOL_MINT = "So11111111111111111111111111111111111111112"
 USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 
 
+def _parse_slippage_bps(raw: str | None, default: int = 50) -> int:
+    if not raw:
+        return default
+    try:
+        value = float(raw)
+        if value < 1:
+            return int(round(value * 10_000))
+        return int(value)
+    except ValueError:
+        return default
+
+
 class JupiterClient:
     def __init__(
         self,
@@ -24,7 +36,9 @@ class JupiterClient:
     ) -> None:
         self.base_url = (base_url or os.getenv("JUPITER_API_URL") or DEFAULT_JUPITER_BASE).rstrip("/")
         self.api_key = api_key or os.getenv("JUPITER_API_KEY")
-        self.slippage_bps = slippage_bps if slippage_bps is not None else int(os.getenv("SLIPPAGE_TOLERANCE", "50"))
+        self.slippage_bps = slippage_bps if slippage_bps is not None else _parse_slippage_bps(
+            os.getenv("SLIPPAGE_TOLERANCE")
+        )
 
     def _headers(self) -> dict[str, str]:
         headers = {"Accept": "application/json"}

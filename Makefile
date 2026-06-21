@@ -33,6 +33,7 @@ A := deploy/akash
         multicloud-preflight multicloud-cost-report multicloud-launch multicloud-teardown \
         scale-akash-workers \
         cross-chain-preflight cross-chain-run cross-chain-test \
+        run-all-onchain run-all-onchain-dry \
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
         deploy-production-full wire-domains \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
@@ -285,6 +286,14 @@ cross-chain-run:
 cross-chain-test:
 	python3 -m pytest tests/test_cross_chain.py tests/test_cross_chain_mvp.py -q
 
+## run-all-onchain: full on-chain stack — Helix + cross-chain + ZK + NFT mutations (LIVE)
+run-all-onchain:
+	bash scripts/run-all-onchain.sh --start-backend
+
+## run-all-onchain-dry: simulate all on-chain rails without live txs
+run-all-onchain-dry:
+	bash scripts/run-all-onchain.sh --dry-run --start-backend --skip-loops
+
 ## cloud-scheduler-tick: one async multi-cloud scheduler cycle
 cloud-scheduler-tick:
 	python3 agents/cloud_scheduler_agent.py
@@ -320,6 +329,22 @@ zk-trusted-setup:
 ## zk-mutation-cycle: dry-run one ZK mutation cycle (dev proof mode)
 zk-mutation-cycle:
 	@node --input-type=module -e "import { HardenedAuditEngine } from './src/infrastructure/entropy-core.js'; import { runMutationCycle } from './src/automation/zk-mutation-scheduler.js'; const e=new HardenedAuditEngine(); const r=await runMutationCycle(e,{vramUsedGb:14,tempC:68,utilizationPct:55}); console.log(JSON.stringify(r,null,2));"
+
+## solenoid-heartbeat: run 14× pillar elevator DeFi yield evolution loop
+solenoid-heartbeat:
+	@node src/jobs/solenoidHeartbeat.js
+
+## solenoid-server: launch Helix integration backend via root server.js
+solenoid-server:
+	@node server.js
+
+## solenoid-shift-pentagram: elevate solenoid to 3D pentagram mode
+solenoid-shift-pentagram:
+	@curl -s -X POST http://127.0.0.1:8080/api/solenoid/shift -H 'Content-Type: application/json' -d '{"targetMode":"PENTAGRAM"}' | jq .
+
+## solenoid-shift-elevators: launch 14× pillar elevator arrays
+solenoid-shift-elevators:
+	@curl -s -X POST http://127.0.0.1:8080/api/solenoid/shift -H 'Content-Type: application/json' -d '{"targetMode":"14X_ELEVATORS"}' | jq .
 
 ## tfc-setup: TFC bootstrap from PR #3 — modular optional addon
 tfc-setup:
