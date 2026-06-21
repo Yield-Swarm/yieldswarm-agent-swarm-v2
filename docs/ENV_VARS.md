@@ -113,6 +113,17 @@ Full layered file: `deploy/env/layered.env.example`.
 | `YIELDSWARM_HELIX_EMISSION_ROUTER` | Helix emission router address for agent tools |
 | `HELIX_CONTROL_PLANE_URL` | Great Delta / Helix ingest control plane |
 | `YIELDSWARM_EMISSION_ROUTER_URL` | Backend URL for `yieldswarm_emission_router_query` tool |
+| `NODE5_ENABLED` | Enable Node 5 PyHackathon Stellar + Cosmos module |
+| `NODE5_DRY_RUN` | Dry-run Node 5 chain ops (default `1`) |
+| `STELLAR_SECRET_KEY` | Stellar signer secret (Vault / SecretProd.pdf) |
+| `STELLAR_PUBLIC_KEY` | Stellar account public key |
+| `STELLAR_DESTINATION_ADDRESS` | Stellar treasury / payout address |
+| `STELLAR_NETWORK` | `public` or `testnet` |
+| `STELLAR_HORIZON_URL` | Horizon API base URL |
+| `COSMOS_MNEMONIC` | Cosmos wallet mnemonic (live txs) |
+| `COSMOS_ADDRESS` | Cosmos bech32 address |
+| `COSMOS_CHAIN_ID` | e.g. `akashnet-2` |
+| `COSMOS_REST_URL` | Cosmos REST endpoint |
 | `ZEC_SHIELDED_KEY` | Zcash shielded |
 | `ERC4337_BUNDLER_KEY` | Account abstraction bundler |
 | `INFURA_PROJECT_ID`, `INFURA_API_KEY`, `INFURA_SOL_MAINNET_RPC` | Infura RPC |

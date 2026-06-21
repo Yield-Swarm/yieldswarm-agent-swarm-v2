@@ -55,3 +55,4 @@ def test_strategy_kinds_registered():
     assert StrategyKind.UNISWAP_V4_HOOK in kinds
     assert StrategyKind.DYDX_PERPS in kinds
     assert StrategyKind.ALTCOIN_POW in kinds
+    assert StrategyKind.STELLAR_COSMOS in kinds
