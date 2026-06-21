@@ -1,0 +1,118 @@
+{
+  "version": "1.0",
+  "description": "14 spiritual pillar elevators — TFC¹ layer texts for the unified command dashboard",
+  "elevators": [
+    {
+      "id": 1,
+      "pillar": "greek_vaults",
+      "title": "Emerald Tablets of Thoth",
+      "tradition": "Hermetic / Atlantean",
+      "symbol": "𓆣",
+      "excerpt": "As above, so below; as within, so without."
+    },
+    {
+      "id": 2,
+      "pillar": "infra_oracles",
+      "title": "Book of Enoch",
+      "tradition": "Apocryphal / Watchers",
+      "symbol": "👁",
+      "excerpt": "And the angels, the children of heaven, saw and lusted after them."
+    },
+    {
+      "id": 3,
+      "pillar": "zk_mayhem",
+      "title": "Judas · Mary Magdalene · Lost Books",
+      "tradition": "Gnostic / Hidden Canon",
+      "symbol": "✦",
+      "excerpt": "The kingdom is inside of you, and it is outside of you."
+    },
+    {
+      "id": 4,
+      "pillar": "gpu_workers",
+      "title": "Astrology Texts",
+      "tradition": "Celestial / Chaldean",
+      "symbol": "☉",
+      "excerpt": "The stars incline, they do not compel."
+    },
+    {
+      "id": 5,
+      "pillar": "arena",
+      "title": "The Iliad",
+      "tradition": "Homeric Epic",
+      "symbol": "⚔",
+      "excerpt": "Sing, O goddess, the anger of Achilles son of Peleus."
+    },
+    {
+      "id": 6,
+      "pillar": "cross_chain",
+      "title": "The Odyssey",
+      "tradition": "Homeric Journey",
+      "symbol": "⚓",
+      "excerpt": "Tell me, O muse, of that ingenious hero who travelled far and wide."
+    },
+    {
+      "id": 7,
+      "pillar": "tesla_fleet",
+      "title": "Percy Jackson Series",
+      "tradition": "Greek · Roman · Egyptian",
+      "symbol": "🔱",
+      "excerpt": "Half-blood — the bridge between mortal and divine."
+    },
+    {
+      "id": 8,
+      "pillar": "emission_routing",
+      "title": "Bulgarian Bible",
+      "tradition": "First Ancient Translation",
+      "symbol": "☦",
+      "excerpt": "In the beginning was the Word."
+    },
+    {
+      "id": 9,
+      "pillar": "agentswarm_os",
+      "title": "The Quran",
+      "tradition": "Islamic Revelation",
+      "symbol": "☪",
+      "excerpt": "Read in the name of your Lord who created."
+    },
+    {
+      "id": 10,
+      "pillar": "security_mpc",
+      "title": "Lotus Texts of Mahayana Buddhism",
+      "tradition": "Mahayana / Lotus Sutra",
+      "symbol": "🪷",
+      "excerpt": "All beings will ultimately attain Buddhahood."
+    },
+    {
+      "id": 11,
+      "pillar": "telemetry",
+      "title": "Tibetan Book of the Dead",
+      "tradition": "Bardo / Liberation",
+      "symbol": "卍",
+      "excerpt": "Recognize the clear light — the natural state of mind."
+    },
+    {
+      "id": 12,
+      "pillar": "governance",
+      "title": "The Kybalion",
+      "tradition": "Hermetic Seven Principles",
+      "symbol": "△",
+      "excerpt": "The All is Mind; the Universe is Mental."
+    },
+    {
+      "id": 13,
+      "pillar": "treasury_yield",
+      "title": "Popol Vuh",
+      "tradition": "Maya Creation",
+      "symbol": "🌽",
+      "excerpt": "This is the account of how all was in suspense, all calm, in silence."
+    },
+    {
+      "id": 14,
+      "pillar": "valhalla_portal",
+      "title": "Tao Te Ching",
+      "tradition": "Taoist Way",
+      "symbol": "☯",
+      "excerpt": "The Tao that can be told is not the eternal Tao."
+    }
+  ]
+}

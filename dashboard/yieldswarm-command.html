@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#04060a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>YieldSwarm Command — Nexus · Helix · Shadow</title>
+  <style>
+    :root {
+      --bg: #04060a;
+      --panel: #0a0f18;
+      --panel2: #0d1520;
+      --line: #2ee8d6;
+      --line-dim: #1a8a7e;
+      --gold: #e8c547;
+      --violet: #9b7bff;
+      --red: #ff4d6a;
+      --amber: #ffb84d;
+      --txt: #e8f4f0;
+      --muted: #6a8a82;
+      --grid: #142830;
+      --focus: #5dfff0;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+      --mono: "SF Mono", ui-monospace, Consolas, monospace;
+      --tv-base: clamp(18px, 1.8vw, 28px);
+      --tv-title: clamp(28px, 3.5vw, 56px);
+      --tv-stat: clamp(36px, 4.5vw, 72px);
+      --safe: max(24px, env(safe-area-inset-top));
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-size: var(--tv-base); scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, #0a2830 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 50%, #1a1040 0%, transparent 50%),
+        var(--bg);
+      color: var(--txt);
+      font-family: var(--font);
+      line-height: 1.4;
+      min-height: 100vh;
+      padding: var(--safe) 2rem 3rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    :focus-visible {
+      outline: 4px solid var(--focus);
+      outline-offset: 4px;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem 2rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--grid);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: var(--tv-title);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--line), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand .sub { color: var(--muted); font-size: 0.85em; }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: 2px solid var(--line-dim);
+      font-weight: 700;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .live-pill .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--line);
+      box-shadow: 0 0 12px var(--line);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .health-badge {
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.85em;
+      text-transform: uppercase;
+    }
+    .health-badge.healthy { background: #0a3020; color: var(--line); border: 2px solid var(--line-dim); }
+    .health-badge.degraded { background: #302010; color: var(--amber); border: 2px solid #6b5010; }
+    .health-badge.critical { background: #301018; color: var(--red); border: 2px solid #6b1525; }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+    .grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+
+    .card {
+      background: linear-gradient(160deg, var(--panel), var(--panel2));
+      border: 2px solid var(--grid);
+      border-radius: 20px;
+      padding: 1.5rem 1.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent, var(--line)), transparent);
+    }
+    .card.nexus { --accent: var(--line); }
+    .card.helix { --accent: var(--gold); }
+    .card.shadow { --accent: var(--violet); }
+    .card h2 {
+      margin: 0 0 1rem;
+      font-size: 0.75em;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .stat {
+      font-size: var(--tv-stat);
+      font-weight: 800;
+      font-family: var(--mono);
+      line-height: 1;
+      margin: 0.25rem 0;
+    }
+    .stat-sm { font-size: 1.4em; }
+    .label { color: var(--muted); font-size: 0.85em; margin-top: 0.25rem; }
+    .addr {
+      font-family: var(--mono);
+      font-size: 0.7em;
+      color: var(--line);
+      word-break: break-all;
+      margin-top: 0.5rem;
+    }
+
+    section h3 {
+      font-size: 1.1em;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 0 0 1rem;
+      font-weight: 700;
+    }
+
+    .elevators {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 1600px) { .elevators { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 900px) { .elevators { grid-template-columns: repeat(2, 1fr); } }
+
+    .elevator {
+      background: var(--panel);
+      border: 2px solid var(--grid);
+      border-radius: 16px;
+      padding: 1rem;
+      cursor: default;
+      transition: border-color 0.2s, transform 0.2s;
+      min-height: 140px;
+    }
+    .elevator:focus-visible, .elevator:hover {
+      border-color: var(--line);
+      transform: translateY(-2px);
+    }
+    .elevator .num {
+      font-size: 0.7em;
+      color: var(--line-dim);
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+    .elevator .sym { font-size: 1.8em; margin-bottom: 0.25rem; }
+    .elevator .title {
+      font-weight: 700;
+      font-size: 0.85em;
+      line-height: 1.25;
+      margin-bottom: 0.35rem;
+    }
+    .elevator .trad { font-size: 0.65em; color: var(--muted); }
+    .elevator .excerpt {
+      font-size: 0.65em;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 0.5rem;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .treasury-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 0.75em;
+    }
+    .treasury-table th, .treasury-table td {
+      text-align: left;
+      padding: 0.6rem 0.5rem;
+      border-bottom: 1px solid var(--grid);
+    }
+    .treasury-table th { color: var(--muted); text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.08em; }
+    .treasury-table td:last-child { text-align: right; word-break: break-all; max-width: 280px; }
+    .iotex-row { color: var(--gold); font-weight: 700; }
+
+    .vault-bar {
+      height: 28px;
+      border-radius: 14px;
+      background: #06120c;
+      border: 2px solid var(--grid);
+      overflow: hidden;
+      margin: 1rem 0 0.5rem;
+      position: relative;
+    }
+    .vault-bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0c7a4b, var(--line));
+      transition: width 1s ease;
+    }
+    .vault-bar .pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75em;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75em;
+      padding-top: 2rem;
+      border-top: 1px solid var(--grid);
+    }
+    .clock { font-family: var(--mono); color: var(--line); }
+
+    /* TV overscan safe zone */
+    @media (min-width: 1920px) {
+      body { padding: 48px 64px 64px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div>
+        <h1>YieldSwarm Command</h1>
+        <div class="sub">Nexus · Helix · Shadow — 14 Elevators · 521 Agents</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <span class="live-pill"><span class="dot"></span> LIVE</span>
+      <span id="health-badge" class="health-badge healthy">—</span>
+      <span class="clock" id="clock">—</span>
+    </div>
+  </header>
+
+  <div class="grid-3" id="solenoids">
+    <div class="card nexus" tabindex="0">
+      <h2>Solenoid 1 — Nexus Chain</h2>
+      <div class="stat" id="nexus-agents">—</div>
+      <div class="label">Agents registered</div>
+      <div class="label" id="nexus-status">Status: —</div>
+    </div>
+    <div class="card helix" tabindex="0">
+      <h2>Solenoid 2 — Helix Reverberator</h2>
+      <div class="stat" id="helix-roots">—</div>
+      <div class="label">Mining Roots</div>
+      <div class="addr" id="helix-iotex">IoTeX: —</div>
+    </div>
+    <div class="card shadow" tabindex="0">
+      <h2>Solenoid 3 — Shadow Chain</h2>
+      <div class="stat" id="shadow-competitors">—</div>
+      <div class="label">Arena competitors (Kyle)</div>
+      <div class="label" id="shadow-pool">Pool: —</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>Treasury — All Chains</h2>
+      <div class="stat stat-sm" id="vault-usd">$—</div>
+      <div class="label">Sovereign vault progress → $5M target</div>
+      <div class="vault-bar"><span id="vault-fill"></span><div class="pct" id="vault-pct">0%</div></div>
+      <table class="treasury-table" style="margin-top:1.5rem">
+        <thead><tr><th>Root</th><th>Address</th></tr></thead>
+        <tbody id="treasury-rows"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>System Health</h2>
+      <div id="health-grid" style="display:grid;gap:0.75rem;font-size:0.9em"></div>
+      <h3 style="margin-top:1.5rem">Unstoppable Domains</h3>
+      <div id="domains-status" class="label">—</div>
+    </div>
+  </div>
+
+  <section>
+    <h3>14 Spiritual Elevators — TFC¹ Layer</h3>
+    <div class="elevators" id="elevators" role="list"></div>
+  </section>
+
+  <footer>
+    <span id="refresh-note">Polling /api/command/overview</span>
+    · YieldSwarm AgentSwarm OS v2
+  </footer>
+
+  <script>
+    const API = (window.YIELDSWARM_API || '').replace(/\/$/, '') || '';
+    const POLL_MS = Number(window.YIELDSWARM_POLL_MS) || 15000;
+
+    function $(id) { return document.getElementById(id); }
+
+    function fmtUsd(n) {
+      if (n == null || isNaN(n)) return '—';
+      return '$' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function fmtLamports(n) {
+      if (n == null) return '—';
+      return (Number(n) / 1e9).toFixed(4) + ' SOL';
+    }
+
+    function shortAddr(a) {
+      if (!a || a.length < 12) return a || '—';
+      return a.slice(0, 8) + '…' + a.slice(-6);
+    }
+
+    function renderElevators(list) {
+      const el = $('elevators');
+      el.innerHTML = (list || []).map((e) => `
+        <div class="elevator" tabindex="0" role="listitem" data-id="${e.id}">
+          <div class="num">ELEVATOR ${String(e.id).padStart(2, '0')}</div>
+          <div class="sym">${e.symbol || '◈'}</div>
+          <div class="title">${e.title}</div>
+          <div class="trad">${e.tradition}</div>
+          <div class="excerpt">"${e.excerpt || ''}"</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTreasury(roots) {
+      const tbody = $('treasury-rows');
+      if (!roots) { tbody.innerHTML = '<tr><td colspan="2">Loading…</td></tr>'; return; }
+      tbody.innerHTML = Object.entries(roots).map(([key, addr]) => `
+        <tr class="${key === 'iotex' ? 'iotex-row' : ''}">
+          <td>${key.replace(/_/g, ' ')}</td>
+          <td title="${addr}">${shortAddr(addr)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderHealth(sys, domains) {
+      const grid = $('health-grid');
+      const items = [
+        ['Overall', sys?.overall || '—'],
+        ['Solana RPC', sys?.solana?.live ? '● live' : '○ offline'],
+        ['Akash workers', sys?.akash?.workers ?? 0],
+        ['Vault', sys?.vault?.configured ? '● configured' : '○ unset'],
+      ];
+      grid.innerHTML = items.map(([k, v]) =>
+        `<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--grid)">
+          <span style="color:var(--muted)">${k}</span><strong>${v}</strong>
+        </div>`
+      ).join('');
+
+      const badge = $('health-badge');
+      badge.textContent = sys?.overall || 'unknown';
+      badge.className = 'health-badge ' + (sys?.overall || 'degraded');
+
+      $('domains-status').textContent = domains?.configured
+        ? `${domains.liveCount || 0}/${domains.domainCount || 0} domains resolved`
+        : 'UD_API_KEY not configured';
+    }
+
+    function render(data) {
+      if (!data) return;
+
+      const { solenoids, treasury, agents, spiritual_elevators, system, domains } = data;
+
+      $('nexus-agents').textContent = agents
+        ? `${agents.registered}/${agents.cap}`
+        : (solenoids?.nexus?.agents || '—');
+      $('nexus-status').textContent = `Status: ${solenoids?.nexus?.status || '—'}`;
+
+      $('helix-roots').textContent = solenoids?.helix?.miningRoots ?? '—';
+      $('helix-iotex').textContent = 'IoTeX: ' + (solenoids?.helix?.iotex || treasury?.iotex_hub?.primary || '—');
+
+      $('shadow-competitors').textContent = solenoids?.shadow?.competitors ?? '0';
+      $('shadow-pool').textContent = 'Pool: ' + fmtLamports(solenoids?.shadow?.rewardPool);
+
+      const vaultUsd = treasury?.vault_usd;
+      const target = treasury?.vault_target_usd || 5_000_000;
+      const pct = treasury?.vault_progress != null
+        ? Math.round(treasury.vault_progress * 100)
+        : (vaultUsd ? Math.min(100, Math.round((vaultUsd / target) * 100)) : 0);
+
+      $('vault-usd').textContent = fmtUsd(vaultUsd);
+      $('vault-fill').style.width = pct + '%';
+      $('vault-pct').textContent = pct + '%';
+
+      renderTreasury(treasury?.mining_roots);
+      renderElevators(spiritual_elevators);
+      renderHealth(system, domains);
+
+      $('refresh-note').textContent = `Updated ${new Date(data.timestamp).toLocaleTimeString()} · next poll ${POLL_MS / 1000}s`;
+    }
+
+    async function refresh() {
+      try {
+        const res = await fetch(API + '/api/command/overview', { cache: 'no-store' });
+        if (!res.ok) throw new Error(res.status);
+        render(await res.json());
+      } catch (err) {
+        $('health-badge').textContent = 'offline';
+        $('health-badge').className = 'health-badge critical';
+        $('refresh-note').textContent = 'API unreachable: ' + err.message;
+      }
+    }
+
+    function tickClock() {
+      $('clock').textContent = new Date().toLocaleString();
+    }
+
+    tickClock();
+    setInterval(tickClock, 1000);
+    refresh();
+    setInterval(refresh, POLL_MS);
+
+    // TV remote: focus navigation
+    document.addEventListener('keydown', (e) => {
+      const focusable = [...document.querySelectorAll('[tabindex="0"]')];
+      const idx = focusable.indexOf(document.activeElement);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        focusable[(idx + 1) % focusable.length]?.focus();
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        focusable[(idx - 1 + focusable.length) % focusable.length]?.focus();
+      }
+    });
+  </script>
+</body>
+</html>

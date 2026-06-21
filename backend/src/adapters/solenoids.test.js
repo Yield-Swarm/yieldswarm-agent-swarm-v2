@@ -39,11 +39,11 @@ describe('Nexus Chain orchestrator', () => {
   it('registers agents up to cap', async () => {
     const nexus = getNexusOrchestrator();
     const agent = await nexus.registerAgent({
-      id: 'test-agent-1',
+      id: `test-agent-${Date.now()}`,
       pubkey: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU',
       solenoidId: 'helix',
     });
-    assert.equal(agent.id, 'test-agent-1');
+    assert.ok(agent.id.startsWith('test-agent-'));
   });
 
   it('allocates multi-cloud resources', async () => {
@@ -95,17 +95,24 @@ describe('Shadow Chain Arena', () => {
   });
 
   it('registers competitor with swarm_ops gate', async () => {
+    const id = `arena-agent-${Date.now()}`;
     const competitor = await registerCompetitor({
-      agentId: 'arena-agent-1',
+      agentId: id,
       pubkey: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU',
       swarmRegistered: true,
     });
-    assert.equal(competitor.agentId, 'arena-agent-1');
+    assert.equal(competitor.agentId, id);
   });
 
   it('updates score and reputation', async () => {
+    const id = `arena-score-${Date.now()}`;
+    await registerCompetitor({
+      agentId: id,
+      pubkey: '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU',
+      swarmRegistered: true,
+    });
     const result = await submitArenaScore({
-      agentId: 'arena-agent-1',
+      agentId: id,
       score: 1000,
       won: true,
     });

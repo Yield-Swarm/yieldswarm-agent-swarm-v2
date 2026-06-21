@@ -20,6 +20,7 @@ import helixRouter from './routes/helix.js';
 import solenoidRouter from './routes/solenoid.js';
 import nexusRouter from './routes/nexus.js';
 import { shadowRouter } from './routes/solenoids.js';
+import commandRouter from './routes/command.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -45,6 +46,7 @@ app.use('/api/helix', helixRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/nexus', nexusRouter);
 app.use('/api/shadow', shadowRouter);
+app.use('/api/command', commandRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
 app.use('/', toolsRouter);
@@ -57,6 +59,10 @@ app.get('/vault', (_req, res) =>
 app.get('/vault-dashboard', (_req, res) =>
   res.sendFile(path.join(repoRoot, 'dashboard', 'sovereign-dashboard.html')),
 );
+app.get('/command', (_req, res) =>
+  res.sendFile(path.join(repoRoot, 'dashboard', 'yieldswarm-command.html')),
+);
+app.get('/tv', (_req, res) => res.redirect('/command'));
 
 // ---- Kairo static surfaces -------------------------------------------------
 app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
@@ -114,7 +120,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Arena:   /arena/\n` +
       `  Kairo:   /kairo/  /kairo-app/\n` +
       `  Vault:   /dashboard/sovereign-dashboard.html\n` +
-      `  API:     /api/arena/overview\n` +
+      `  Command: /command  /tv  (Samsung · Fire Stick · Apple TV · Pixel)\n` +
+      `  API:     /api/command/overview\n` +
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +
