@@ -21,6 +21,7 @@ export async function getSovereignLoopsTelemetry() {
 
   const manager = getSovereignLoopManager();
   manager.ingestTelemetry({ sovereign, helix });
+  manager.runCycle();
 
   return {
     generatedAt: new Date().toISOString(),

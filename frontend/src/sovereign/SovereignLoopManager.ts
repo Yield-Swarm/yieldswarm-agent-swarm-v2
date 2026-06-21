@@ -10,6 +10,7 @@ export type SovereignTreasuries = {
   nexus?: number;
   helix?: number;
   shadow?: number;
+  iotex?: number;
 };
 
 type SovereignLoopsState = {
@@ -38,7 +39,7 @@ function applyPayload(
   payload: Record<string, unknown>,
 ) {
   set({
-    currentState: String(payload.currentState ?? "Nominal"),
+    currentState: String(payload.currentState ?? "Active Loop Running"),
     logs: Array.isArray(payload.logs) ? (payload.logs as SovereignLog[]) : [],
     treasuries: (payload.treasuries as SovereignTreasuries) ?? {},
     totalTreasury: Number(payload.totalTreasury ?? 0),
@@ -56,7 +57,7 @@ async function postAction(path: string) {
 }
 
 export const useSovereignLoopsStore = create<SovereignLoopsState>((set, get) => ({
-  currentState: "Nominal",
+  currentState: "Active Loop Running",
   logs: [],
   treasuries: {},
   totalTreasury: 0,

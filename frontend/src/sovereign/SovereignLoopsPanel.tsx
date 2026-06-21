@@ -15,6 +15,7 @@ function getStateStyle(state: string): StateTheme {
       return { color: "#9C27B0", label: "REPLICATION LOOP ACTIVE" };
     case "Executing Self-Heal Patch":
       return { color: "#F44336", label: "CRITICAL PATCH ENGAGED" };
+    case "Active Loop Running":
     default:
       return { color: "#00E676", label: "ALL SOVEREIGN LOOPS SYSTEM NOMINAL" };
   }

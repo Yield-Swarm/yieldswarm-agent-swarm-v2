@@ -17,6 +17,7 @@
     "test:unit": "vitest run",
     "test:entropy": "vitest run src/infrastructure/entropy-core.test.js src/infrastructure/entropy-circuit-inputs.test.js",
     "test:helix": "vitest run src/infrastructure/helix-phase1.test.js src/infrastructure/helix-delta-v5.test.js src/infrastructure/sovereign-loops.test.js",
+    "sovereign:loop": "node scripts/sovereign-loop-engine.js",
     "circuits:build": "cd circuits && npm run build",
     "deploy:render": "bash deploy/templates/lib/render-template.sh all",
     "deploy:stack": "bash deploy/deploy-full-stack.sh",

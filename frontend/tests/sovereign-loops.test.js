@@ -12,7 +12,7 @@ const { SovereignLoopManager } = require(
 
 describe("SovereignLoopsPanel engine import", () => {
   it("exposes manual action snapshot", () => {
-    const mgr = new SovereignLoopManager();
+    const mgr = new SovereignLoopManager({ skipAuth: true });
     const snap = mgr.forceReplicate();
     assert.equal(snap.currentState, "Deploying Replica");
     assert.ok(snap.logs.length > 0);
