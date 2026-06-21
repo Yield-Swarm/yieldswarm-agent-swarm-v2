@@ -321,6 +321,22 @@ zk-trusted-setup:
 zk-mutation-cycle:
 	@node --input-type=module -e "import { HardenedAuditEngine } from './src/infrastructure/entropy-core.js'; import { runMutationCycle } from './src/automation/zk-mutation-scheduler.js'; const e=new HardenedAuditEngine(); const r=await runMutationCycle(e,{vramUsedGb:14,tempC:68,utilizationPct:55}); console.log(JSON.stringify(r,null,2));"
 
+## solenoid-heartbeat: run 14× pillar elevator DeFi yield evolution loop
+solenoid-heartbeat:
+	@node src/jobs/solenoidHeartbeat.js
+
+## solenoid-server: launch Helix integration backend via root server.js
+solenoid-server:
+	@node server.js
+
+## solenoid-shift-pentagram: elevate solenoid to 3D pentagram mode
+solenoid-shift-pentagram:
+	@curl -s -X POST http://127.0.0.1:8080/api/solenoid/shift -H 'Content-Type: application/json' -d '{"targetMode":"PENTAGRAM"}' | jq .
+
+## solenoid-shift-elevators: launch 14× pillar elevator arrays
+solenoid-shift-elevators:
+	@curl -s -X POST http://127.0.0.1:8080/api/solenoid/shift -H 'Content-Type: application/json' -d '{"targetMode":"14X_ELEVATORS"}' | jq .
+
 ## tfc-setup: TFC bootstrap from PR #3 — modular optional addon
 tfc-setup:
 	@cp -n deploy/terraform-tfc/terraform.tfvars.example deploy/terraform-tfc/terraform.tfvars 2>/dev/null || true

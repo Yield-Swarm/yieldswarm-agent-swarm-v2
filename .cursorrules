@@ -1,0 +1,10 @@
+# =======================================================================================
+# RUNIC SYSTEM CONSTITUTION: IMMUTABLE DESKTOP AGENT DIRECTIVES
+# =======================================================================================
+
+- Tech Stack Boundaries: Node.js (v20+), Express, ioredis, pg, ws. Pure backend + vanilla asset bindings.
+- Solenoid Architecture: Every operational layer must map cleanly to one of the 14 Pillar Elevators.
+- State Chain Rule: All JSON API outputs must append an `x-helix-state-anchor` tracking header.
+- Memory Isolation: Enforce absolute zero-copy string cleaning on all incoming cross-chain payloads.
+- Safety Canopy: If Redis exceptions clear, drop down instantly into read-through cache fallbacks.
+- Coding Standard: No summary comments, no skipped boilerplate, no omitted helper branches, no placeholders.
