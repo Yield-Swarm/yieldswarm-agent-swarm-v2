@@ -39,7 +39,15 @@ A := deploy/akash
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         zk-trusted-setup zk-mutation-cycle \
         tfc-setup tfc-init tfc-apply tfc-deploy-all \
-        status logs clean production
+        status logs clean production rust-core rust-core-test
+
+## rust-core: build Phase 1 Swarm OS Rust engine
+rust-core:
+	cargo build -p yieldswarm-core --release
+
+## rust-core-test: test yieldswarm-core crate
+rust-core-test:
+	cargo test -p yieldswarm-core
 
 ## help: show this menu
 help:
