@@ -1,0 +1,49 @@
+---
+# Akash SDL v2.0 — minimal backend (upload reference)
+# Full production SDL with Vault probes: deploy/akash-backend.sdl.yml
+version: "2.0"
+
+services:
+  backend:
+    image: ghcr.io/yieldswarm/yieldswarm-backend:latest
+    expose:
+      - port: 8080
+        as: 8080
+        to:
+          - global: true
+    env:
+      - PORT=8080
+      - AKASH_OWNER_ADDRESS=${AKASH_OWNER_ADDRESS}
+      - VAULT_ADDR=${VAULT_ADDR}
+    resources:
+      cpu:
+        units: 4
+      memory:
+        size: 8Gi
+      storage:
+        size: 20Gi
+
+profiles:
+  compute:
+    backend:
+      resources:
+        cpu:
+          units: 4
+        memory:
+          size: 8Gi
+        storage:
+          size: 20Gi
+  placement:
+    akash:
+      attributes:
+        host: akash
+      pricing:
+        backend:
+          denom: uakt
+          amount: 1500   # ~$1.50–2.50/day depending on provider
+
+deployment:
+  backend:
+    akash:
+      profile: backend
+      count: 1

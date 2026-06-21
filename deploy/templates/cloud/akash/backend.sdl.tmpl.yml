@@ -29,7 +29,7 @@ services:
       - VAULT_ROLE_ID=${VAULT_ROLE_ID}
       - VAULT_SECRET_ID=${VAULT_SECRET_ID}
       - VAULT_KV_MOUNT=${VAULT_KV_MOUNT}
-      - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus,runtime/llm
+      - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus,runtime/llm,treasury/mining_roots,iotex
       - AGENT_ENV_FILE=/run/secrets/agent.env
     readiness_probe:
       http_get:
