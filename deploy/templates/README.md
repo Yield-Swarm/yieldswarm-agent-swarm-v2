@@ -11,6 +11,7 @@ deploy/templates/
 │   ├── akash/backend.sdl.tmpl.yml
 │   ├── azure/tfc-workspace.env.tpl
 │   ├── azure/container-instance.env.tmpl
+│   └── ../../azure-deploy.yml          # ACI ARM template (core API)
 │   ├── aws/ecs-task.env.tmpl
 │   └── vast/on-demand.env.tmpl
 ├── llm-router/
