@@ -102,13 +102,20 @@ cross_bifrost() {
 }
 
 start_backend() {
-  if curl -sfS "${API_BASE}/api/health" >/dev/null 2>&1; then
-    log "Backend already listening on ${API_BASE}"
-    return 0
-  fi
+  local i
+  for i in $(seq 1 20); do
+    if curl -sfS "${API_BASE}/api/health" >/dev/null 2>&1; then
+      log "Backend healthy at ${API_BASE}"
+      return 0
+    fi
+    sleep 1
+  done
   if [[ "${DRY_RUN}" == "1" ]]; then
     log "[dry-run] would start backend on port ${PORT}"
     return 0
+  fi
+  if command -v ss >/dev/null 2>&1 && ss -tln 2>/dev/null | grep -q ":${PORT} "; then
+    die "Port ${PORT} in use but health check failed — stop stale process or set PORT"
   fi
   log "Installing backend deps (if needed)"
   (cd backend && npm install --silent 2>/dev/null || true)
