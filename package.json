@@ -19,6 +19,7 @@
     "test:helix": "vitest run src/infrastructure/helix-phase1.test.js",
     "anchor:build": "anchor build",
     "sdk:build": "cd packages/cross-chain-sdk && npm run build",
+    "connectors:check": "cd crates/llm-connectors && cargo test",
     "dashboard:dev": "cd app/dashboard && npm run dev",
     "dashboard:build": "cd packages/cross-chain-sdk && npm run build && cd ../../app/dashboard && npm run build",
     "tv:dev": "next dev",
