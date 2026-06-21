@@ -1,5 +1,5 @@
-# .data local revenue persistence (dev)
-.data/
+# Rust workspace
+/target/
 
 cache/
 out/
