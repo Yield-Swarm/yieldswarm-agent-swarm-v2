@@ -260,6 +260,22 @@ multicloud-teardown:
 scale-akash-workers:
 	@python3 akash/lease-manager.py --once
 
+## deploy-akash-dual: deploy swarm-flux-miner (H100) + backend (CPU) leases
+deploy-akash-dual:
+	bash akash/deploy-dual.sh
+
+## deploy-akash-miner: H100 swarm-flux-miner only
+deploy-akash-miner:
+	python3 akash/lease-manager.py --deploy miner --gpu h100 --bid-max 100000uakt
+
+## deploy-akash-backend-lease: CPU integration backend only
+deploy-akash-backend-lease:
+	python3 akash/lease-manager.py --deploy backend --bid-max 1500uakt
+
+## akash-leases-status: print dual-service lease endpoints
+akash-leases-status:
+	@python3 akash/lease-manager.py --leases
+
 ## cross-chain-preflight: GO/NO-GO for cross-chain execution layer
 cross-chain-preflight:
 	bash scripts/cross-chain-preflight.sh

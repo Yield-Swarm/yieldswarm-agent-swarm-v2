@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 
+from core.akash_feed import AkashFeed
 from sovereign_core import CoreConfig, SovereignCore
 
 
@@ -29,8 +30,21 @@ def main() -> None:
     p.add_argument("--seed-treasury", type=float, default=defaults.seed_treasury_usd)
     p.add_argument("--seed-vault", type=float, default=defaults.seed_vault_usd)
     p.add_argument("--target-apy", type=float, default=defaults.target_apy)
+    p.add_argument("--lease-endpoints", action="store_true",
+                   help="print Akash lease endpoints from akash/state/leases.json and exit")
     p.add_argument("--quiet", action="store_true")
     args = p.parse_args()
+
+    if args.lease_endpoints:
+        feed = AkashFeed()
+        endpoints = feed.lease_endpoints()
+        if endpoints:
+            print("Akash lease endpoints:")
+            for profile, url in endpoints.items():
+                print(f"  {profile}: {url}")
+        else:
+            print("No leases.json endpoints — run: python akash/lease-manager.py --deploy miner")
+        return
 
     cfg = CoreConfig(
         seed_workers=args.seed_workers,

@@ -1,0 +1,70 @@
+---
+# Swarm-Flux-Miner — H100 GPU lease for mining + agent inference
+# Bid: 100000 uakt/block (H100 priority on Akash marketplace)
+#
+# Deploy:
+#   AKASH_GPU_MODEL=h100 AKASH_MAX_BID_PRICE=100000 \
+#     ./akash/akash-deploy.sh deploy akash/swarm-flux-miner.yml
+#
+# Or via lease-manager:
+#   python akash/lease-manager.py --deploy miner --gpu h100 --bid-max 100000uakt
+version: "2.0"
+
+services:
+  miner:
+    image: ghcr.io/yieldswarm/swarm-flux-miner:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      - port: 9090
+        as: 9090
+        to:
+          - global: true
+    env:
+      - WORKER_ROLE=swarm-flux-miner
+      - HEALTH_PATH=/healthz
+      - MINING_COINS=bittensor,grass
+      - VAULT_SECRET_PATHS=runtime/bittensor,runtime/kairo,treasury/mining_roots
+      - AGENT_ENV_FILE=/run/secrets/agent.env
+    readiness_probe:
+      http_get:
+        path: /healthz
+        port: 8080
+      initial_delay_seconds: 30
+      period_seconds: 15
+    params:
+      storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
+
+profiles:
+  compute:
+    miner:
+      resources:
+        cpu:
+          units: 8
+        memory:
+          size: 64Gi
+        storage:
+          - size: 200Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: h100
+  placement:
+    akash:
+      pricing:
+        miner:
+          denom: uakt
+          amount: 100000
+
+deployment:
+  miner:
+    akash:
+      profile: miner
+      count: 1

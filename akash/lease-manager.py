@@ -42,6 +42,25 @@ from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
+# Dual-service SDL presets (swarm-flux-miner + backend)
+DEPLOY_PROFILES: dict[str, dict[str, Any]] = {
+    "miner": {
+        "sdl": SCRIPT_DIR / "swarm-flux-miner.yml",
+        "gpu": "h100",
+        "bid_max": "100000",
+        "role": "swarm-flux-miner",
+        "health_path": "/healthz",
+    },
+    "backend": {
+        "sdl": SCRIPT_DIR / "backend.yml",
+        "gpu": "",  # CPU-only
+        "bid_max": "1500",
+        "role": "integration-backend",
+        "health_path": "/api/health",
+    },
+}
+LEASES_STATE_FILE = SCRIPT_DIR / "state" / "leases.json"
+
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -262,25 +281,39 @@ def _load_vault_akash_config() -> None:
 # ---------------------------------------------------------------------------
 # Akash deploy integration
 # ---------------------------------------------------------------------------
-def provision_worker(cfg: Config) -> dict[str, Any] | None:
-    """Call akash-deploy.sh to provision a new RTX 3090 worker. Returns lease info."""
+def provision_worker(cfg: Config, *, sdl: Path | None = None, bid_max: str | None = None,
+                     gpu_model: str | None = None) -> dict[str, Any] | None:
+    """Call akash-deploy.sh to provision a worker. Returns lease info."""
+    env = os.environ.copy()
+    if sdl:
+        env["AKASH_SDL_FILE"] = str(sdl)
+    if bid_max:
+        env["AKASH_MAX_BID_PRICE"] = bid_max.lstrip("u").replace("uakt", "").strip() or bid_max
+    if gpu_model:
+        env["AKASH_GPU_MODEL"] = gpu_model
+
     if cfg.dry_run:
-        logging.info("[dry-run] would run: %s deploy", cfg.deploy_script)
+        role = gpu_model or "worker"
+        logging.info("[dry-run] would run: %s deploy %s", cfg.deploy_script, env.get("AKASH_SDL_FILE", ""))
         return {
             "ok": True,
             "dseq": f"dry-{int(time.time())}",
             "provider": "akash1dryrunprovider",
-            "price": 0,
-            "uris": [f"http://dry-run-worker-{int(time.time())}.example"],
-            "worker_url": f"http://dry-run-worker-{int(time.time())}.example",
+            "price": int(env.get("AKASH_MAX_BID_PRICE", "0") or 0),
+            "uris": [f"http://dry-run-{role}-{int(time.time())}.example"],
+            "worker_url": f"http://dry-run-{role}-{int(time.time())}.example",
+            "role": role,
         }
 
     cmd = ["bash", cfg.deploy_script, "deploy"]
-    logging.info("provisioning replacement worker via %s", " ".join(cmd))
+    if sdl:
+        cmd.append(str(sdl))
+    logging.info("provisioning worker via %s (gpu=%s bid_max=%s)",
+                 " ".join(cmd), env.get("AKASH_GPU_MODEL"), env.get("AKASH_MAX_BID_PRICE"))
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True,
-            timeout=cfg.deploy_timeout, check=False,
+            timeout=cfg.deploy_timeout, check=False, env=env,
         )
     except subprocess.TimeoutExpired:
         logging.error("akash-deploy.sh deploy timed out after %ds", cfg.deploy_timeout)
@@ -299,6 +332,70 @@ def provision_worker(cfg: Config) -> dict[str, Any] | None:
     logging.info("provisioned worker dseq=%s provider=%s url=%s",
                  info.get("dseq"), info.get("provider"), info.get("worker_url"))
     return info
+
+
+def _parse_bid_max(raw: str) -> str:
+    """Normalize '100000uakt' -> '100000'."""
+    return raw.lower().replace("uakt", "").strip()
+
+
+def deploy_profile(cfg: Config, profile: str, *, gpu: str | None = None,
+                   bid_max: str | None = None) -> dict[str, Any]:
+    """Deploy miner or backend SDL and persist to leases.json."""
+    preset = DEPLOY_PROFILES.get(profile)
+    if not preset:
+        raise ValueError(f"unknown deploy profile: {profile}")
+
+    sdl = Path(preset["sdl"])
+    if not sdl.is_file():
+        raise FileNotFoundError(f"SDL not found: {sdl}")
+
+    info = provision_worker(
+        cfg,
+        sdl=sdl,
+        bid_max=bid_max or preset["bid_max"],
+        gpu_model=gpu or preset.get("gpu") or None,
+    )
+    if not info:
+        raise RuntimeError(f"deploy failed for profile={profile}")
+
+    info["role"] = preset["role"]
+    info["profile"] = profile
+    info["deployed_at"] = _now()
+    _record_lease(info)
+    return info
+
+
+def _load_leases_state() -> dict[str, Any]:
+    path = Path(_env("LEASES_STATE_FILE", str(LEASES_STATE_FILE)))
+    if not path.is_file():
+        return {"version": 1, "leases": []}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _save_leases_state(data: dict[str, Any]) -> None:
+    path = Path(_env("LEASES_STATE_FILE", str(LEASES_STATE_FILE)))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+
+def _record_lease(info: dict[str, Any]) -> None:
+    state = _load_leases_state()
+    leases: list[dict[str, Any]] = state.setdefault("leases", [])
+    # Replace existing lease for same profile
+    leases = [l for l in leases if l.get("profile") != info.get("profile")]
+    leases.append(info)
+    state["leases"] = leases
+    state["updated_at"] = _now()
+    _save_leases_state(state)
+    logging.info("recorded lease profile=%s dseq=%s url=%s",
+                 info.get("profile"), info.get("dseq"), info.get("worker_url"))
+
+
+def print_leases_status() -> int:
+    state = _load_leases_state()
+    print(json.dumps(state, indent=2))
+    return 0
 
 
 def close_lease(cfg: Config, dseq: str) -> None:
@@ -580,6 +677,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--add-dseq", metavar="DSEQ", default="", help="DSEQ to associate with --add-worker")
     parser.add_argument("--add-provider", metavar="PROVIDER", default="", help="provider for --add-worker")
     parser.add_argument("--status", action="store_true", help="print current fleet state as JSON and exit")
+    parser.add_argument("--deploy", choices=sorted(DEPLOY_PROFILES.keys()),
+                        help="deploy dual-service SDL (miner=H100, backend=CPU) and exit")
+    parser.add_argument("--gpu", default="", help="override GPU model for --deploy miner (default: h100)")
+    parser.add_argument("--bid-max", default="", metavar="UAKT",
+                        help="max bid price e.g. 100000uakt or 1500uakt")
+    parser.add_argument("--leases", action="store_true",
+                        help="print dual-service leases.json state and exit")
     args = parser.parse_args(argv)
 
     cfg = Config.from_env()
@@ -590,6 +694,21 @@ def main(argv: list[str] | None = None) -> int:
 
     _setup_logging(cfg)
     state = State(cfg.state_file)
+
+    if args.leases:
+        return print_leases_status()
+
+    if args.deploy:
+        try:
+            bid = _parse_bid_max(args.bid_max) if args.bid_max else None
+            gpu = args.gpu or None
+            info = deploy_profile(cfg, args.deploy, gpu=gpu, bid_max=bid)
+            print(json.dumps({"ok": True, "lease": info}, indent=2))
+            return 0
+        except Exception as exc:
+            logging.exception("deploy failed")
+            print(json.dumps({"ok": False, "error": str(exc)}))
+            return 1
 
     if args.status:
         print(json.dumps({"workers": [asdict(w) for w in state.workers]}, indent=2))

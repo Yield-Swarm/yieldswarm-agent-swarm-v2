@@ -96,6 +96,38 @@ docker run --rm -it \
 
 ---
 
+## Dual-service deploy (swarm-flux-miner + backend)
+
+H100 GPU mining/agents + lightweight CPU integration backend — sovereign core pair.
+
+| SDL | Role | GPU | Max bid |
+| --- | --- | --- | --- |
+| `swarm-flux-miner.yml` | Mining + agent inference | H100 | 100000 uakt |
+| `backend.yml` | Integration API (`:8080`) | CPU | 1500 uakt |
+
+```bash
+cd ~/yieldswarm
+
+# Recommended — lease manager handles deploy + leases.json
+DRY_RUN=1 ./akash/deploy-dual.sh          # validate
+./akash/deploy-dual.sh                    # deploy both
+./akash/deploy-dual.sh miner              # H100 only
+python3 akash/lease-manager.py --deploy backend --bid-max 1500uakt
+
+# Monitor
+python3 akash/lease-manager.py --leases
+akash query deployment get --owner $AKASH_ACCOUNT_ADDRESS --dseq <DSEQ>
+
+# Wire sovereign core
+python3 iteration-100/run.py --lease-endpoints
+```
+
+Lease state: `akash/state/leases.json` (gitignored at runtime; see `akash/leases.example.json`).
+
+Heat throttling: `deploy/entrypoint.monitor.sh` wraps GPU workloads on Akash + Pixel ops nodes.
+
+---
+
 ## Lease Manager (merged from cursor/akash-lease-manager-f88c)
 
 
@@ -114,6 +146,9 @@ This is the concrete implementation behind `agents/akash-optimizer.py` and the
 | `akash-deploy.sh` | Akash CLI wrapper: create deployment, collect bids, pick the best RTX 3090 provider, open lease, send manifest, resolve worker URL, close leases. Each subcommand emits JSON. |
 | `lease-manager.py` | The supervisor loop: health checks, auto-failover, fleet scale-up, and telemetry updates. Runs as a daemon or a one-shot (`--once`) for cron. |
 | `worker.sdl.yml` | Akash SDL manifest requesting 1× RTX 3090. The GPU placement attribute constrains bidding to matching providers. |
+| `swarm-flux-miner.yml` | H100 GPU miner/agent SDL (100k uakt bid). |
+| `backend.yml` | CPU integration backend SDL (1.5k uakt bid). |
+| `deploy-dual.sh` | One-shot deploy miner + backend via lease-manager. |
 | `telemetry/telemetry.json` | Machine-readable fleet state (worker URLs, health). Rewritten every cycle. |
 | `telemetry/index.html` | Live dashboard that renders the telemetry. |
 | `run.sh` | start/stop/status wrapper for running as a background process without systemd. |

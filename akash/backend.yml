@@ -1,0 +1,60 @@
+---
+# YieldSwarm integration backend — lightweight CPU lease
+# Bid: 1500 uakt/block (cost-efficient sovereign API)
+#
+# Deploy:
+#   AKASH_MAX_BID_PRICE=1500 ./akash/akash-deploy.sh deploy akash/backend.yml
+#
+# Or via lease-manager:
+#   python akash/lease-manager.py --deploy backend --bid-max 1500uakt
+version: "2.0"
+
+services:
+  backend:
+    image: ghcr.io/yieldswarm/integration-backend:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+      - HEALTH_PATH=/api/health
+      - VAULT_SECRET_PATHS=runtime/backend,runtime/akash,rpc/solana,runtime/odysseus,runtime/llm,treasury/manifest
+      - AGENT_ENV_FILE=/run/secrets/agent.env
+    readiness_probe:
+      http_get:
+        path: /api/health
+        port: 8080
+      initial_delay_seconds: 20
+      period_seconds: 10
+    params:
+      storage:
+        secrets:
+          mount: /run/secrets
+          readOnly: false
+
+profiles:
+  compute:
+    backend:
+      resources:
+        cpu:
+          units: 2
+        memory:
+          size: 4Gi
+        storage:
+          - size: 1Gi
+  placement:
+    akash:
+      pricing:
+        backend:
+          denom: uakt
+          amount: 1500
+
+deployment:
+  backend:
+    akash:
+      profile: backend
+      count: 1

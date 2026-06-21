@@ -1,11 +1,8 @@
 """Real-or-simulated performance feed for Akash workers.
 
-In production this module would shell out to ``akash query market lease list``
-and scrape miner/inference revenue from pool APIs. Those calls need signing
-keys and network access, so when they are unavailable we fall back to a
-deterministic simulation seeded from ``AKASH_FEED_SEED``. Either way the rest
-of the core loop consumes the same :class:`AkashWorker` shape, so the sovereign
-logic is identical whether it is driving real leases or a backtest.
+In production this module shells out to ``akash query market lease list``
+and reads lease endpoints from ``akash/state/leases.json`` (written by
+``lease-manager.py --deploy``). When unavailable we fall back to simulation.
 """
 
 from __future__ import annotations
@@ -48,6 +45,29 @@ class AkashFeed:
         self._rng = random.Random(seed)
         self._live = os.getenv("AKASH_LIVE", "0") == "1"
         self._dseq_counter = 1000
+        self._lease_endpoints = self._load_lease_endpoints()
+
+    def _load_lease_endpoints(self) -> Dict[str, str]:
+        """Load miner/backend URLs from akash/state/leases.json."""
+        path = os.getenv(
+            "AKASH_LEASES_FILE",
+            os.path.join(os.path.dirname(__file__), "..", "..", "akash", "state", "leases.json"),
+        )
+        try:
+            with open(path, encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            return {}
+        out: Dict[str, str] = {}
+        for lease in data.get("leases", []):
+            profile = lease.get("profile", lease.get("role", "worker"))
+            url = lease.get("worker_url") or (lease.get("uris") or [None])[0]
+            if url:
+                out[str(profile)] = str(url)
+        return out
+
+    def lease_endpoints(self) -> Dict[str, str]:
+        return dict(self._lease_endpoints)
 
     # ------------------------------------------------------------------ #
     # Provisioning
@@ -57,6 +77,11 @@ class AkashFeed:
                   credits_usd: float = 200.0) -> AkashWorker:
         """Spin up a new lease (real attempt -> simulated fallback)."""
         model = gpu_model or self._rng.choice(list(GPU_CATALOG))
+        # Prefer H100 when miner lease endpoint is configured
+        if "miner" in self._lease_endpoints and model not in GPU_CATALOG:
+            model = "H100"
+        if "miner" in self._lease_endpoints and self._rng.random() < 0.35:
+            model = "H100"
         cost, base_rev = GPU_CATALOG[model]
         self._dseq_counter += self._rng.randint(1, 7)
         provider = self._rng.choice(PROVIDERS)
@@ -155,9 +180,19 @@ class AkashFeed:
             lid = lease.get("lease", {}).get("lease_id", {})
             dseq = str(lid.get("dseq", ""))
             if dseq and dseq not in known:
-                w = self.provision()
+                w = self.provision(gpu_model="H100" if self._lease_endpoints.get("miner") else None)
                 w.dseq = dseq
                 w.provider = str(lid.get("provider", w.provider))
+                state.workers.append(w)
+        # Inject configured dual-service endpoints as synthetic workers if empty
+        if not state.workers and self._lease_endpoints:
+            for profile, url in self._lease_endpoints.items():
+                gpu = "H100" if profile == "miner" else "RTX4090"
+                if profile == "backend":
+                    gpu = "RTX3090"
+                w = self.provision(gpu_model=gpu)
+                w.dseq = f"lease-{profile}"
+                w.provider = url
                 state.workers.append(w)
 
 
