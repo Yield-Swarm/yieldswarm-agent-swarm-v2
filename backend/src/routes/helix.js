@@ -4,6 +4,12 @@
 
 import { Router } from 'express';
 import { activateHelixChain, getHelixStatus } from '../adapters/helix.js';
+import { quoteHelixSettlement } from '../adapters/helixBridge.js';
+import {
+  getHelixTreasuryStatus,
+  routeYieldToMiningRoots,
+  submitZkSwarmBatch,
+} from '../adapters/helixTreasury.js';
 
 const router = Router();
 
@@ -42,6 +48,32 @@ router.post('/activate', asyncRoute(async (req, res) => {
     source: req.body?.source || 'api',
   });
   res.status(result.alreadyActive ? 200 : 201).json(result);
+}));
+
+/** GET /api/helix/treasury — Mining Roots + IoTeX hub manifest */
+router.get('/treasury', asyncRoute(async (_req, res) => {
+  res.json(await getHelixTreasuryStatus());
+}));
+
+/** POST /api/helix/treasury/route — route yield to all Mining Roots */
+router.post('/treasury/route', asyncRoute(async (req, res) => {
+  const body = req.body || {};
+  res.json(await routeYieldToMiningRoots({
+    grossLamports: body.grossLamports || body.amount,
+    weights: body.weights,
+    agentPubkey: body.agentPubkey,
+    dryRun: body.dryRun !== false,
+  }));
+}));
+
+/** POST /api/helix/settlement/quote — dry-run harvest settlement */
+router.post('/settlement/quote', asyncRoute(async (req, res) => {
+  res.json(await quoteHelixSettlement(req.body || {}));
+}));
+
+/** POST /api/helix/zk/batch — ZK-Swarm proof batch */
+router.post('/zk/batch', asyncRoute(async (req, res) => {
+  res.json(await submitZkSwarmBatch(req.body || {}));
 }));
 
 export default router;

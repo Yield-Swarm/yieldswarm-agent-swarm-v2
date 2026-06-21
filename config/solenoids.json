@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "max_agents": 521,
+  "solenoids": [
+    {
+      "id": "nexus",
+      "name": "Nexus Chain",
+      "role": "orchestration",
+      "program_id": "DXGVx4HsitGdFawg5KL68SAq9URhTaNL9tZAWWGGbo7p",
+      "vault_policy": "nexus-runtime",
+      "vault_secret_paths": [
+        "runtime/nexus",
+        "runtime/core",
+        "providers/azure",
+        "providers/akash",
+        "providers/vastai"
+      ]
+    },
+    {
+      "id": "helix",
+      "name": "Helix Reverberator",
+      "role": "treasury_routing",
+      "program_ids": {
+        "cross_chain": "9RoCmfzrPkbpSCr9a74cJJPGbXtzcQos6bbcePu7aSUt",
+        "swarm_ops": "6BbH4rvmxERTbcAbEat9SzT3N3P9fEFWvoAD3EsJ3BAz"
+      },
+      "vault_policy": "helix-runtime",
+      "vault_secret_paths": [
+        "runtime/helix",
+        "runtime/wallets",
+        "runtime/zk",
+        "rpc/solana",
+        "rpc/ethereum"
+      ]
+    },
+    {
+      "id": "shadow",
+      "name": "Shadow Chain",
+      "role": "arena_competition",
+      "owner": "kyle",
+      "program_id": "F1cnaQtFrqyp6x4oejdqMULsvejcznkJryXd6SbVSmp3",
+      "vault_policy": "shadow-runtime",
+      "vault_secret_paths": [
+        "runtime/shadow",
+        "runtime/zk",
+        "runtime/backend"
+      ]
+    }
+  ]
+}

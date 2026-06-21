@@ -66,6 +66,10 @@ put_if_set providers/digitalocean \
   spaces_access_id=DIGITALOCEAN_SPACES_ACCESS_ID \
   spaces_secret_key=DIGITALOCEAN_SPACES_SECRET_KEY
 
+put_if_set providers/vastai \
+  api_key=VASTAI_API_KEY \
+  user_id=VASTAI_USER_ID
+
 # ---- RPC endpoints (consumed by both terraform/ and the Akash runtime) ----
 put_if_set rpc/solana \
   url=SOLANA_RPC_URL \
@@ -198,6 +202,22 @@ put_if_set runtime/akash \
   owner_address=AKASH_OWNER_ADDRESS \
   key_name=AKASH_KEY_NAME \
   mnemonic=AKASH_WALLET_MNEMONIC
+
+# ---- Solenoid runtime paths (Nexus / Helix / Shadow) ----
+put_if_set runtime/nexus \
+  coordinator_key=NEXUS_COORDINATOR_KEY \
+  agent_cap=NEXUS_AGENT_CAP \
+  messaging_bus_url=NEXUS_BUS_URL
+
+put_if_set runtime/helix \
+  bridge_key=HELIX_CHAIN_BRIDGE_KEY \
+  iotex_routing_enabled=IOTEX_ROUTING_ENABLED \
+  treasury_manifest_hash=HELIX_TREASURY_MANIFEST_HASH
+
+put_if_set runtime/shadow \
+  arena_authority=SHADOW_ARENA_AUTHORITY \
+  arena_program_id=SHADOW_ARENA_PROGRAM_ID \
+  kyle_chain_owner=KYLE_CHAIN_OWNER
 
 # ---- Integration backend (Arena API on Akash) ----
 put_if_set runtime/backend \

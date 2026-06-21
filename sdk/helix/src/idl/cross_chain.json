@@ -1,0 +1,190 @@
+{
+  "address": "9RoCmfzrPkbpSCr9a74cJJPGbXtzcQos6bbcePu7aSUt",
+  "metadata": {
+    "name": "cross_chain",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "initializeTreasury",
+      "discriminator": [124, 186, 211, 121, 171, 136, 181, 131],
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "treasury", "writable": true },
+        { "name": "systemProgram" }
+      ],
+      "args": []
+    },
+    {
+      "name": "initializeBridge",
+      "discriminator": [6, 131, 44, 110, 17, 220, 241, 201],
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "bridgeState", "writable": true },
+        { "name": "treasury" },
+        { "name": "coordinatorState" },
+        { "name": "swarmOpsProgram" },
+        { "name": "systemProgram" }
+      ],
+      "args": [
+        { "name": "bridgeAuthority", "type": "pubkey" },
+        { "name": "maxSlippageBps", "type": "u16" },
+        { "name": "minHarvestAmount", "type": "u64" },
+        { "name": "bridgeFeeLamports", "type": "u64" }
+      ]
+    },
+    {
+      "name": "updateBridgeConfig",
+      "discriminator": [75, 133, 88, 65, 144, 222, 82, 132],
+      "accounts": [
+        { "name": "authority", "signer": true },
+        { "name": "bridgeState", "writable": true }
+      ],
+      "args": [
+        { "name": "bridgeAuthority", "type": { "option": "pubkey" } },
+        { "name": "minHarvestAmount", "type": { "option": "u64" } },
+        { "name": "maxSlippageBps", "type": { "option": "u16" } },
+        { "name": "bridgeFeeLamports", "type": { "option": "u64" } }
+      ]
+    },
+    {
+      "name": "setBridgePause",
+      "discriminator": [160, 15, 12, 189, 160, 0, 103, 58],
+      "accounts": [
+        { "name": "authority", "signer": true },
+        { "name": "bridgeState", "writable": true }
+      ],
+      "args": [{ "name": "paused", "type": "bool" }]
+    },
+    {
+      "name": "triggerRemoteHarvest",
+      "discriminator": [201, 151, 12, 46, 91, 19, 127, 193],
+      "accounts": [
+        { "name": "agent", "writable": true, "signer": true },
+        { "name": "bridgeState", "writable": true },
+        { "name": "treasury", "writable": true },
+        { "name": "harvestRequest", "writable": true },
+        { "name": "coordinatorState" },
+        { "name": "swarmConfig" },
+        { "name": "agentRegistry", "writable": true },
+        { "name": "swarmOpsProgram" },
+        { "name": "crossChainProgram" },
+        { "name": "systemProgram" }
+      ],
+      "args": [
+        { "name": "originChainId", "type": "u32" },
+        { "name": "targetChainId", "type": "u32" },
+        { "name": "amount", "type": "u64" },
+        { "name": "maxSlippageBps", "type": "u16" },
+        { "name": "nonce", "type": "u64" }
+      ]
+    },
+    {
+      "name": "receiveCrossChainYield",
+      "discriminator": [88, 42, 77, 201, 33, 148, 96, 176],
+      "accounts": [
+        { "name": "bridgeAuthority", "writable": true, "signer": true },
+        { "name": "agent" },
+        { "name": "bridgeState", "writable": true },
+        { "name": "harvestRequest", "writable": true },
+        { "name": "treasury", "writable": true },
+        { "name": "coordinatorState" },
+        { "name": "instructionsSysvar" },
+        { "name": "systemProgram" }
+      ],
+      "args": [
+        { "name": "originChainId", "type": "u32" },
+        { "name": "amount", "type": "u64" },
+        { "name": "nonce", "type": "u64" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BridgeState",
+      "discriminator": [37, 190, 126, 696, 176, 228, 147, 215]
+    },
+    {
+      "name": "Treasury",
+      "discriminator": [238, 239, 123, 121, 246, 186, 114, 220]
+    },
+    {
+      "name": "HarvestRequest",
+      "discriminator": [142, 77, 89, 201, 98, 144, 210, 18]
+    }
+  ],
+  "events": [
+    { "name": "BridgeInitialized" },
+    { "name": "HarvestTriggered" },
+    { "name": "YieldReceived" },
+    { "name": "EventLog" }
+  ],
+  "types": [
+    {
+      "name": "BridgeState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "pubkey" },
+          { "name": "bridgeAuthority", "type": "pubkey" },
+          { "name": "treasury", "type": "pubkey" },
+          { "name": "coordinator", "type": "pubkey" },
+          { "name": "swarmOpsProgram", "type": "pubkey" },
+          { "name": "paused", "type": "bool" },
+          { "name": "processing", "type": "bool" },
+          { "name": "harvestNonce", "type": "u64" },
+          { "name": "minHarvestAmount", "type": "u64" },
+          { "name": "maxSlippageBps", "type": "u16" },
+          { "name": "bridgeFeeLamports", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Treasury",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "pubkey" },
+          { "name": "totalDeposited", "type": "u64" },
+          { "name": "totalHarvested", "type": "u64" },
+          { "name": "depositCount", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "HarvestRequest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "bridgeState", "type": "pubkey" },
+          { "name": "originChainId", "type": "u32" },
+          { "name": "targetChainId", "type": "u32" },
+          { "name": "amount", "type": "u64" },
+          { "name": "nonce", "type": "u64" },
+          { "name": "status", "type": { "defined": { "name": "HarvestStatus" } } },
+          { "name": "messageHash", "type": { "array": ["u8", 32] } },
+          { "name": "createdAt", "type": "i64" },
+          { "name": "completedAt", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "HarvestStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Pending" },
+          { "name": "Bridging" },
+          { "name": "Completed" },
+          { "name": "Failed" },
+          { "name": "Cancelled" }
+        ]
+      }
+    }
+  ]
+}
