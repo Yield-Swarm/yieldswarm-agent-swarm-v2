@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "manager": "mining.manager.UnifiedMiningManager",
+  "cli": "scripts/mining/mining-manager.sh",
+  "miners": ["bittensor", "monero", "etc", "grass", "helium"],
+  "state_dir": ".run/mining",
+  "wallet_env": {
+    "tao": "MINING_ROOT_TAO",
+    "monero": "MONERO_WALLET_ADDRESS",
+    "etc": "MINING_ROOT_BASE_ETC",
+    "grass": "GRASS_NODE_KEYS",
+    "helium": "DEPIN_HELIUM_HOTSPOT_KEYS"
+  }
+}

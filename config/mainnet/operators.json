@@ -1,0 +1,14 @@
+[
+  {"id": "op-01", "provider": "akash", "region": "us-west", "status": "pending", "rpc": ""},
+  {"id": "op-02", "provider": "azure", "region": "eastus", "status": "pending", "rpc": ""},
+  {"id": "op-03", "provider": "zeeve", "region": "eu-west", "status": "pending", "rpc": ""},
+  {"id": "op-04", "provider": "local", "region": "hq", "status": "pending", "rpc": ""},
+  {"id": "op-05", "provider": "akash", "region": "eu-central", "status": "pending", "rpc": ""},
+  {"id": "op-06", "provider": "azure", "region": "westus2", "status": "pending", "rpc": ""},
+  {"id": "op-07", "provider": "zeeve", "region": "ap-south", "status": "pending", "rpc": ""},
+  {"id": "op-08", "provider": "local", "region": "colo", "status": "pending", "rpc": ""},
+  {"id": "op-09", "provider": "akash", "region": "us-east", "status": "pending", "rpc": ""},
+  {"id": "op-10", "provider": "azure", "region": "northeurope", "status": "pending", "rpc": ""},
+  {"id": "op-11", "provider": "zeeve", "region": "us-central", "status": "pending", "rpc": ""},
+  {"id": "op-12", "provider": "local", "region": "edge", "status": "pending", "rpc": ""}
+]

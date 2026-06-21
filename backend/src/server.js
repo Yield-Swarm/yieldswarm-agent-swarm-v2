@@ -17,7 +17,11 @@ import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
 import helixRouter from './routes/helix.js';
+import miningRouter from './routes/mining.js';
 import solenoidRouter from './routes/solenoid.js';
+import tvRouter from './routes/tv.js';
+import iotRouter from './routes/iot.js';
+import singlePaneRouter from './routes/singlePane.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,6 +44,10 @@ app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
 app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
+app.use('/api/mining', miningRouter);
+app.use('/api/tv', tvRouter);
+app.use('/api/iot', iotRouter);
+app.use('/api/single-pane', singlePaneRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
@@ -53,6 +61,10 @@ app.get('/vault', (_req, res) =>
 app.get('/vault-dashboard', (_req, res) =>
   res.sendFile(path.join(repoRoot, 'dashboard', 'sovereign-dashboard.html')),
 );
+app.get('/command-center', (_req, res) =>
+  res.sendFile(path.join(repoRoot, 'dashboard', 'command-center.html')),
+);
+app.get('/tv', (_req, res) => res.redirect('/command-center'));
 
 // ---- Kairo static surfaces -------------------------------------------------
 app.use('/kairo', express.static(path.join(repoRoot, 'kairo', 'dashboard')));
@@ -110,7 +122,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Arena:   /arena/\n` +
       `  Kairo:   /kairo/  /kairo-app/\n` +
       `  Vault:   /dashboard/sovereign-dashboard.html\n` +
-      `  API:     /api/arena/overview\n` +
+      `  Command: /command-center  /tv\n` +
+      `  API:     /api/arena/overview  /api/single-pane/overview\n` +
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +

@@ -124,6 +124,17 @@ Full layered file: `deploy/env/layered.env.example`.
 | `IOTEX_TREASURY` | IoTeX hub primary treasury (Helix Solenoid 2) |
 | `IOTEX_BTC_BRIDGE` | BTC via IOPAY bridge address |
 | `TREASURY_MANIFEST_PATH` | Override path to `TREASURY_MANIFEST.json` |
+| `NODE5_ENABLED` | Enable Node 5 PyHackathon Stellar + Cosmos module |
+| `NODE5_DRY_RUN` | Dry-run Node 5 chain ops (default `1`) |
+| `STELLAR_SECRET_KEY` | Stellar signer secret (Vault / SecretProd.pdf) |
+| `STELLAR_PUBLIC_KEY` | Stellar account public key |
+| `STELLAR_DESTINATION_ADDRESS` | Stellar treasury / payout address |
+| `STELLAR_NETWORK` | `public` or `testnet` |
+| `STELLAR_HORIZON_URL` | Horizon API base URL |
+| `COSMOS_MNEMONIC` | Cosmos wallet mnemonic (live txs) |
+| `COSMOS_ADDRESS` | Cosmos bech32 address |
+| `COSMOS_CHAIN_ID` | e.g. `akashnet-2` |
+| `COSMOS_REST_URL` | Cosmos REST endpoint |
 | `ZEC_SHIELDED_KEY` | Zcash shielded |
 | `ERC4337_BUNDLER_KEY` | Account abstraction bundler |
 | `INFURA_PROJECT_ID`, `INFURA_API_KEY`, `INFURA_SOL_MAINNET_RPC` | Infura RPC |
@@ -155,9 +166,17 @@ Full layered file: `deploy/env/layered.env.example`.
 | `AGENT_COUNT_TOTAL` | 10,080 agents |
 | `AGENTS_PER_SHARD`, `AGENT_SHARD_ID` | Shard sizing |
 | `CRON_SHARD_COUNT`, `CRON_INTERVAL_MINUTES` | Cron config |
-| `DEPIN_HELIUM_HOTSPOT_KEYS` | Helium keys JSON |
+| `DEPIN_HELIUM_HOTSPOT_KEYS` | Helium hotspots JSON (serial, MAC, SSID, wallet) |
 | `GPU_CLUSTER_KEYS` | GPU cluster keys JSON |
-| `GRASS_NODE_KEYS` | Grass DePIN keys |
+| `GRASS_NODE_KEYS` | Grass DePIN node keys / wallets JSON |
+| `GRASS_LINEUPS` | Grass device lineups with platform multipliers |
+| `MINING_DRY_RUN` | Dry-run mining manager (default `1`) |
+| `MINING_AUTO_START` | Auto-start miners on sovereign tick |
+| `MINING_ROOT_TAO` | Bittensor coldkey / payout address |
+| `MONERO_WALLET_ADDRESS` | Monero (XMR) payout address |
+| `MINING_ROOT_BASE_ETC` | Ethereum Classic payout address |
+| `MONERO_POOL_URL`, `ETC_POOL_URL` | Pool endpoints |
+| `XMRIG_PATH`, `ETC_MINER_BINARY` | Miner binary paths |
 | `SMARTTHINGS_BRIDGE_TOKEN` | SmartThings |
 | `COLORADO_POWER_PERMIT_ID`, `UTILITY_API_KEY` | Energy permits |
 

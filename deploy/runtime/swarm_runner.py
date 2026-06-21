@@ -30,6 +30,8 @@ ONESHOT = os.environ.get("SOVEREIGN_ONESHOT", "").lower() in ("1", "true", "yes"
 AGENT_FILES = [
     REPO_ROOT / "agents" / "cloud_scheduler_agent.py",
     REPO_ROOT / "agents" / "cross_chain_executor.py",
+    REPO_ROOT / "agents" / "mining_manager_agent.py",
+    REPO_ROOT / "agents" / "node5_orchestrator.py",
     REPO_ROOT / "agents" / "akash-optimizer.py",
     REPO_ROOT / "agents" / "openclaw-scaler.py",
     REPO_ROOT / "agents" / "chainlink-vault-manager.py",

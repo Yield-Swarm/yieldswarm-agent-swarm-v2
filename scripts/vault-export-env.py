@@ -14,6 +14,7 @@ PATHS: dict[str, str] = {
     "odysseus": "runtime/odysseus",
     "kairo": "runtime/kairo",
     "payments": "runtime/payments",
+    "mining": "mining/wallets",
 }
 
 # Vault key → environment variable (shared across paths; last write wins)
@@ -50,6 +51,14 @@ ENV_MAP: dict[str, str] = {
     "router_api_key": "YIELDSWARM_ROUTER_API_KEY",
     "openrouter_api_key": "OPENROUTER_API_KEY",
     "fireworks_api_key": "FIREWORKS_API_KEY",
+    # Mining wallets
+    "tao": "MINING_ROOT_TAO",
+    "monero": "MONERO_WALLET_ADDRESS",
+    "etc": "MINING_ROOT_BASE_ETC",
+    "grass_nodes": "GRASS_NODE_KEYS",
+    "helium_hotspots": "DEPIN_HELIUM_HOTSPOT_KEYS",
+    "grass_lineups": "GRASS_LINEUPS",
+    "solana_treasury": "NEXUS_TREASURY_SOLANA",
 }
 
 

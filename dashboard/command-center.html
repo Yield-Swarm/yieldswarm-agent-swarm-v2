@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#06080f"/>
+  <meta name="color-scheme" content="dark"/>
+  <title>Command Center — Multi-Chain Operations</title>
+  <meta name="description" content="Real-time operations dashboard: chain status, mining roots, agent swarm health, treasury balances."/>
+  <style>
+    :root {
+      --bg: #06080f;
+      --panel: rgba(18, 26, 43, 0.88);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e8edf5;
+      --muted: #8b9cb8;
+      --dim: #6b7d9a;
+      --accent: #3dffa8;
+      --accent-dim: rgba(61, 255, 168, 0.35);
+      --blue: #6eb5ff;
+      --warn: #ffb347;
+      --error: #ff6b6b;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --sans: "Inter", system-ui, -apple-system, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(61, 255, 168, 0.07), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(110, 181, 255, 0.05), transparent);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .cc-root {
+      min-height: 100vh;
+      padding: clamp(1rem, 2vw, 2rem) clamp(1.25rem, 3vw, 3rem);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.75rem, 1.5vw, 1.5rem);
+    }
+
+    /* Header */
+    .cc-header {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    .cc-brand h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .cc-brand .subtitle {
+      margin: 0.25rem 0 0;
+      font-size: clamp(0.8rem, 1.3vw, 1.05rem);
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .cc-domains {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .domain-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: clamp(0.65rem, 1vw, 0.85rem);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .domain-chip.ok {
+      border-color: var(--accent-dim);
+      color: #c8f7e4;
+    }
+
+    .cc-clock {
+      font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      text-align: right;
+      font-family: var(--mono);
+    }
+
+    /* Status banner */
+    .cc-banner {
+      display: none;
+      padding: 0.6rem 1rem;
+      background: rgba(255, 107, 107, 0.12);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: 8px;
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      color: #ff9b9b;
+    }
+
+    .cc-banner.visible { display: block; }
+
+    /* Hero metrics */
+    .cc-hero {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(0.75rem, 1.5vw, 1.25rem);
+    }
+
+    .metric-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: clamp(1rem, 2vw, 1.75rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .metric-label {
+      font-size: clamp(0.7rem, 1.1vw, 0.9rem);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .metric-value {
+      font-size: clamp(2rem, 4.5vw, 3.25rem);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .metric-value.accent { color: var(--accent); }
+    .metric-value.blue { color: var(--blue); }
+
+    .metric-sub {
+      font-size: clamp(0.8rem, 1.2vw, 1rem);
+      color: var(--muted);
+    }
+
+    .metric-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      margin-top: 0.5rem;
+      font-size: clamp(0.7rem, 1vw, 0.85rem);
+      color: var(--dim);
+      font-family: var(--mono);
+    }
+
+    .progress-bar {
+      margin-top: 0.75rem;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1a9e66, var(--accent));
+      border-radius: 4px;
+      transition: width 0.6s ease;
+      width: 0%;
+    }
+
+    /* Chain status row */
+    .cc-chains {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(0.75rem, 1.5vw, 1.25rem);
+    }
+
+    .chain-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: clamp(1rem, 1.5vw, 1.5rem);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chain-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--dim);
+    }
+
+    .chain-card.online::before { background: var(--accent); }
+    .chain-card.standby::before { background: var(--warn); }
+
+    .chain-card h2 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1rem, 1.6vw, 1.35rem);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chain-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+    }
+
+    .chain-stat:last-child { border-bottom: none; }
+
+    .chain-stat .key { color: var(--muted); }
+    .chain-stat .val {
+      font-family: var(--mono);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    /* Grid panels */
+    .cc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(0.75rem, 1.5vw, 1.25rem);
+      flex: 1;
+    }
+
+    .cc-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: clamp(1rem, 1.5vw, 1.5rem);
+    }
+
+    .cc-panel h2 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+      font-weight: 600;
+    }
+
+    .panel-sub {
+      margin: -0.5rem 0 0.75rem;
+      font-size: clamp(0.75rem, 1vw, 0.85rem);
+      color: var(--muted);
+    }
+
+    /* Live indicator */
+    .live-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .live-dot.on {
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(61, 255, 168, 0.6);
+    }
+
+    .live-dot.off { background: #4a5568; }
+
+    /* Lists */
+    .cc-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cc-list li {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+    }
+
+    .cc-list .name { font-weight: 500; }
+    .cc-list .detail { color: var(--muted); font-size: 0.9em; }
+    .cc-list .amount {
+      font-family: var(--mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Mining grid */
+    .mining-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .mining-chip {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 0.65rem 0.85rem;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .mining-chain {
+      font-size: clamp(0.75rem, 1vw, 0.85rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--blue);
+      letter-spacing: 0.04em;
+    }
+
+    .mining-addr {
+      font-family: var(--mono);
+      font-size: clamp(0.7rem, 0.95vw, 0.8rem);
+      color: var(--muted);
+    }
+
+    .mining-status {
+      font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+      color: var(--dim);
+      font-family: var(--mono);
+    }
+
+    /* Agent health bar */
+    .health-bar-wrap {
+      margin-top: 0.75rem;
+    }
+
+    .health-bar {
+      height: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .health-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1a6eb5, var(--blue));
+      border-radius: 6px;
+      transition: width 0.6s ease;
+      width: 0%;
+    }
+
+    .health-pct {
+      margin-top: 0.4rem;
+      font-size: clamp(0.75rem, 1vw, 0.85rem);
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* Footer */
+    .cc-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: clamp(0.75rem, 1vw, 0.85rem);
+      color: var(--dim);
+      font-family: var(--mono);
+    }
+
+    .live-tag {
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+
+    .sim-tag { color: var(--warn); }
+
+    @media (max-width: 1200px) {
+      .cc-hero { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      .cc-hero,
+      .cc-chains,
+      .cc-grid { grid-template-columns: 1fr; }
+      .cc-header {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .cc-domains { justify-content: center; }
+      .cc-clock { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cc-root">
+    <header class="cc-header">
+      <div class="cc-brand">
+        <h1>Command Center</h1>
+        <p class="subtitle">Nexus · Helix · Shadow — Multi-Chain Operations</p>
+      </div>
+      <div class="cc-domains" id="domains" aria-label="Domain status"></div>
+      <div class="cc-clock" id="clock" aria-live="polite"></div>
+    </header>
+
+    <div class="cc-banner" id="banner" role="status"></div>
+
+    <section class="cc-hero" aria-label="Key metrics">
+      <div class="metric-card">
+        <span class="metric-label">Active Agents</span>
+        <span class="metric-value accent" id="agents-active">—</span>
+        <span class="metric-sub" id="agents-target">/ 10,080 target</span>
+        <div class="health-bar-wrap">
+          <div class="health-bar"><div class="health-fill" id="agent-health-fill"></div></div>
+          <div class="health-pct" id="agent-health-pct">Swarm health —</div>
+        </div>
+        <div class="metric-meta" id="agent-meta"></div>
+      </div>
+
+      <div class="metric-card">
+        <span class="metric-label">Vault NAV</span>
+        <span class="metric-value" id="vault-nav">—</span>
+        <span class="metric-sub" id="vault-progress">— of $5.0M</span>
+        <div class="progress-bar"><div class="progress-fill" id="vault-fill"></div></div>
+      </div>
+
+      <div class="metric-card">
+        <span class="metric-label">Blended APY</span>
+        <span class="metric-value accent" id="vault-apy">—</span>
+        <span class="metric-sub" id="revenue-line">Revenue —</span>
+      </div>
+
+      <div class="metric-card">
+        <span class="metric-label">Treasury (on-chain)</span>
+        <span class="metric-value blue" id="treasury-total">—</span>
+        <span class="metric-sub" id="treasury-sub">Solana · EVM · IoTeX</span>
+      </div>
+    </section>
+
+    <section class="cc-chains" aria-label="Chain status">
+      <article class="chain-card" id="nexus-card">
+        <h2><span class="live-dot off" id="nexus-dot"></span> Nexus Chain</h2>
+        <div class="chain-stat"><span class="key">Status</span><span class="val" id="nexus-status">—</span></div>
+        <div class="chain-stat"><span class="key">Treasury</span><span class="val" id="nexus-treasury">—</span></div>
+        <div class="chain-stat"><span class="key">Balance</span><span class="val" id="nexus-balance">—</span></div>
+      </article>
+
+      <article class="chain-card" id="helix-card">
+        <h2><span class="live-dot off" id="helix-dot"></span> Helix Chain</h2>
+        <div class="chain-stat"><span class="key">Phase</span><span class="val" id="helix-phase">—</span></div>
+        <div class="chain-stat"><span class="key">Readiness</span><span class="val" id="helix-readiness">—</span></div>
+        <div class="chain-stat"><span class="key">Activation</span><span class="val" id="helix-activation">—</span></div>
+      </article>
+
+      <article class="chain-card" id="shadow-card">
+        <h2><span class="live-dot off" id="shadow-dot"></span> Shadow Chain</h2>
+        <div class="chain-stat"><span class="key">Status</span><span class="val" id="shadow-status">—</span></div>
+        <div class="chain-stat"><span class="key">Mode</span><span class="val" id="shadow-mode">—</span></div>
+        <div class="chain-stat"><span class="key">Workers</span><span class="val" id="shadow-workers">—</span></div>
+      </article>
+    </section>
+
+    <section class="cc-grid">
+      <div class="cc-panel">
+        <h2>Multi-Cloud Infrastructure</h2>
+        <ul class="cc-list" id="cloud-list"></ul>
+      </div>
+
+      <div class="cc-panel">
+        <h2>Treasury Balances</h2>
+        <p class="panel-sub" id="treasury-panel-sub">Live on-chain balances</p>
+        <ul class="cc-list" id="treasury-list"></ul>
+      </div>
+
+      <div class="cc-panel">
+        <h2>Agent Swarm</h2>
+        <p class="panel-sub">Target fleet: 10,080 agents</p>
+        <ul class="cc-list" id="swarm-list"></ul>
+      </div>
+    </section>
+
+    <section class="cc-panel" aria-label="Mining roots">
+      <h2>Mining Roots — All Chains</h2>
+      <p class="panel-sub">Cross-chain harvest addresses</p>
+      <div class="mining-grid" id="mining-grid"></div>
+    </section>
+
+    <footer class="cc-footer">
+      <span>yieldswarm.xyz</span>
+      <span id="updated-at">Updated —</span>
+      <span id="data-mode" class="sim-tag">LOADING</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const AGENT_TARGET = 10080;
+      const VAULT_TARGET = 5_000_000;
+
+      const MINING_ROOTS_DEFAULT = [
+        { chain: "Base ETC", address: "0x3ec1E8B08c2f543b23fD6B21CD812bB31f2E9F00" },
+        { chain: "ZEC", address: "t1KCti3km9DJLxYot3t7NgzYW2FpTnVCvrY" },
+        { chain: "PRL", address: "29L3dA5XvXUthBJeanarcTij6e5fdtAD81PxQMfEEQQ9" },
+        { chain: "TAO", address: "5GwCZMWxtmkjpMzA7p1EFynRFicebo8FNjjqoVugxNMkSQSF" },
+        { chain: "Base HYPE", address: "0x856e90EDd6d167355FcB6c35a8A857FFCA011Aa0" },
+        { chain: "Base cbETH", address: "0x455156dFDc95084A8e84e8d734a036A9a2e11Af0" },
+        { chain: "Base BTC", address: "0x1353f846DB707F6739591d294c80740607F1A87a" },
+      ];
+
+      const DOMAINS_DEFAULT = [
+        { id: "official", host: "yieldswarm.xyz", resolved: false },
+        { id: "helix", host: "helixchain.blockchain", resolved: false },
+        { id: "nexus", host: "nexuschain.blockchain", resolved: false },
+        { id: "shadow", host: "shadowchain.blockchain", resolved: false },
+      ];
+
+      const $ = (id) => document.getElementById(id);
+
+      function fmtUsd(n) {
+        const v = Number(n) || 0;
+        if (v >= 1_000_000) return "$" + (v / 1_000_000).toFixed(2) + "M";
+        if (v >= 1_000) return "$" + (v / 1_000).toFixed(1) + "K";
+        return "$" + v.toFixed(0);
+      }
+
+      function fmtPct(n) {
+        return (Number(n) * 100).toFixed(1) + "%";
+      }
+
+      function shortAddr(a) {
+        if (!a || a.length < 12) return a || "—";
+        return a.slice(0, 6) + "…" + a.slice(-4);
+      }
+
+      function setDot(el, on) {
+        if (!el) return;
+        el.classList.toggle("on", !!on);
+        el.classList.toggle("off", !on);
+      }
+
+      function setChainCardClass(el, state) {
+        if (!el) return;
+        el.classList.remove("online", "standby");
+        if (state === "online") el.classList.add("online");
+        else if (state === "standby") el.classList.add("standby");
+      }
+
+      async function fetchJson(url) {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(url + " " + res.status);
+        return res.json();
+      }
+
+      async function loadPrimary() {
+        const body = await fetchJson("/api/tv/dashboard");
+        if (!body.ok) throw new Error(body.error || "dashboard unavailable");
+        return body.data;
+      }
+
+      async function loadFallback() {
+        const [revenue, helix] = await Promise.allSettled([
+          fetchJson("/api/revenue/metrics"),
+          fetchJson("/api/helix/status"),
+        ]);
+
+        const rev = revenue.status === "fulfilled" && revenue.value.ok ? revenue.value.data : null;
+        const hx = helix.status === "fulfilled" && helix.value.ok ? helix.value.data : null;
+
+        return {
+          generatedAt: new Date().toISOString(),
+          agents: {
+            active: rev?.agentsActive ?? AGENT_TARGET,
+            target: AGENT_TARGET,
+            cronsFiring: rev?.cronsFiring ?? 120,
+            deitiesOnline: rev?.deitiesOnline ?? 0,
+            shards: 120,
+          },
+          vault: {
+            netWorthUsd: 0,
+            targetUsd: VAULT_TARGET,
+            progress: 0,
+            blendedApy: 0.37,
+            treasuryUsd: 0,
+            live: false,
+          },
+          chains: {
+            helix: {
+              activated: Boolean(hx?.activated),
+              phase: String(hx?.phase || "genesis"),
+              readiness: Number(hx?.readinessScore || 72),
+            },
+            nexus: { treasury: "kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN", solenoid: 1 },
+            shadow: { status: "standby" },
+          },
+          treasury: {
+            solana: { balance: "—", balanceUsd: null, live: false, address: "kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN" },
+            evm: { balance: "—", balanceUsd: null, live: false, address: "0x9505578Bd5b32468E3cEa632664F7b8d2e46128c" },
+            iotex: { balance: "—", balanceUsd: null, live: false, address: "" },
+          },
+          miningRoots: MINING_ROOTS_DEFAULT,
+          clouds: [
+            { id: "akash", label: "Akash Network", live: false, detail: "offline" },
+            { id: "azure", label: "Azure", live: false, detail: "unknown" },
+            { id: "vast", label: "Vast.ai", live: false, detail: "unknown" },
+            { id: "runpod", label: "RunPod", live: false, detail: "unknown" },
+          ],
+          domains: DOMAINS_DEFAULT,
+          revenueUsd: rev?.totalRevenueUsd ?? 0,
+        };
+      }
+
+      function renderDomains(domains) {
+        const root = $("domains");
+        root.innerHTML = "";
+        (domains || DOMAINS_DEFAULT).forEach((d) => {
+          const chip = document.createElement("span");
+          chip.className = "domain-chip" + (d.resolved ? " ok" : "");
+          chip.innerHTML = '<span class="live-dot ' + (d.resolved ? "on" : "off") + '"></span>' + (d.host || d.label);
+          root.appendChild(chip);
+        });
+      }
+
+      function renderClouds(clouds) {
+        const list = $("cloud-list");
+        list.innerHTML = "";
+        (clouds || []).forEach((c) => {
+          const li = document.createElement("li");
+          li.innerHTML =
+            '<span class="live-dot ' + (c.live ? "on" : "off") + '"></span>' +
+            '<span class="name">' + c.label + '<br><span class="detail">' + (c.detail || "") + "</span></span>" +
+            '<span class="amount">' + (c.workers != null && c.workers > 0 ? c.workers + " wkrs" : c.live ? "OK" : "—") + "</span>";
+          list.appendChild(li);
+        });
+      }
+
+      function renderTreasury(treasury) {
+        const list = $("treasury-list");
+        list.innerHTML = "";
+        const rows = [
+          { key: "solana", label: "Solana (Nexus)" },
+          { key: "evm", label: "EVM" },
+          { key: "iotex", label: "IoTeX" },
+        ];
+        rows.forEach(({ key, label }) => {
+          const row = treasury?.[key] || {};
+          const li = document.createElement("li");
+          li.innerHTML =
+            '<span class="live-dot ' + (row.live ? "on" : "off") + '"></span>' +
+            "<span>" + label + "</span>" +
+            '<span class="amount">' + (row.balance || "—") + "</span>";
+          list.appendChild(li);
+        });
+      }
+
+      function renderSwarm(agents) {
+        const list = $("swarm-list");
+        const a = agents || {};
+        const items = [
+          { label: "Active agents", value: (a.active ?? 0).toLocaleString() },
+          { label: "Target fleet", value: (a.target ?? AGENT_TARGET).toLocaleString() },
+          { label: "Cron jobs firing", value: String(a.cronsFiring ?? "—") },
+          { label: "Shard partitions", value: String(a.shards ?? "—") },
+          { label: "Coordinator nodes", value: String(a.deitiesOnline ?? "—") },
+        ];
+        list.innerHTML = items
+          .map(
+            (i) =>
+              "<li><span class='live-dot on'></span><span>" +
+              i.label +
+              "</span><span class='amount'>" +
+              i.value +
+              "</span></li>",
+          )
+          .join("");
+      }
+
+      function renderMining(roots) {
+        const grid = $("mining-grid");
+        grid.innerHTML = "";
+        (roots || MINING_ROOTS_DEFAULT).forEach((r) => {
+          const chip = document.createElement("div");
+          chip.className = "mining-chip";
+          chip.innerHTML =
+            '<span class="mining-chain">' +
+            r.chain +
+            '</span><span class="mining-addr">' +
+            shortAddr(r.address) +
+            '</span><span class="mining-status">root configured</span>';
+          grid.appendChild(chip);
+        });
+      }
+
+      function render(data, source) {
+        const agents = data.agents || {};
+        const vault = data.vault || {};
+        const chains = data.chains || {};
+        const treasury = data.treasury || {};
+
+        const active = agents.active ?? AGENT_TARGET;
+        const target = agents.target ?? AGENT_TARGET;
+        const healthPct = Math.min(100, (active / target) * 100);
+
+        $("agents-active").textContent = active.toLocaleString();
+        $("agents-target").textContent = "/ " + target.toLocaleString() + " target";
+        $("agent-health-fill").style.width = healthPct + "%";
+        $("agent-health-pct").textContent = "Swarm health " + healthPct.toFixed(1) + "%";
+        $("agent-meta").innerHTML =
+          "<span>" + (agents.cronsFiring ?? 0) + " crons</span>" +
+          "<span>" + (agents.shards ?? 0) + " shards</span>";
+
+        $("vault-nav").textContent = fmtUsd(vault.netWorthUsd ?? 0);
+        $("vault-progress").textContent = fmtPct(vault.progress ?? 0) + " of " + fmtUsd(vault.targetUsd ?? VAULT_TARGET);
+        $("vault-fill").style.width = Math.min(100, (vault.progress ?? 0) * 100) + "%";
+        $("vault-apy").textContent = fmtPct(vault.blendedApy ?? 0);
+        $("revenue-line").textContent = "Revenue " + fmtUsd(data.revenueUsd ?? 0);
+
+        const totalTreasury =
+          (treasury.solana?.balanceUsd ?? 0) +
+          (treasury.evm?.balanceUsd ?? 0) +
+          (treasury.iotex?.balanceUsd ?? 0);
+        $("treasury-total").textContent = totalTreasury > 0 ? fmtUsd(totalTreasury) : "—";
+        $("treasury-sub").textContent =
+          [treasury.solana?.live && "Solana", treasury.evm?.live && "EVM", treasury.iotex?.live && "IoTeX"]
+            .filter(Boolean)
+            .join(" · ") || "Solana · EVM · IoTeX";
+
+        // Nexus
+        const nexusAddr = chains.nexus?.treasury || treasury.solana?.address || "";
+        setDot($("nexus-dot"), true);
+        setChainCardClass($("nexus-card"), "online");
+        $("nexus-status").textContent = "operational";
+        $("nexus-treasury").textContent = shortAddr(nexusAddr);
+        $("nexus-balance").textContent = treasury.solana?.balance || "—";
+
+        // Helix
+        const helixOn = Boolean(chains.helix?.activated);
+        setDot($("helix-dot"), helixOn);
+        setChainCardClass($("helix-card"), helixOn ? "online" : "standby");
+        $("helix-phase").textContent = chains.helix?.phase || "—";
+        $("helix-readiness").textContent = (chains.helix?.readiness ?? 0) + "%";
+        $("helix-activation").textContent = helixOn ? "active" : "pending";
+
+        // Shadow
+        const shadowActive = chains.shadow?.status === "active";
+        setDot($("shadow-dot"), shadowActive);
+        setChainCardClass($("shadow-card"), shadowActive ? "online" : "standby");
+        $("shadow-status").textContent = chains.shadow?.status || "standby";
+        $("shadow-mode").textContent = shadowActive ? "production" : "standby";
+        const akash = (data.clouds || []).find((c) => c.id === "akash");
+        $("shadow-workers").textContent = akash?.workers != null ? String(akash.workers) : "—";
+
+        renderDomains(data.domains);
+        renderClouds(data.clouds);
+        renderTreasury(treasury);
+        renderSwarm(agents);
+        renderMining(data.miningRoots);
+
+        $("updated-at").textContent =
+          "Updated " +
+          (data.generatedAt
+            ? new Date(data.generatedAt).toLocaleTimeString()
+            : new Date().toLocaleTimeString());
+
+        const mode = $("data-mode");
+        if (vault.live) {
+          mode.textContent = "LIVE";
+          mode.className = "live-tag";
+        } else {
+          mode.textContent = source === "fallback" ? "PARTIAL" : "SIM";
+          mode.className = "sim-tag";
+        }
+
+        $("banner").classList.remove("visible");
+      }
+
+      function showError(msg) {
+        const b = $("banner");
+        b.textContent = "Reconnecting… " + msg;
+        b.classList.add("visible");
+      }
+
+      async function refresh() {
+        try {
+          const data = await loadPrimary();
+          render(data, "primary");
+        } catch (primaryErr) {
+          try {
+            const data = await loadFallback();
+            render(data, "fallback");
+            showError(String(primaryErr.message || primaryErr));
+          } catch (fallbackErr) {
+            showError(String(fallbackErr.message || fallbackErr));
+          }
+        }
+      }
+
+      function tickClock() {
+        $("clock").textContent = new Date().toLocaleString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+
+      tickClock();
+      setInterval(tickClock, 1000);
+      refresh();
+      setInterval(refresh, 15000);
+    })();
+  </script>
+</body>
+</html>

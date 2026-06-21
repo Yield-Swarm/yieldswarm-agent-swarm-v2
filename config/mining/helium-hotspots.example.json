@@ -1,0 +1,9 @@
+[
+  {
+    "model": "HNT-ODU-0012",
+    "serial": "60013006881",
+    "mac": "60:6D:3C:5F:14:1C",
+    "ssid": "Helium-5G-141C",
+    "wallet": "${HELIUM_PAYOUT_WALLET}"
+  }
+]

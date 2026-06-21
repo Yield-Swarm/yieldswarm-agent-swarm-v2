@@ -1,0 +1,21 @@
+# Node 5 — PyHackathon Stellar + Cosmos SDK
+version: "1.0"
+node_id: node5
+module: pyhackathon-stellar-cosmos
+description: Stellar (XLM) payments + Cosmos SDK REST for Akash/Cosmos chains
+
+orchestrator:
+  python_entry: nodes.node5.orchestrator.run_cycle
+  agent_script: agents/node5_orchestrator.py
+  cross_chain_kind: stellar_cosmos
+
+actions:
+  - status
+  - balance
+  - route_yield
+
+secrets:
+  vault_paths:
+    - node5/stellar
+    - node5/cosmos
+  source_doc: SecretProd.pdf  # never commit — inject via Vault only

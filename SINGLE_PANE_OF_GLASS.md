@@ -125,9 +125,15 @@ flowchart TB
 
 | Pane | URL / command |
 |------|----------------|
+| **Command Center (TV)** | `/command-center` · `/tv` |
+| **Single Pane API** | `GET /api/single-pane/overview` |
 | Helix | `GET /api/helix/status` · `./scripts/activate-helix.sh` |
-| Arena | `/arena?workers=<lease-uri>` |
+| Arena | `/arena?workers=<lease-uri>` · `GET /api/arena/overview` |
 | Council | `/council/status.html` |
 | Sovereign | `GET /api/sovereign/state` |
+| IoT Registry | `GET /api/iot/devices` |
+| Neural Viz | `/dashboard/neural-mesh-viz.html` |
 | Akash deploy | `make deploy-akash-europlots` |
 | Vault runtime | `docs/VAULT_AKASH_RUNTIME.md` |
+
+See [`docs/SINGLE_PANE_PROMPTS.md`](docs/SINGLE_PANE_PROMPTS.md) for the full 20-prompt map.

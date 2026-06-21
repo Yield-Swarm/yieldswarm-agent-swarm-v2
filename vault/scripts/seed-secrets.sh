@@ -231,7 +231,15 @@ put_if_set iotex \
   btc_bridge=IOTEX_BTC_BRIDGE \
   nexus_treasury_solana=NEXUS_TREASURY_SOLANA
 
-# ---- Bittensor miner (Akash dual-purpose worker) ----
+# ---- Mining infrastructure ----
+put_if_set mining/wallets \
+  tao=MINING_ROOT_TAO \
+  monero=MONERO_WALLET_ADDRESS \
+  etc=MINING_ROOT_BASE_ETC \
+  grass_nodes=GRASS_NODE_KEYS \
+  helium_hotspots=DEPIN_HELIUM_HOTSPOT_KEYS \
+  grass_lineups=GRASS_LINEUPS
+
 put_if_set runtime/bittensor \
   wallet_name=BT_WALLET_NAME \
   hotkey_name=BT_HOTKEY_NAME \
@@ -246,5 +254,21 @@ put_if_set runtime/akash \
   mnemonic=AKASH_WALLET_MNEMONIC \
   node=AKASH_NODE \
   chain_id=AKASH_CHAIN_ID
+
+# ---- Node 5 — Stellar (XLM) from SecretProd.pdf ----
+put_if_set node5/stellar \
+  secret_key=STELLAR_SECRET_KEY \
+  public_key=STELLAR_PUBLIC_KEY \
+  destination=STELLAR_DESTINATION_ADDRESS \
+  network=STELLAR_NETWORK \
+  horizon_url=STELLAR_HORIZON_URL
+
+# ---- Node 5 — Cosmos SDK ----
+put_if_set node5/cosmos \
+  mnemonic=COSMOS_MNEMONIC \
+  address=COSMOS_ADDRESS \
+  chain_id=COSMOS_CHAIN_ID \
+  rest_url=COSMOS_REST_URL \
+  denom=COSMOS_DENOM
 
 log "done"

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Neural Mesh Frequency Visualizer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { background: #04060a; color: #d7ffe9; font-family: system-ui, sans-serif; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+    .hud {
+      position: fixed; top: 1rem; left: 1rem; right: 1rem;
+      display: flex; justify-content: space-between; font-size: 0.85rem;
+      pointer-events: none; text-shadow: 0 0 8px #000;
+    }
+    .freq { font-family: monospace; color: #5dfff0; font-size: 1.4rem; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div>Neural Mesh — 14 Elevators · Light + Sound Frequency</div>
+    <div class="freq" id="freq">60.00 Hz</div>
+  </div>
+  <canvas id="viz"></canvas>
+  <script>
+    const canvas = document.getElementById('viz');
+    const ctx = canvas.getContext('2d');
+    const freqEl = document.getElementById('freq');
+    let w, h, t = 0;
+    let targetHz = 60;
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    async function pollTelemetry() {
+      try {
+        const res = await fetch('/api/single-pane/overview', { cache: 'no-store' });
+        const body = await res.json();
+        const mesh = body.data?.neuralMesh;
+        if (mesh) targetHz = 60;
+      } catch { /* keep default */ }
+    }
+    pollTelemetry();
+    setInterval(pollTelemetry, 15000);
+
+    function draw() {
+      t += 0.02;
+      ctx.fillStyle = 'rgba(4, 6, 10, 0.25)';
+      ctx.fillRect(0, 0, w, h);
+
+      const bars = 14;
+      const gap = w / (bars + 1);
+      for (let i = 0; i < bars; i++) {
+        const phase = t + i * 0.4;
+        const amp = (Math.sin(phase) * 0.5 + 0.5) * (h * 0.35);
+        const x = gap * (i + 1);
+        const hue = 160 + i * 8;
+        const grad = ctx.createLinearGradient(x, h - amp - 40, x, h);
+        grad.addColorStop(0, `hsla(${hue}, 80%, 60%, 0.9)`);
+        grad.addColorStop(1, `hsla(${hue}, 80%, 40%, 0.1)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(x - 18, h - amp - 40, 36, amp + 20);
+      }
+
+      ctx.strokeStyle = 'rgba(93, 255, 240, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let x = 0; x < w; x += 4) {
+        const y = h / 2 + Math.sin(x * 0.01 + t * 2) * 40 * (targetHz / 60);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      freqEl.textContent = targetHz.toFixed(2) + ' Hz';
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>

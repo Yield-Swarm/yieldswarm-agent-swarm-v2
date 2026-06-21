@@ -118,6 +118,13 @@ def default_scheduled_jobs(*, shard_id: int = 0) -> List[StrategyJob]:
             dry_run=dry,
             cron_shard=shard_id,
         ),
+        StrategyJob(
+            id=f"{prefix}-node5-{uuid.uuid4().hex[:8]}",
+            kind=StrategyKind.STELLAR_COSMOS,
+            params={"action": "status", "gross_revenue_usd": 0},
+            dry_run=dry,
+            cron_shard=shard_id,
+        ),
     ]
 
 
