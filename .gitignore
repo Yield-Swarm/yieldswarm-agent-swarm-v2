@@ -1,3 +1,6 @@
+# Rust / Cargo
+/target/
+
 # .data local revenue persistence (dev)
 .data/
 
