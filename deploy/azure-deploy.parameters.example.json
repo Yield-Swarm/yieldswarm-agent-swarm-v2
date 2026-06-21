@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "containerGroupName": { "value": "yieldswarm-core" },
+    "location": { "value": "eastus" },
+    "dnsNameLabel": { "value": "yieldswarm-core" },
+    "containerImage": { "value": "ghcr.io/yieldswarm/yieldswarm-backend:latest" },
+    "cpuCores": { "value": 4 },
+    "memoryInGb": { "value": 16 },
+    "vaultAddr": { "value": "https://vault.yieldswarm.io:8200" },
+    "vaultRoleId": { "value": "" },
+    "vaultWrappedSecretId": { "value": "" },
+    "akashOwnerAddress": { "value": "" },
+    "agentSwarmMasterKey": { "value": "" },
+    "databaseUrl": { "value": "" },
+    "ghcrUser": { "value": "" },
+    "ghcrToken": { "value": "" }
+  }
+}

@@ -14,6 +14,7 @@
 #   akash-backend    Light integration API on Akash
 #   terraform        Multi-cloud fallback (deploy/terraform)
 #   azure            Root terraform/ apply (Container Apps + Vault-fed creds)
+#   azure-aci          Azure Container Instances (deploy/azure-deploy.yml)
 #   vercel           Print Vercel deploy command (or trigger hook)
 #   render           Render blueprint / API redeploy hint
 #   frontend         Wire worker URLs into dashboard config
@@ -105,6 +106,11 @@ cmd_azure() {
   (cd "${ROOT}/terraform" && terraform init -backend-config=envs/prod/backend.hcl && terraform apply)
 }
 
+cmd_azure_aci() {
+  log "Deploying YieldSwarm core to Azure Container Instances"
+  bash "${ROOT}/scripts/deploy-azure-core.sh" "$@"
+}
+
 cmd_vercel() {
   if [[ -n "${VERCEL_DEPLOY_HOOK:-}" ]]; then
     log "Triggering Vercel deploy hook"
@@ -162,6 +168,7 @@ case "${TARGET}" in
   akash-backend)    cmd_akash_backend ;;
   terraform)        cmd_terraform ;;
   azure)            cmd_azure ;;
+  azure-aci)        cmd_azure_aci "$@" ;;
   vercel)           cmd_vercel ;;
   render)           cmd_render ;;
   frontend)         cmd_frontend ;;

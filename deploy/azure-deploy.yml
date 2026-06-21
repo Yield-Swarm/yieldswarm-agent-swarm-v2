@@ -1,0 +1,149 @@
+# azure-deploy.yml — YieldSwarm core on Azure Container Instances (ACI)
+#
+# Deploy:
+#   ./scripts/deploy-azure-core.sh
+#
+# Or manually:
+#   az deployment group create \
+#     --resource-group yieldswarm-rg \
+#     --template-file deploy/azure-deploy.yml \
+#     --parameters @deploy/azure-deploy.parameters.json
+#
+# Secrets: pass via parameters file or --parameters vaultWrappedSecretId=...
+# Never commit real secrets to git.
+
+$schema: https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#
+contentVersion: 1.0.0.0
+
+parameters:
+  containerGroupName:
+    type: string
+    defaultValue: yieldswarm-core
+  location:
+    type: string
+    defaultValue: eastus
+  dnsNameLabel:
+    type: string
+    defaultValue: yieldswarm-core
+  containerImage:
+    type: string
+    defaultValue: ghcr.io/yieldswarm/yieldswarm-backend:latest
+  cpuCores:
+    type: int
+    defaultValue: 4
+    allowedValues: [1, 2, 4, 8]
+  memoryInGb:
+    type: int
+    defaultValue: 16
+    allowedValues: [1, 2, 4, 8, 16, 32]
+  vaultAddr:
+    type: string
+    defaultValue: https://vault.yieldswarm.io:8200
+  vaultRoleId:
+    type: string
+    defaultValue: ''
+  vaultWrappedSecretId:
+    type: securestring
+    defaultValue: ''
+  akashOwnerAddress:
+    type: string
+    defaultValue: ''
+  agentSwarmMasterKey:
+    type: securestring
+    defaultValue: ''
+  databaseUrl:
+    type: securestring
+    defaultValue: ''
+  ghcrUser:
+    type: string
+    defaultValue: ''
+  ghcrToken:
+    type: securestring
+    defaultValue: ''
+
+variables:
+  containerName: swarm-orchestrator
+  port: '8080'
+
+resources:
+  - type: Microsoft.ContainerInstance/containerGroups
+    apiVersion: 2023-05-01
+    name: '[parameters(''containerGroupName'')]'
+    location: '[parameters(''location'')]'
+    properties:
+      osType: Linux
+      restartPolicy: Always
+      imageRegistryCredentials:
+        - server: ghcr.io
+          username: '[parameters(''ghcrUser'')]'
+          password: '[parameters(''ghcrToken'')]'
+      ipAddress:
+        type: Public
+        dnsNameLabel: '[parameters(''dnsNameLabel'')]'
+        ports:
+          - protocol: TCP
+            port: 8080
+      containers:
+        - name: '[variables(''containerName'')]'
+          image: '[parameters(''containerImage'')]'
+          ports:
+            - port: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: '[parameters(''cpuCores'')]'
+              memoryInGb: '[parameters(''memoryInGb'')]'
+          environmentVariables:
+            - name: NODE_ENV
+              value: production
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: '[variables(''port'')]'
+            - name: REPO_ROOT
+              value: /app
+            - name: VAULT_ADDR
+              value: '[parameters(''vaultAddr'')]'
+            - name: VAULT_ROLE_ID
+              value: '[parameters(''vaultRoleId'')]'
+            - name: VAULT_WRAPPED_SECRET_ID
+              secureValue: '[parameters(''vaultWrappedSecretId'')]'
+            - name: AKASH_OWNER_ADDRESS
+              value: '[parameters(''akashOwnerAddress'')]'
+            - name: AGENTSWARM_MASTER_KEY
+              secureValue: '[parameters(''agentSwarmMasterKey'')]'
+            - name: DATABASE_URL
+              secureValue: '[parameters(''databaseUrl'')]'
+            - name: MINING_DRY_RUN
+              value: '0'
+            - name: SHADOW_CHAIN_ENABLED
+              value: '0'
+            - name: CRON_SHARD_COUNT
+              value: '120'
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 30
+            failureThreshold: 3
+            initialDelaySeconds: 45
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 15
+            failureThreshold: 3
+            initialDelaySeconds: 20
+
+outputs:
+  fqdn:
+    type: string
+    value: '[reference(resourceId(''Microsoft.ContainerInstance/containerGroups'', parameters(''containerGroupName''))).ipAddress.fqdn]'
+  ipAddress:
+    type: string
+    value: '[reference(resourceId(''Microsoft.ContainerInstance/containerGroups'', parameters(''containerGroupName''))).ipAddress.ip]'
+  commandCenterUrl:
+    type: string
+    value: '[concat(''http://'', reference(resourceId(''Microsoft.ContainerInstance/containerGroups'', parameters(''containerGroupName''))).ipAddress.fqdn, '':8080/command-center'')]'
