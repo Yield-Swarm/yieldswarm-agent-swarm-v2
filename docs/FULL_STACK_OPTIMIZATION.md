@@ -1,6 +1,7 @@
 # Full Stack Optimization — v1.0 Sitemap → Production
 
-> Operator runbook for Pixel Termux, MacBook, and Akash deploy hosts.
+> Operator runbook for Pixel Termux, MacBook, and Akash deploy hosts.  
+> First-time Pixel setup: `docs/PIXEL_TERMUX_SETUP.md`
 
 ## Sitemap layer map
 
