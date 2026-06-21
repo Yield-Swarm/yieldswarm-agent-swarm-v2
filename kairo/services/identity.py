@@ -68,6 +68,12 @@ class RegistrationResult:
         }
         if include_mnemonic:
             payload["mnemonic"] = self.mnemonic_backup.mnemonic
+        try:
+            from kairo.services.yslr import generate_yslr_keys
+
+            payload["yslr_keys"] = generate_yslr_keys().public_dict()
+        except Exception:
+            pass
         return payload
 
 

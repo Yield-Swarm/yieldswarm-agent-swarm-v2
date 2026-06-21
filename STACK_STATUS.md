@@ -24,6 +24,7 @@
 | **Sovereign Loops ($5M)**   | 🟠     | Running on seed/sim data; live overlay via API |
 | **Great Delta Contracts**   | 🟡     | Canonical router documented; quadrant-IV alias mapped |
 | **Kairo (Driver DePIN)**    | 🟡     | Identity + API scaffold complete; UI alpha |
+| **YSLR / Orchard / PQC**    | 🟢     | 3-layer encryption + ZK treasury circuit + ML-KEM/Falcon hybrid |
 | **Multi-cloud Terraform**   | 🟡     | 3 overlapping roots (`terraform/`, `infra/terraform/`, `deploy/terraform/`) |
 | **Production Deploy**       | 🟢     | `make deploy` pipeline + `DEPLOY.md`; env branches synced |
 

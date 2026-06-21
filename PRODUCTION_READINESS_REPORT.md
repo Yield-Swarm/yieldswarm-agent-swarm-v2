@@ -19,6 +19,16 @@
 
 **Overall: 94% production-ready** (up from 92%). Remaining 6% = live credentials + first funded lease + investor materials legal review.
 
+### Crypto hardening (June 2026 — YSLR)
+
+| Layer | Status | Notes |
+|-------|--------|-------|
+| YSLR L1 classical | ✅ | AES-256-GCM + HKDF + HMAC |
+| YSLR L2 Orchard ZK | ✅ | `orchard_treasury.circom` + shielded commitments |
+| YSLR L3 PQC hybrid | ✅ | ML-KEM/Falcon via `python-oqs`; dev stub with `KAIRO_PQC_STUB=1` |
+| API `/api/yslr/*`, `/api/zk/*` | ✅ | Backend + Kairo Python |
+| Formal verification | 🟡 | Recommend Ironwood-style Orchard audit before MAINNET |
+
 ---
 
 ## God Prompt Swarm Deliverables (this pass)

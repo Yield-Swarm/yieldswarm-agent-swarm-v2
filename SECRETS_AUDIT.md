@@ -24,6 +24,8 @@
 | `yieldswarm/odysseus/deploy` | ✅ (added) | SDL render, GHCR |
 | `yieldswarm/payments/runtime` | ✅ (added) | Next.js payments (manual inject) |
 | `yieldswarm/kairo/runtime` | ✅ (added) | Kairo identity, Mapbox |
+| `yieldswarm/runtime/pqc` | ✅ (added) | YSLR L3 ML-KEM + Falcon secrets |
+| `yieldswarm/runtime/core` | ✅ (extended) | `yslr_classical_key` for L1 |
 | `yieldswarm/integrations/unstoppable` | ✅ (added) | UD API |
 | `yieldswarm/integrations/quicknode` | ✅ (added) | Multi-chain RPC |
 | `yieldswarm/integrations/tenderly` | ✅ (added) | Contract simulation |

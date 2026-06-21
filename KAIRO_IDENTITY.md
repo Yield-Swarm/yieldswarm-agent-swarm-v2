@@ -48,3 +48,22 @@ vault kv put yieldswarm/kairo/drivers/driver-1 \
 ```
 
 Policy: `vault/policies/kairo-runtime.hcl`
+
+## YSLR encryption (Layer 1–3)
+
+Driver registration now includes `yslr_keys` in the response — Orchard viewing key fingerprints + PQC public material.
+
+| Layer | Technology |
+|-------|------------|
+| L1 | AES-256-GCM + HKDF |
+| L2 | Orchard-style shielded keys + ZK telemetry proofs |
+| L3 | ML-KEM-768 + Falcon-512 hybrid |
+
+```bash
+# Encrypt telemetry batch
+curl -s -X POST http://localhost:8080/api/yslr/telemetry \
+  -H 'Content-Type: application/json' \
+  -d '{"driver_id":"driver-1","samples":[{"speed_kmh":40}]}'
+```
+
+See `docs/YSLR.md` and `docs/PQC_MIGRATION.md`.

@@ -10,12 +10,14 @@ from urllib.parse import parse_qs, urlparse
 
 from kairo.services.identity import recover_driver, register_driver
 from kairo.services.telemetry_pipeline import TelemetryPipeline
+from kairo.services.yslr_api import YslrApi
 
 
 class KairoApi:
     def __init__(self) -> None:
         self.pipeline = TelemetryPipeline()
         self.drivers = self.pipeline.drivers
+        self.yslr = YslrApi()
 
     def create_driver(self, body: dict[str, Any]) -> dict[str, Any]:
         driver_id = body.get("driver_id")
@@ -134,6 +136,20 @@ class KairoHandler(BaseHTTPRequestHandler):
                 return self._send(HTTPStatus.ACCEPTED, self.api.submit_telemetry(body))
             if parsed.path == "/api/telemetry/batch":
                 return self._send(HTTPStatus.ACCEPTED, self.api.submit_telemetry_batch(body))
+            if parsed.path == "/api/yslr/encrypt":
+                return self._send(HTTPStatus.OK, self.api.yslr.encrypt(body))
+            if parsed.path == "/api/yslr/decrypt":
+                return self._send(HTTPStatus.OK, self.api.yslr.decrypt(body))
+            if parsed.path == "/api/yslr/keys":
+                return self._send(HTTPStatus.CREATED, self.api.yslr.generate_keys(body))
+            if parsed.path == "/api/yslr/telemetry":
+                return self._send(HTTPStatus.OK, self.api.yslr.encrypt_telemetry(body))
+            if parsed.path == "/api/zk/prove/treasury":
+                return self._send(HTTPStatus.OK, self.api.yslr.prove_treasury(body))
+            if parsed.path == "/api/zk/verify":
+                return self._send(HTTPStatus.OK, self.api.yslr.verify_zk(body))
+            if parsed.path == "/api/yslr/mutation-seed":
+                return self._send(HTTPStatus.OK, self.api.yslr.mutation_seed(body))
             self._send(HTTPStatus.NOT_FOUND, {"error": "not found"})
         except KeyError as exc:
             self._send(HTTPStatus.NOT_FOUND, {"error": str(exc)})
