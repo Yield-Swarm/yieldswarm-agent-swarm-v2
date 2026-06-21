@@ -3,6 +3,7 @@
  */
 
 import fs from 'node:fs/promises';
+import { getHelixDeltaTelemetry } from './helixDeltaV5.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as akash from './akash.js';
@@ -149,12 +150,13 @@ async function fetchMultiCloudStatus() {
 }
 
 export async function buildTvDashboard() {
-  const [vaultTelemetry, helix, clouds, solBal, evmBal] = await Promise.all([
+  const [vaultTelemetry, helix, clouds, solBal, evmBal, deltaV5] = await Promise.all([
     getVaultTelemetry(),
     readHelixState(),
     fetchMultiCloudStatus(),
     fetchSolanaBalance(NEXUS_TREASURY_SOLANA),
     fetchEvmBalance(TREASURY_EVM),
+    Promise.resolve().then(() => getHelixDeltaTelemetry()),
   ]);
 
   const miningRoutes = miningFleet.getRewardRoutes();
@@ -204,6 +206,7 @@ export async function buildTvDashboard() {
     clouds,
     domains: DOMAINS,
     revenueUsd: Number(vaultTelemetry.treasury_usd || 0),
+    helixDeltaV5: deltaV5,
   };
 }
 

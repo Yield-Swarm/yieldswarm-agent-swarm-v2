@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useBalance, useChain, useWallet } from "@/wallet";
 import { ConnectGate } from "../components/ConnectGate";
 import { useArenaTelemetry, type SplitRow } from "../hooks/useArenaTelemetry";
+import { HelixDeltaVariantPanel } from "../helix/delta-v5/HelixDeltaVariantPanel";
 
 /**
  * Arena — live telemetry from Akash, emission router, treasury, leaderboard.
@@ -215,6 +216,10 @@ function ArenaInner() {
 
       <SplitTable title="Emission routes (per epoch)" rows={emissionRoutes} valueKey="perEpoch" />
       <SplitTable title="Treasury allocation (SOL)" rows={treasurySplits} valueKey="sol" />
+
+      <div className="panel" style={{ marginTop: 12, padding: 0, background: "transparent", border: "none" }}>
+        <HelixDeltaVariantPanel />
+      </div>
 
       <div className="panel" style={{ marginTop: 12 }}>
         <h3>Chain / Wallet</h3>

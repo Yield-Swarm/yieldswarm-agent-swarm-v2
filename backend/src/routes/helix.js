@@ -12,6 +12,11 @@ import {
   normalizeYieldDestination,
 } from '../adapters/iotexYield.js';
 import { loadTreasuryManifest } from '../lib/treasury-manifest.js';
+import {
+  getHelixDeltaTelemetry,
+  setHelixDeltaThrottle,
+  resetHelixDeltaSimulation,
+} from '../adapters/helixDeltaV5.js';
 
 const router = Router();
 
@@ -22,6 +27,23 @@ function asyncRoute(fn) {
     });
   };
 }
+
+/** GET /api/helix/delta-v5/telemetry — antimatter + expansion layer snapshot */
+router.get('/delta-v5/telemetry', asyncRoute(async (_req, res) => {
+  res.json(getHelixDeltaTelemetry());
+}));
+
+/** POST /api/helix/delta-v5/throttle — set simulation throttle 0–1 */
+router.post('/delta-v5/throttle', asyncRoute(async (req, res) => {
+  setHelixDeltaThrottle(req.body?.throttle ?? 0.65);
+  res.json(getHelixDeltaTelemetry());
+}));
+
+/** POST /api/helix/delta-v5/reset — reset antimatter simulation */
+router.post('/delta-v5/reset', asyncRoute(async (_req, res) => {
+  resetHelixDeltaSimulation();
+  res.json(getHelixDeltaTelemetry());
+}));
 
 /** GET /api/helix/status — live Helix Chain activation state */
 router.get('/status', asyncRoute(async (_req, res) => {

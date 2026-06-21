@@ -188,6 +188,10 @@
       gap: clamp(0.75rem, 1.5vw, 1.25rem);
     }
 
+    .cc-chains .hdv-panel {
+      grid-column: 1 / -1;
+    }
+
     .chain-card {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -207,6 +211,173 @@
 
     .chain-card.online::before { background: var(--accent); }
     .chain-card.standby::before { background: var(--warn); }
+
+    .chain-card.standby::before { background: var(--warn); }
+
+    /* Helix v5.0 Delta Variant — antimatter telemetry */
+    .hdv-panel {
+      background: #000000;
+      border: 1px solid rgba(255, 0, 200, 0.25);
+      border-radius: 16px;
+      padding: clamp(1rem, 2vw, 1.75rem);
+      grid-column: 1 / -1;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hdv-panel.alarm {
+      animation: hdv-alarm 1.4s ease-in-out infinite;
+    }
+
+    @keyframes hdv-alarm {
+      0%, 100% { border-color: rgba(255, 60, 60, 0.35); box-shadow: none; }
+      50% { border-color: rgba(255, 60, 60, 0.85); box-shadow: 0 0 18px rgba(255, 60, 60, 0.25); }
+    }
+
+    .hdv-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .hdv-header h2 {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      color: #ff00c8;
+    }
+
+    .hdv-tag {
+      font-family: var(--mono);
+      font-size: clamp(0.7rem, 1.1vw, 0.85rem);
+      color: rgba(255, 0, 200, 0.7);
+    }
+
+    .hdv-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(1rem, 2vw, 2rem);
+    }
+
+    @media (max-width: 900px) {
+      .hdv-split { grid-template-columns: 1fr; }
+    }
+
+    .hdv-side h3 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .hdv-reactor {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .hdv-arc-wrap {
+      width: clamp(100px, 12vw, 130px);
+      height: clamp(100px, 12vw, 130px);
+      position: relative;
+    }
+
+    .hdv-arc-wrap svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .hdv-arc-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 8;
+    }
+
+    .hdv-arc-fill {
+      fill: none;
+      stroke: #ff00c8;
+      stroke-width: 8;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(255, 0, 200, 0.6));
+    }
+
+    .hdv-arc-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+      pointer-events: none;
+    }
+
+    .hdv-arc-label span:last-child {
+      font-size: 0.65em;
+      color: #ff00c8;
+      letter-spacing: 0.1em;
+    }
+
+    .hdv-stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0.35rem 0;
+      font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hdv-stat:last-child { border-bottom: none; }
+
+    .hdv-stat .key { color: var(--muted); }
+    .hdv-stat .val {
+      font-family: var(--mono);
+      font-variant-numeric: tabular-nums;
+      color: #f0f0f0;
+      text-align: right;
+    }
+
+    .hdv-stat .val.magenta { color: #ff00c8; }
+
+    .hdv-bar {
+      height: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+
+    .hdv-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #9900aa, #ff00c8);
+      border-radius: 5px;
+      transition: width 0.15s linear;
+    }
+
+    .hdv-matrix {
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: rgba(255, 0, 200, 0.04);
+      border: 1px solid rgba(255, 0, 200, 0.15);
+      border-radius: 10px;
+    }
+
+    .hdv-alarm-banner {
+      margin-top: 0.75rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: 8px;
+      background: rgba(255, 60, 60, 0.12);
+      border: 1px solid rgba(255, 60, 60, 0.4);
+      color: #ff8a8a;
+      font-family: var(--mono);
+      font-size: clamp(0.75rem, 1.1vw, 0.9rem);
+      display: none;
+    }
+
+    .hdv-alarm-banner.visible { display: block; }
 
     .chain-card h2 {
       margin: 0 0 0.75rem;
@@ -473,6 +644,54 @@
         <div class="chain-stat"><span class="key">Mode</span><span class="val" id="shadow-mode">—</span></div>
         <div class="chain-stat"><span class="key">Workers</span><span class="val" id="shadow-workers">—</span></div>
       </article>
+
+      <article class="hdv-panel" id="helix-delta-panel" aria-label="Helix v5.0 Delta Variant">
+        <div class="hdv-header">
+          <h2>Helix v5.0 · Delta Variant</h2>
+          <span class="hdv-tag">Solenoid 2 · Reverberator</span>
+        </div>
+        <div class="hdv-split">
+          <div class="hdv-side">
+            <h3>Antimatter Reactor Core</h3>
+            <div class="hdv-reactor">
+              <div class="hdv-arc-wrap">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <circle class="hdv-arc-track" cx="50" cy="50" r="42"/>
+                  <circle class="hdv-arc-fill" id="hdv-penning-arc" cx="50" cy="50" r="42"
+                    stroke-dasharray="263.89" stroke-dashoffset="0"/>
+                </svg>
+                <div class="hdv-arc-label">
+                  <span id="hdv-penning-pct">—</span>
+                  <span>PENNING</span>
+                </div>
+              </div>
+              <div style="flex:1;min-width:180px">
+                <div class="hdv-stat"><span class="key">Antihydrogen</span><span class="val" id="hdv-fuel">—</span></div>
+                <div class="hdv-stat"><span class="key">Annihilation</span><span class="val" id="hdv-annihilation">—</span></div>
+                <div class="hdv-stat"><span class="key">Isp</span><span class="val" id="hdv-isp">—</span></div>
+                <div class="hdv-stat"><span class="key">γ / Pions</span><span class="val" id="hdv-radiation">—</span></div>
+              </div>
+            </div>
+            <div style="margin-top:0.75rem">
+              <div class="hdv-stat" style="border:none"><span class="key">Exhaust Velocity</span><span class="val" id="hdv-exhaust">—</span></div>
+              <div class="hdv-bar"><div class="hdv-bar-fill" id="hdv-exhaust-bar" style="width:0%"></div></div>
+            </div>
+          </div>
+          <div class="hdv-side">
+            <h3>Expansion Grid</h3>
+            <div class="hdv-matrix">
+              <div class="hdv-stat" style="border:none"><span class="key">POS</span><span class="val" id="hdv-pos">—</span></div>
+              <div class="hdv-stat" style="border:none"><span class="key">Δ FINAL</span><span class="val" id="hdv-final-d">—</span></div>
+              <div class="hdv-stat" style="border:none"><span class="key">SHIFT</span><span class="val" id="hdv-shift">—</span></div>
+            </div>
+            <div class="hdv-stat"><span class="key">Recession Velocity</span><span class="val magenta" id="hdv-recession">—</span></div>
+            <div class="hdv-stat"><span class="key">Proper Velocity</span><span class="val" id="hdv-proper">—</span></div>
+            <div class="hdv-stat"><span class="key">Spatial Warping</span><span class="val" id="hdv-warp">—</span></div>
+            <div class="hdv-stat"><span class="key">Scale Factor a(t)</span><span class="val" id="hdv-scale">—</span></div>
+          </div>
+        </div>
+        <div class="hdv-alarm-banner" id="hdv-alarm">Penning trap containment breach</div>
+      </article>
     </section>
 
     <section class="cc-grid">
@@ -707,6 +926,73 @@
         });
       }
 
+      function fmtSci(n) {
+        const v = Number(n) || 0;
+        if (v >= 1e6) return (v / 1e6).toFixed(2) + "M";
+        if (v >= 1e3) return (v / 1e3).toFixed(1) + "K";
+        return v.toFixed(2);
+      }
+
+      function renderHelixDelta(data) {
+        if (!data || !data.engine) return;
+        const eng = data.engine;
+        const exp = data.expansion || {};
+        const breach = Boolean(eng.containmentBreach);
+        const panel = $("helix-delta-panel");
+        const alarm = $("hdv-alarm");
+
+        if (panel) panel.classList.toggle("alarm", breach);
+        if (alarm) {
+          alarm.classList.toggle("visible", breach);
+          if (breach) {
+            alarm.textContent =
+              "Penning trap containment breach — field " +
+              Number(eng.penningTrapIntegrityPct).toFixed(4) + "%";
+          }
+        }
+
+        const penning = Number(eng.penningTrapIntegrityPct) || 0;
+        $("hdv-penning-pct").textContent = penning.toFixed(3) + "%";
+        const arc = $("hdv-penning-arc");
+        if (arc) {
+          const circ = 263.89;
+          arc.setAttribute("stroke-dashoffset", String(circ - (penning / 100) * circ));
+        }
+
+        $("hdv-fuel").textContent = Number(eng.fuelStockpileUg).toFixed(3) + " µg";
+        $("hdv-annihilation").textContent = Number(eng.annihilationRateNgPerS).toFixed(1) + " ng/s";
+        $("hdv-isp").textContent = fmtSci(eng.specificImpulseS) + " s";
+        $("hdv-radiation").textContent =
+          Number(eng.gammaFluxSvPerS).toFixed(2) + " Sv/s · " +
+          fmtSci(eng.pionRadiationMevPerS) + " MeV/s";
+
+        const beta = Number(eng.exhaustVelocityBeta) || 0;
+        $("hdv-exhaust").textContent = beta.toFixed(4) + " c";
+        const bar = $("hdv-exhaust-bar");
+        if (bar) bar.style.width = Math.min(100, beta * 100) + "%";
+
+        $("hdv-pos").textContent = fmtSci(exp.positionMpc) + " Mpc";
+        $("hdv-final-d").textContent = fmtSci(exp.distanceToFinalDimensionMpc) + " Mpc";
+        const shift = exp.coordinateShift || {};
+        $("hdv-shift").textContent =
+          Number(shift.x || 0).toFixed(3) + "," +
+          Number(shift.y || 0).toFixed(3) + "," +
+          Number(shift.z || 0).toFixed(3);
+        $("hdv-recession").textContent = Number(exp.recessionVelocityKmS).toFixed(2) + " km/s";
+        $("hdv-proper").textContent = Number(exp.properVelocityKmS).toFixed(2) + " km/s";
+        $("hdv-warp").textContent = Number(exp.spatialWarpingPct).toFixed(1) + "%";
+        $("hdv-scale").textContent = Number(exp.scaleFactor).toFixed(6);
+      }
+
+      async function refreshHelixDelta() {
+        try {
+          const body = await fetchJson("/api/helix/delta-v5/telemetry");
+          renderHelixDelta(body);
+        } catch (_err) {
+          /* silent — primary dashboard may still render */
+        }
+      }
+
       function render(data, source) {
         const agents = data.agents || {};
         const vault = data.vault || {};
@@ -809,6 +1095,7 @@
             showError(String(fallbackErr.message || fallbackErr));
           }
         }
+        void refreshHelixDelta();
       }
 
       function tickClock() {

@@ -1,0 +1,219 @@
+/* Helix Chain v5.0 Delta Variant — TV telemetry panel */
+
+.hdv-panel {
+  background: #000000;
+  border: 1px solid rgba(255, 0, 200, 0.25);
+  border-radius: 16px;
+  padding: clamp(1rem, 2vw, 1.75rem);
+  outline: none;
+  transition: transform 0.18s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  contain: layout style paint;
+}
+
+.hdv-panel--focused {
+  transform: scale(1.02);
+  border-color: rgba(255, 0, 200, 0.55);
+  box-shadow: 0 0 24px rgba(255, 0, 200, 0.15);
+}
+
+.hdv-panel--alarm {
+  animation: hdv-alarm-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hdv-alarm-pulse {
+  0%,
+  100% {
+    border-color: rgba(255, 60, 60, 0.35);
+    box-shadow: 0 0 0 rgba(255, 60, 60, 0);
+  }
+  50% {
+    border-color: rgba(255, 60, 60, 0.85);
+    box-shadow: 0 0 18px rgba(255, 60, 60, 0.25);
+  }
+}
+
+.hdv-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.hdv-header h2 {
+  margin: 0;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-weight: 700;
+  color: #ff00c8;
+  letter-spacing: 0.02em;
+}
+
+.hdv-tag {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+  color: rgba(255, 0, 200, 0.7);
+}
+
+.hdv-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+@media (max-width: 900px) {
+  .hdv-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hdv-side h3 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+}
+
+.hdv-mono {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.hdv-reactor-grid {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hdv-arc {
+  width: clamp(100px, 14vw, 140px);
+  height: clamp(100px, 14vw, 140px);
+  flex-shrink: 0;
+}
+
+.hdv-arc__track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 8;
+}
+
+.hdv-arc__fill {
+  fill: none;
+  stroke: #ff00c8;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 64px 64px;
+  filter: drop-shadow(0 0 6px rgba(255, 0, 200, 0.6));
+  transition: stroke-dashoffset 0.15s linear;
+}
+
+.hdv-arc__label {
+  fill: #ffffff;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hdv-arc__sub {
+  fill: #ff00c8;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.hdv-readouts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 180px;
+}
+
+.hdv-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+}
+
+.hdv-stat__label {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.hdv-stat__value {
+  color: #f0f0f0;
+  text-align: right;
+}
+
+.hdv-stat__value--magenta {
+  color: #ff00c8;
+}
+
+.hdv-velocity {
+  margin-top: 1rem;
+}
+
+.hdv-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.hdv-bar__track {
+  flex: 1;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.hdv-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9900aa, #ff00c8);
+  border-radius: 5px;
+  transition: width 0.12s linear;
+  box-shadow: 0 0 8px rgba(255, 0, 200, 0.4);
+}
+
+.hdv-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 0, 200, 0.04);
+  border: 1px solid rgba(255, 0, 200, 0.15);
+  border-radius: 10px;
+}
+
+.hdv-matrix__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.hdv-alarm {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  background: rgba(255, 60, 60, 0.12);
+  border: 1px solid rgba(255, 60, 60, 0.4);
+  color: #ff8a8a;
+  font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* 4K TV safe zone */
+@media (min-width: 2560px) {
+  .hdv-panel {
+    padding: 2rem 2.5rem;
+  }
+  .hdv-header h2 {
+    font-size: 1.75rem;
+  }
+}

@@ -16,7 +16,7 @@
     "test": "vitest run && npm run test:frontend && npm run test:backend",
     "test:unit": "vitest run",
     "test:entropy": "vitest run src/infrastructure/entropy-core.test.js src/infrastructure/entropy-circuit-inputs.test.js",
-    "test:helix": "vitest run src/infrastructure/helix-phase1.test.js",
+    "test:helix": "vitest run src/infrastructure/helix-phase1.test.js src/infrastructure/helix-delta-v5.test.js",
     "circuits:build": "cd circuits && npm run build",
     "deploy:render": "bash deploy/templates/lib/render-template.sh all",
     "deploy:stack": "bash deploy/deploy-full-stack.sh",
