@@ -5,6 +5,10 @@
 import { Router } from 'express';
 import { getCommandOverview } from '../adapters/commandDashboard.js';
 import { getDomainsOverview } from '../adapters/unstoppableDomains.js';
+import {
+  activateLudacrisMayhem,
+  getLudacrisMayhemStatus,
+} from '../adapters/ludacrisMayhem.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,13 +48,27 @@ router.get('/domains', asyncRoute(async (_req, res) => {
 /** GET /api/command/health — lightweight TV poll endpoint */
 router.get('/health', asyncRoute(async (_req, res) => {
   const overview = await getCommandOverview();
+  const mayhem = await getLudacrisMayhemStatus();
   res.json({
     status: overview.system.overall,
+    mayhem: mayhem.activated ? 'ludacris_live' : 'standby',
     timestamp: overview.timestamp,
     solenoids: Object.fromEntries(
       Object.entries(overview.solenoids).map(([k, v]) => [k, v.status]),
     ),
   });
+}));
+
+/** GET /api/command/mayhem — Ludacris Mayhem Mode status */
+router.get('/mayhem', asyncRoute(async (_req, res) => {
+  res.json(await getLudacrisMayhemStatus());
+}));
+
+/** POST /api/command/mayhem/activate — arm full live wire */
+router.post('/mayhem/activate', asyncRoute(async (req, res) => {
+  res.status(201).json(await activateLudacrisMayhem({
+    source: req.body?.source || 'api',
+  }));
 }));
 
 export default router;

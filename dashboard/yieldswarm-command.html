@@ -273,6 +273,7 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <span class="live-pill" id="mayhem-pill"><span class="dot"></span> <span id="mayhem-label">MAYHEM</span></span>
       <span class="live-pill"><span class="dot"></span> LIVE</span>
       <span id="health-badge" class="health-badge healthy">—</span>
       <span class="clock" id="clock">—</span>
@@ -426,6 +427,20 @@
       renderTreasury(treasury?.mining_roots);
       renderElevators(spiritual_elevators);
       renderHealth(system, domains);
+
+      fetch(API + '/api/command/mayhem', { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((m) => {
+          const pill = $('mayhem-pill');
+          const label = $('mayhem-label');
+          if (m.activated) {
+            label.textContent = 'LUDACRIS MAYHEM';
+            pill.style.borderColor = 'var(--gold)';
+          } else {
+            label.textContent = 'MAYHEM STANDBY';
+          }
+        })
+        .catch(() => {});
 
       $('refresh-note').textContent = `Updated ${new Date(data.timestamp).toLocaleTimeString()} · next poll ${POLL_MS / 1000}s`;
     }
