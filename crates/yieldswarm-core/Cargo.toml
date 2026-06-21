@@ -11,7 +11,7 @@ name = "yieldswarm_core"
 path = "src/lib.rs"
 
 [[bin]]
-name = "yieldswarm-core"
+name = "yieldswarm-core-legacy"
 path = "src/main.rs"
 
 [dependencies]

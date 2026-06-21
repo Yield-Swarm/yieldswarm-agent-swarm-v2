@@ -44,6 +44,11 @@ A := deploy/akash
 ## rust-core: build Phase 1 Swarm OS Rust engine
 rust-core:
 	cargo build -p yieldswarm-core --release
+	cargo build -p swarm-core --release
+
+## swarm-accelerator: run 14-elevator Mandelbrot synchrotron
+swarm-accelerator:
+	cargo run -p swarm-core
 
 ## rust-core-test: test yieldswarm-core crate
 rust-core-test:

@@ -411,6 +411,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "swarm-core"
+version = "2.0.0"
+dependencies = [
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "yieldswarm-core",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.118"
 source = "registry+https://github.com/rust-lang/crates.io-index"

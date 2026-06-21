@@ -3,6 +3,7 @@
 //! Prompts: 1 (orchestrator), 4 (registry), 5 (ElizaOS), 36 (elevators),
 //!          37 (YSLR), 38 (14-Council), 43 (Apollo Nexus).
 
+pub mod accelerator;
 pub mod governance;
 pub mod id;
 pub mod orchestrator;

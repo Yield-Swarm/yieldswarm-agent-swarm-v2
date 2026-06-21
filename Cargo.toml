@@ -1,3 +1,3 @@
 [workspace]
-members = ["crates/yieldswarm-core"]
+members = ["crates/yieldswarm-core", "apps/swarm-core"]
 resolver = "2"

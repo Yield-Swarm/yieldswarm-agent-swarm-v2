@@ -33,9 +33,10 @@ crates/yieldswarm-core/
 ## Build & test
 
 ```bash
+cargo run -p swarm-core              # particle accelerator (primary)
 cargo build -p yieldswarm-core
 cargo test -p yieldswarm-core
-cargo run -p yieldswarm-core
+make swarm-accelerator
 ```
 
 ## Integration with existing stack
