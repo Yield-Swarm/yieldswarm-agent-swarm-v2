@@ -1,5 +1,9 @@
 [workspace]
-members = ["crates/yieldswarm-defi"]
+members = [
+  "crates/yieldswarm-defi",
+  "apps/swarm-core",
+  "packages/infra/data-ingestion",
+]
 resolver = "2"
 
 [workspace.package]

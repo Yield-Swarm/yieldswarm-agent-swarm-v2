@@ -1,0 +1,23 @@
+[package]
+name = "swarm-core"
+version = "2.0.0"
+edition = "2021"
+description = "YieldSwarm OS — Rust core orchestrator, agent registry, multi-LLM routing"
+
+[[bin]]
+name = "swarm-core"
+path = "src/main.rs"
+
+[dependencies]
+backon = "1.2"
+dashmap = "5.5"
+futures-util = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

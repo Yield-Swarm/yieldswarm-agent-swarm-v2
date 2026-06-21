@@ -21,6 +21,7 @@ import solenoidRouter from './routes/solenoid.js';
 import nexusRouter from './routes/nexus.js';
 import { shadowRouter } from './routes/solenoids.js';
 import commandRouter from './routes/command.js';
+import kimiRouter from './routes/kimi.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -47,6 +48,7 @@ app.use('/api/solenoid', solenoidRouter);
 app.use('/api/nexus', nexusRouter);
 app.use('/api/shadow', shadowRouter);
 app.use('/api/command', commandRouter);
+app.use('/api/kimi-proxy', kimiRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
 app.use('/', toolsRouter);

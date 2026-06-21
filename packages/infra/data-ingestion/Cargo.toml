@@ -1,0 +1,16 @@
+[package]
+name = "data-ingestion"
+version = "0.1.0"
+edition = "2021"
+description = "Layers 16-18 — Gold API, web crawler, Immunefi scraper"
+
+[dependencies]
+md5 = "0.7"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
