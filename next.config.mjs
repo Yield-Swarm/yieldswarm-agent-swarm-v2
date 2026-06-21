@@ -9,6 +9,7 @@ const nextConfig = {
       beforeFiles: [
         { source: "/sales", destination: "/sales.html" },
         { source: "/marketplace", destination: "/marketplace.html" },
+        { source: "/command-center", destination: "/command-center.html" },
       ],
     };
   },
