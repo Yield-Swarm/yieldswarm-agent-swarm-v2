@@ -34,6 +34,8 @@ curl https://yieldswarm-v2.vercel.app/api/revenue/metrics
 
 Copy env: `cp deploy/env/layered.env.example .env` — see `docs/DEPLOYMENT_PRIORITY.md`.
 
+**Full stack optimize (Pixel / Termux):** `./scripts/full-stack-optimize.sh` — see `docs/FULL_STACK_OPTIMIZATION.md`.
+
 ### 55 God Tasks (SPLATTER TECH)
 
 Full registry: `docs/GOD_TASKS_55.md` · Linear import: `docs/linear/god-tasks-import.csv`
