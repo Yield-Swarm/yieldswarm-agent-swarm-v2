@@ -113,6 +113,10 @@ put_if_set integrations/pinata \
   secret=PINATA_SECRET \
   jwt=PINATA_JWT
 
+put_if_set integrations/alchemy \
+  api_key=ALCHEMY_API_KEY \
+  app_name=ALCHEMY_APP_NAME
+
 put_if_set integrations/livepeer \
   api_key=LIVEPEER_API_KEY
 

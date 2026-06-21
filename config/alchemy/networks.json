@@ -1,0 +1,1510 @@
+{
+  "source": "https://www.alchemy.com/docs/reference/node-supported-chains",
+  "version": 1,
+  "networkCount": 167,
+  "networks": [
+    {
+      "id": "WORLDCHAIN_MAINNET",
+      "platform": "World Chain",
+      "name": "World Chain Mainnet",
+      "slug": "worldchain-mainnet",
+      "urlTemplate": "https://worldchain-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "WORLDCHAIN_SEPOLIA",
+      "platform": "World Chain",
+      "name": "World Chain Sepolia",
+      "slug": "worldchain-sepolia",
+      "urlTemplate": "https://worldchain-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "SHAPE_MAINNET",
+      "platform": "Shape",
+      "name": "Shape Mainnet",
+      "slug": "shape-mainnet",
+      "urlTemplate": "https://shape-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SHAPE_SEPOLIA",
+      "platform": "Shape",
+      "name": "Shape Sepolia",
+      "slug": "shape-sepolia",
+      "urlTemplate": "https://shape-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ETH_MAINNET",
+      "platform": "Ethereum",
+      "name": "Ethereum Mainnet",
+      "slug": "eth-mainnet",
+      "urlTemplate": "https://eth-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ETH_SEPOLIA",
+      "platform": "Ethereum",
+      "name": "Ethereum Sepolia",
+      "slug": "eth-sepolia",
+      "urlTemplate": "https://eth-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ETH_HOLESKY",
+      "platform": "Ethereum",
+      "name": "Ethereum Hole\u0161ky",
+      "slug": "eth-holesky",
+      "urlTemplate": "https://eth-holesky.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ETH_HOODI",
+      "platform": "Ethereum",
+      "name": "Ethereum Hoodi",
+      "slug": "eth-hoodi",
+      "urlTemplate": "https://eth-hoodi.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ETH_MAINNETBEACON",
+      "platform": "Ethereum",
+      "name": "Ethereum Mainnet Beacon",
+      "slug": "eth-mainnetbeacon",
+      "urlTemplate": "https://eth-mainnetbeacon.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "beacon",
+      "isTestnet": false
+    },
+    {
+      "id": "ETH_SEPOLIABEACON",
+      "platform": "Ethereum",
+      "name": "Ethereum Sepolia Beacon",
+      "slug": "eth-sepoliabeacon",
+      "urlTemplate": "https://eth-sepoliabeacon.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "beacon",
+      "isTestnet": true
+    },
+    {
+      "id": "ETH_HOLESKYBEACON",
+      "platform": "Ethereum",
+      "name": "Ethereum Hole\u0161ky Beacon",
+      "slug": "eth-holeskybeacon",
+      "urlTemplate": "https://eth-holeskybeacon.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "beacon",
+      "isTestnet": true
+    },
+    {
+      "id": "ETH_HOODIBEACON",
+      "platform": "Ethereum",
+      "name": "Ethereum Hoodi Beacon",
+      "slug": "eth-hoodibeacon",
+      "urlTemplate": "https://eth-hoodibeacon.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "beacon",
+      "isTestnet": true
+    },
+    {
+      "id": "ZKSYNC_MAINNET",
+      "platform": "ZKsync",
+      "name": "ZKsync Mainnet",
+      "slug": "zksync-mainnet",
+      "urlTemplate": "https://zksync-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ZKSYNC_SEPOLIA",
+      "platform": "ZKsync",
+      "name": "ZKsync Sepolia",
+      "slug": "zksync-sepolia",
+      "urlTemplate": "https://zksync-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "OPT_MAINNET",
+      "platform": "OP Mainnet",
+      "name": "OP Mainnet Mainnet",
+      "slug": "opt-mainnet",
+      "urlTemplate": "https://opt-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "OPT_SEPOLIA",
+      "platform": "OP Mainnet",
+      "name": "OP Mainnet Sepolia",
+      "slug": "opt-sepolia",
+      "urlTemplate": "https://opt-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "POLYGON_MAINNET",
+      "platform": "Polygon PoS",
+      "name": "Polygon Mainnet",
+      "slug": "polygon-mainnet",
+      "urlTemplate": "https://polygon-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "POLYGON_AMOY",
+      "platform": "Polygon PoS",
+      "name": "Polygon Amoy",
+      "slug": "polygon-amoy",
+      "urlTemplate": "https://polygon-amoy.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ARB_MAINNET",
+      "platform": "Arbitrum",
+      "name": "Arbitrum Mainnet",
+      "slug": "arb-mainnet",
+      "urlTemplate": "https://arb-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ARB_SEPOLIA",
+      "platform": "Arbitrum",
+      "name": "Arbitrum Sepolia",
+      "slug": "arb-sepolia",
+      "urlTemplate": "https://arb-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "STARKNET_MAINNET",
+      "platform": "Starknet",
+      "name": "Starknet Mainnet",
+      "slug": "starknet-mainnet",
+      "urlTemplate": "https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_10/API_KEY",
+      "rpcFamily": "starknet",
+      "isTestnet": false
+    },
+    {
+      "id": "STARKNET_SEPOLIA",
+      "platform": "Starknet",
+      "name": "Starknet Sepolia",
+      "slug": "starknet-sepolia",
+      "urlTemplate": "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_10/API_KEY",
+      "rpcFamily": "starknet",
+      "isTestnet": true
+    },
+    {
+      "id": "ASTAR_MAINNET",
+      "platform": "Astar",
+      "name": "Astar Mainnet",
+      "slug": "astar-mainnet",
+      "urlTemplate": "https://astar-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "POLYGONZKEVM_MAINNET",
+      "platform": "Polygon zkEVM",
+      "name": "Polygon zkEVM Mainnet",
+      "slug": "polygonzkevm-mainnet",
+      "urlTemplate": "https://polygonzkevm-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "POLYGONZKEVM_CARDONA",
+      "platform": "Polygon zkEVM",
+      "name": "Polygon zkEVM Cardona",
+      "slug": "polygonzkevm-cardona",
+      "urlTemplate": "https://polygonzkevm-cardona.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ZETACHAIN_MAINNET",
+      "platform": "ZetaChain",
+      "name": "ZetaChain Mainnet",
+      "slug": "zetachain-mainnet",
+      "urlTemplate": "https://zetachain-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ZETACHAIN_TESTNET",
+      "platform": "ZetaChain",
+      "name": "ZetaChain Testnet",
+      "slug": "zetachain-testnet",
+      "urlTemplate": "https://zetachain-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "MANTLE_MAINNET",
+      "platform": "Mantle",
+      "name": "Mantle Mainnet",
+      "slug": "mantle-mainnet",
+      "urlTemplate": "https://mantle-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "MANTLE_SEPOLIA",
+      "platform": "Mantle",
+      "name": "Mantle Sepolia",
+      "slug": "mantle-sepolia",
+      "urlTemplate": "https://mantle-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "BERACHAIN_MAINNET",
+      "platform": "Berachain",
+      "name": "Berachain Mainnet",
+      "slug": "berachain-mainnet",
+      "urlTemplate": "https://berachain-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BERACHAIN_BEPOLIA",
+      "platform": "Berachain",
+      "name": "Berachain Bepolia",
+      "slug": "berachain-bepolia",
+      "urlTemplate": "https://berachain-bepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "BLAST_MAINNET",
+      "platform": "Blast",
+      "name": "Blast Mainnet",
+      "slug": "blast-mainnet",
+      "urlTemplate": "https://blast-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BLAST_SEPOLIA",
+      "platform": "Blast",
+      "name": "Blast Sepolia",
+      "slug": "blast-sepolia",
+      "urlTemplate": "https://blast-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "LINEA_MAINNET",
+      "platform": "Linea",
+      "name": "Linea Mainnet",
+      "slug": "linea-mainnet",
+      "urlTemplate": "https://linea-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "LINEA_SEPOLIA",
+      "platform": "Linea",
+      "name": "Linea Sepolia",
+      "slug": "linea-sepolia",
+      "urlTemplate": "https://linea-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ZORA_MAINNET",
+      "platform": "Zora",
+      "name": "Zora Mainnet",
+      "slug": "zora-mainnet",
+      "urlTemplate": "https://zora-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ZORA_SEPOLIA",
+      "platform": "Zora",
+      "name": "Zora Sepolia",
+      "slug": "zora-sepolia",
+      "urlTemplate": "https://zora-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "RONIN_MAINNET",
+      "platform": "Ronin",
+      "name": "Ronin Mainnet",
+      "slug": "ronin-mainnet",
+      "urlTemplate": "https://ronin-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "RONIN_SAIGON",
+      "platform": "Ronin",
+      "name": "Ronin Saigon",
+      "slug": "ronin-saigon",
+      "urlTemplate": "https://ronin-saigon.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "PLASMA_MAINNET",
+      "platform": "Plasma",
+      "name": "Plasma Mainnet",
+      "slug": "plasma-mainnet",
+      "urlTemplate": "https://plasma-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "PLASMA_TESTNET",
+      "platform": "Plasma",
+      "name": "Plasma Testnet",
+      "slug": "plasma-testnet",
+      "urlTemplate": "https://plasma-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "STANDARD_MAINNET",
+      "platform": "Standard",
+      "name": "Standard Mainnet",
+      "slug": "standard-mainnet",
+      "urlTemplate": "https://standard-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "COMMONS_MAINNET",
+      "platform": "Commons",
+      "name": "Commons Mainnet",
+      "slug": "commons-mainnet",
+      "urlTemplate": "https://commons-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "MYTHOS_MAINNET",
+      "platform": "Mythos",
+      "name": "Mythos Mainnet",
+      "slug": "mythos-mainnet",
+      "urlTemplate": "https://mythos-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SETTLUS_MAINNET",
+      "platform": "Settlus",
+      "name": "Settlus Mainnet",
+      "slug": "settlus-mainnet",
+      "urlTemplate": "https://settlus-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SETTLUS_SEPTESTNET",
+      "platform": "Settlus",
+      "name": "Settlus Sepolia",
+      "slug": "settlus-septestnet",
+      "urlTemplate": "https://settlus-septestnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "EARNM_SEPOLIA",
+      "platform": "Earnm",
+      "name": "Earnm Sepolia",
+      "slug": "earnm-sepolia",
+      "urlTemplate": "https://earnm-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "EARNM_MAINNET",
+      "platform": "Earnm",
+      "name": "Earnm Mainnet",
+      "slug": "earnm-mainnet",
+      "urlTemplate": "https://earnm-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "XPROTOCOL_MAINNET",
+      "platform": "X Protocol",
+      "name": "X Protocol Mainnet",
+      "slug": "xprotocol-mainnet",
+      "urlTemplate": "https://xprotocol-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BOB_MAINNET",
+      "platform": "BOB",
+      "name": "BOB Mainnet",
+      "slug": "bob-mainnet",
+      "urlTemplate": "https://bob-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BOB_SEPOLIA",
+      "platform": "BOB",
+      "name": "BOB Sepolia",
+      "slug": "bob-sepolia",
+      "urlTemplate": "https://bob-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "MEGAETH_MAINNET",
+      "platform": "MegaETH",
+      "name": "MegaETH Mainnet",
+      "slug": "megaeth-mainnet",
+      "urlTemplate": "https://megaeth-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "MEGAETH_TESTNET",
+      "platform": "MegaETH",
+      "name": "MegaETH Testnet",
+      "slug": "megaeth-testnet",
+      "urlTemplate": "https://megaeth-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ROOTSTOCK_MAINNET",
+      "platform": "Rootstock",
+      "name": "Rootstock Mainnet",
+      "slug": "rootstock-mainnet",
+      "urlTemplate": "https://rootstock-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ROOTSTOCK_TESTNET",
+      "platform": "Rootstock",
+      "name": "Rootstock Testnet",
+      "slug": "rootstock-testnet",
+      "urlTemplate": "https://rootstock-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "WORLDL3_DEVNET",
+      "platform": "Worldl3",
+      "name": "WorldL3 Devnet",
+      "slug": "worldl3-devnet",
+      "urlTemplate": "https://worldl3-devnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "CITREA_TESTNET",
+      "platform": "Citrea",
+      "name": "Citrea Testnet",
+      "slug": "citrea-testnet",
+      "urlTemplate": "https://citrea-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "CITREA_MAINNET",
+      "platform": "Citrea",
+      "name": "Citrea Mainnet",
+      "slug": "citrea-mainnet",
+      "urlTemplate": "https://citrea-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "TEA_SEPOLIA",
+      "platform": "Tea",
+      "name": "Tea Sepolia",
+      "slug": "tea-sepolia",
+      "urlTemplate": "https://tea-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "SOLANA_MAINNET",
+      "platform": "Solana",
+      "name": "Solana Mainnet",
+      "slug": "solana-mainnet",
+      "urlTemplate": "https://solana-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "solana",
+      "isTestnet": false
+    },
+    {
+      "id": "SOLANA_DEVNET",
+      "platform": "Solana",
+      "name": "Solana Devnet",
+      "slug": "solana-devnet",
+      "urlTemplate": "https://solana-devnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "solana",
+      "isTestnet": true
+    },
+    {
+      "id": "GENSYN_TESTNET",
+      "platform": "Gensyn",
+      "name": "Gensyn Testnet",
+      "slug": "gensyn-testnet",
+      "urlTemplate": "https://gensyn-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "GENSYN_MAINNET",
+      "platform": "Gensyn",
+      "name": "Gensyn Mainnet",
+      "slug": "gensyn-mainnet",
+      "urlTemplate": "https://gensyn-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ARC_TESTNET",
+      "platform": "Arc",
+      "name": "Arc Testnet",
+      "slug": "arc-testnet",
+      "urlTemplate": "https://arc-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "STORY_MAINNET",
+      "platform": "Story",
+      "name": "Story Mainnet",
+      "slug": "story-mainnet",
+      "urlTemplate": "https://story-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "STORY_AENEID",
+      "platform": "Story",
+      "name": "Story Aeneid",
+      "slug": "story-aeneid",
+      "urlTemplate": "https://story-aeneid.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "CLANKERMON_MAINNET",
+      "platform": "Clankermon",
+      "name": "Clankermon Mainnet",
+      "slug": "clankermon-mainnet",
+      "urlTemplate": "https://clankermon-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "HUMANITY_MAINNET",
+      "platform": "Humanity",
+      "name": "Humanity Mainnet",
+      "slug": "humanity-mainnet",
+      "urlTemplate": "https://humanity-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "HUMANITY_TESTNET",
+      "platform": "Humanity",
+      "name": "Humanity Testnet",
+      "slug": "humanity-testnet",
+      "urlTemplate": "https://humanity-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "RISA_TESTNET",
+      "platform": "Risa",
+      "name": "Risa Testnet",
+      "slug": "risa-testnet",
+      "urlTemplate": "https://risa-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "BASE_MAINNET",
+      "platform": "Base",
+      "name": "Base Mainnet",
+      "slug": "base-mainnet",
+      "urlTemplate": "https://base-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BASE_SEPOLIA",
+      "platform": "Base",
+      "name": "Base Sepolia",
+      "slug": "base-sepolia",
+      "urlTemplate": "https://base-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "TEMPO_MAINNET",
+      "platform": "Tempo",
+      "name": "Tempo Mainnet",
+      "slug": "tempo-mainnet",
+      "urlTemplate": "https://tempo-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "TEMPO_MODERATO",
+      "platform": "Tempo",
+      "name": "Tempo Moderato",
+      "slug": "tempo-moderato",
+      "urlTemplate": "https://tempo-moderato.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "HYPERLIQUID_MAINNET",
+      "platform": "HyperEVM",
+      "name": "Hyperliquid Mainnet",
+      "slug": "hyperliquid-mainnet",
+      "urlTemplate": "https://hyperliquid-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "HYPERLIQUID_TESTNET",
+      "platform": "HyperEVM",
+      "name": "Hyperliquid Testnet",
+      "slug": "hyperliquid-testnet",
+      "urlTemplate": "https://hyperliquid-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "GALACTICA_MAINNET",
+      "platform": "Galactica",
+      "name": "Galactica Mainnet",
+      "slug": "galactica-mainnet",
+      "urlTemplate": "https://galactica-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "GALACTICA_CASSIOPEIA",
+      "platform": "Galactica",
+      "name": "Galactica Cassiopeia",
+      "slug": "galactica-cassiopeia",
+      "urlTemplate": "https://galactica-cassiopeia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "LENS_MAINNET",
+      "platform": "Lens",
+      "name": "Lens Mainnet",
+      "slug": "lens-mainnet",
+      "urlTemplate": "https://lens-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "LENS_SEPOLIA",
+      "platform": "Lens",
+      "name": "Lens Sepolia",
+      "slug": "lens-sepolia",
+      "urlTemplate": "https://lens-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "WORLDMOBILECHAIN_MAINNET",
+      "platform": "World Mobile Chain",
+      "name": "WorldMobileChain Mainnet",
+      "slug": "worldmobilechain-mainnet",
+      "urlTemplate": "https://worldmobilechain-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "FRAX_MAINNET",
+      "platform": "Frax",
+      "name": "Frax Mainnet",
+      "slug": "frax-mainnet",
+      "urlTemplate": "https://frax-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "FRAX_HOODI",
+      "platform": "Frax",
+      "name": "Frax Hoodi",
+      "slug": "frax-hoodi",
+      "urlTemplate": "https://frax-hoodi.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "INK_MAINNET",
+      "platform": "Ink",
+      "name": "Ink Mainnet",
+      "slug": "ink-mainnet",
+      "urlTemplate": "https://ink-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "INK_SEPOLIA",
+      "platform": "Ink",
+      "name": "Ink Sepolia",
+      "slug": "ink-sepolia",
+      "urlTemplate": "https://ink-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "AVAX_MAINNET",
+      "platform": "Avalanche",
+      "name": "Avalanche Mainnet",
+      "slug": "avax-mainnet",
+      "urlTemplate": "https://avax-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "AVAX_FUJI",
+      "platform": "Avalanche",
+      "name": "Avalanche Fuji",
+      "slug": "avax-fuji",
+      "urlTemplate": "https://avax-fuji.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "BOTANIX_MAINNET",
+      "platform": "Botanix",
+      "name": "Botanix Mainnet",
+      "slug": "botanix-mainnet",
+      "urlTemplate": "https://botanix-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BOTANIX_TESTNET",
+      "platform": "Botanix",
+      "name": "Botanix Testnet",
+      "slug": "botanix-testnet",
+      "urlTemplate": "https://botanix-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "GNOSIS_MAINNET",
+      "platform": "Gnosis",
+      "name": "Gnosis Mainnet",
+      "slug": "gnosis-mainnet",
+      "urlTemplate": "https://gnosis-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "GNOSIS_CHIADO",
+      "platform": "Gnosis",
+      "name": "Gnosis Chiado",
+      "slug": "gnosis-chiado",
+      "urlTemplate": "https://gnosis-chiado.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "CELESTIABRIDGE_MAINNET",
+      "platform": "CelestiaBridge",
+      "name": "CelestiaBridge Mainnet",
+      "slug": "celestiabridge-mainnet",
+      "urlTemplate": "https://celestiabridge-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "CELESTIABRIDGE_MOCHA",
+      "platform": "CelestiaBridge",
+      "name": "CelestiaBridge Mocha",
+      "slug": "celestiabridge-mocha",
+      "urlTemplate": "https://celestiabridge-mocha.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "BNB_MAINNET",
+      "platform": "BNB Smart Chain",
+      "name": "BNB Smart Chain Mainnet",
+      "slug": "bnb-mainnet",
+      "urlTemplate": "https://bnb-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BNB_TESTNET",
+      "platform": "BNB Smart Chain",
+      "name": "BNB Smart Chain Testnet",
+      "slug": "bnb-testnet",
+      "urlTemplate": "https://bnb-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ALCHEMYARB_FAM",
+      "platform": "Alchemy Arbitrum",
+      "name": "Alchemy Arbitrum Fam",
+      "slug": "alchemyarb-fam",
+      "urlTemplate": "https://alchemyarb-fam.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ALCHEMYARB_SEPOLIA",
+      "platform": "Alchemy Arbitrum",
+      "name": "Alchemy Arbitrum Sepolia",
+      "slug": "alchemyarb-sepolia",
+      "urlTemplate": "https://alchemyarb-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "BOBA_MAINNET",
+      "platform": "Boba",
+      "name": "Boba Mainnet",
+      "slug": "boba-mainnet",
+      "urlTemplate": "https://boba-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "BOBA_SEPOLIA",
+      "platform": "Boba",
+      "name": "Boba Sepolia",
+      "slug": "boba-sepolia",
+      "urlTemplate": "https://boba-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "SUI_MAINNET",
+      "platform": "SUI",
+      "name": "SUI Mainnet",
+      "slug": "sui-mainnet",
+      "urlTemplate": "https://sui-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "sui",
+      "isTestnet": false
+    },
+    {
+      "id": "SUI_TESTNET",
+      "platform": "SUI",
+      "name": "SUI Testnet",
+      "slug": "sui-testnet",
+      "urlTemplate": "https://sui-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "sui",
+      "isTestnet": true
+    },
+    {
+      "id": "SYNDICATE_MANCHEGO",
+      "platform": "Syndicate",
+      "name": "Syndicate Manchego",
+      "slug": "syndicate-manchego",
+      "urlTemplate": "https://syndicate-manchego.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "UNICHAIN_MAINNET",
+      "platform": "Unichain",
+      "name": "Unichain Mainnet",
+      "slug": "unichain-mainnet",
+      "urlTemplate": "https://unichain-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "UNICHAIN_SEPOLIA",
+      "platform": "Unichain",
+      "name": "Unichain Sepolia",
+      "slug": "unichain-sepolia",
+      "urlTemplate": "https://unichain-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "SYND_MAINNET",
+      "platform": "Syndicate",
+      "name": "Syndicate Mainnet",
+      "slug": "synd-mainnet",
+      "urlTemplate": "https://synd-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SUPERSEED_MAINNET",
+      "platform": "Superseed",
+      "name": "Superseed Mainnet",
+      "slug": "superseed-mainnet",
+      "urlTemplate": "https://superseed-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SUPERSEED_SEPOLIA",
+      "platform": "Superseed",
+      "name": "Superseed Sepolia",
+      "slug": "superseed-sepolia",
+      "urlTemplate": "https://superseed-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "RISE_MAINNET",
+      "platform": "Rise",
+      "name": "Rise Mainnet",
+      "slug": "rise-mainnet",
+      "urlTemplate": "https://rise-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "RISE_TESTNET",
+      "platform": "Rise",
+      "name": "Rise Testnet",
+      "slug": "rise-testnet",
+      "urlTemplate": "https://rise-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "MONAD_TESTNET",
+      "platform": "Monad",
+      "name": "Monad Testnet",
+      "slug": "monad-testnet",
+      "urlTemplate": "https://monad-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "MONAD_MAINNET",
+      "platform": "Monad",
+      "name": "Monad Mainnet",
+      "slug": "monad-mainnet",
+      "urlTemplate": "https://monad-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "FLOW_MAINNET",
+      "platform": "Flow EVM",
+      "name": "Flow EVM Mainnet",
+      "slug": "flow-mainnet",
+      "urlTemplate": "https://flow-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "FLOW_TESTNET",
+      "platform": "Flow EVM",
+      "name": "Flow EVM Testnet",
+      "slug": "flow-testnet",
+      "urlTemplate": "https://flow-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "OPENLOOT_SEPOLIA",
+      "platform": "Openloot",
+      "name": "Openloot Sepolia",
+      "slug": "openloot-sepolia",
+      "urlTemplate": "https://openloot-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "WORLDMOBILE_DEVNET",
+      "platform": "Worldmobile",
+      "name": "WorldMobile Devnet",
+      "slug": "worldmobile-devnet",
+      "urlTemplate": "https://worldmobile-devnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "WORLDMOBILE_TESTNET",
+      "platform": "Worldmobile",
+      "name": "WorldMobile Testnet",
+      "slug": "worldmobile-testnet",
+      "urlTemplate": "https://worldmobile-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "TRON_MAINNET",
+      "platform": "Tron",
+      "name": "Tron Mainnet",
+      "slug": "tron-mainnet",
+      "urlTemplate": "https://tron-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "tron",
+      "isTestnet": false
+    },
+    {
+      "id": "TRON_TESTNET",
+      "platform": "Tron",
+      "name": "Tron Testnet",
+      "slug": "tron-testnet",
+      "urlTemplate": "https://tron-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "tron",
+      "isTestnet": true
+    },
+    {
+      "id": "UNITE_MAINNET",
+      "platform": "Unite",
+      "name": "Unite Mainnet",
+      "slug": "unite-mainnet",
+      "urlTemplate": "https://unite-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "UNITE_TESTNET",
+      "platform": "Unite",
+      "name": "Unite Testnet",
+      "slug": "unite-testnet",
+      "urlTemplate": "https://unite-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "DEGEN_MAINNET",
+      "platform": "Degen",
+      "name": "Degen Mainnet",
+      "slug": "degen-mainnet",
+      "urlTemplate": "https://degen-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "DEGEN_SEPOLIA",
+      "platform": "Degen",
+      "name": "Degen Sepolia",
+      "slug": "degen-sepolia",
+      "urlTemplate": "https://degen-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "BITCOIN_MAINNET",
+      "platform": "Bitcoin",
+      "name": "Bitcoin Mainnet",
+      "slug": "bitcoin-mainnet",
+      "urlTemplate": "https://bitcoin-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "bitcoin",
+      "isTestnet": false
+    },
+    {
+      "id": "BITCOIN_TESTNET",
+      "platform": "Bitcoin",
+      "name": "Bitcoin Testnet",
+      "slug": "bitcoin-testnet",
+      "urlTemplate": "https://bitcoin-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "bitcoin",
+      "isTestnet": true
+    },
+    {
+      "id": "BITCOIN_SIGNET",
+      "platform": "Bitcoin",
+      "name": "Bitcoin Signet",
+      "slug": "bitcoin-signet",
+      "urlTemplate": "https://bitcoin-signet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "bitcoin",
+      "isTestnet": true
+    },
+    {
+      "id": "POLYNOMIAL_MAINNET",
+      "platform": "Polynomial",
+      "name": "Polynomial Mainnet",
+      "slug": "polynomial-mainnet",
+      "urlTemplate": "https://polynomial-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "POLYNOMIAL_SEPOLIA",
+      "platform": "Polynomial",
+      "name": "Polynomial Sepolia",
+      "slug": "polynomial-sepolia",
+      "urlTemplate": "https://polynomial-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "MODE_MAINNET",
+      "platform": "Mode",
+      "name": "Mode Mainnet",
+      "slug": "mode-mainnet",
+      "urlTemplate": "https://mode-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "MODE_SEPOLIA",
+      "platform": "Mode",
+      "name": "Mode Sepolia",
+      "slug": "mode-sepolia",
+      "urlTemplate": "https://mode-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "EDGE_MAINNET",
+      "platform": "Edge",
+      "name": "Edge Mainnet",
+      "slug": "edge-mainnet",
+      "urlTemplate": "https://edge-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "EDGE_TESTNET",
+      "platform": "Edge",
+      "name": "Edge Testnet",
+      "slug": "edge-testnet",
+      "urlTemplate": "https://edge-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "MOONBEAM_MAINNET",
+      "platform": "Moonbeam",
+      "name": "Moonbeam Mainnet",
+      "slug": "moonbeam-mainnet",
+      "urlTemplate": "https://moonbeam-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ALCHEMY_SEPOLIA",
+      "platform": "Alchemy",
+      "name": "Alchemy Sepolia",
+      "slug": "alchemy-sepolia",
+      "urlTemplate": "https://alchemy-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ALCHEMY_INTERNAL",
+      "platform": "Alchemy",
+      "name": "Alchemy Internal",
+      "slug": "alchemy-internal",
+      "urlTemplate": "https://alchemy-internal.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "APECHAIN_MAINNET",
+      "platform": "ApeChain",
+      "name": "ApeChain Mainnet",
+      "slug": "apechain-mainnet",
+      "urlTemplate": "https://apechain-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "APECHAIN_CURTIS",
+      "platform": "ApeChain",
+      "name": "ApeChain Curtis",
+      "slug": "apechain-curtis",
+      "urlTemplate": "https://apechain-curtis.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "CELO_MAINNET",
+      "platform": "Celo",
+      "name": "Celo Mainnet",
+      "slug": "celo-mainnet",
+      "urlTemplate": "https://celo-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "CELO_SEPOLIA",
+      "platform": "Celo",
+      "name": "Celo Sepolia",
+      "slug": "celo-sepolia",
+      "urlTemplate": "https://celo-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "APTOS_MAINNET",
+      "platform": "Aptos",
+      "name": "Aptos Mainnet",
+      "slug": "aptos-mainnet",
+      "urlTemplate": "https://aptos-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "aptos",
+      "isTestnet": false
+    },
+    {
+      "id": "APTOS_TESTNET",
+      "platform": "Aptos",
+      "name": "Aptos Testnet",
+      "slug": "aptos-testnet",
+      "urlTemplate": "https://aptos-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "aptos",
+      "isTestnet": true
+    },
+    {
+      "id": "ANIME_MAINNET",
+      "platform": "Anime",
+      "name": "Anime Mainnet",
+      "slug": "anime-mainnet",
+      "urlTemplate": "https://anime-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ANIME_SEPOLIA",
+      "platform": "Anime",
+      "name": "Anime Sepolia",
+      "slug": "anime-sepolia",
+      "urlTemplate": "https://anime-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ALTERSCOPE_MAINNET",
+      "platform": "Alterscope",
+      "name": "Alterscope Mainnet",
+      "slug": "alterscope-mainnet",
+      "urlTemplate": "https://alterscope-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "METIS_MAINNET",
+      "platform": "Metis",
+      "name": "Metis Mainnet",
+      "slug": "metis-mainnet",
+      "urlTemplate": "https://metis-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SONIC_MAINNET",
+      "platform": "Sonic",
+      "name": "Sonic Mainnet",
+      "slug": "sonic-mainnet",
+      "urlTemplate": "https://sonic-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SONIC_TESTNET",
+      "platform": "Sonic",
+      "name": "Sonic Testnet",
+      "slug": "sonic-testnet",
+      "urlTemplate": "https://sonic-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "SEI_MAINNET",
+      "platform": "Sei",
+      "name": "Sei Mainnet",
+      "slug": "sei-mainnet",
+      "urlTemplate": "https://sei-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SEI_TESTNET",
+      "platform": "Sei",
+      "name": "Sei Testnet",
+      "slug": "sei-testnet",
+      "urlTemplate": "https://sei-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "XMTP_ROPSTEN",
+      "platform": "XMTP",
+      "name": "XMTP Ropsten",
+      "slug": "xmtp-ropsten",
+      "urlTemplate": "https://xmtp-ropsten.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "XMTP_MAINNET",
+      "platform": "XMTP",
+      "name": "XMTP Mainnet",
+      "slug": "xmtp-mainnet",
+      "urlTemplate": "https://xmtp-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ADI_TESTNET",
+      "platform": "ADI",
+      "name": "ADI Testnet AB",
+      "slug": "adi-testnet",
+      "urlTemplate": "https://adi-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "ADI_MAINNET",
+      "platform": "ADI",
+      "name": "ADI Mainnet",
+      "slug": "adi-mainnet",
+      "urlTemplate": "https://adi-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SCROLL_MAINNET",
+      "platform": "Scroll",
+      "name": "Scroll Mainnet",
+      "slug": "scroll-mainnet",
+      "urlTemplate": "https://scroll-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SCROLL_SEPOLIA",
+      "platform": "Scroll",
+      "name": "Scroll Sepolia",
+      "slug": "scroll-sepolia",
+      "urlTemplate": "https://scroll-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "OPBNB_MAINNET",
+      "platform": "opBNB",
+      "name": "opBNB Mainnet",
+      "slug": "opbnb-mainnet",
+      "urlTemplate": "https://opbnb-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "OPBNB_TESTNET",
+      "platform": "opBNB",
+      "name": "opBNB Testnet",
+      "slug": "opbnb-testnet",
+      "urlTemplate": "https://opbnb-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "RACE_MAINNET",
+      "platform": "Race",
+      "name": "Race Mainnet",
+      "slug": "race-mainnet",
+      "urlTemplate": "https://race-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "RACE_SEPOLIA",
+      "platform": "Race",
+      "name": "Race Sepolia",
+      "slug": "race-sepolia",
+      "urlTemplate": "https://race-sepolia.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "CROSSFI_TESTNET",
+      "platform": "CrossFi",
+      "name": "CrossFi Testnet",
+      "slug": "crossfi-testnet",
+      "urlTemplate": "https://crossfi-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "CROSSFI_MAINNET",
+      "platform": "CrossFi",
+      "name": "CrossFi Mainnet",
+      "slug": "crossfi-mainnet",
+      "urlTemplate": "https://crossfi-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ABSTRACT_MAINNET",
+      "platform": "Abstract",
+      "name": "Abstract Mainnet",
+      "slug": "abstract-mainnet",
+      "urlTemplate": "https://abstract-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "ABSTRACT_TESTNET",
+      "platform": "Abstract",
+      "name": "Abstract Testnet",
+      "slug": "abstract-testnet",
+      "urlTemplate": "https://abstract-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "SONEIUM_MAINNET",
+      "platform": "Soneium",
+      "name": "Soneium Mainnet",
+      "slug": "soneium-mainnet",
+      "urlTemplate": "https://soneium-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "SONEIUM_MINATO",
+      "platform": "Soneium",
+      "name": "Soneium Minato",
+      "slug": "soneium-minato",
+      "urlTemplate": "https://soneium-minato.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "STABLE_MAINNET",
+      "platform": "Stable",
+      "name": "Stable Mainnet",
+      "slug": "stable-mainnet",
+      "urlTemplate": "https://stable-mainnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": false
+    },
+    {
+      "id": "STABLE_TESTNET",
+      "platform": "Stable",
+      "name": "Stable Testnet",
+      "slug": "stable-testnet",
+      "urlTemplate": "https://stable-testnet.g.alchemy.com/v2/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    },
+    {
+      "id": "V_DEVNET",
+      "platform": "V",
+      "name": "V Devnet",
+      "slug": "v-devnet",
+      "urlTemplate": "https://rpc.devnet.alchemy.com/API_KEY",
+      "rpcFamily": "evm",
+      "isTestnet": true
+    }
+  ]
+}

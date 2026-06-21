@@ -20,7 +20,9 @@
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
-    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "alchemy:smoke": "python3 scripts/alchemy/rpc-smoke-test.py",
+    "alchemy:registry": "python3 scripts/alchemy/generate-network-registry.py"
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",
