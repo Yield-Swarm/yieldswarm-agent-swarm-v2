@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url);
 
 const {
   getSovereignLoopManager,
-  initSovereignLoopEngine,
+  initSovereignLoopEngine: bootSovereignLoopEngine,
   assertSovereignCredentials,
   LOOP_STATES,
 } = require(path.join(repoRoot, 'src', 'infrastructure', 'sovereign-loop', 'SovereignLoopManager.js'));
@@ -66,7 +66,7 @@ export async function runSovereignLoopTick() {
 }
 
 export async function startSovereignLoopDaemon() {
-  await initSovereignLoopEngine();
+  await bootSovereignLoopEngine();
   return getSovereignLoopsStatus();
 }
 
@@ -103,4 +103,4 @@ export function checkSovereignLoopCredentials() {
   }
 }
 
-export { LOOP_STATES, getSovereignLoopManager };
+export { LOOP_STATES, getSovereignLoopManager, bootSovereignLoopEngine as initSovereignLoopEngine };

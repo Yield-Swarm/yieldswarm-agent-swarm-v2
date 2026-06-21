@@ -280,6 +280,35 @@
     .sovereign-logs .log-ts { color: var(--muted); }
     .sovereign-logs .log-phase { color: var(--line); }
 
+    .sovereign-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .sov-btn {
+      min-height: 48px;
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background: #0f1a22;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+    .sov-btn:focus-visible {
+      outline: none;
+      border-color: var(--line);
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.4);
+    }
+    .sov-btn--amber:focus-visible { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255, 176, 32, 0.4); }
+    .sov-btn--cyan:focus-visible { border-color: var(--line); }
+    .sov-btn:disabled { opacity: 0.45; }
+
     /* TV overscan safe zone */
     @media (min-width: 1920px) {
       body { padding: 48px 64px 64px; }
@@ -350,6 +379,12 @@
         <div class="stat stat-sm" id="sovereign-state" style="color:var(--line)">—</div>
         <div class="label" id="sovereign-tick">Tick: —</div>
         <div class="label" id="sovereign-chains" style="margin-top:0.75rem;font-family:var(--mono);font-size:0.75em">—</div>
+        <nav class="sovereign-actions" aria-label="Sovereign manual overrides">
+          <button type="button" class="sov-btn sov-btn--amber" tabindex="0" id="sov-rebalance">Force Rebalance</button>
+          <button type="button" class="sov-btn sov-btn--cyan" tabindex="0" id="sov-replicate">Force Replicate</button>
+          <button type="button" class="sov-btn" tabindex="0" id="sov-patch">Trigger Patch</button>
+          <button type="button" class="sov-btn" tabindex="0" id="sov-reset">Pause / Reset</button>
+        </nav>
       </div>
       <div class="card">
         <h2>Chronological Log</h2>
@@ -483,6 +518,21 @@
       $('refresh-note').textContent = `Updated ${new Date(data.timestamp).toLocaleTimeString()} · next poll ${POLL_MS / 1000}s`;
     }
 
+    async function sovereignOverride(path, btn) {
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch(API + path, { method: 'POST', cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        await refreshSovereignLoops();
+        $('refresh-note').textContent = 'Override: ' + path + ' @ ' + new Date().toLocaleTimeString();
+      } catch (err) {
+        $('sovereign-state').textContent = 'Override failed';
+        $('refresh-note').textContent = err.message;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     async function refreshSovereignLoops() {
       try {
         const res = await fetch(API + '/api/sovereign/loops', { cache: 'no-store' });
@@ -528,6 +578,23 @@
     refreshSovereignLoops();
     setInterval(refresh, POLL_MS);
     setInterval(refreshSovereignLoops, POLL_MS);
+
+    $('sov-rebalance').addEventListener('click', (e) =>
+      sovereignOverride('/api/sovereign/loops/force-rebalance', e.target));
+    $('sov-replicate').addEventListener('click', (e) =>
+      sovereignOverride('/api/sovereign/loops/force-replicate', e.target));
+    $('sov-patch').addEventListener('click', (e) =>
+      sovereignOverride('/api/sovereign/loops/trigger-patch', e.target));
+    $('sov-reset').addEventListener('click', (e) =>
+      sovereignOverride('/api/sovereign/loops/pause-reset', e.target));
+
+    // TV remote: Enter activates focused override button
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList?.contains('sov-btn')) {
+        e.preventDefault();
+        e.target.click();
+      }
+    });
 
     // TV remote: focus navigation
     document.addEventListener('keydown', (e) => {
