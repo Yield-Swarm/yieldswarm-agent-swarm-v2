@@ -30,7 +30,28 @@ def main() -> None:
     p.add_argument("--seed-vault", type=float, default=defaults.seed_vault_usd)
     p.add_argument("--target-apy", type=float, default=defaults.target_apy)
     p.add_argument("--quiet", action="store_true")
+    p.add_argument(
+        "--status",
+        action="store_true",
+        help="print dashboard state summary and exit",
+    )
     args = p.parse_args()
+
+    if args.status:
+        from core.state import load
+
+        path = defaults.state_path
+        state = load(path)
+        if state is None:
+            print(f"No state at {path} — run: python3 run.py --ticks 500")
+            raise SystemExit(1)
+        print(
+            f"tick={state.tick} net_worth=${state.net_worth_usd:,.0f} "
+            f"({state.progress:.1%} of ${state.vault_target_usd:,.0f}) "
+            f"blended_apy={state.blended_apy:.1%} "
+            f"workers={len(state.workers)} agents={len(state.agents)}"
+        )
+        raise SystemExit(0)
 
     cfg = CoreConfig(
         seed_workers=args.seed_workers,
