@@ -210,7 +210,15 @@ put_if_set runtime/backend \
   split_insurance_bps=SPLIT_INSURANCE_BPS \
   split_ops_bps=SPLIT_OPS_BPS
 
-# ---- Bittensor miner (Akash dual-purpose worker) ----
+# ---- Mining infrastructure ----
+put_if_set mining/wallets \
+  tao=MINING_ROOT_TAO \
+  monero=MONERO_WALLET_ADDRESS \
+  etc=MINING_ROOT_BASE_ETC \
+  grass_nodes=GRASS_NODE_KEYS \
+  helium_hotspots=DEPIN_HELIUM_HOTSPOT_KEYS \
+  grass_lineups=GRASS_LINEUPS
+
 put_if_set runtime/bittensor \
   wallet_name=BT_WALLET_NAME \
   hotkey_name=BT_HOTKEY_NAME \

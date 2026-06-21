@@ -1,0 +1,20 @@
+{
+  "lineups": [
+    {
+      "id": "lineup-linux-1",
+      "platform": "linux",
+      "multiplier": 2,
+      "wallet": "${GRASS_WALLET_1}",
+      "device_id": "grass-linux-01",
+      "network": "residential"
+    },
+    {
+      "id": "lineup-android-1",
+      "platform": "android",
+      "multiplier": 3,
+      "wallet": "${GRASS_WALLET_2}",
+      "device_id": "grass-android-01",
+      "network": "mobile_data"
+    }
+  ]
+}

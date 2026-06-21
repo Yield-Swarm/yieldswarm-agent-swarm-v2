@@ -144,9 +144,17 @@ Full layered file: `deploy/env/layered.env.example`.
 | `AGENT_COUNT_TOTAL` | 10,080 agents |
 | `AGENTS_PER_SHARD`, `AGENT_SHARD_ID` | Shard sizing |
 | `CRON_SHARD_COUNT`, `CRON_INTERVAL_MINUTES` | Cron config |
-| `DEPIN_HELIUM_HOTSPOT_KEYS` | Helium keys JSON |
+| `DEPIN_HELIUM_HOTSPOT_KEYS` | Helium hotspots JSON (serial, MAC, SSID, wallet) |
 | `GPU_CLUSTER_KEYS` | GPU cluster keys JSON |
-| `GRASS_NODE_KEYS` | Grass DePIN keys |
+| `GRASS_NODE_KEYS` | Grass DePIN node keys / wallets JSON |
+| `GRASS_LINEUPS` | Grass device lineups with platform multipliers |
+| `MINING_DRY_RUN` | Dry-run mining manager (default `1`) |
+| `MINING_AUTO_START` | Auto-start miners on sovereign tick |
+| `MINING_ROOT_TAO` | Bittensor coldkey / payout address |
+| `MONERO_WALLET_ADDRESS` | Monero (XMR) payout address |
+| `MINING_ROOT_BASE_ETC` | Ethereum Classic payout address |
+| `MONERO_POOL_URL`, `ETC_POOL_URL` | Pool endpoints |
+| `XMRIG_PATH`, `ETC_MINER_BINARY` | Miner binary paths |
 | `SMARTTHINGS_BRIDGE_TOKEN` | SmartThings |
 | `COLORADO_POWER_PERMIT_ID`, `UTILITY_API_KEY` | Energy permits |
 
