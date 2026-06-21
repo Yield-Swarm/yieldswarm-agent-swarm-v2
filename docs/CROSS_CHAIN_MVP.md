@@ -66,6 +66,10 @@ We believe in **sustainable high-yield optimized compute** — and **aggressive,
 
 **v2.1 addition:** Cross-chain execution alpha — Uniswap V4 hooks, Solana liquidity (Orca, Raydium, Jupiter), dYdX perps, altcoin PoW mining — as **additional Helix vectors**, not separate verticals.
 
+**v2.1 RPC mesh:** All venues share the **Alchemy 164-network catalog** (`Christopher's First App`). Backend bootstraps `SOLANA_RPC_URL`, `EVM_RPC_URL`, `BASE_RPC_URL`, and chain-specific `EVM_RPC_URL_*` when `ALCHEMY_API_KEY` is set. Operator pane: `GET /api/rpc/alchemy/health`. Study: `docs/RPC_ALCHEMY_STUDY.md`. Constants: `agents/governance/gospel.py` (`RPC_MESH_*`, `MINING_COVENANT_ETHOS`).
+
+**v2.1 mine with us:** Point pool payouts at `config/TREASURY_MANIFEST.json` mining roots and join the YieldSwarm Bittensor miner (`BT_NETUID=1`, `finney`) — see `README.md` § Mine With Us.
+
 > “We will use every ethical advantage — custom smart contract hooks, fast Solana execution, leveraged perps, or raw PoW hashpower — to compound yield for the treasury and the agents that serve it.”
 
 ## Integration points

@@ -1,14 +1,14 @@
-# YieldSwarm — Single Pane of Glass v2.0
+# YieldSwarm — Single Pane of Glass v2.1
 
-Canonical architecture visual: **Helix Chain + 35-Layer Neural Mesh + 17 Domains**.
+Canonical architecture visual: **Helix Chain + 35-Layer Neural Mesh + Tri-Solenoid + RPC Mesh + 17 Domains**.
 
-See also: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (investor view + repo anchors) · [`docs/HELIX_SINGLE_PANE.md`](docs/HELIX_SINGLE_PANE.md) (layer detail).
+See also: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (investor view) · [`docs/HELIX_SINGLE_PANE.md`](docs/HELIX_SINGLE_PANE.md) (layer detail) · [`docs/RPC_ALCHEMY_STUDY.md`](docs/RPC_ALCHEMY_STUDY.md) (164-network RPC study) · [`docs/TRI_SOLENOID_ARCHITECTURE.md`](docs/TRI_SOLENOID_ARCHITECTURE.md).
 
 ---
 
 ```mermaid
 ---
-title: YieldSwarm Helix Chain + 35-Layer Neural Mesh - Single Pane of Glass v2.0
+title: YieldSwarm Helix + Tri-Solenoid + RPC Mesh - Single Pane of Glass v2.1
 config:
   theme: dark
   flowchart:
@@ -27,6 +27,37 @@ flowchart TB
     end
 
     Ingress --> EdgeRouting["17-DOMAIN EDGE ROUTING + API LAYER<br/>(9 Frontend Zones + 8 Backend Fluid Compute)"]
+
+    %% ======================== RPC MESH (ALCHEMY) ========================
+    subgraph RpcMesh ["RPC MESH — ALCHEMY (164 NETWORKS)"]
+        AlchemyApp["Christopher's First App<br/>ALCHEMY_API_KEY via Vault"]
+        RpcApi["GET /api/rpc/alchemy/*<br/>health · endpoints · defaults"]
+        PrimaryChains["Primary: Solana · ETH · Base · Polygon · Arbitrum"]
+        AlchemyApp --> RpcApi --> PrimaryChains
+    end
+
+    EdgeRouting --> RpcMesh
+
+    %% ======================== TRI-SOLENOID ========================
+    subgraph TriSolenoid ["TRI-SOLENOID ORCHESTRATION"]
+        NexusS1["Solenoid 1 — Nexus Chain<br/>521 agents · /api/nexus/*"]
+        HelixS2["Solenoid 2 — Helix Reverberator<br/>10 mining roots · IoTeX hub"]
+        ShadowS3["Solenoid 3 — Shadow / Arena<br/>competition · reputation"]
+        IoTHub["IoT Hub FWA_37KN9S<br/>/api/iot/*"]
+        NexusS1 --> HelixS2 --> ShadowS3
+        NexusS1 --> IoTHub
+    end
+
+    RpcMesh --> TriSolenoid
+
+    %% ======================== MINING + BITTENSOR ========================
+    subgraph MiningJoin ["MINE WITH US — POOLS + NODE"]
+        TreasurySol["Nexus Treasury Solana<br/>kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN"]
+        MiningRoots["10 Mining Roots<br/>config/TREASURY_MANIFEST.json"]
+        BittensorNode["Bittensor Miner Akash RTX 3090<br/>BT_NETUID=1 finney"]
+        HelixS2 --> MiningRoots --> TreasurySol
+        AkashWorkers --> BittensorNode --> MiningRoots
+    end
 
     %% ======================== HELIX CHAIN / 35-LAYER CORE ========================
     subgraph HelixCore ["HELIX CHAIN / 35-LAYER NEURAL MESH CORE"]
@@ -75,6 +106,7 @@ flowchart TB
     end
 
     %% Connections
+    TriSolenoid --> L1_3
     EdgeRouting --> L1_3
     L32_34 --> KairoTelemetry
     L35 --> Odysseus
@@ -95,9 +127,15 @@ flowchart TB
     classDef core fill:#0f3460,stroke:#00ff9f,color:#fff
     classDef intel fill:#16213e,stroke:#48dbfb,color:#fff
     classDef infra fill:#16213e,stroke:#feca57,color:#fff
+    classDef rpc fill:#0d2137,stroke:#00b4d8,color:#fff
+    classDef solenoid fill:#1b1033,stroke:#b388ff,color:#fff
+    classDef mining fill:#1a2f1a,stroke:#69db7c,color:#fff
     classDef revenue fill:#1a1a2e,stroke:#ff6b6b,color:#fff
 
     class Ingress,EdgeRouting ingress
+    class RpcMesh,AlchemyApp,RpcApi,PrimaryChains rpc
+    class TriSolenoid,NexusS1,HelixS2,ShadowS3,IoTHub solenoid
+    class MiningJoin,TreasurySol,MiningRoots,BittensorNode mining
     class HelixCore,L1_3,L4_6,L7_9,L10,L11_13,L14_22,L23_28,L29_31,L32_34,L35,KairoTelemetry,Mandelbrot,SovereignLoops,Treasury core
     class Intelligence,Odysseus,ModelRouter,SovereignRuntime,GreatDelta,AgentMarketplace intel
     class Infra,Vault,AkashInfra,MultiCloudInfra infra
@@ -116,18 +154,28 @@ flowchart TB
 | **Layer 10** | Master Solenoid Anchor — core orchestration |
 | **Layers 14–22** | Self-healing + Great Delta + dimensional singularity |
 | **Layer 35** | Omni Apex — sovereign core + marketplace |
+| **RPC Mesh** | Alchemy 164-network catalog — `docs/RPC_ALCHEMY_STUDY.md` |
+| **Tri-Solenoid** | Nexus (orchestration) · Helix (yield) · Shadow (arena) |
+| **Mine With Us** | Point miners at treasury + mining roots — `README.md` |
 
 ## Data flow
 
-**Kairo Signed Telemetry → Mandelbrot / Tree of Life → Sovereign Loops → Treasury (50/30/15/5)**
+**Kairo Signed Telemetry → Mandelbrot / Tree of Life → Sovereign Loops → Great Delta Treasury (50/30/15/5)**
+
+Cross-chain and mining revenue enters the same rail: Alchemy RPC → Helix mining roots → Nexus treasury.
 
 ## Live surfaces
 
 | Pane | URL / command |
 |------|----------------|
+| RPC Mesh | `GET /api/rpc/alchemy/health` · `GET /api/rpc/alchemy/defaults` |
+| Nexus | `GET /api/nexus/health` · `python3 services/nexus/cli.py status` |
 | Helix | `GET /api/helix/status` · `./scripts/activate-helix.sh` |
-| Arena | `/arena?workers=<lease-uri>` |
+| Shadow / Arena | `GET /api/shadow/status` · `/arena?workers=<lease-uri>` |
+| IoT Hub | `GET /api/iot/health` · `scripts/iot-hub/monitor-devices.sh` |
 | Council | `/council/status.html` |
 | Sovereign | `GET /api/sovereign/state` |
+| Bittensor miner | `./scripts/deploy-bittensor.sh` · `deploy/akash-bittensor-miner.sdl.yml` |
 | Akash deploy | `make deploy-akash-europlots` |
 | Vault runtime | `docs/VAULT_AKASH_RUNTIME.md` |
+| Mine with us | `README.md` § Mine With Us · `config/TREASURY_MANIFEST.json` |
