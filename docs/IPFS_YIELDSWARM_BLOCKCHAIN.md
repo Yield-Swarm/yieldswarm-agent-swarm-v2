@@ -21,7 +21,7 @@
 |-------|-------|
 | CID (v0) | `QmQUS42xN6Ej21baZZCMmxnirwzy9XFRPruqUYTof4vwTz` |
 | CID (v1) | `bafybeia7ww22z4oewud4so4whxmqi5jbcc4cjjbqc5onb7s2myk6qnwqnu` |
-| Gateways | `{IPFS_PUBLIC_GATEWAY}/ipfs/{cid}` — defaults in `scripts/domains/verify-ipfs-cid.sh` |
+| Gateways | `ipfs.io`, `cloudflare-ipfs.com`, `gateway.pinata.cloud` — path `/ipfs/{cid}` |
 
 ## Polygon / Unstoppable
 

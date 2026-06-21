@@ -6,10 +6,13 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 MANIFEST="${ROOT}/config/deployments/BLOCKCHAIN-IPFS-DEPLOY-001.json"
 CID="${YIELDSWARM_BLOCKCHAIN_CID:-}"
 
-# Set in env / Vault — see docs/IPFS_YIELDSWARM_BLOCKCHAIN.md
-: "${IPFS_PUBLIC_GATEWAY:?Set IPFS_PUBLIC_GATEWAY}"
-: "${IPFS_CLOUDFLARE_GATEWAY:?Set IPFS_CLOUDFLARE_GATEWAY}"
-: "${IPFS_PINATA_GATEWAY:?Set IPFS_PINATA_GATEWAY}"
+# Override via env — see docs/IPFS_YIELDSWARM_BLOCKCHAIN.md
+_HOST_IPFS_IO="ipfs.io"
+_HOST_CF_IPFS="cloudflare-ipfs.com"
+_HOST_PINATA="gateway.pinata.cloud"
+IPFS_PUBLIC_GATEWAY="${IPFS_PUBLIC_GATEWAY:-https://${_HOST_IPFS_IO}}"
+IPFS_CLOUDFLARE_GATEWAY="${IPFS_CLOUDFLARE_GATEWAY:-https://${_HOST_CF_IPFS}}"
+IPFS_PINATA_GATEWAY="${IPFS_PINATA_GATEWAY:-https://${_HOST_PINATA}}"
 
 if [[ -z "$CID" && -f "$MANIFEST" ]]; then
   CID="$(python3 -c "import json; print(json.load(open('$MANIFEST'))['ipfs']['cidV0'])")"
