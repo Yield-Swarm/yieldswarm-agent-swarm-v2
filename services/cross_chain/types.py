@@ -12,6 +12,7 @@ class StrategyKind(str, Enum):
     SOLANA_LIQUIDITY = "solana_liquidity"
     DYDX_PERPS = "dydx_perps"
     ALTCOIN_POW = "altcoin_pow"
+    STELLAR_COSMOS = "stellar_cosmos"
 
 
 class ExecutionStatus(str, Enum):

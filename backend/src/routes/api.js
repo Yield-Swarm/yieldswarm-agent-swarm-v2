@@ -28,6 +28,9 @@ import * as rtx5090 from '../adapters/rtx5090Telemetry.js';
 import { routeRequest } from '../infrastructure/odysseus-router.js';
 import * as oracle from '../adapters/oracle.js';
 import * as dydx from '../adapters/dydx.js';
+import * as miningFleet from '../adapters/miningFleet.js';
+import * as iotRegistry from '../adapters/iotRegistry.js';
+import { getSubsystemSnapshots } from '../adapters/singlePane.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -309,7 +312,7 @@ router.post('/cross-chain/telemetry', asyncRoute(async (req, res) => {
  * Single aggregated payload that powers the Arena dashboard in one round-trip.
  */
 router.get('/arena/overview', asyncRoute(async (_req, res) => {
-  const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix, xchain, zkMayhem] = await Promise.all([
+  const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix, xchain, zkMayhem, miningStatus, iotSnap, singlePane] = await Promise.all([
     cache.get('akash:workers', () => akash.getWorkers()),
     cache.get('telemetry:emission', () => emission.getEmissions()),
     cache.get('telemetry:treasury', () => treasury.getTreasurySplits()),
@@ -319,7 +322,14 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     cache.get('telemetry:helix', () => getHelixStatus()),
     cache.get('cross-chain:overview', () => crossChain.getCrossChainOverview()),
     cache.get('telemetry:zk-mayhem', () => getZkMayhemStatus()),
+    cache.get('mining:status', () => miningFleet.readMiningStatus()),
+    cache.get('iot:summary', () => iotRegistry.getIoTSummary()),
+    cache.get('single-pane:snapshot', () => getSubsystemSnapshots()),
   ]);
+
+  const miningAuth = miningFleet.getMiningAuthSummary();
+  const miningRewards = miningFleet.getRewardRoutes();
+  const iot = iotSnap.ok ? iotSnap.data : { total: 0, online: 0, by_type: {} };
 
   const connections = {
     akashWorkers: { connected: workers.live, source: workers.source },
@@ -331,6 +341,9 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     helixChain: { connected: helix.activated, source: helix.phase },
     crossChain: { connected: xchain.live, source: xchain.source },
     zkMayhem: { connected: zkMayhem.enabled && zkMayhem.circuitBuilt, source: zkMayhem.service },
+    mining: { connected: miningAuth.ok, source: miningAuth.mode },
+    iot: { connected: iot.total > 0, source: 'device_registry' },
+    node5: { connected: Boolean(singlePane?.prompts?.ready), source: 'single_pane' },
   };
   const connectedCount = Object.values(connections).filter((c) => c.connected).length;
 
@@ -348,6 +361,18 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     helix,
     crossChain: xchain,
     zkMayhem,
+    mining: {
+      status: miningStatus,
+      auth: miningAuth,
+      rewards: miningRewards,
+    },
+    iot,
+    node5: singlePane?.prompts?.prompts?.find((p) => p.slug === 'node5') || null,
+    singlePane: {
+      promptsReady: singlePane?.prompts?.ready ?? 0,
+      promptsTotal: singlePane?.prompts?.total ?? 20,
+      surfaces: singlePane?.surfaces ?? {},
+    },
   });
 }));
 
