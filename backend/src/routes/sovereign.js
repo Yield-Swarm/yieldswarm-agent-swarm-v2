@@ -4,6 +4,12 @@
 
 import { Router } from 'express';
 import * as sovereign from '../adapters/sovereign.js';
+import {
+  getSovereignLoopsTelemetry,
+  forceSovereignRebalance,
+  forceSovereignReplicate,
+  triggerSovereignPatch,
+} from '../adapters/sovereignLoops.js';
 
 const router = Router();
 
@@ -18,6 +24,24 @@ function asyncRoute(fn) {
 router.get('/overview', asyncRoute(async (_req, res) => {
   const data = await sovereign.getSovereignState();
   res.json(data);
+}));
+
+/** GET /api/sovereign/loops — autonomous loop metrics + terminal feed */
+router.get('/loops', asyncRoute(async (_req, res) => {
+  const data = await getSovereignLoopsTelemetry();
+  res.json(data);
+}));
+
+router.post('/loops/rebalance', asyncRoute(async (_req, res) => {
+  res.json(forceSovereignRebalance());
+}));
+
+router.post('/loops/replicate', asyncRoute(async (_req, res) => {
+  res.json(forceSovereignReplicate());
+}));
+
+router.post('/loops/patch', asyncRoute(async (_req, res) => {
+  res.json(triggerSovereignPatch());
 }));
 
 router.get('/stream', asyncRoute(async (req, res) => {

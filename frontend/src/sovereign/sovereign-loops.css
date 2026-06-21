@@ -1,0 +1,206 @@
+/* SovereignLoopsPanel — TV-optimized sovereign loop telemetry */
+
+.slp-panel {
+  flex: 1;
+  background: #000000;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  outline: none;
+  transition: transform 0.18s ease, border-color 0.2s ease;
+  contain: layout style paint;
+}
+
+.slp-panel--focused {
+  transform: scale(1.02);
+  border-color: #333333;
+}
+
+.slp-header {
+  border-bottom: 2px solid #121212;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.slp-status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slp-pulse-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--slp-pulse-color, #00e676);
+  flex-shrink: 0;
+}
+
+.slp-pulse-active {
+  animation: slp-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes slp-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.slp-status-text {
+  font-size: clamp(1.1rem, 2.2vw, 1.65rem);
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.slp-state-subtitle {
+  color: #757575;
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  margin-top: 6px;
+}
+
+.slp-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .slp-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.slp-matrix-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.slp-card-label {
+  color: #616161;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.slp-card-value {
+  color: #ffffff;
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: bold;
+}
+
+.slp-card-subtext {
+  color: #424242;
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+.slp-mono {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.slp-progress-bg {
+  height: 6px;
+  background: #1a1a1a;
+  border-radius: 3px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.slp-progress-fill {
+  height: 100%;
+  background: #9c27b0;
+  transition: width 0.2s linear;
+}
+
+.slp-terminal-container {
+  background: #050505;
+  border: 1px solid #1e1e1e;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 20px;
+  min-height: 180px;
+  max-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.slp-terminal-title {
+  color: #424242;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.slp-terminal-console {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 10px;
+}
+
+.slp-terminal-line {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
+  line-height: 1.45;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.slp-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .slp-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.slp-action-btn {
+  background: #121212;
+  border: 1px solid #333333;
+  padding: 14px 10px;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.slp-action-btn:hover,
+.slp-action-btn:focus {
+  border-color: #555555;
+  background: #1a1a1a;
+  outline: none;
+}
+
+.slp-action-btn--danger {
+  border-color: #5c2525;
+}
+
+.slp-action-btn--danger:hover,
+.slp-action-btn--danger:focus {
+  border-color: #8a3030;
+}
+
+@media (min-width: 2560px) {
+  .slp-panel {
+    padding: 2rem;
+  }
+}
