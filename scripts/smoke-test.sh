@@ -53,6 +53,8 @@ check_cmd "Stripe deposit route" test -f src/app/api/deposits/stripe/route.ts
 check_cmd "Stripe webhook route" test -f src/app/api/webhooks/stripe/route.ts
 check_cmd "Platform fee module" test -f src/lib/payments/fees.ts
 check_cmd "Integration backend" test -f backend/src/server.js
+check_cmd "Rewards orchestrator" test -f services/rewards/orchestrator.py
+check_cmd "Rewards sweep script" test -x scripts/rewards/sweep-rewards.sh
 
 # Python tests
 check_cmd "Kairo tests" python3 -m pytest kairo/tests/ -q
