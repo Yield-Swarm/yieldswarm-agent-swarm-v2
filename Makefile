@@ -25,7 +25,7 @@ A := deploy/akash
         akash-bittensor akash-odysseus akash-backend start-mining bootstrap-mining \
         mining-termux-start mining-termux-stop mining-termux-logs \
         fleet-provision fleet-sync \
-        go-live go-live-plan rewards-go-live azure-swarm-nsg \
+        go-live go-live-plan rewards-go-live azure-swarm-nsg azure-deploy-vmss \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -126,6 +126,14 @@ rewards-go-live:
 
 azure-swarm-nsg:
 	bash scripts/azure/configure-swarm-nsg.sh
+
+## azure-deploy-vmss: print PowerShell VMSS deploy instructions (run on Windows)
+azure-deploy-vmss:
+	@echo "Run on Windows PowerShell:"
+	@echo "  Copy-Item scripts/azure/deploy-vmss.config.example.ps1 deploy-vmss.secrets.ps1"
+	@echo "  . .\\deploy-vmss.secrets.ps1"
+	@echo "  .\\scripts\\azure\\deploy-vmss.ps1"
+	@echo "See docs/AZURE_VMSS_DEPLOYMENT.md"
 
 ## start-mining: one-command Bittensor spin-up (Termux / Cloud Shell)
 start-mining:

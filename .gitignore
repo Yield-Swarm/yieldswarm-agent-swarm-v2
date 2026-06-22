@@ -50,6 +50,7 @@ dist/
 !.env.fleet.example
 .env.fleet
 deploy/fleet/node-*.env
+deploy-vmss.secrets.ps1
 .env*.local
 .env.*.local
 .env.local
