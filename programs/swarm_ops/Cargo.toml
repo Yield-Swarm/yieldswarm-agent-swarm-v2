@@ -1,0 +1,20 @@
+[package]
+name = "swarm_ops"
+version = "0.1.0"
+description = "YieldSwarm agent registry and harvest permissions"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "swarm_ops"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build"]
+
+[dependencies]
+anchor-lang = "0.30.1"
