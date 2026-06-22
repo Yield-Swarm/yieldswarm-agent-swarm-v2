@@ -32,15 +32,30 @@ export const ProofOfEngagementActionSchema = z.object({
   baseFactor: z.number().positive(),
   enemyLevel: z.number().int().positive(),
   precision: z.number().positive(),
-  deltaTime: z.number().int().nonnegative(),
+  deltaTime: z.number().int().nonnegative().optional(),
   actionType: z.enum(["combat", "crafting", "exploration", "social"]),
 });
 
-export type ProofOfEngagementAction = z.infer<typeof ProofOfEngagementActionSchema>;
+export type ProofOfEngagementAction = z.infer<typeof ProofOfEngagementActionSchema> & {
+  deltaTime: number;
+};
 
-export const ClaimPayloadSchema = z.object({
+/** Client claim request — server derives Δt from on-chain SBT timestamp. */
+export const ClaimRequestSchema = z.object({
   player: PlayerProfileSchema,
-  action: ProofOfEngagementActionSchema,
+  action: ProofOfEngagementActionSchema.omit({ deltaTime: true }),
+  clientTimestamp: z.number().int().positive().optional(),
 });
 
-export type ClaimPayload = z.infer<typeof ClaimPayloadSchema>;
+export type ClaimRequest = z.infer<typeof ClaimRequestSchema>;
+
+export const ClaimPayloadSchema = ClaimRequestSchema;
+export type ClaimPayload = ClaimRequest;
+
+/** TonConnect message shape for wallet broadcast (Layer 3). */
+export interface TonConnectSettlementMessage {
+  address: string;
+  amount: string;
+  payload: string;
+}
+
