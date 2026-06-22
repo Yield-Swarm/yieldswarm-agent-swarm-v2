@@ -47,6 +47,9 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.fleet.example
+.env.fleet
+deploy/fleet/node-*.env
 .env*.local
 .env.*.local
 .env.local
