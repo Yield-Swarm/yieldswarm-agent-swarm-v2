@@ -55,6 +55,9 @@ check_cmd "Platform fee module" test -f src/lib/payments/fees.ts
 check_cmd "Integration backend" test -f backend/src/server.js
 check_cmd "Rewards orchestrator" test -f services/rewards/orchestrator.py
 check_cmd "Rewards sweep script" test -x scripts/rewards/sweep-rewards.sh
+check_cmd "Marketing vault policy" test -f vault/policies/marketing-runtime.hcl
+check_cmd "Marketing health route" test -f src/app/api/integrations/marketing/health/route.ts
+check_cmd "MarketingService" test -f src/lib/marketing/marketingService.ts
 
 # Python tests
 check_cmd "Kairo tests" python3 -m pytest kairo/tests/ -q
