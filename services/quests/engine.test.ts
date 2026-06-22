@@ -6,7 +6,7 @@ import {
   pickLotteryWinner,
   DEFAULT_QUESTS,
   deterministicIndex,
-} from '../services/quests/engine';
+} from './engine';
 
 describe('quest engine', () => {
   it('computes level from xp curve', () => {
