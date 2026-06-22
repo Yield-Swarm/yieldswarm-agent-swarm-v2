@@ -5,6 +5,31 @@
 # Secrets: set in Render dashboard (never commit values). Mirror names from docs/ENV_VARS.md
 
 services:
+  # Singapore free-tier DePIN geomining telemetry (srv-d8sfuireo5us73efn3gg)
+  - type: web
+    name: yieldswarm-agent-swarm-v2-mainnet
+    runtime: docker
+    region: singapore
+    plan: free
+    branch: main
+    dockerfilePath: ./deploy/render/singapore/Dockerfile
+    dockerContext: ./deploy/render/singapore
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL
+        sync: false
+      - key: MONITOR_EMAIL
+        value: ethyswarm@proton.me
+      - key: SYNC_BATCH_SIZE
+        value: "8"
+      - key: SYNC_FLUSH_MS
+        value: "1500"
+
   - type: web
     name: yieldswarm-api
     runtime: node
