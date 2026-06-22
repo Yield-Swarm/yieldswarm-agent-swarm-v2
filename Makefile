@@ -39,7 +39,8 @@ A := deploy/akash
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         zk-trusted-setup zk-mutation-cycle \
         tfc-setup tfc-init tfc-apply tfc-deploy-all \
-        status logs clean production rust-core rust-core-test
+        status logs clean production rust-core rust-core-test \
+        collab-code-server collab-tunnel
 
 ## rust-core: build Phase 1 Swarm OS Rust engine
 rust-core:
@@ -130,6 +131,14 @@ vercel:
 ## render: show Render blueprint instructions
 render:
 	bash scripts/deploy-production.sh render
+
+## collab-code-server: deploy browser IDE on RunPod (localhost bind)
+collab-code-server:
+	bash scripts/runpod/deploy-code-server.sh
+
+## collab-tunnel: SSH tunnel code-server from laptop/Termux to RunPod
+collab-tunnel:
+	bash scripts/collab/ssh-tunnel-workspace.sh
 
 ## production: unified multi-platform entry (see scripts/deploy-production.sh)
 production:
