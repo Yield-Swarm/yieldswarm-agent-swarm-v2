@@ -88,6 +88,59 @@ HARVEST_ETHOS = (
     "document_and_tear_down",
 )
 
+# ---------------------------------------------------------------------------
+# RPC Mesh — Alchemy Christopher's First App (docs/RPC_ALCHEMY_STUDY.md)
+# Backend auto-fills unset SOL/ETH/Base/Polygon/Arbitrum env at load.
+# ---------------------------------------------------------------------------
+ALCHEMY_APP_NAME = "Christopher's First App"
+RPC_MESH_API_KEY_ENV = "ALCHEMY_API_KEY"
+RPC_MESH_NETWORK_COUNT = 164
+RPC_MESH_MANIFEST = "config/alchemy/christophers-first-app.json"
+
+RPC_MESH_PRIMARY_NETWORK_IDS = (
+    "solana-mainnet",
+    "ethereum-mainnet",
+    "base-mainnet",
+    "polygon-mainnet",
+    "arbitrum-mainnet",
+    "ethereum-sepolia",
+    "op-mainnet",
+    "avalanche-mainnet",
+)
+
+RPC_MESH_AUTO_ENV_KEYS = (
+    "SOLANA_RPC_URL",
+    "ETHEREUM_RPC_URL",
+    "EVM_RPC_URL",
+    "MAINNET_RPC_URL",
+    "BASE_RPC_URL",
+    "EVM_RPC_URL_8453",
+    "EVM_RPC_URL_137",
+    "EVM_RPC_URL_42161",
+    "SEPOLIA_RPC_URL",
+)
+
+# ---------------------------------------------------------------------------
+# Mining covenant — community pools + Bittensor (config/TREASURY_MANIFEST.json)
+# All gross mining/DEX revenue routes through TREASURY_SPLIT_BPS.
+# ---------------------------------------------------------------------------
+MINING_ROOT_MANIFEST = "config/TREASURY_MANIFEST.json"
+NEXUS_TREASURY_SOLANA = "kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN"
+IOTEX_MINING_ROOT = "0x8f3d03e4c0f36670aa1b6f1e7befa85d50c3a567"
+BTC_IOPAY_BRIDGE = "bc1qssmlvhth0sm4xslnvf5a7nlv038u3txkc3l0u8"
+
+BITTENSOR_DEFAULT_NETUID = 1
+BITTENSOR_DEFAULT_NETWORK = "finney"
+BITTENSOR_DEPLOY_SDL = "deploy/akash-bittensor-miner.sdl.yml"
+BITTENSOR_VAULT_POLICY = "bittensor-runtime"
+
+MINING_COVENANT_ETHOS = (
+    "point_payouts_at_treasury_manifest",
+    "great_delta_before_settlement",
+    "akash_bittensor_first_in_harvest",
+    "rotate_exposed_rpc_keys",
+)
+
 COUNCIL_ROLES = (
     ("deity-001", "Kimiclaw", "head_of_consensus_council"),
     ("deity-002", "Council Seat 02", "primary_deity"),

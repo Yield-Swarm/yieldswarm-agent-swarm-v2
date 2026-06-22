@@ -20,7 +20,7 @@ contract MultiSplitLeasing is Ownable, ReentrancyGuard {
     IAgentLeaseReader public agentNFT;
 
   address public treasury;
-  uint8 public treasurySplitBps = 1000; // 10% platform fee on lease revenue
+  uint16 public treasurySplitBps = 1000; // 10% platform fee on lease revenue
 
   event RevenueDistributed(
     uint256 indexed tokenId,

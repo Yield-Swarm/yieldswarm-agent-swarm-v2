@@ -44,6 +44,82 @@ Full registry: `docs/GOD_TASKS_55.md` · Linear import: `docs/linear/god-tasks-i
 ./scripts/yieldswarm-deploy.sh --dry-run
 ```
 
+## Mine With Us
+
+Join the YieldSwarm harvest: point your miners and pool payouts at our **treasury + mining roots**, use our **RPC mesh** for chain reads, and run beside our **Bittensor node** on Akash.
+
+Full RPC study: [`docs/RPC_ALCHEMY_STUDY.md`](docs/RPC_ALCHEMY_STUDY.md) · Operator pane: [`SINGLE_PANE_OF_GLASS.md`](SINGLE_PANE_OF_GLASS.md)
+
+### Treasury and mining roots
+
+Canonical manifest: `config/TREASURY_MANIFEST.json` (also in `agents/governance/gospel.py`).
+
+| Key | Address | Use |
+|-----|---------|-----|
+| **Nexus Treasury (Solana)** | `kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN` | Primary on-chain treasury |
+| **IoTeX hub** | `0x8f3d03e4c0f36670aa1b6f1e7befa85d50c3a567` | IoTeX / Kairo driver yield |
+| **BTC (IOPAY bridge)** | `bc1qssmlvhth0sm4xslnvf5a7nlv038u3txkc3l0u8` | BTC payouts via IOPAY |
+| **base_etc** | `0x3ec1E8B08c2f543b23fD6B21CD812bB31f2E9F00` | ETC mining root |
+| **zec** | `t1KCti3km9DJLxYot3t7NgzYW2FpTnVCvrY` | Zcash mining root |
+| **prl** | `29L3dA5XvXUthBJeanarcTij6e5fdtAD81PxQMfEEQQ9` | Pearl mining root |
+| **tao** | `5GwCZMWxtmkjpMzA7p1EFynRFicebo8FNjjqoVugxNMkSQSF` | TAO / Bittensor-related |
+| **base_hype** | `0x856e90EDd6d167355FcB6c35a8A857FFCA011Aa0` | Base HYPE root |
+| **base_cbeth** | `0x455156dFDc95084A8e84e8d734a036A9a2e11Af0` | Base cbETH root |
+| **base_btc** | `0x1353f846DB707F6739591d294c80740607F1A87a` | Base BTC root |
+
+Configure your pool **payout wallet** or **worker destination** to the matching root above. Revenue still flows through Great Delta **50/30/15/5** before settlement.
+
+### RPC mesh (mine and verify on-chain)
+
+```bash
+export ALCHEMY_API_KEY=your_key_here   # Vault: yieldswarm/data/integrations/alchemy
+export ALCHEMY_APP_NAME="Christopher's First App"
+
+# Backend auto-fills unset RPC env vars (Solana, ETH, Base, Polygon, Arbitrum, Sepolia)
+curl -s http://127.0.0.1:8080/api/rpc/alchemy/health | jq
+curl -s http://127.0.0.1:8080/api/rpc/alchemy/defaults | jq
+```
+
+164-network catalog: `GET /api/rpc/alchemy/endpoints` · Setup: [`docs/ALCHEMY_CHRISTOPHERS_FIRST_APP.md`](docs/ALCHEMY_CHRISTOPHERS_FIRST_APP.md)
+
+**Security:** Never commit `ALCHEMY_API_KEY`. Rotate if exposed.
+
+### Bittensor node (join our subnet miner)
+
+We run a Bittensor miner on **Akash RTX 3090** alongside Kairo DePIN telemetry.
+
+```bash
+# Vault + deploy (see docs/VAULT_AKASH_DEPLOY.md)
+export BT_NETUID=1
+export BT_NETWORK=finney
+./vault/scripts/seed-secrets.sh          # yieldswarm/runtime/bittensor
+eval "$(./scripts/akash-vault-prepare.sh bittensor-runtime)"
+./scripts/deploy-bittensor.sh
+```
+
+| Item | Value |
+|------|-------|
+| SDL | `deploy/akash-bittensor-miner.sdl.yml` |
+| Vault policy | `bittensor-runtime` |
+| Default subnet | `BT_NETUID=1` on `finney` |
+| PoW expansion | `POW_MINING_COINS=bittensor,grass` |
+
+To mine **with** us (same subnet, shared infra docs): mirror the SDL, point emissions settlement at the **tao** root above, and register workers through `GET /api/telemetry/akash`.
+
+### Tri-solenoid operator hooks
+
+| Solenoid | API | Doc |
+|----------|-----|-----|
+| Nexus | `/api/nexus/*` | `docs/TRI_SOLENOID_ARCHITECTURE.md` |
+| Helix | `/api/helix/status` | `onchain/programs/helix/` |
+| Shadow / Arena | `/api/shadow/status` | `onchain/programs/arena/` |
+| IoT Hub | `/api/iot/*` | `docs/IOT_HUB.md` |
+
+```bash
+python3 services/nexus/cli.py status
+./scripts/activate-helix.sh
+```
+
 ## Core AI Workspace
 Odysseus is integrated as the central self-hosted YieldSwarm workspace and
 agent-orchestration layer. It is the default interface for the 10,080 mutated
@@ -101,7 +177,10 @@ See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo su
 
 | Doc | Purpose |
 |-----|---------|
-| `SINGLE_PANE_OF_GLASS.md` | Helix Chain + 35-layer neural mesh (Mermaid) |
+| `SINGLE_PANE_OF_GLASS.md` | Helix + tri-solenoid + RPC mesh (Mermaid) |
+| `docs/RPC_ALCHEMY_STUDY.md` | 164-network Alchemy RPC study |
+| `docs/TRI_SOLENOID_ARCHITECTURE.md` | Nexus · Helix · Shadow solenoids |
+| `docs/ALCHEMY_CHRISTOPHERS_FIRST_APP.md` | Alchemy setup + Vault |
 | `docs/ARCHITECTURE.md` | Full + investor architecture diagrams |
 | `INTEGRATION_REPORT.md` | 16-prong status matrix |
 | `PRODUCTION_READINESS.md` | Final smoke tests + mainnet checklist |

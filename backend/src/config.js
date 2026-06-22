@@ -26,6 +26,12 @@ function csv(value) {
     .filter(Boolean);
 }
 
+import { applyAlchemyRpcEnvDefaults, getAlchemyApiKey, resolveAlchemyDefaults } from './lib/alchemy.js';
+
+// When ALCHEMY_API_KEY is set, populate unset RPC env vars from Christopher's First App manifest.
+const _alchemyBootstrap = applyAlchemyRpcEnvDefaults();
+const _alchemyUrls = resolveAlchemyDefaults();
+
 export const config = {
   port: int(process.env.PORT, 8080),
   host: process.env.HOST || '0.0.0.0',
@@ -62,7 +68,7 @@ export const config = {
 
   // Optional EVM GreatDeltaEmissionRouter.sol read adapter (eth_call previewSplit/treasuries).
   evm: {
-    rpcUrl: process.env.EVM_RPC_URL || process.env.MAINNET_RPC_URL || '',
+    rpcUrl: process.env.EVM_RPC_URL || process.env.MAINNET_RPC_URL || _alchemyUrls.ethereum || '',
     emissionRouter: process.env.EMISSION_ROUTER_EVM_ADDRESS || '',
     enabled: bool(process.env.EVM_ENABLED, false),
   },
@@ -140,13 +146,13 @@ export const config = {
     jupiterBaseUrl: (process.env.JUPITER_API_URL || 'https://quote-api.jup.ag/v6').replace(/\/$/, ''),
     uniswapV4PoolManager: process.env.UNISWAP_V4_POOL_MANAGER || '',
     uniswapV4HookAddress: process.env.UNISWAP_V4_HOOK_ADDRESS || '',
-    evmRpcUrl: process.env.EVM_RPC_URL || process.env.ETHEREUM_RPC_URL || '',
+    evmRpcUrl: process.env.EVM_RPC_URL || process.env.ETHEREUM_RPC_URL || _alchemyUrls.ethereum || '',
     slippageBps: int(process.env.SLIPPAGE_TOLERANCE, 50),
     enabled: bool(process.env.CROSS_CHAIN_MVP_ENABLED, true),
   },
 
   oracle: {
-    rpcUrl: process.env.SEPOLIA_RPC_URL || process.env.EVM_RPC_URL || '',
+    rpcUrl: process.env.SEPOLIA_RPC_URL || process.env.EVM_RPC_URL || _alchemyUrls.ethereumSepolia || _alchemyUrls.ethereum || '',
     agentNftAddress: process.env.AGENT_NFT_CONTRACT || '',
     mutationControllerAddress: process.env.MUTATION_CONTROLLER_CONTRACT || '',
     relayerPrivateKey: process.env.ORACLE_RELAYER_PRIVATE_KEY || '',
@@ -159,6 +165,14 @@ export const config = {
     apiKey: process.env.DYDX_API_KEY || '',
     subaccountId: process.env.DYDX_SUBACCOUNT_ID || '',
     enabled: bool(process.env.DYDX_ENABLED, true),
+  },
+
+  alchemy: {
+    app: process.env.ALCHEMY_APP_NAME || "Christopher's First App",
+    apiKeyConfigured: Boolean(getAlchemyApiKey()),
+    bootstrap: _alchemyBootstrap,
+    defaults: _alchemyUrls,
+    manifestPath: 'config/alchemy/christophers-first-app.json',
   },
 };
 

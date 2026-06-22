@@ -1,0 +1,1011 @@
+{
+  "version": 1,
+  "app": "Christopher's First App",
+  "api_key_env": "ALCHEMY_API_KEY",
+  "url_template_v2": "https://{host}/v2/{api_key}",
+  "url_template_starknet_v0_10": "https://{host}/starknet/version/rpc/v0_10/{api_key}",
+  "networks": {
+    "solana-mainnet": {
+      "name": "Solana Mainnet",
+      "host": "solana-mainnet.g.alchemy.com",
+      "family": "solana",
+      "enabled": true
+    },
+    "solana-devnet": {
+      "name": "Solana Devnet",
+      "host": "solana-devnet.g.alchemy.com",
+      "family": "solana",
+      "enabled": true
+    },
+    "worldchain-mainnet": {
+      "name": "World Chain Mainnet",
+      "host": "worldchain-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "worldchain-sepolia": {
+      "name": "World Chain Sepolia",
+      "host": "worldchain-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "shape-mainnet": {
+      "name": "Shape Mainnet",
+      "host": "shape-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "shape-sepolia": {
+      "name": "Shape Sepolia",
+      "host": "shape-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "ethereum-mainnet": {
+      "name": "Ethereum Mainnet",
+      "host": "eth-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 1,
+      "enabled": true
+    },
+    "ethereum-sepolia": {
+      "name": "Ethereum Sepolia",
+      "host": "eth-sepolia.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 11155111,
+      "enabled": true
+    },
+    "ethereum-hoodi": {
+      "name": "Ethereum Hoodi",
+      "host": "eth-hoodi.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "ethereum-mainnet-beacon": {
+      "name": "Ethereum Mainnet Beacon",
+      "host": "eth-mainnetbeacon.g.alchemy.com",
+      "family": "beacon",
+      "enabled": true
+    },
+    "ethereum-sepolia-beacon": {
+      "name": "Ethereum Sepolia Beacon",
+      "host": "eth-sepoliabeacon.g.alchemy.com",
+      "family": "beacon",
+      "enabled": true
+    },
+    "ethereum-hoodi-beacon": {
+      "name": "Ethereum Hoodi Beacon",
+      "host": "eth-hoodibeacon.g.alchemy.com",
+      "family": "beacon",
+      "enabled": true
+    },
+    "zksync-mainnet": {
+      "name": "ZKsync Mainnet",
+      "host": "zksync-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 324,
+      "enabled": true
+    },
+    "zksync-sepolia": {
+      "name": "ZKsync Sepolia",
+      "host": "zksync-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "op-mainnet": {
+      "name": "OP Mainnet",
+      "host": "opt-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 10,
+      "enabled": true
+    },
+    "op-sepolia": {
+      "name": "OP Sepolia",
+      "host": "opt-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "polygon-mainnet": {
+      "name": "Polygon Mainnet",
+      "host": "polygon-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 137,
+      "enabled": true
+    },
+    "polygon-amoy": {
+      "name": "Polygon Amoy",
+      "host": "polygon-amoy.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "arbitrum-mainnet": {
+      "name": "Arbitrum Mainnet",
+      "host": "arb-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 42161,
+      "enabled": true
+    },
+    "arbitrum-sepolia": {
+      "name": "Arbitrum Sepolia",
+      "host": "arb-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "starknet-mainnet": {
+      "name": "Starknet Mainnet",
+      "host": "starknet-mainnet.g.alchemy.com",
+      "family": "starknet",
+      "url_pattern": "starknet_v0_10",
+      "enabled": true
+    },
+    "starknet-sepolia": {
+      "name": "Starknet Sepolia",
+      "host": "starknet-sepolia.g.alchemy.com",
+      "family": "starknet",
+      "url_pattern": "starknet_v0_10",
+      "enabled": true
+    },
+    "astar-mainnet": {
+      "name": "Astar Mainnet",
+      "host": "astar-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "polygonzkevm-mainnet": {
+      "name": "Polygon zkEVM Mainnet",
+      "host": "polygonzkevm-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "polygonzkevm-cardona": {
+      "name": "Polygon zkEVM Cardona",
+      "host": "polygonzkevm-cardona.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "zetachain-mainnet": {
+      "name": "ZetaChain Mainnet",
+      "host": "zetachain-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "zetachain-testnet": {
+      "name": "ZetaChain Testnet",
+      "host": "zetachain-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "mantle-mainnet": {
+      "name": "Mantle Mainnet",
+      "host": "mantle-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 5000,
+      "enabled": true
+    },
+    "mantle-sepolia": {
+      "name": "Mantle Sepolia",
+      "host": "mantle-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "berachain-mainnet": {
+      "name": "Berachain Mainnet",
+      "host": "berachain-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "berachain-bepolia": {
+      "name": "Berachain Bepolia",
+      "host": "berachain-bepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "linea-mainnet": {
+      "name": "Linea Mainnet",
+      "host": "linea-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 59144,
+      "enabled": true
+    },
+    "linea-sepolia": {
+      "name": "Linea Sepolia",
+      "host": "linea-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "zora-mainnet": {
+      "name": "Zora Mainnet",
+      "host": "zora-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "zora-sepolia": {
+      "name": "Zora Sepolia",
+      "host": "zora-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "robinhood-testnet": {
+      "name": "Robinhood Chain Testnet",
+      "host": "robinhood-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "ronin-mainnet": {
+      "name": "Ronin Mainnet",
+      "host": "ronin-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "ronin-saigon": {
+      "name": "Ronin Saigon",
+      "host": "ronin-saigon.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "plasma-mainnet": {
+      "name": "Plasma Mainnet",
+      "host": "plasma-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "plasma-testnet": {
+      "name": "Plasma Testnet",
+      "host": "plasma-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "mythos-mainnet": {
+      "name": "Mythos Mainnet",
+      "host": "mythos-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "settlus-mainnet": {
+      "name": "Settlus Mainnet",
+      "host": "settlus-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "settlus-sepolia": {
+      "name": "Settlus Sepolia",
+      "host": "settlus-septestnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "bob-mainnet": {
+      "name": "BOB Mainnet",
+      "host": "bob-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "bob-sepolia": {
+      "name": "BOB Sepolia",
+      "host": "bob-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "rootstock-mainnet": {
+      "name": "Rootstock Mainnet",
+      "host": "rootstock-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "rootstock-testnet": {
+      "name": "Rootstock Testnet",
+      "host": "rootstock-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "megaeth-mainnet": {
+      "name": "MegaETH Mainnet",
+      "host": "megaeth-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "megaeth-testnet": {
+      "name": "MegaETH Testnet",
+      "host": "megaeth-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "katana-bokuto": {
+      "name": "Katana Bokuto",
+      "host": "katana-bokuto.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "katana-mainnet": {
+      "name": "Katana Mainnet",
+      "host": "katana-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "dogecoin-mainnet": {
+      "name": "Dogecoin Mainnet",
+      "host": "dogecoin-mainnet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "bitcoincash-mainnet": {
+      "name": "Bitcoin Cash Mainnet",
+      "host": "bitcoincash-mainnet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "bitcoincash-testnet": {
+      "name": "Bitcoin Cash Testnet",
+      "host": "bitcoincash-testnet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "citrea-testnet": {
+      "name": "Citrea Testnet",
+      "host": "citrea-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "citrea-mainnet": {
+      "name": "Citrea Mainnet",
+      "host": "citrea-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "gensyn-testnet": {
+      "name": "Gensyn Testnet",
+      "host": "gensyn-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "gensyn-mainnet": {
+      "name": "Gensyn Mainnet",
+      "host": "gensyn-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "arc-testnet": {
+      "name": "Arc Testnet",
+      "host": "arc-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "clankermon-mainnet": {
+      "name": "Clankermon Mainnet",
+      "host": "clankermon-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "story-mainnet": {
+      "name": "Story Mainnet",
+      "host": "story-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "story-aeneid": {
+      "name": "Story Aeneid",
+      "host": "story-aeneid.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "humanity-mainnet": {
+      "name": "Humanity Mainnet",
+      "host": "humanity-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "humanity-testnet": {
+      "name": "Humanity Testnet",
+      "host": "humanity-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "risa-testnet": {
+      "name": "Risa Testnet",
+      "host": "risa-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "base-mainnet": {
+      "name": "Base Mainnet",
+      "host": "base-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 8453,
+      "enabled": true
+    },
+    "base-sepolia": {
+      "name": "Base Sepolia",
+      "host": "base-sepolia.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 84532,
+      "enabled": true
+    },
+    "tempo-mainnet": {
+      "name": "Tempo Mainnet",
+      "host": "tempo-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "tempo-moderato": {
+      "name": "Tempo Moderato",
+      "host": "tempo-moderato.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "hyperliquid-mainnet": {
+      "name": "Hyperliquid Mainnet",
+      "host": "hyperliquid-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "hyperliquid-testnet": {
+      "name": "Hyperliquid Testnet",
+      "host": "hyperliquid-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "galactica-mainnet": {
+      "name": "Galactica Mainnet",
+      "host": "galactica-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "galactica-cassiopeia": {
+      "name": "Galactica Cassiopeia",
+      "host": "galactica-cassiopeia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "lens-mainnet": {
+      "name": "Lens Mainnet",
+      "host": "lens-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "lens-sepolia": {
+      "name": "Lens Sepolia",
+      "host": "lens-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "worldmobilechain-mainnet": {
+      "name": "World Mobile Chain Mainnet",
+      "host": "worldmobilechain-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "frax-mainnet": {
+      "name": "Frax Mainnet",
+      "host": "frax-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "frax-sepolia": {
+      "name": "Frax Sepolia",
+      "host": "frax-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "ink-mainnet": {
+      "name": "Ink Mainnet",
+      "host": "ink-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "ink-sepolia": {
+      "name": "Ink Sepolia",
+      "host": "ink-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "avalanche-mainnet": {
+      "name": "Avalanche Mainnet",
+      "host": "avax-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 43114,
+      "enabled": true
+    },
+    "avalanche-fuji": {
+      "name": "Avalanche Fuji",
+      "host": "avax-fuji.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "botanix-mainnet": {
+      "name": "Botanix Mainnet",
+      "host": "botanix-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "botanix-testnet": {
+      "name": "Botanix Testnet",
+      "host": "botanix-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "gnosis-mainnet": {
+      "name": "Gnosis Mainnet",
+      "host": "gnosis-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 100,
+      "enabled": true
+    },
+    "gnosis-chiado": {
+      "name": "Gnosis Chiado",
+      "host": "gnosis-chiado.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "celestiabridge-mainnet": {
+      "name": "CelestiaBridge Mainnet",
+      "host": "celestiabridge-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "celestiabridge-mocha": {
+      "name": "CelestiaBridge Mocha",
+      "host": "celestiabridge-mocha.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "bnb-mainnet": {
+      "name": "BNB Smart Chain Mainnet",
+      "host": "bnb-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 56,
+      "enabled": true
+    },
+    "bnb-testnet": {
+      "name": "BNB Smart Chain Testnet",
+      "host": "bnb-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "boba-mainnet": {
+      "name": "Boba Mainnet",
+      "host": "boba-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "boba-sepolia": {
+      "name": "Boba Sepolia",
+      "host": "boba-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "xlayer-testnet": {
+      "name": "X Layer Testnet",
+      "host": "xlayer-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "xlayer-mainnet": {
+      "name": "X Layer Mainnet",
+      "host": "xlayer-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "sui-mainnet": {
+      "name": "Sui Mainnet",
+      "host": "sui-mainnet.g.alchemy.com",
+      "family": "sui",
+      "enabled": true
+    },
+    "sui-testnet": {
+      "name": "Sui Testnet",
+      "host": "sui-testnet.g.alchemy.com",
+      "family": "sui",
+      "enabled": true
+    },
+    "kaia-testnet": {
+      "name": "Kaia Testnet",
+      "host": "kaia-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "kaia-mainnet": {
+      "name": "Kaia Mainnet",
+      "host": "kaia-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "stellar-mainnet": {
+      "name": "Stellar Mainnet",
+      "host": "stellar-mainnet.g.alchemy.com",
+      "family": "stellar",
+      "enabled": true
+    },
+    "stellar-testnet": {
+      "name": "Stellar Testnet",
+      "host": "stellar-testnet.g.alchemy.com",
+      "family": "stellar",
+      "enabled": true
+    },
+    "unichain-mainnet": {
+      "name": "Unichain Mainnet",
+      "host": "unichain-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "unichain-sepolia": {
+      "name": "Unichain Sepolia",
+      "host": "unichain-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "syndicate-mainnet": {
+      "name": "Syndicate Mainnet",
+      "host": "synd-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "superseed-mainnet": {
+      "name": "Superseed Mainnet",
+      "host": "superseed-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "superseed-sepolia": {
+      "name": "Superseed Sepolia",
+      "host": "superseed-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "rise-testnet": {
+      "name": "Rise Testnet",
+      "host": "rise-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "rise-mainnet": {
+      "name": "Rise Mainnet",
+      "host": "rise-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "monad-testnet": {
+      "name": "Monad Testnet",
+      "host": "monad-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "monad-mainnet": {
+      "name": "Monad Mainnet",
+      "host": "monad-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "flow-mainnet": {
+      "name": "Flow EVM Mainnet",
+      "host": "flow-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "flow-testnet": {
+      "name": "Flow EVM Testnet",
+      "host": "flow-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "blast-mainnet": {
+      "name": "Blast Mainnet",
+      "host": "blast-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 81457,
+      "enabled": true
+    },
+    "blast-sepolia": {
+      "name": "Blast Sepolia",
+      "host": "blast-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "worldmobile-testnet": {
+      "name": "WorldMobile Testnet",
+      "host": "worldmobile-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "injective-mainnet": {
+      "name": "Injective Mainnet",
+      "host": "injective-mainnet.g.alchemy.com",
+      "family": "cosmos",
+      "enabled": true
+    },
+    "injective-testnet": {
+      "name": "Injective Testnet",
+      "host": "injective-testnet.g.alchemy.com",
+      "family": "cosmos",
+      "enabled": true
+    },
+    "tron-mainnet": {
+      "name": "Tron Mainnet",
+      "host": "tron-mainnet.g.alchemy.com",
+      "family": "tron",
+      "enabled": true
+    },
+    "tron-testnet": {
+      "name": "Tron Testnet",
+      "host": "tron-testnet.g.alchemy.com",
+      "family": "tron",
+      "enabled": true
+    },
+    "jovay-mainnet": {
+      "name": "Jovay Mainnet",
+      "host": "jovay-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "jovay-testnet": {
+      "name": "Jovay Testnet",
+      "host": "jovay-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "degen-mainnet": {
+      "name": "Degen Mainnet",
+      "host": "degen-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "bitcoin-mainnet": {
+      "name": "Bitcoin Mainnet",
+      "host": "bitcoin-mainnet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "bitcoin-testnet": {
+      "name": "Bitcoin Testnet",
+      "host": "bitcoin-testnet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "bitcoin-signet": {
+      "name": "Bitcoin Signet",
+      "host": "bitcoin-signet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "bitcoin-testnet4": {
+      "name": "Bitcoin Testnet4",
+      "host": "bitcoin-testnet4.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "pharos-mainnet": {
+      "name": "Pharos Mainnet",
+      "host": "pharos-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "pharos-atlantic": {
+      "name": "Pharos Atlantic",
+      "host": "pharos-atlantic.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "mode-mainnet": {
+      "name": "Mode Mainnet",
+      "host": "mode-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "mode-sepolia": {
+      "name": "Mode Sepolia",
+      "host": "mode-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "edge-mainnet": {
+      "name": "Edge Mainnet",
+      "host": "edge-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "edge-testnet": {
+      "name": "Edge Testnet",
+      "host": "edge-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "litecoin-mainnet": {
+      "name": "Litecoin Mainnet",
+      "host": "litecoin-mainnet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "litecoin-testnet": {
+      "name": "Litecoin Testnet",
+      "host": "litecoin-testnet.g.alchemy.com",
+      "family": "utxo",
+      "enabled": true
+    },
+    "moonbeam-mainnet": {
+      "name": "Moonbeam Mainnet",
+      "host": "moonbeam-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "apechain-mainnet": {
+      "name": "ApeChain Mainnet",
+      "host": "apechain-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "apechain-curtis": {
+      "name": "ApeChain Curtis",
+      "host": "apechain-curtis.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "celo-mainnet": {
+      "name": "Celo Mainnet",
+      "host": "celo-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 42220,
+      "enabled": true
+    },
+    "celo-sepolia": {
+      "name": "Celo Sepolia",
+      "host": "celo-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "aptos-mainnet": {
+      "name": "Aptos Mainnet",
+      "host": "aptos-mainnet.g.alchemy.com",
+      "family": "aptos",
+      "enabled": true
+    },
+    "aptos-testnet": {
+      "name": "Aptos Testnet",
+      "host": "aptos-testnet.g.alchemy.com",
+      "family": "aptos",
+      "enabled": true
+    },
+    "anime-mainnet": {
+      "name": "Anime Mainnet",
+      "host": "anime-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "anime-sepolia": {
+      "name": "Anime Sepolia",
+      "host": "anime-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "metis-mainnet": {
+      "name": "Metis Mainnet",
+      "host": "metis-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "sonic-mainnet": {
+      "name": "Sonic Mainnet",
+      "host": "sonic-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "sonic-testnet": {
+      "name": "Sonic Testnet",
+      "host": "sonic-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "sei-mainnet": {
+      "name": "Sei Mainnet",
+      "host": "sei-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "sei-testnet": {
+      "name": "Sei Testnet",
+      "host": "sei-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "cronos-mainnet": {
+      "name": "Cronos Mainnet",
+      "host": "cronos-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "cronos-testnet": {
+      "name": "Cronos Testnet",
+      "host": "cronos-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "xmtp-ropsten": {
+      "name": "XMTP Ropsten",
+      "host": "xmtp-ropsten.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "adi-testnet": {
+      "name": "ADI Testnet AB",
+      "host": "adi-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "adi-mainnet": {
+      "name": "ADI Mainnet",
+      "host": "adi-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "scroll-mainnet": {
+      "name": "Scroll Mainnet",
+      "host": "scroll-mainnet.g.alchemy.com",
+      "family": "evm",
+      "chain_id": 534352,
+      "enabled": true
+    },
+    "scroll-sepolia": {
+      "name": "Scroll Sepolia",
+      "host": "scroll-sepolia.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "opbnb-mainnet": {
+      "name": "opBNB Mainnet",
+      "host": "opbnb-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "opbnb-testnet": {
+      "name": "opBNB Testnet",
+      "host": "opbnb-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "abstract-mainnet": {
+      "name": "Abstract Mainnet",
+      "host": "abstract-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "abstract-testnet": {
+      "name": "Abstract Testnet",
+      "host": "abstract-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "soneium-mainnet": {
+      "name": "Soneium Mainnet",
+      "host": "soneium-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "soneium-minato": {
+      "name": "Soneium Minato",
+      "host": "soneium-minato.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "crossfi-testnet": {
+      "name": "CrossFi Testnet",
+      "host": "crossfi-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "crossfi-mainnet": {
+      "name": "CrossFi Mainnet",
+      "host": "crossfi-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "stable-mainnet": {
+      "name": "Stable Mainnet",
+      "host": "stable-mainnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    },
+    "stable-testnet": {
+      "name": "Stable Testnet",
+      "host": "stable-testnet.g.alchemy.com",
+      "family": "evm",
+      "enabled": true
+    }
+  }
+}

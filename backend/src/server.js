@@ -20,8 +20,11 @@ import helixRouter from './routes/helix.js';
 import miningRouter from './routes/mining.js';
 import solenoidRouter from './routes/solenoid.js';
 import tvRouter from './routes/tv.js';
-import iotRouter from './routes/iot.js';
 import singlePaneRouter from './routes/singlePane.js';
+import nexusRouter from './routes/nexus.js';
+import shadowRouter from './routes/shadow.js';
+import iotRouter from './routes/iot.js';
+import rpcRouter from './routes/rpc.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -46,7 +49,10 @@ app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
 app.use('/api/mining', miningRouter);
 app.use('/api/tv', tvRouter);
+app.use('/api/nexus', nexusRouter);
+app.use('/api/shadow', shadowRouter);
 app.use('/api/iot', iotRouter);
+app.use('/api/rpc', rpcRouter);
 app.use('/api/single-pane', singlePaneRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
@@ -123,11 +129,14 @@ const server = app.listen(config.port, config.host, () => {
       `  Kairo:   /kairo/  /kairo-app/\n` +
       `  Vault:   /dashboard/sovereign-dashboard.html\n` +
       `  Command: /command-center  /tv\n` +
-      `  API:     /api/arena/overview  /api/single-pane/overview\n` +
+      `  API:     /api/arena/overview  /api/single-pane/overview  /api/rpc/alchemy/health\n` +
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  RTX5090:  /api/telemetry/5090  /api/inference/route\n` +
       `  Great Delta: /api/great-delta/overview\n` +
-      `  Helix:     /api/helix/status  /api/helix/activate`,
+      `  Helix:     /api/helix/status  /api/helix/activate\n` +
+      `  Nexus:     /api/nexus/status  /api/nexus/registry\n` +
+      `  Shadow:    /api/shadow/status  /api/shadow/vault/injection/:provider\n` +
+      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

@@ -1,6 +1,6 @@
-# Helix Chain — Single Pane of Glass (detail)
+# Helix Chain — Single Pane of Glass (detail) v2.1
 
-> **Canonical diagram:** [`SINGLE_PANE_OF_GLASS.md`](../SINGLE_PANE_OF_GLASS.md) · [`docs/ARCHITECTURE.md`](ARCHITECTURE.md)
+> **Canonical diagram:** [`SINGLE_PANE_OF_GLASS.md`](../SINGLE_PANE_OF_GLASS.md) · [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) · [`docs/RPC_ALCHEMY_STUDY.md`](RPC_ALCHEMY_STUDY.md) · [`docs/TRI_SOLENOID_ARCHITECTURE.md`](TRI_SOLENOID_ARCHITECTURE.md)
 
 **YieldSwarm AgentSwarm OS v2** — layer detail, domain breakdown, and supporting diagrams.
 
@@ -11,7 +11,9 @@ flowchart TB
   classDef helix fill:#1f1530,stroke:#c77dff,color:#f5e8ff
   classDef intel fill:#1a2818,stroke:#6bcf6b,color:#e8ffe8
   classDef secrets fill:#2a1810,stroke:#ff9f43,color:#fff3e8
-  classDef revenue fill:#281820,stroke:#ff6b9d,color:#ffe8f0
+  classDef rpc fill:#0d2137,stroke:#00b4d8,color:#e8ecff
+  classDef solenoid fill:#1b1033,stroke:#b388ff,color:#f5e8ff
+  classDef mining fill:#1a2f1a,stroke:#69db7c,color:#e8ffe8
 
   subgraph TITLE["YIELDSWARM HELIX CHAIN + 35-LAYER NEURAL MESH — Single Pane of Glass"]
     direction TB
@@ -30,8 +32,36 @@ flowchart TB
       FE9["Frontend Zones ×9"]
       BE8["Backend Fluid Compute ×8"]
       DIN["Dynamic incomingDomain routing"]
+      RPC["api.* → /api/rpc/alchemy/*"]
       FE9 --- BE8
       BE8 --- DIN
+      BE8 --- RPC
+    end
+
+    subgraph RPCMESH["RPC MESH — ALCHEMY 164 NETWORKS"]
+      direction LR
+      AK["ALCHEMY_API_KEY Vault"]
+      DEF["defaults: SOL · ETH · Base · Poly · Arb"]
+      AK --> DEF
+    end
+
+    subgraph TRISOL["TRI-SOLENOID"]
+      direction TB
+      S1["Nexus — 521 agents"]
+      S2["Helix — mining roots + IoTeX"]
+      S3["Shadow Arena — Kyle chain"]
+      IOT["IoT Hub FWA_37KN9S"]
+      S1 --> S2 --> S3
+      S1 --> IOT
+    end
+
+    subgraph MINE["MINE WITH US"]
+      direction LR
+      MT["Treasury Solana"]
+      MR["10 mining roots manifest"]
+      BT["Bittensor BT_NETUID=1"]
+      MR --> MT
+      BT --> MR
     end
 
     subgraph HELIX["HELIX CHAIN / 35-LAYER NEURAL MESH CORE"]
@@ -88,18 +118,57 @@ flowchart TB
       R5["$5M Vault Telemetry Dashboard"]
     end
 
-    INGRESS --> EDGE --> HELIX
+    INGRESS --> EDGE --> RPCMESH --> TRISOL --> HELIX
+    S2 --> MINE
     L35 --> FLOW
     FLOW --> INTEL --> SECRETS --> REVENUE
   end
 
   class INGRESS ingress
   class EDGE edge
+  class RPCMESH,AK,DEF rpc
+  class TRISOL,S1,S2,S3,IOT solenoid
+  class MINE,MT,MR,BT mining
   class HELIX,L10,L22,L35 helix
   class INTEL intel
   class SECRETS,VAULT secrets
   class REVENUE revenue
 ```
+
+---
+
+## RPC mesh + tri-solenoid (operator view)
+
+```mermaid
+flowchart LR
+  subgraph ALCHEMY["Alchemy — Christopher's First App"]
+    H["GET /api/rpc/alchemy/health"]
+    E["GET /api/rpc/alchemy/endpoints · count=164"]
+    D["GET /api/rpc/alchemy/defaults"]
+  end
+
+  subgraph SOLENOIDS["Tri-Solenoid"]
+    N["Nexus /api/nexus/*"]
+    X["Helix programs/helix"]
+    A["Shadow /api/shadow/*"]
+    I["IoT /api/iot/*"]
+  end
+
+  subgraph CHAINS["Primary RPC chains"]
+    SOL["solana-mainnet"]
+    ETH["ethereum-mainnet"]
+    BAS["base-mainnet"]
+    POL["polygon-mainnet"]
+    ARB["arbitrum-mainnet"]
+  end
+
+  ALCHEMY --> CHAINS
+  CHAINS --> SOLENOIDS
+  N --> X --> A
+  N --> I
+```
+
+Full study: [`docs/RPC_ALCHEMY_STUDY.md`](RPC_ALCHEMY_STUDY.md).
 
 ---
 
@@ -257,6 +326,8 @@ sequenceDiagram
 | **Layer 10** | Master Solenoid Anchor — core orchestration hub |
 | **Layer 22** | Dimensional Singularity Anchor — worker mesh singularity |
 | **Layer 35** | Omni Apex — sovereign core + marketplace |
+| **RPC Mesh** | 164 Alchemy networks — auto-bootstrap at backend load |
+| **Tri-Solenoid** | Nexus · Helix · Shadow (+ IoT Hub solenoid 4) |
 
 ---
 
@@ -264,10 +335,18 @@ sequenceDiagram
 
 | Surface | Endpoint |
 |---------|----------|
+| RPC health | `GET /api/rpc/alchemy/health` |
+| RPC catalog | `GET /api/rpc/alchemy/endpoints` |
+| RPC in use | `GET /api/rpc/alchemy/defaults` |
+| Nexus | `GET /api/nexus/health` · `services/nexus/cli.py status` |
 | Helix genesis | `GET /api/helix/status` · `./scripts/activate-helix.sh` |
+| Shadow | `GET /api/shadow/status` |
+| IoT Hub | `GET /api/iot/health` |
 | Council | `/council/status.html` |
 | Arena | `/arena?workers=<akash-lease-uri>` |
 | Sovereign | `GET /api/sovereign/state` |
+| Bittensor | `./scripts/deploy-bittensor.sh` |
+| Mine with us | `README.md` · `config/TREASURY_MANIFEST.json` |
 | Vault runtime | `docs/VAULT_AKASH_RUNTIME.md` |
 | Deploy | `make deploy-akash-europlots` |
 
@@ -277,6 +356,10 @@ sequenceDiagram
 
 | Concept | Code / doc |
 |---------|------------|
+| RPC mesh study | `docs/RPC_ALCHEMY_STUDY.md` |
+| Alchemy wiring | `backend/src/lib/alchemy.js` · `docs/ALCHEMY_CHRISTOPHERS_FIRST_APP.md` |
+| Tri-solenoid | `docs/TRI_SOLENOID_ARCHITECTURE.md` |
+| Mining roots | `config/TREASURY_MANIFEST.json` |
 | Helix activation | `backend/src/adapters/helix.js` |
 | 35-layer blueprint | `docs/YieldSwarm_v1_v2_Trident_Layer35_Blueprint.md` |
 | 169 deities | `agents/system/deity_manifests.py` |
