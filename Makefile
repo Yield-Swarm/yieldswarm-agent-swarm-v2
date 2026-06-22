@@ -22,7 +22,7 @@ A := deploy/akash
 
 .PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault \
         akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
-        akash-bittensor akash-odysseus akash-backend \
+        akash-bittensor akash-odysseus akash-backend start-mining bootstrap-mining \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -102,6 +102,14 @@ deploy-akash-europlots:
 ## akash-bittensor: deploy Bittensor miner SDL (requires BT_NETUID)
 akash-bittensor:
 	bash scripts/deploy-production.sh akash-bittensor
+
+## start-mining: one-command Bittensor spin-up (Termux / Cloud Shell)
+start-mining:
+	bash scripts/start-mining.sh
+
+## bootstrap-mining: clone repo + create deploy/akash.env from example
+bootstrap-mining:
+	bash scripts/bootstrap-mining-shell.sh
 
 ## akash-odysseus: deploy Odysseus GPU worker with Vault SDL
 akash-odysseus:
