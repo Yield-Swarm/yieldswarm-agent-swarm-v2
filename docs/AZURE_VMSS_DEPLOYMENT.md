@@ -42,6 +42,7 @@ Dry plan:
 | `GeoCronData` | `GEOCRON_ALPHA_2026_STREAM` | Injected to `/etc/profile.d/` |
 | `TelemetryStream` | backend telemetry URL | Cursor / fleet ingest |
 | `FleetApiKey` | from secrets file | **Never commit** — use Vault |
+| `HfToken` | from secrets file / `HF_TOKEN` | Hugging Face Hub — agent skills |
 
 ## NSG ports opened
 
@@ -64,10 +65,22 @@ export AZURE_NSG_NAME=basicNsgvnet-centralus-nic01
 
 `scripts/azure/vmss-worker-bootstrap.sh` is injected as VMSS **customData**:
 
-1. Writes `/etc/profile.d/yieldswarm_vmss.sh` with fleet env vars
+1. Writes `/etc/profile.d/yieldswarm_vmss.sh` with fleet env vars (`HF_TOKEN`, `AI_AGENT`, `CURSOR_AGENT`)
 2. Clones `yieldswarm-agent-swarm-v2` to `/opt/yieldswarm`
-3. Starts `tmux` session `yieldswarm-backend` on port 8080
-4. Optionally runs `./swarm_provision.sh 8` if `.env.fleet` exists
+3. Runs `scripts/fleet/install-hf-agent-skills.sh` (`hf` CLI + global agent skills)
+4. Starts `tmux` session `yieldswarm-backend` on port 8080
+5. Optionally runs `./swarm_provision.sh 8` if `.env.fleet` exists
+
+### Hugging Face agent skills
+
+Set `$HfToken` in `deploy-vmss.secrets.ps1` (copied from `scripts/azure/deploy-vmss.config.example.ps1`). Vault path: `integrations/huggingface`. See [`docs/HF_AGENT_SKILLS.md`](HF_AGENT_SKILLS.md).
+
+```bash
+# On a running instance (manual)
+export HF_TOKEN=hf_...
+cd /opt/yieldswarm && ./scripts/fleet/install-hf-agent-skills.sh
+hf models ls --format agent
+```
 
 ## Verify
 

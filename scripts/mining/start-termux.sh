@@ -50,6 +50,12 @@ export PYTHONPATH="${REPO_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
 export MINING_RUN_DIR="${MINING_RUN_DIR:-${REPO_DIR}/.run/mining}"
 mkdir -p "${MINING_RUN_DIR}"
 
+# Hugging Face agentic CLI + global skills (Cursor / Claude Code)
+if [[ -x "${REPO_DIR}/scripts/fleet/install-hf-agent-skills.sh" ]]; then
+  HF_TOKEN="${HF_TOKEN:-}" "${REPO_DIR}/scripts/fleet/install-hf-agent-skills.sh" || \
+    echo "WARN: HF skills install failed (non-fatal)" >&2
+fi
+
 echo "stopping existing miners..."
 python3 -m mining stop 2>&1 || true
 sleep 2

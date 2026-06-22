@@ -29,6 +29,7 @@ param(
     [string] $GeoCronData = "GEOCRON_ALPHA_2026_STREAM",
     [string] $TelemetryStream = "http://127.0.0.1:8080/api/telemetry",
     [string] $FleetApiKey = "",
+    [string] $HfToken = "",
     [string] $VaultAddr = "https://vault.yieldswarm.io:8200",
     [switch] $WhatIfOnly
 )
@@ -45,6 +46,9 @@ if (Test-Path $SecretsFile) {
 
 if ([string]::IsNullOrWhiteSpace($FleetApiKey)) {
     $FleetApiKey = $env:FLEET_API_KEY
+}
+if ([string]::IsNullOrWhiteSpace($HfToken)) {
+    $HfToken = $env:HF_TOKEN
 }
 if ([string]::IsNullOrWhiteSpace($FleetApiKey)) {
     Write-Warning "FLEET_API_KEY unset — set in deploy-vmss.secrets.ps1 or env:FLEET_API_KEY"
@@ -123,6 +127,9 @@ $Injected = @"
 export GEOCRON_DATA='$GeoCronData'
 export TELEMETRY_STREAM='$TelemetryStream'
 export FLEET_API_KEY='$FleetApiKey'
+export HF_TOKEN='$HfToken'
+export AI_AGENT='1'
+export CURSOR_AGENT='1'
 export VAULT_ADDR='$VaultAddr'
 $BootstrapBody
 "@

@@ -24,7 +24,7 @@ A := deploy/akash
         akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend start-mining bootstrap-mining \
         mining-termux-start mining-termux-stop mining-termux-logs \
-        fleet-provision fleet-sync \
+        fleet-provision fleet-sync install-hf-skills \
         go-live go-live-plan rewards-go-live azure-swarm-nsg azure-deploy-vmss \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
@@ -164,6 +164,10 @@ fleet-provision:
 fleet-sync:
 	@test -n "$(TARGET)" || (echo "Usage: make fleet-sync PROFILE=termux TARGET=user@host" && exit 1)
 	bash scripts/fleet/sync-fleet.sh "$(PROFILE)" "$(TARGET)"
+
+## install-hf-skills: install hf CLI + global agent skills (requires HF_TOKEN for auth)
+install-hf-skills:
+	bash scripts/fleet/install-hf-agent-skills.sh
 
 ## akash-odysseus: deploy Odysseus GPU worker with Vault SDL
 akash-odysseus:

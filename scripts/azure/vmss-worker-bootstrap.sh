@@ -8,6 +8,7 @@ export DEBIAN_FRONTEND=noninteractive
 GEOCRON_DATA="${GEOCRON_DATA:-GEOCRON_ALPHA_2026_STREAM}"
 TELEMETRY_STREAM="${TELEMETRY_STREAM:-http://127.0.0.1:8080/api/telemetry}"
 FLEET_API_KEY="${FLEET_API_KEY:-}"
+HF_TOKEN="${HF_TOKEN:-}"
 YIELDSWARM_REPO="${YIELDSWARM_REPO:-https://github.com/Yield-Swarm/yieldswarm-agent-swarm-v2.git}"
 YIELDSWARM_BRANCH="${YIELDSWARM_BRANCH:-production}"
 INSTALL_DIR="${INSTALL_DIR:-/opt/yieldswarm}"
@@ -20,6 +21,9 @@ cat >/etc/profile.d/yieldswarm_vmss.sh <<EOF
 export GEOCRON_DATA='${GEOCRON_DATA}'
 export TELEMETRY_STREAM='${TELEMETRY_STREAM}'
 export FLEET_API_KEY='${FLEET_API_KEY}'
+export HF_TOKEN='${HF_TOKEN}'
+export AI_AGENT='1'
+export CURSOR_AGENT='1'
 export VAULT_ADDR='${VAULT_ADDR}'
 export BACKEND_URL='http://127.0.0.1:8080'
 export IOT_HUB_DRY_RUN='1'
@@ -43,6 +47,12 @@ else
   git pull origin "${YIELDSWARM_BRANCH}" || true
 fi
 cd "${INSTALL_DIR}"
+
+# --- Hugging Face agentic CLI + global skills ---------------------------------
+if [[ -f scripts/fleet/install-hf-agent-skills.sh ]]; then
+  chmod +x scripts/fleet/install-hf-agent-skills.sh
+  HF_TOKEN="${HF_TOKEN}" ./scripts/fleet/install-hf-agent-skills.sh || log "WARN: HF skills install failed"
+fi
 
 # --- Node index from Azure instance metadata (optional fleet slot) ------------
 IMDS="http://169.254.169.254/metadata/instance?api-version=2021-02-01"

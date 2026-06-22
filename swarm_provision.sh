@@ -133,6 +133,12 @@ source "${NODE_ENV_FILE}"
 
 log "wrote ${NODE_ENV_FILE}"
 
+# --- Hugging Face agentic CLI + global skills --------------------------------
+if [[ -x "${REPO_ROOT}/scripts/fleet/install-hf-agent-skills.sh" ]]; then
+  HF_TOKEN="${HF_TOKEN:-}" "${REPO_ROOT}/scripts/fleet/install-hf-agent-skills.sh" || \
+    log "WARN: HF skills install failed (non-fatal)"
+fi
+
 # --- Context-specific boot ---------------------------------------------------
 case "${CONTEXT}" in
   termux)

@@ -43,9 +43,10 @@ ssh phone 'cd ~/yieldswarm-agent-swarm-v2 && ./swarm_provision.sh 0'
 
 1. Loads `.env.fleet` and resolves `NODE_{N}_*` variables
 2. Detects context: `termux` | `runpod` | `azure` | `local`
-3. Clears stale `screen` sessions (`yieldswarm*`, `helix*`, `mining*`)
-4. Writes `deploy/fleet/node-{N}.env` + exports `GRASS_NODE_KEYS` / `DEPIN_HELIUM_HOTSPOT_KEYS`
-5. Boots role-specific payload:
+3. Installs Hugging Face agent skills (`scripts/fleet/install-hf-agent-skills.sh`) when present
+4. Clears stale `screen` sessions (`yieldswarm*`, `helix*`, `mining*`)
+5. Writes `deploy/fleet/node-{N}.env` + exports `GRASS_NODE_KEYS` / `DEPIN_HELIUM_HOTSPOT_KEYS`
+6. Boots role-specific payload:
    - **grass** → `start-termux.sh` or `mining start --miner grass`
    - **helium** → `deploy-helium-hotspot.sh`
    - **iotex** → `register-devices.sh`
@@ -65,5 +66,6 @@ Always use `~/yieldswarm-agent-swarm-v2` — **never** `\~` (see `docs/MINING_QU
 ## Related
 
 - `docs/MINING_INFRASTRUCTURE.md` — Grass / Helium env formats
+- `docs/HF_AGENT_SKILLS.md` — `hf` CLI + global agent skills
 - `scripts/mining/start-termux.sh` — Termux orchestrator
 - `services/iot_hub/` — device registry

@@ -10,6 +10,7 @@ $VmSize            = "Standard_D4s_v5"   # GPU: Standard_NC24ads_A100_v4 (quota 
 $GeoCronData       = "GEOCRON_ALPHA_2026_STREAM"
 $TelemetryStream   = "https://mainnet.yieldswarm.network/api/telemetry"
 $FleetApiKey       = "CHANGEME-from-vault-or-operator"
+$HfToken           = "CHANGEME-hf_access_token"
 $VaultAddr         = "https://vault.yieldswarm.io:8200"
 
 # Optional: Terminus naming

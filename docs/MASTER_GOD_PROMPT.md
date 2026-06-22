@@ -151,6 +151,16 @@ curl http://<lease>:8000/v1/models
 
 ---
 
+## Hugging Face ecosystem agentic access
+
+- You possess the official Hugging Face Agent Skill framework.
+- To search, download, or manage weights, utilize the high-performance `hf` binary directly instead of raw requests (e.g., `hf models ls`, `hf download REPO_ID`).
+- The environment variable `HF_TOKEN` is injected system-wide. Do not perform interactive login steps.
+- Leverage the native JSON output options by appending `--format agent` to queries when parsing raw outputs into the mining telemetry stream.
+- Fleet bootstrap: `./scripts/fleet/install-hf-agent-skills.sh` (also run by `swarm_provision.sh`, `start-termux.sh`, Azure VMSS bootstrap).
+
+---
+
 ## Constraints
 
 - Security + auditability first.

@@ -149,6 +149,10 @@ put_if_set runtime/wallets \
   helix_chain_bridge_key=HELIX_CHAIN_BRIDGE_KEY \
   zec_shielded_key=ZEC_SHIELDED_KEY
 
+put_if_set integrations/huggingface \
+  token=HF_TOKEN \
+  username=HF_USERNAME
+
 put_if_set integrations/github  token=GITHUB_TOKEN
 put_if_set integrations/vercel  token=VERCEL_API_TOKEN
 put_if_set integrations/notion  api_key=NOTION_API_KEY

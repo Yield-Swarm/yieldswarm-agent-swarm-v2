@@ -34,6 +34,12 @@ rsync -avz \
 
 ssh "${TARGET}" "chmod +x ${REMOTE_DIR}/swarm_provision.sh ${REMOTE_DIR}/scripts/fleet/*.sh 2>/dev/null || true"
 
+if [[ -n "${HF_TOKEN:-}" ]]; then
+  log "installing HF agent skills on remote (HF_TOKEN set)"
+  ssh "${TARGET}" "cd ${REMOTE_DIR} && HF_TOKEN='${HF_TOKEN}' ./scripts/fleet/install-hf-agent-skills.sh" || \
+    log "WARN: remote HF skills install failed"
+fi
+
 case "${PROFILE}" in
   termux)
     log "remote: ./swarm_provision.sh 0"
