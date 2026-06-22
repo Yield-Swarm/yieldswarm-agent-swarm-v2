@@ -33,13 +33,18 @@
     "@telegram-apps/analytics": "^1.6.4",
     "@tonconnect/sdk": "^3.0.5",
     "@tonconnect/ui-react": "^2.0.9",
+    "axios": "^1.7.9",
     "circomlibjs": "^0.1.7",
     "ethers": "^6.13.2",
     "next": "14.2.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "resend": "^4.0.0",
+    "snoowrap": "^1.23.0",
     "square": "^37.0.0",
     "stripe": "^16.12.0",
+    "twilio": "^5.3.5",
+    "twitter-api-v2": "^1.18.2",
     "viem": "^2.21.1",
     "zod": "^3.23.8"
   },
@@ -55,8 +60,7 @@
     "snarkjs": "^0.7.5",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.5",
-    "snarkjs": "^0.7.5"
+    "vitest": "^2.0.5"
   },
   "engines": {
     "node": ">=18.18.0"

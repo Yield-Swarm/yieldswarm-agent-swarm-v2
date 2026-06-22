@@ -53,6 +53,9 @@ check_cmd "Stripe deposit route" test -f src/app/api/deposits/stripe/route.ts
 check_cmd "Stripe webhook route" test -f src/app/api/webhooks/stripe/route.ts
 check_cmd "Platform fee module" test -f src/lib/payments/fees.ts
 check_cmd "Integration backend" test -f backend/src/server.js
+check_cmd "Marketing vault policy" test -f vault/policies/marketing-runtime.hcl
+check_cmd "Marketing health route" test -f src/app/api/integrations/marketing/health/route.ts
+check_cmd "MarketingService" test -f src/lib/marketing/marketingService.ts
 
 # Python tests
 check_cmd "Kairo tests" python3 -m pytest kairo/tests/ -q

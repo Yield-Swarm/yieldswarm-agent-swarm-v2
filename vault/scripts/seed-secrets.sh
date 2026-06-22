@@ -156,6 +156,35 @@ put_if_set integrations/linear  api_key=LINEAR_API_KEY
 put_if_set integrations/telegram bot_token=TELEGRAM_BOT_TOKEN
 put_if_set integrations/unstoppable api_key=UD_API_KEY
 
+# ---- Marketing / campaigns (Christopher's First App) ----
+put_if_set marketing/moltbook \
+  api_key=MOLTBOOK_API_KEY \
+  default_channel=MOLTBOOK_DEFAULT_CHANNEL
+
+put_if_set marketing/reddit \
+  client_id=REDDIT_CLIENT_ID \
+  client_secret=REDDIT_CLIENT_SECRET \
+  refresh_token=REDDIT_REFRESH_TOKEN \
+  user_agent=REDDIT_USER_AGENT \
+  username=REDDIT_USERNAME
+
+put_if_set marketing/x-twitter \
+  bearer_token=X_TWITTER_BEARER_TOKEN \
+  access_token=X_TWITTER_ACCESS_TOKEN \
+  access_secret=X_TWITTER_ACCESS_SECRET \
+  api_key=X_TWITTER_API_KEY \
+  api_secret=X_TWITTER_API_SECRET
+
+put_if_set marketing/email \
+  api_key=RESEND_API_KEY \
+  from_address=EMAIL_FROM_ADDRESS \
+  from_name=EMAIL_FROM_NAME
+
+put_if_set marketing/twilio \
+  account_sid=TWILIO_ACCOUNT_SID \
+  auth_token=TWILIO_AUTH_TOKEN \
+  from_number=TWILIO_FROM_NUMBER
+
 # ---- Kairo (driver app) ----
 put_if_set runtime/kairo \
   mapbox_token=MAPBOX_TOKEN \

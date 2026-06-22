@@ -109,6 +109,16 @@ export const serverEnv = {
       Number(str("INSTANT_CASHOUT_FEE_PERCENT", "0.015")) || 0.015,
     kairoWebhookSecret: () => str("KAIRO_WEBHOOK_SECRET"),
   },
+
+  marketing: {
+    dryRun: () => bool("MARKETING_DRY_RUN", process.env.NODE_ENV !== "production"),
+    moltbookApiKey: () => str("MOLTBOOK_API_KEY"),
+    resendApiKey: () => str("RESEND_API_KEY"),
+    twilioAccountSid: () => str("TWILIO_ACCOUNT_SID"),
+    xBearerToken: () => str("X_TWITTER_BEARER_TOKEN"),
+    redditClientId: () => str("REDDIT_CLIENT_ID"),
+    vaultMount: () => str("VAULT_KV_MOUNT", "yieldswarm"),
+  },
 };
 
 /** Config safe to send to the browser. */
