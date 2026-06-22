@@ -1,91 +1,64 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: YieldSwarm TON Settle Engine — Multi-AZ Lambda + ElastiCache Redis (us-west-2)
+Description: Hardened serverless TON MMORPG settle engine — Multi-AZ Lambda + ElastiCache Serverless Redis
 
 Parameters:
   EnvironmentName:
     Type: String
     Default: production
-  VpcCidr:
-    Type: String
-    Default: 10.42.0.0/16
-  PrivateSubnetACidr:
-    Type: String
-    Default: 10.42.10.0/24
-  PrivateSubnetBCidr:
-    Type: String
-    Default: 10.42.20.0/24
-  PublicSubnetACidr:
-    Type: String
-    Default: 10.42.1.0/24
-  PublicSubnetBCidr:
-    Type: String
-    Default: 10.42.2.0/24
   CorsOrigin:
     Type: String
     Default: https://yieldswarm.crypto
   TonRpcUrl:
     Type: String
     Default: https://toncenter.com/api/v2/jsonRPC
+  PlayerSbtContract:
+    Type: String
+    Default: ''
+    Description: PlayerSBT contract address for getCharacterState attestation
   RateLimitMaxTokens:
     Type: Number
     Default: 5
-  RedisNodeType:
-    Type: String
-    Default: cache.t4g.micro
 
 Globals:
   Function:
     Runtime: nodejs20.x
-    Timeout: 30
-    MemorySize: 512
-    Architectures: [arm64]
     Tracing: Active
 
 Resources:
-  SettleVpc:
+  GameVpc:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VpcCidr
-      EnableDnsHostnames: true
+      CidrBlock: 10.0.0.0/16
       EnableDnsSupport: true
+      EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: !Sub yieldswarm-settle-${EnvironmentName}
+          Value: !Sub ton-mmorpg-${EnvironmentName}-vpc
 
   PrivateSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref SettleVpc
+      VpcId: !Ref GameVpc
+      CidrBlock: 10.0.1.0/24
       AvailabilityZone: !Select [0, !GetAZs '']
-      CidrBlock: !Ref PrivateSubnetACidr
-      Tags: [{ Key: Name, Value: !Sub yieldswarm-private-a-${EnvironmentName} }]
+      Tags: [{ Key: Name, Value: !Sub ton-mmorpg-private-a-${EnvironmentName} }]
 
   PrivateSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref SettleVpc
+      VpcId: !Ref GameVpc
+      CidrBlock: 10.0.2.0/24
       AvailabilityZone: !Select [1, !GetAZs '']
-      CidrBlock: !Ref PrivateSubnetBCidr
-      Tags: [{ Key: Name, Value: !Sub yieldswarm-private-b-${EnvironmentName} }]
+      Tags: [{ Key: Name, Value: !Sub ton-mmorpg-private-b-${EnvironmentName} }]
 
   PublicSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref SettleVpc
+      VpcId: !Ref GameVpc
+      CidrBlock: 10.0.101.0/24
       AvailabilityZone: !Select [0, !GetAZs '']
-      CidrBlock: !Ref PublicSubnetACidr
       MapPublicIpOnLaunch: true
-      Tags: [{ Key: Name, Value: !Sub yieldswarm-public-a-${EnvironmentName} }]
-
-  PublicSubnetB:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref SettleVpc
-      AvailabilityZone: !Select [1, !GetAZs '']
-      CidrBlock: !Ref PublicSubnetBCidr
-      MapPublicIpOnLaunch: true
-      Tags: [{ Key: Name, Value: !Sub yieldswarm-public-b-${EnvironmentName} }]
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -93,7 +66,7 @@ Resources:
   VpcIgwAttach:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref SettleVpc
+      VpcId: !Ref GameVpc
       InternetGatewayId: !Ref InternetGateway
 
   NatEip:
@@ -111,9 +84,9 @@ Resources:
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref SettleVpc
+      VpcId: !Ref GameVpc
 
-  PublicDefaultRoute:
+  PublicRoute:
     Type: AWS::EC2::Route
     DependsOn: VpcIgwAttach
     Properties:
@@ -121,37 +94,31 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
 
-  PublicSubnetARouteAssoc:
+  PublicSubnetAssoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnetA
       RouteTableId: !Ref PublicRouteTable
 
-  PublicSubnetBRouteAssoc:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnetB
-      RouteTableId: !Ref PublicRouteTable
-
   PrivateRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref SettleVpc
+      VpcId: !Ref GameVpc
 
-  PrivateDefaultRoute:
+  PrivateRoute:
     Type: AWS::EC2::Route
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway
 
-  PrivateSubnetARouteAssoc:
+  PrivateSubnetAAssoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateSubnetA
       RouteTableId: !Ref PrivateRouteTable
 
-  PrivateSubnetBRouteAssoc:
+  PrivateSubnetBAssoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateSubnetB
@@ -160,8 +127,8 @@ Resources:
   LambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Lambda settle engine
-      VpcId: !Ref SettleVpc
+      GroupDescription: Outbound isolation for PoE settle engine
+      VpcId: !Ref GameVpc
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0
@@ -169,82 +136,100 @@ Resources:
   RedisSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: ElastiCache Redis — Lambda ingress only
-      VpcId: !Ref SettleVpc
+      GroupDescription: Ingress limit to authorized Lambda runtime
+      VpcId: !Ref GameVpc
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 6379
           ToPort: 6379
           SourceSecurityGroupId: !Ref LambdaSecurityGroup
 
-  RedisSubnetGroup:
-    Type: AWS::ElastiCache::SubnetGroup
+  VpcEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      Description: Multi-AZ Redis for token bucket
+      GroupDescription: Interface endpoints for Lambda (Secrets Manager)
+      VpcId: !Ref GameVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  SecretsManagerEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Interface
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.secretsmanager
+      VpcId: !Ref GameVpc
       SubnetIds:
         - !Ref PrivateSubnetA
         - !Ref PrivateSubnetB
+      SecurityGroupIds:
+        - !Ref VpcEndpointSecurityGroup
+      PrivateDnsEnabled: true
 
-  RedisReplicationGroup:
-    Type: AWS::ElastiCache::ReplicationGroup
+  ProductionRedisBucket:
+    Type: AWS::ElastiCache::ServerlessCache
     Properties:
-      ReplicationGroupDescription: YieldSwarm atomic rate limiter
       Engine: redis
-      EngineVersion: '7.1'
-      CacheNodeType: !Ref RedisNodeType
-      NumCacheClusters: 2
-      AutomaticFailoverEnabled: true
-      MultiAZEnabled: true
-      CacheSubnetGroupName: !Ref RedisSubnetGroup
+      ServerlessCacheName: !Sub ton-game-rate-limiter-${EnvironmentName}
+      SubnetIds:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
       SecurityGroupIds:
         - !Ref RedisSecurityGroup
-      AtRestEncryptionEnabled: true
-      TransitEncryptionEnabled: false
 
-  SignerSecret:
+  GameEngineSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: !Sub yieldswarm/${EnvironmentName}/ton-ed25519-signer
-      Description: Ed25519 seed for TON cell signing (32-byte hex in SERVER_ED25519_PRIVATE_KEY)
+      Name: !Sub ton-mmorpg-${EnvironmentName}-signer
+      Description: Ed25519 private seed for signing TVM transaction blocks
       SecretString: '{"SERVER_ED25519_PRIVATE_KEY":"REPLACE_WITH_64_HEX_CHARS"}'
 
   SettleHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
+      Name: !Sub ton-mmorpg-${EnvironmentName}-backend
       StageName: !Ref EnvironmentName
       CorsConfiguration:
         AllowOrigins: [!Ref CorsOrigin]
         AllowMethods: [POST, OPTIONS]
         AllowHeaders: [Content-Type, Authorization]
 
-  SettleFunction:
+  AuthoritativePoEFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub yieldswarm-ton-settle-${EnvironmentName}
-      CodeUri: .
-      Handler: handler.handler
+      FunctionName: !Sub AuthoritativePoE-${EnvironmentName}
+      CodeUri: ../../src/backend-lambda/
+      Handler: handler.claimReward
+      MemorySize: 1792
+      Timeout: 10
+      Architectures: [arm64]
       VpcConfig:
         SecurityGroupIds: [!Ref LambdaSecurityGroup]
-        SubnetIds:
-          - !Ref PrivateSubnetA
-          - !Ref PrivateSubnetB
+        SubnetIds: [!Ref PrivateSubnetA, !Ref PrivateSubnetB]
       Environment:
         Variables:
-          REDIS_HOST: !GetAtt RedisReplicationGroup.PrimaryEndPoint.Address
-          REDIS_PORT: !GetAtt RedisReplicationGroup.PrimaryEndPoint.Port
-          SECRETS_ARN: !Ref SignerSecret
-          CORS_ORIGIN: !Ref CorsOrigin
+          REDIS_HOST: !GetAtt ProductionRedisBucket.Endpoint.Address
+          REDIS_PORT: !GetAtt ProductionRedisBucket.Endpoint.Port
+          SECRETS_ARN: !Ref GameEngineSecret
           TON_RPC_URL: !Ref TonRpcUrl
+          PLAYER_SBT_CONTRACT: !Ref PlayerSbtContract
+          CORS_ORIGIN: !Ref CorsOrigin
           RATE_LIMIT_MAX_TOKENS: !Ref RateLimitMaxTokens
           RATE_LIMIT_REFILL_PER_SEC: '0.0166'
+          CHAIN_DELTA_TOLERANCE_SEC: '120'
       Policies:
         - AWSLambdaVPCAccessExecutionRole
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action: secretsmanager:GetSecretValue
-              Resource: !Ref SignerSecret
+        - SecretsManagerReadPolicy:
+            SecretArn: !Ref GameEngineSecret
       Events:
+        ClaimApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref SettleHttpApi
+            Path: /api/claim
+            Method: POST
         AllocateApi:
           Type: HttpApi
           Properties:
@@ -255,7 +240,7 @@ Resources:
   ApiGateway5xxAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub yieldswarm-settle-5xx-${EnvironmentName}
+      AlarmName: !Sub ton-mmorpg-5xx-${EnvironmentName}
       Namespace: AWS/ApiGateway
       MetricName: 5XXError
       Dimensions:
@@ -267,28 +252,33 @@ Resources:
       Threshold: 5
       ComparisonOperator: GreaterThanThreshold
 
-  LambdaThrottleAlarm:
+  LambdaErrorAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub yieldswarm-settle-throttles-${EnvironmentName}
+      AlarmName: !Sub ton-mmorpg-lambda-errors-${EnvironmentName}
       Namespace: AWS/Lambda
-      MetricName: Throttles
+      MetricName: Errors
       Dimensions:
         - Name: FunctionName
-          Value: !Ref SettleFunction
+          Value: !Ref AuthoritativePoEFunction
       Statistic: Sum
       Period: 60
       EvaluationPeriods: 1
-      Threshold: 1
+      Threshold: 3
       ComparisonOperator: GreaterThanOrEqualToThreshold
 
 Outputs:
   HttpApiUrl:
-    Description: API Gateway endpoint for Vercel TMA frontend
     Value: !Sub https://${SettleHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentName}
+  ClaimEndpoint:
+    Value: !Sub https://${SettleHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentName}/api/claim
   AllocateEndpoint:
     Value: !Sub https://${SettleHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentName}/v1/compute/allocate
-  RedisPrimaryEndpoint:
-    Value: !GetAtt RedisReplicationGroup.PrimaryEndPoint.Address
+  LambdaFunctionName:
+    Value: !Ref AuthoritativePoEFunction
+  HttpApiName:
+    Value: !Sub ton-mmorpg-${EnvironmentName}-backend
+  RedisEndpoint:
+    Value: !GetAtt ProductionRedisBucket.Endpoint.Address
   SignerSecretArn:
-    Value: !Ref SignerSecret
+    Value: !Ref GameEngineSecret

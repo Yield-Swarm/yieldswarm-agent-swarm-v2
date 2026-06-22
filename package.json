@@ -33,7 +33,8 @@
     "sdk:sync": "bash scripts/sdk/sync-fork-repos.sh",
     "sdk:sync:dry": "bash scripts/sdk/sync-fork-repos.sh --dry-run",
     "aws:ton-settle:deploy": "bash scripts/deploy-aws-ton-settle.sh",
-    "aws:ton-settle:test": "cd deploy/aws/ton-settle-engine && npm test",
+    "aws:ton-settle:test": "cd src/backend-lambda && npm test",
+    "aws:ton-settle:telemetry": "cd deploy/aws/ton-settle-engine && npm run telemetry",
     "domains:verify-ud": "bash scripts/domains/verify-ud-records.sh",
     "domains:wire": "bash scripts/wire-production-domains.sh"
   },

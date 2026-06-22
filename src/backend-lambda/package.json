@@ -1,0 +1,18 @@
+{
+  "name": "yieldswarm-backend-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Server-authoritative TON settle engine — AWS Lambda",
+  "main": "handler.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test lib/*.test.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.700.0",
+    "@ton/crypto": "^3.3.0",
+    "@ton/ton": "^15.0.0",
+    "ioredis": "^5.4.1",
+    "zod": "^3.23.8"
+  }
+}

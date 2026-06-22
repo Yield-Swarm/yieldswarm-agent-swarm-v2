@@ -1,125 +1,109 @@
-# AWS + Vercel Production — xAI Portfolio Architecture
+# AWS + Vercel Production — xAI Engineering Narrative
 
-High-density compute narrative for **Telegram Mini App (Vercel Edge)** + **VPC-isolated AWS Lambda settle engine (us-west-2)** + **ElastiCache Redis token bucket** + **TON mainnet RPC**.
+Bridges **optimistic Next.js TMA client** → **server-authoritative AWS Lambda** → **ElastiCache Serverless Redis** → **TON PlayerSBT attestation**.
 
-## Topology
+## Core engineering narrative (xAI hook)
+
+This system solves the disconnect between rapid client interaction and secure blockchain settlement.
 
 ```
-       +------------------------------------------------------+
-       |                  TELEGRAM TMA FRONTEND               |
-       |  Vercel Global Edge Network Deployment (Next.js App)  |
-       +--------------------------+---------------------------+
-                                  |
-                   (Secure API Payload Exchanges)
-                                  |
-       +--------------------------v---------------------------+
-       |                  VPC ISOLATED BACKEND                |
-       |  Multi-AZ AWS Lambda Execution & Core State Manager  |
-       +-------------------+------------------------------+---+
-                           |                              |
-           (Private IAM Database Access)          (JSON-RPC State Queries)
-                           |                              |
-       +-------------------v-------------------+  +-------v-----------+
-       |      AMAZON ELASTICACHE REDIS         |  |   TON MAINNET     |
-       |  Atomic Token Bucket Rate Limiter    |  |   RPC BINDINGS    |
-       +---------------------------------------+  +-------------------+
++--------------------------------------------------------+
+|                   Next.js Client (TMA)                 |
+|             Optimistic Local State Update              |
++---------------------------+----------------------------+
+                            |
+           Secure REST Payload (Zod Schema Guard)
+                            |
++---------------------------v----------------------------+
+|             Multi-AZ AWS Lambda Execution              |
+|        - Serverless Rate Limiter Validation            |
+|        - On-Chain Verification via TON RPC             |
+|        - Fixed-Point BigInt Reward Computation         |
++---------------------+----------------------------+-----+
+                      |                            |
+       Private IAM Access Pipeline        JSON-RPC Sync Loop
+                      |                            |
++---------------------v--------------------+  +----v-----+
+|       Amazon ElastiCache Serverless      |  | TON Node |
+|  Redis Hash Token Bucket (Anti-Sybil)   |  | Network  |
++------------------------------------------+  +----------+
 ```
-
-## Statement of exceptional work (xAI matrix)
 
 | Property | Implementation |
 |----------|----------------|
-| **Computational density** | ARM64 Lambda 512MB, warm-path Redis eval, single-cell TON BOC output |
-| **Resource isolation** | Private subnets + NAT, Lambda SG → Redis SG only on 6379 |
-| **State authority** | Fixed-point $10^9$ nano arithmetic — no float in reward path |
-| **Operational telemetry** | Structured JSON logs + CloudWatch alarms (5xx, throttles) |
+| **Fixed-point 10⁹ math** | `src/backend-lambda/lib/fixedPoint.js` — BigInt only |
+| **Atomic rate limiting** | Lua script in ElastiCache Serverless |
+| **State attestation** | `getCharacterState` on PlayerSBT via TON RPC; client params untrusted |
+| **Secrets isolation** | VPC interface endpoint → Secrets Manager (no NAT for signing keys) |
+| **Telemetry** | `deploy-telemetry.js` → CloudWatch dashboard + SAM alarms |
 
-### Precision-safe fixed-point (10⁹ scale)
-
-IEEE 754 drift eliminated. See `deploy/aws/ton-settle-engine/lib/fixedPoint.js`.
-
-$$\text{reward} = \min\left(\frac{k \cdot L \cdot \Delta t \cdot 10^9}{1000}, 500 \cdot 10^9\right)$$
-
-where $k = \lfloor \text{baseFactor} \cdot 1000 \rfloor$, $L$ = enemy level, $\Delta t \in [1, 3600]$.
-
-### Atomic rate limiting (Sybil defense)
-
-Lua token-bucket script executed atomically in Redis (`lib/tokenBucket.lua`). Non-blocking reject → HTTP 429.
-
-### Asynchronous cryptographic authentication
-
-Zod-validated payloads. Optional on-chain `get_last_save` RPC temporal check. Ed25519 sign over TVM cell hash via `@ton/crypto`.
-
-## Repository layout
+## Code layout
 
 | Path | Role |
 |------|------|
-| `deploy/aws/ton-settle-engine/handler.js` | Lambda compute worker |
-| `deploy/aws/ton-settle-engine/template.yaml` | Multi-AZ SAM (VPC, Redis, API Gateway) |
-| `deploy/aws/ton-settle-engine/lib/fixedPoint.js` | Integer reward engine |
-| `scripts/deploy-aws-ton-settle.sh` | One-command SAM deploy |
-| `vercel.json` | Edge frontend routes |
+| `src/backend-lambda/handler.js` | `claimReward` — authoritative execution core |
+| `src/backend-lambda/lib/` | fixedPoint + tokenBucket.lua |
+| `deploy/aws/ton-settle-engine/template.yaml` | Multi-AZ SAM — VPC, Serverless Redis, VPC endpoints |
+| `deploy/aws/ton-settle-engine/deploy-telemetry.js` | CloudWatch dashboard provisioner |
+| `scripts/deploy-aws-ton-settle.sh` | Build + deploy + telemetry |
 
-## Deploy
-
-### AWS (us-west-2)
+## Deploy pipeline
 
 ```bash
-# Seed signer secret (32-byte hex) — never commit
-aws secretsmanager put-secret-value \
-  --secret-id yieldswarm/production/ton-ed25519-signer \
-  --secret-string '{"SERVER_ED25519_PRIVATE_KEY":"YOUR_64_HEX_CHARS"}'
+# 1. Dependencies
+cd src/backend-lambda && npm ci --omit=dev && npm test
 
+# 2. Signer secret (32-byte hex)
+aws secretsmanager put-secret-value \
+  --region us-west-2 \
+  --secret-id ton-mmorpg-production-signer \
+  --secret-string '{"SERVER_ED25519_PRIVATE_KEY":"YOUR_64_HEX"}'
+
+# 3. Stack + dashboard
 export AWS_REGION=us-west-2
+export PLAYER_SBT_CONTRACT=EQ...   # PlayerSBT mainnet address
 export CORS_ORIGIN=https://yieldswarm.crypto
 chmod +x scripts/deploy-aws-ton-settle.sh
 ./scripts/deploy-aws-ton-settle.sh
+
+# 4. Vercel TMA
+NEXT_PUBLIC_TON_SETTLE_API_URL=<ClaimEndpoint from stack output>
 ```
 
-### Vercel (TMA frontend)
+Manual SAM:
 
 ```bash
-# Set in Vercel project → Environment Variables
-NEXT_PUBLIC_TON_SETTLE_API_URL=https://<api-id>.execute-api.us-west-2.amazonaws.com/production/v1/compute/allocate
+cd deploy/aws/ton-settle-engine
+sam build && sam deploy --guided
+LAMBDA_FUNCTION_NAME=AuthoritativePoE-production npm run telemetry
 ```
 
-### Tests
+## API
 
-```bash
-cd deploy/aws/ton-settle-engine && npm test
-```
-
-## CloudWatch metrics (portfolio quant)
-
-Track for xAI / infra narrative:
-
-| Metric | Namespace | Use |
-|--------|-----------|-----|
-| `Count` | `AWS/ApiGateway` | Invocation spikes under load |
-| `5XXError` | `AWS/ApiGateway` | Error mitigation story |
-| `Throttles` | `AWS/Lambda` | Concurrency saturation |
-| `Duration` | `AWS/Lambda` | p99 latency |
-
-Alarms defined in `template.yaml` (`ApiGateway5xxAlarm`, `LambdaThrottleAlarm`).
-
-## API contract
-
-`POST /v1/compute/allocate`
+`POST /api/claim` (alias: `/v1/compute/allocate`)
 
 ```json
 {
   "walletAddress": "EQ...",
-  "actionData": {
-    "baseFactor": 1.25,
-    "enemyLevel": 12,
-    "deltaTime": 120
-  }
+  "actionData": { "baseFactor": 1.2, "enemyLevel": 8, "deltaTime": 90 }
 }
 ```
 
-Response: `{ "success", "tokensAllocated", "bocPayload", "epochSeconds" }`
+## Vercel env
+
+```bash
+NEXT_PUBLIC_TON_SETTLE_API_URL=https://<api-id>.execute-api.us-west-2.amazonaws.com/production/api/claim
+PLAYER_SBT_CONTRACT=EQ...
+```
+
+## Portfolio metrics (CloudWatch)
+
+- API Gateway `Count`, `4XXError`, `5XXError`
+- Lambda `Duration` p99, `Errors`, `Throttles`, `Invocations`
+
+Dashboard: `TON_MMORPG_Compute_Telemetry`
 
 ## Related
 
-- [`ARCHITECTURE_FULL.md`](ARCHITECTURE_FULL.md) — full YieldSwarm + Kairo stack
-- [`LAUNCH_PLAYBOOK.md`](LAUNCH_PLAYBOOK.md) — production env + traffic
+- [`ARCHITECTURE_FULL.md`](ARCHITECTURE_FULL.md)
+- [`LAUNCH_PLAYBOOK.md`](LAUNCH_PLAYBOOK.md)

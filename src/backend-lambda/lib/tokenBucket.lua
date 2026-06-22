@@ -1,6 +1,6 @@
 local bucketKey = KEYS[1]
 local maxTokens = tonumber(ARGV[1])
-local refillRate = tonumber(ARGV[2])
+local fillRate = tonumber(ARGV[2])
 local currentTimestamp = tonumber(ARGV[3])
 
 local state = redis.call('hmget', bucketKey, 'tokens', 'last_update')
@@ -12,7 +12,7 @@ if not tokens then
   lastUpdate = currentTimestamp
 else
   local delta = math.max(0, currentTimestamp - lastUpdate)
-  tokens = math.min(maxTokens, tokens + (delta * refillRate))
+  tokens = math.min(maxTokens, tokens + (delta * fillRate))
 end
 
 if tokens >= 1 then

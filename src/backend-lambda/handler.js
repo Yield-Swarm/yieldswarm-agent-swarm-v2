@@ -18,17 +18,17 @@ const PayloadValidator = z.object({
 
 const LUA_TOKEN_BUCKET = fs.readFileSync(path.join(__dirname, 'lib', 'tokenBucket.lua'), 'utf8');
 
-let redisInstance = null;
-let secretsManagerClient = null;
+let redis = null;
+let secretsClient = null;
 /** @type {Buffer | null} */
 let cachedSignerSeed = null;
 
-async function coldStartBootstrap() {
-  if (!secretsManagerClient) {
-    secretsManagerClient = new SecretsManagerClient({ region: process.env.AWS_REGION });
+async function bootstrapContext() {
+  if (!secretsClient) {
+    secretsClient = new SecretsManagerClient({});
   }
-  if (!redisInstance) {
-    redisInstance = new Redis({
+  if (!redis) {
+    redis = new Redis({
       host: process.env.REDIS_HOST,
       port: parseInt(process.env.REDIS_PORT || '6379', 10),
       connectTimeout: 2000,
@@ -36,29 +36,60 @@ async function coldStartBootstrap() {
     });
   }
   if (!cachedSignerSeed) {
-    const rawSecret = await secretsManagerClient.send(
+    const rawSecret = await secretsClient.send(
       new GetSecretValueCommand({ SecretId: process.env.SECRETS_ARN }),
     );
     const keyData = JSON.parse(rawSecret.SecretString || '{}');
-    const hex = keyData.SERVER_ED25519_PRIVATE_KEY || keyData.ed25519_seed_hex;
-    if (!hex || typeof hex !== 'string') {
-      throw new Error('SERVER_ED25519_PRIVATE_KEY missing in Secrets Manager payload');
-    }
-    cachedSignerSeed = Buffer.from(hex.replace(/^0x/, ''), 'hex');
-    if (cachedSignerSeed.length !== 32) {
-      throw new Error('Ed25519 seed must be 32 bytes');
-    }
+    const hex = keyData.SERVER_ED25519_PRIVATE_KEY;
+    if (!hex) throw new Error('SERVER_ED25519_PRIVATE_KEY missing in Secrets Manager');
+    cachedSignerSeed = Buffer.from(String(hex).replace(/^0x/, ''), 'hex');
+    if (cachedSignerSeed.length !== 32) throw new Error('Ed25519 seed must be 32 bytes');
   }
 }
 
 /**
- * Optional on-chain last-save validation (TON JSON-RPC).
+ * PlayerSBT on-chain state — getCharacterState getter (server-authoritative Δt).
  * @param {string} walletAddress
- * @returns {Promise<number | null>}
+ * @returns {Promise<{ lastSaveEpoch: number | null; enemyLevel: number | null }>}
  */
-async function fetchOnChainLastSaveEpoch(walletAddress) {
+async function fetchCharacterState(walletAddress) {
   const rpc = process.env.TON_RPC_URL;
-  if (!rpc) return null;
+  const contract = process.env.PLAYER_SBT_CONTRACT;
+  if (!rpc || !contract) return { lastSaveEpoch: null, enemyLevel: null };
+
+  try {
+    const res = await fetch(rpc, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'runGetMethod',
+        params: {
+          address: contract,
+          method: 'getCharacterState',
+          stack: [{ type: 'slice', cell: walletAddress }],
+        },
+      }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return { lastSaveEpoch: null, enemyLevel: null };
+    const body = await res.json();
+    const stack = body?.result?.stack;
+    if (!Array.isArray(stack) || stack.length < 2) {
+      return await fetchCharacterStateFallback(walletAddress);
+    }
+    const lastSaveEpoch = parseStackInt(stack[0]);
+    const enemyLevel = parseStackInt(stack[1]);
+    return { lastSaveEpoch, enemyLevel };
+  } catch {
+    return fetchCharacterStateFallback(walletAddress);
+  }
+}
+
+async function fetchCharacterStateFallback(walletAddress) {
+  const rpc = process.env.TON_RPC_URL;
+  if (!rpc) return { lastSaveEpoch: null, enemyLevel: null };
   try {
     const res = await fetch(rpc, {
       method: 'POST',
@@ -71,15 +102,19 @@ async function fetchOnChainLastSaveEpoch(walletAddress) {
       }),
       signal: AbortSignal.timeout(4000),
     });
-    if (!res.ok) return null;
+    if (!res.ok) return { lastSaveEpoch: null, enemyLevel: null };
     const body = await res.json();
-    const stack = body?.result?.stack;
-    if (!Array.isArray(stack) || !stack[0]) return null;
-    const val = stack[0][1] ?? stack[0];
-    return parseInt(String(val), 10) || null;
+    return { lastSaveEpoch: parseStackInt(body?.result?.stack?.[0]), enemyLevel: null };
   } catch {
-    return null;
+    return { lastSaveEpoch: null, enemyLevel: null };
   }
+}
+
+function parseStackInt(entry) {
+  if (!entry) return null;
+  const raw = Array.isArray(entry) ? entry[1] : entry;
+  const n = parseInt(String(raw).replace(/^0x/, ''), 10);
+  return Number.isFinite(n) ? n : null;
 }
 
 function jsonResponse(statusCode, payload) {
@@ -93,18 +128,17 @@ function jsonResponse(statusCode, payload) {
   };
 }
 
-exports.processComputeAllocation = async (event) => {
+exports.claimReward = async (event) => {
   const startMs = Date.now();
   try {
-    await coldStartBootstrap();
-
+    await bootstrapContext();
     const requestData = JSON.parse(event.body || '{}');
     const { walletAddress, actionData } = PayloadValidator.parse(requestData);
 
     const nowSeconds = Math.floor(Date.now() / 1000);
     const rateLimitKey = `ratelimit:${walletAddress}`;
 
-    const executionTokenGranted = await redisInstance.eval(
+    const executionTokenGranted = await redis.eval(
       LUA_TOKEN_BUCKET,
       1,
       rateLimitKey,
@@ -115,17 +149,27 @@ exports.processComputeAllocation = async (event) => {
 
     if (executionTokenGranted !== 1) {
       console.warn(JSON.stringify({ metric: 'rate_limit_reject', wallet: walletAddress }));
-      return jsonResponse(429, {
-        error: 'Rate limit saturation detected. Security boundaries active.',
-      });
+      return jsonResponse(429, { error: 'Rate limit saturated. Execution denied.' });
     }
 
-    const onChainLast = await fetchOnChainLastSaveEpoch(walletAddress);
-    if (onChainLast != null) {
-      const chainDelta = nowSeconds - onChainLast;
-      if (chainDelta < 0 || Math.abs(chainDelta - actionData.deltaTime) > 120) {
-        return jsonResponse(400, { error: 'On-chain temporal delta mismatch (Sybil defense).' });
+    const onChain = await fetchCharacterState(walletAddress);
+    if (onChain.lastSaveEpoch != null) {
+      const chainDelta = nowSeconds - onChain.lastSaveEpoch;
+      const tolerance = parseInt(process.env.CHAIN_DELTA_TOLERANCE_SEC || '120', 10);
+      if (chainDelta < 0 || Math.abs(chainDelta - actionData.deltaTime) > tolerance) {
+        return jsonResponse(400, {
+          error: 'On-chain temporal delta mismatch (untrusted client rejected).',
+          chainDelta,
+          claimedDelta: actionData.deltaTime,
+        });
       }
+    }
+    if (onChain.enemyLevel != null && onChain.enemyLevel !== actionData.enemyLevel) {
+      return jsonResponse(400, {
+        error: 'On-chain enemy level mismatch.',
+        chainLevel: onChain.enemyLevel,
+        claimedLevel: actionData.enemyLevel,
+      });
     }
 
     const finalRewardAllocation = computeRewardAllocation(actionData);
@@ -138,7 +182,6 @@ exports.processComputeAllocation = async (event) => {
       .endCell();
 
     const secureSignature = sign(cellSpecification.hash(), keyPair.secretKey);
-
     const binaryDeliveryEnvelope = beginCell()
       .storeBuffer(secureSignature)
       .storeRef(cellSpecification)
@@ -146,7 +189,7 @@ exports.processComputeAllocation = async (event) => {
 
     console.log(
       JSON.stringify({
-        metric: 'compute_allocation_ok',
+        metric: 'claim_reward_ok',
         wallet: walletAddress,
         tokens: finalRewardAllocation.toString(),
         latencyMs: Date.now() - startMs,
@@ -162,7 +205,7 @@ exports.processComputeAllocation = async (event) => {
   } catch (executionFault) {
     console.error(
       JSON.stringify({
-        metric: 'compute_allocation_fault',
+        metric: 'claim_reward_fault',
         error: executionFault instanceof Error ? executionFault.message : String(executionFault),
         latencyMs: Date.now() - startMs,
       }),
@@ -176,5 +219,5 @@ exports.processComputeAllocation = async (event) => {
   }
 };
 
-/** API Gateway HTTP API entry */
-exports.handler = async (event) => exports.processComputeAllocation(event);
+exports.processComputeAllocation = exports.claimReward;
+exports.handler = exports.claimReward;

@@ -1,19 +1,12 @@
 {
-  "name": "yieldswarm-ton-settle-engine",
+  "name": "yieldswarm-ton-settle-deploy",
   "version": "1.0.0",
   "private": true,
-  "description": "AWS Lambda Layer-2 TON settle engine — Redis token bucket + fixed-point rewards",
-  "main": "handler.js",
-  "engines": { "node": ">=20" },
+  "description": "SAM deploy + CloudWatch telemetry for TON settle engine",
   "scripts": {
-    "test": "node --test lib/*.test.js",
-    "package": "npm ci --omit=dev && sam build"
+    "telemetry": "node deploy-telemetry.js"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.700.0",
-    "@ton/crypto": "^3.3.0",
-    "@ton/ton": "^15.0.0",
-    "ioredis": "^5.4.1",
-    "zod": "^3.23.8"
+    "@aws-sdk/client-cloudwatch": "^3.700.0"
   }
 }
