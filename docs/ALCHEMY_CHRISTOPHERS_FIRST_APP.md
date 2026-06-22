@@ -47,6 +47,13 @@ Path: `yieldswarm/data/integrations/alchemy`
 - Generated: `config/alchemy/christophers-first-app.json`
 - Regenerate: `python3 scripts/alchemy/build-manifest.py`
 
+## SDK Rolodex
+
+Full multi-language SDK guide: [`docs/ALCHEMY_SDK_ROLODEX.md`](ALCHEMY_SDK_ROLODEX.md)
+
+Python: `from services.alchemy import AlchemyRolodex`  
+TypeScript: `src/lib/alchemy/client.ts` (Viem + manifest)
+
 ## Security
 
 If your API key was pasted into chat or committed anywhere, **rotate it** in the [Alchemy dashboard](https://dashboard.alchemy.com/) immediately.

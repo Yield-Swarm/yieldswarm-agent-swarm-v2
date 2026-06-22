@@ -455,7 +455,8 @@ yieldswarm/
 │   ├── helius             { api_key }
 │   ├── birdeye            { api_key }
 │   ├── jupiter            { api_key }
-│   ├── solana             { http_url, ws_url }
+│   ├── solana             { http_url, ws_url, helius_api_key, ... }
+│   ├── ethereum           { url, alchemy_api_key, infura_project_id, infura_api_key }
 │   ├── raydium            { api_key }
 │   └── ton                { api_key }
 ├── llm/
@@ -471,6 +472,7 @@ yieldswarm/
 │       ├── 1              { ... }
 │       └── ... (up to 119)
 └── integrations/
+    ├── alchemy            { api_key, app_name, manifest_path }  # Christopher's First App
     ├── notion             { api_key }
     ├── linear             { api_key }
     ├── github             { token }
@@ -487,7 +489,7 @@ Policy → path matrix:
 | `yieldswarm/data/llm/+`         | RW    | —         | R             | R             | —            |
 | `yieldswarm/data/akash/runtime` | RW    | —         | R             | —             | —            |
 | `yieldswarm/data/agents/shards/+` | RW  | —         | R             | R             | —            |
-| `yieldswarm/data/integrations/+`| RW    | —         | —             | R             | —            |
+| `yieldswarm/data/integrations/+`| RW    | —         | R             | R             | —            |
 | `transit/encrypt/agent-runtime` | RW    | —         | U             | U             | —            |
 | `transit/encrypt/terraform-state`| RW   | U         | —             | —             | —            |
 | `auth/approle/role/*/secret-id` | RW    | —         | —             | —             | U (wrap-only)|

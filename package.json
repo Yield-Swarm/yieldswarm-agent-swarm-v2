@@ -23,7 +23,9 @@
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
-    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "alchemy:manifest": "python3 scripts/alchemy/build-manifest.py",
+    "test:alchemy": "python3 -m unittest tests.test_alchemy_client -v"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
