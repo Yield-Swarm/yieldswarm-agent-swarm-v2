@@ -198,7 +198,7 @@ if [[ "${VAULT_INJECT_RUNTIME_SECRETS}" != "no" && "${VAULT_INJECT_RUNTIME_SECRE
       add_check "vault-bootstrap" "pass" "VAULT_TOKEN can read AppRole ${VAULT_AKASH_ROLE} (wrap will be minted at deploy)"
     else
       add_check "vault-bootstrap" "fail" "VAULT_TOKEN cannot read role ${VAULT_AKASH_ROLE}" \
-        "./vault/setup/bootstrap.sh && export VAULT_TOKEN=<admin-token>"
+        "./infra/vault/scripts/bootstrap.sh && export VAULT_TOKEN=<admin-token>"
     fi
   else
     add_check "vault-bootstrap" "fail" "no VAULT_TOKEN and no pre-exported wrap credentials" \
@@ -256,7 +256,8 @@ if [[ "${GO}" == true ]]; then
   echo "  export VAULT_TOKEN=<your-token>"
   echo "  export AGENT_SHARD_ID=0"
   echo "  export AKASH_PROVIDER=${EUROPLOTS_PROVIDER}"
-  echo "  ./scripts/deploy-to-akash.sh deploy deploy/deploy-swarm-monolith.yaml"
+  echo "  ./infra/vault/scripts/validate-secrets.sh --profile akash"
+  echo "  make deploy-akash-europlots"
   echo ""
   echo "Verify after deploy:"
   echo "  ./scripts/verify-akash-lease.sh"
