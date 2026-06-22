@@ -20,16 +20,26 @@ BACKEND=http://127.0.0.1:8080
 /api/integrations/marketing/health
 
 ## ENVIRONMENT (set before start)
+# Dry-run defaults (safe): REWARDS_DRY_RUN=1 IOT_HUB_DRY_RUN=1 MARKETING_DRY_RUN=1
+# Live mode: HELIX_GO_LIVE=1 ./scripts/production/go-live.sh
 IOT_NETWORK_ID=FWA_37KN9S-IoT
-IOT_HUB_DRY_RUN=0
-REWARDS_DRY_RUN=0
+IOT_HUB_DRY_RUN=1
+REWARDS_DRY_RUN=1
+MARKETING_DRY_RUN=1
 ALCHEMY_API_KEY=<rotated>
 VAULT_ADDR=https://vault.yieldswarm.io:8200
 VAULT_TOKEN=<your_token>
 BT_NETUID=1
 BT_NETWORK=finney
 AKASH_OWNER_ADDRESS=akash1YOUR_WALLET
-MARKETING_DRY_RUN=1
+
+## AZURE VMSS (production)
+AZURE_RESOURCE_GROUP=YieldSwarm
+AZURE_NSG_NAME=basicNsgvnet-centralus-nic01
+AZURE_LB_IP=4.249.252.26
+SWARM_PORTS=50000-50003
+BACKEND_PORT=8080
+TMUX_SESSION=yieldswarm-backend
 
 ## TREASURY & MINING ROOTS (config/TREASURY_MANIFEST.json)
 NEXUS_TREASURY_SOL=kuTcpVPbdC8oYB6gkT2s5tZKzsBsG1hHe7C9zhRpXSN
@@ -50,6 +60,12 @@ REVENUE_SPLIT=Great Delta 50/30/15/5
 9. Tesla/MEGAPOD    → services/rewards/megapod_node.py + docs/TESLA_FLEET_INTEGRATION.md
 
 ## QUICK COMMANDS
+./scripts/production/go-live.sh --dry-run
+HELIX_GO_LIVE=1 ./scripts/production/go-live.sh
+./scripts/azure/configure-swarm-nsg.sh
 ./scripts/rewards/sweep-rewards.sh --full
 ./scripts/iot-hub/register-devices.sh
 ./scripts/start-mining.sh
+
+## LIVE MODE DOC
+docs/HELIX_LIVE_MODE_BLUEPRINT.md

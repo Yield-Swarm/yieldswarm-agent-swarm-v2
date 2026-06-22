@@ -103,6 +103,16 @@ deploy-akash-europlots:
 akash-bittensor:
 	bash scripts/deploy-production.sh akash-bittensor
 
+## go-live: disengage dry-run + full rewards sweep (requires HELIX_GO_LIVE=1)
+go-live:
+	bash scripts/production/go-live.sh
+
+go-live-plan:
+	bash scripts/production/go-live.sh --dry-run
+
+azure-swarm-nsg:
+	bash scripts/azure/configure-swarm-nsg.sh
+
 ## akash-odysseus: deploy Odysseus GPU worker with Vault SDL
 akash-odysseus:
 	bash scripts/deploy-production.sh akash-odysseus
