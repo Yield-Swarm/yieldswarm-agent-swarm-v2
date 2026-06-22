@@ -1,6 +1,8 @@
 # Environment Variables Catalog — YieldSwarm AgentSwarm OS v2.0
 
 > As of June 2026 · **Names only** — never commit values.  
+> **Production launch template:** `deploy/env/launch-production.env.example`  
+> **Launch commands (Azure / PowerShell / Termux):** `docs/LAUNCH_PLAYBOOK.md`  
 > **Layered template:** `deploy/env/layered.env.example`  
 > **Deploy order:** `docs/DEPLOYMENT_PRIORITY.md`  
 > **Vault injection:** `docs/VAULT_ENV_INJECTION.md`  
@@ -278,11 +280,29 @@ See `docs/COUNCIL_WISHLIST.md` for enable steps.
 
 ---
 
+## 14. Swarm elevators + high-traffic tuning
+
+| Variable | Purpose |
+|----------|---------|
+| `SWARM_API_KEY_PRIMARY` | 14 book-root elevator auth + Elisazos swarm |
+| `SWARM_API_KEY_BACKEND` | Secondary P2P / router gateway |
+| `NEURAL_MESH_WORKERS` | Parallel elevator lanes (default `14`) |
+| `NEXT_PUBLIC_AKASH_GATEWAY` | Public API edge (`gateway.yieldswarm.crypto`) |
+| `AKASH_WORKER_URLS` | Comma-separated lease origins (CF failover) |
+| `RATE_LIMIT_RPM` | Backend requests/min per client (spike: `300`–`600`) |
+| `TELEMETRY_CACHE_TTL_MS` | Cache window for dashboard polls (default `15000`, spike: `30000`) |
+| `YIELDSWARM_SYNC_AKASH_WORKERS` | Auto-probe leases into router |
+| `NETWORK_LOCKDOWN_MODE` | Restrict risky endpoints in production |
+
+Vault path for swarm keys: `yieldswarm/runtime/swarm`. See `docs/LAUNCH_PLAYBOOK.md`.
+
+---
+
 ## How to load secrets safely
 
 ```bash
-# 1. Fill a local .env (gitignored) — use placeholders from .env.example
-cp .env.example .env
+# 1. Production launch template (recommended for traffic events)
+cp deploy/env/launch-production.env.example .env
 
 # 2. Seed Vault (never commit .env)
 export VAULT_ADDR=... VAULT_TOKEN=...
@@ -295,4 +315,4 @@ vault_export_env kv/data/yieldswarm/runtime/llm
 ```
 
 **Total tracked variables:** ~180 across all sections above.  
-**Spin-up runbook:** `PRODUCTION_SPINUP.md`
+**Spin-up runbook:** `PRODUCTION_SPINUP.md` · **Launch playbook:** `docs/LAUNCH_PLAYBOOK.md`

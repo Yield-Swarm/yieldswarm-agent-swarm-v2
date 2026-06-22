@@ -28,6 +28,8 @@
     "swarm:elevators:status": "bash launch_swarm_elevators.sh status",
     "mining:start": "bash scripts/start-mining.sh",
     "mining:preflight": "bash scripts/start-mining.sh preflight",
+    "launch:preflight": "bash scripts/launch-preflight.sh",
+    "launch:env-init": "cp -n deploy/env/launch-production.env.example .env && cp -n deploy/akash.env.example deploy/akash.env && echo 'Edit .env and deploy/akash.env — see docs/LAUNCH_PLAYBOOK.md'",
     "domains:verify-ud": "bash scripts/domains/verify-ud-records.sh",
     "domains:wire": "bash scripts/wire-production-domains.sh"
   },

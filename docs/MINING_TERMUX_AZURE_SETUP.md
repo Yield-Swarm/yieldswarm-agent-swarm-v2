@@ -1,5 +1,8 @@
 # Mining on Termux & Azure Cloud Shell
 
+> **Full production launch (env + traffic + all platforms):** [`docs/LAUNCH_PLAYBOOK.md`](LAUNCH_PLAYBOOK.md)  
+> **Production `.env` template:** `deploy/env/launch-production.env.example`
+
 Operator guide after cloning `yieldswarm-agent-swarm-v2`. **Do not `nano`-create SDL or deploy scripts** — they already exist in the repo.
 
 ## Fix Azure double-`~` path
@@ -33,8 +36,8 @@ Expected: all three paths exist.
 
 ```bash
 cd ~/yieldswarm-agent-swarm-v2
+cp deploy/env/launch-production.env.example .env
 cp deploy/akash.env.example deploy/akash.env
-cp .env.example .env
 ```
 
 Edit `deploy/akash.env` (minimum):
