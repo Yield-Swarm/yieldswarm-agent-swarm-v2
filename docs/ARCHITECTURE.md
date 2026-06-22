@@ -2,7 +2,9 @@
 
 High-level system architecture for **YieldSwarm AgentSwarm OS v2** — Helix Chain, 35-layer neural mesh, and 17-domain edge.
 
-**Canonical diagram:** [`SINGLE_PANE_OF_GLASS.md`](../SINGLE_PANE_OF_GLASS.md) (v2.0)
+**Canonical diagrams:**
+- [`docs/ARCHITECTURE_FULL.md`](ARCHITECTURE_FULL.md) — **YieldSwarm + Kairo unified** (Helix DNA v2.1, status table, deployment view)
+- [`SINGLE_PANE_OF_GLASS.md`](../SINGLE_PANE_OF_GLASS.md) (v2.1 tri-solenoid + RPC mesh)
 
 ---
 

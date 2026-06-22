@@ -88,6 +88,7 @@ __pycache__/
 .run/
 /run/secrets/
 # Runtime state
+ecosystem-forks/
 # Secrets & deploy config (never commit real values)
 *.swp
 **/.terraform/

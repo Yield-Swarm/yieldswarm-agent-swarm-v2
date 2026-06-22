@@ -182,6 +182,7 @@ See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo su
 
 | Doc | Purpose |
 |-----|---------|
+| `docs/ARCHITECTURE_FULL.md` | **Canonical** YieldSwarm + Kairo stack (v2.1) |
 | `SINGLE_PANE_OF_GLASS.md` | Helix + tri-solenoid + RPC mesh (Mermaid) |
 | `docs/RPC_ALCHEMY_STUDY.md` | 164-network Alchemy RPC study |
 | `docs/TRI_SOLENOID_ARCHITECTURE.md` | Nexus · Helix · Shadow solenoids |

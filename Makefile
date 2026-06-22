@@ -37,6 +37,7 @@ A := deploy/akash
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
         deploy-production-full wire-domains \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
+        fork-ecosystem-sdks \
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         zk-trusted-setup zk-mutation-cycle \
         tfc-setup tfc-init tfc-apply tfc-deploy-all \
@@ -148,6 +149,14 @@ vault-bootstrap:
 ## seed-vault: seed KV from operator environment
 seed-vault:
 	bash vault/scripts/seed-secrets.sh
+
+## fork-ecosystem-sdks: clone/patch upstream SDK repos into ecosystem-forks/
+fork-ecosystem-sdks:
+	bash scripts/devops/fork_ecosystem_sdks.sh
+
+## fork-ecosystem-sdks-plan: dry-run SDK fork engine
+fork-ecosystem-sdks-plan:
+	bash scripts/devops/fork_ecosystem_sdks.sh --dry-run
 
 ## azure-apply: apply root terraform/ (Azure Container Apps)
 azure-apply:
