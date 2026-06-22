@@ -27,6 +27,7 @@ SKIP_DOMAINS=0
 SKIP_WIRE=0
 SKIP_BOOTSTRAP=0
 DEPLOY_TERRAFORM_GPU=0
+CONFIGURE_AUTOSCALE=0
 
 log()  { printf '[deploy-fleet] %s\n' "$*"; }
 warn() { printf '[deploy-fleet][warn] %s\n' "$*" >&2; }
@@ -182,6 +183,14 @@ bootstrap_fleet() {
   fi
 }
 
+configure_autoscale() {
+  if [[ "${CONFIGURE_AUTOSCALE}" != "1" ]]; then
+    return 0
+  fi
+  step "Configuring VMSS autoscale (predictive + metric rules)"
+  run "${SCRIPT_DIR}/configure-vmss-autoscale.sh" --env "${ENV_FILE}"
+}
+
 print_summary() {
   step "Deployment summary"
   cat <<EOF
@@ -213,6 +222,7 @@ while [[ $# -gt 0 ]]; do
     --skip-domains) SKIP_DOMAINS=1; shift ;;
     --skip-wire) SKIP_WIRE=1; shift ;;
     --skip-bootstrap) SKIP_BOOTSTRAP=1; shift ;;
+    --autoscale) CONFIGURE_AUTOSCALE=1; shift ;;
     -h|--help) usage ;;
     *) die "unknown arg: $1" ;;
   esac
@@ -229,6 +239,7 @@ main() {
   scale_or_create_gpu_vmss
   wire_and_domains
   bootstrap_fleet
+  configure_autoscale
   print_summary
   log "deploy-vmss-fleet complete"
 }

@@ -31,6 +31,19 @@ cp deploy/azure-mainnet.env.example deploy/azure-mainnet.env
 | `--skip-bootstrap` | Skip SSH remote install |
 | `--skip-wire` | Skip LB/NSG wiring |
 | `--skip-domains` | Skip Front Door domain binding |
+| `--autoscale` | Configure predictive + metric autoscale after deploy |
+
+## Autoscale (predictive + reactive)
+
+```bash
+# Standalone autoscale configuration
+./scripts/azure/configure-vmss-autoscale.sh --env deploy/azure-mainnet.env
+
+# Or combined with fleet deploy
+./scripts/azure/deploy-vmss-fleet.sh --env deploy/azure-mainnet.env --autoscale
+```
+
+See `docs/AZURE_VMSS_AUTOSCALE.md` for thresholds, OldestVM scale-in, GPU custom metrics.
 
 ## SSH into every instance
 

@@ -24,6 +24,7 @@
     "deploy:azure:wire": "bash scripts/wire_infrastructure.sh",
     "deploy:azure:domains": "bash scripts/azure/provision-custom-domains.sh",
     "deploy:azure:fleet": "bash scripts/azure/deploy-vmss-fleet.sh",
+    "deploy:azure:autoscale": "bash scripts/azure/configure-vmss-autoscale.sh",
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
