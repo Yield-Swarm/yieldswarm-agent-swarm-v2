@@ -92,3 +92,15 @@ MINING_DRY_RUN=0
 ```
 
 See `BITTENSOR.md` and `deploy/akash-bittensor-miner.sdl.yml`.
+
+## Termux / Android
+
+Native Node modules (Matrix crypto, Vite toolchains) fail on raw Termux (`Unsupported OS: android`).
+Use **PRoot Ubuntu** or the mining-only path:
+
+```bash
+bash scripts/termux/proot-bootstrap.sh   # one-time
+bash scripts/termux/mining-only.sh       # Akash/Python only, no Node build
+```
+
+Full guide: [`docs/TERMUX_PROOT_BUILD.md`](TERMUX_PROOT_BUILD.md).

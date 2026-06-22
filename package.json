@@ -23,7 +23,10 @@
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
-    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "termux:proot-bootstrap": "bash scripts/termux/proot-bootstrap.sh",
+    "termux:build": "bash scripts/termux/build-workspace.sh",
+    "termux:mining": "bash scripts/termux/mining-only.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
