@@ -2,6 +2,8 @@
 
 Single operator guide for cloning, env setup, Vault seed, Akash mining, swarm elevators, and edge scaling before a traffic spike.
 
+**Full-stack architecture:** [`docs/ARCHITECTURE_FULL.md`](ARCHITECTURE_FULL.md) (Helix DNA v2.1 — canonical diagram + layer status)
+
 **Env template:** `deploy/env/launch-production.env.example`  
 **Mining detail:** `docs/MINING_TERMUX_AZURE_SETUP.md`  
 **Vault paths:** `docs/ENV_VARS.md` · `vault/scripts/seed-secrets.sh`

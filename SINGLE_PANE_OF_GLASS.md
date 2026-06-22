@@ -2,7 +2,9 @@
 
 Canonical architecture visual: **Helix Chain + 35-Layer Neural Mesh + Tri-Solenoid + RPC Mesh + 17 Domains**.
 
-See also: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (investor view) · [`docs/HELIX_SINGLE_PANE.md`](docs/HELIX_SINGLE_PANE.md) (layer detail) · [`docs/RPC_ALCHEMY_STUDY.md`](docs/RPC_ALCHEMY_STUDY.md) (164-network RPC study) · [`docs/TRI_SOLENOID_ARCHITECTURE.md`](docs/TRI_SOLENOID_ARCHITECTURE.md).
+**Full-stack canonical (Helix DNA v2.1):** [`docs/ARCHITECTURE_FULL.md`](docs/ARCHITECTURE_FULL.md) — unified YieldSwarm + Kairo diagram, layer status, six data flows, deployment topology, investor view.
+
+See also: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/HELIX_SINGLE_PANE.md`](docs/HELIX_SINGLE_PANE.md) (layer detail) · [`docs/RPC_ALCHEMY_STUDY.md`](docs/RPC_ALCHEMY_STUDY.md) (164-network RPC study) · [`docs/TRI_SOLENOID_ARCHITECTURE.md`](docs/TRI_SOLENOID_ARCHITECTURE.md).
 
 ---
 
