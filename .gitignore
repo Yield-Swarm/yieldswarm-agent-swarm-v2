@@ -116,4 +116,4 @@ yarn-error.log*
 deploy/akash.env
 bin/
 lib/forge-std/
-deploy/collab/.env.collab
+deploy/collab/env.collab
