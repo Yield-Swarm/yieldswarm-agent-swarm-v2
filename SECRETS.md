@@ -498,10 +498,94 @@ mention (deny by default).
 
 ---
 
+## Appendix B — Quick deploy sequence (Vault → Terraform → Akash)
+
+Run from the **repo root** on a trusted operator workstation. Paths under
+`infra/vault/scripts/` are thin wrappers around `vault/scripts/` so older
+runbooks and newer docs stay aligned.
+
+```bash
+export VAULT_ADDR=https://vault.yieldswarm.internal:8200
+export VAULT_TOKEN=<your-admin-token>
+
+cd yieldswarm-agent-swarm-v2   # or your clone path
+
+# 1. Bootstrap engines, policies, AppRoles (idempotent)
+./infra/vault/scripts/bootstrap.sh
+
+# 2. Write real secrets (examples — replace placeholders)
+# Akash deploy wallet (critical). Any of these layouts work; flat path
+# matches legacy operator notes; runtime/akash is what seed-secrets writes.
+vault kv put yieldswarm/akash \
+  auth_method="jwt" \
+  key_name="yieldswarm-admin" \
+  keyring_backend="test" \
+  wallet_mnemonic="word1 word2 ... word24" \
+  account_address="akash1..." \
+  rpc_endpoint="https://rpc.akash.network:443" \
+  chain_id="akashnet-2" \
+  gas_prices="0.025uakt"
+
+# Cloud providers (Terraform reads yieldswarm/cloud/*)
+vault kv put yieldswarm/cloud/azure \
+  client_id="..." client_secret="..." tenant_id="..." subscription_id="..."
+vault kv put yieldswarm/cloud/runpod api_key="..."
+vault kv put yieldswarm/cloud/vultr api_key="..." ssh_public_key="..."
+vault kv put yieldswarm/cloud/digitalocean token="..." ssh_public_key="..."
+
+# RPC + integrations
+vault kv put yieldswarm/rpc/solana http_url="..." ws_url="..."
+vault kv put yieldswarm/rpc/helius api_key="..."
+vault kv put yieldswarm/integrations/alchemy \
+  api_key="..." app_name="Christopher's First App"
+
+# Bittensor miner (when deploying akash-bittensor SDL)
+vault kv put yieldswarm/runtime/bittensor \
+  wallet_name="default" hotkey_name="default" netuid="1" network="finney"
+
+# Or seed everything from operator .env in one shot:
+# ./vault/scripts/seed-secrets.sh
+
+# 3. Validate before plan/deploy
+./infra/vault/scripts/validate-secrets.sh
+# Profiles: --profile terraform | akash | full
+
+# 4. Terraform (AppRole login)
+export TF_VAR_vault_address="${VAULT_ADDR}"
+export TF_VAR_vault_approle_role_id=$(vault read -field=role_id auth/approle/role/terraform/role-id)
+export TF_VAR_vault_approle_secret_id=$(vault write -f -field=secret_id auth/approle/role/terraform/secret-id)
+cd terraform && terraform init && terraform plan
+
+# 5. Akash live deploy (europlots preferred)
+cd ..   # back to repo root
+export AGENT_SHARD_ID=0
+export BT_NETUID=1
+make akash-preflight          # must return GO
+make deploy-akash-europlots   # create → bids → lease → manifest + Vault injection
+make akash-verify
+source .run/akash-lease.env
+```
+
+| Step | Makefile / script | Exit criterion |
+| ---- | ----------------- | -------------- |
+| Bootstrap | `./infra/vault/scripts/bootstrap.sh` | AppRoles `terraform`, `akash-runtime` exist |
+| Seed | `vault kv put …` or `./vault/scripts/seed-secrets.sh` | No `CHANGEME` placeholders |
+| Validate | `./infra/vault/scripts/validate-secrets.sh` | `RESULT: PASS` |
+| Preflight | `make akash-preflight` | `RESULT: GO` |
+| Deploy | `make deploy-akash-europlots` | Lease + manifest accepted |
+| Verify | `make akash-verify` | HTTP health on lease URI |
+
+---
+
 ## Appendix A — files in this repo
 
 ```
 SECRETS.md                                ← this file
+infra/
+  vault/
+    scripts/
+      bootstrap.sh                        ← wrapper → vault/scripts/bootstrap.sh
+      validate-secrets.sh                 ← wrapper → vault/scripts/validate-secrets.sh
 vault/
   README.md
   policies/
@@ -510,6 +594,11 @@ vault/
     terraform.hcl
     akash-runtime.hcl
     agent-runtime.hcl
+  scripts/
+    bootstrap.sh
+    validate-secrets.sh
+    seed-secrets.sh
+    issue-secret-id.sh
   setup/
     bootstrap.sh
     01-init.sh

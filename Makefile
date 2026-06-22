@@ -20,7 +20,7 @@ endif
 S := deploy/scripts
 A := deploy/akash
 
-.PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault \
+.PHONY: help deploy all preflight vault-check vault-bootstrap vault-validate-secrets seed-vault \
         akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend start-mining bootstrap-mining \
         login build build-ghcr push images \
@@ -80,6 +80,13 @@ preflight:
 vault-check:
 	@test -n "$$VAULT_ADDR" || (echo "VAULT_ADDR unset" && exit 1)
 	@vault status >/dev/null && echo "  ok   vault reachable"
+
+## vault-validate-secrets: verify KV paths before Terraform / Akash deploy
+vault-validate-secrets:
+	bash infra/vault/scripts/validate-secrets.sh
+
+## validate-secrets: alias for vault-validate-secrets
+validate-secrets: vault-validate-secrets
 
 ## akash-deploy-vault: production Akash deploy with Vault runtime injection
 akash-deploy-vault:
