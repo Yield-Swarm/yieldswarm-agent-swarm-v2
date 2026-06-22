@@ -118,7 +118,10 @@ To mine **with** us (same subnet, shared infra docs): mirror the SDL, point emis
 ```bash
 python3 services/nexus/cli.py status
 ./scripts/activate-helix.sh
+# or unified: npm run run-all-onchain
 ```
+
+Launch manifest (all npm entrypoints): [`docs/LAUNCH_MANIFEST.md`](docs/LAUNCH_MANIFEST.md)
 
 ## Core AI Workspace
 Odysseus is integrated as the central self-hosted YieldSwarm workspace and

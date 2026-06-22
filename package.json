@@ -24,6 +24,11 @@
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
     "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "run-all-onchain": "bash scripts/run-all-onchain.sh",
+    "prod": "npm run build:all && npm start",
+    "prod:backend": "cd backend && npm start",
+    "prod:helix": "bash scripts/activate-helix.sh",
+    "prod:mining": "bash scripts/mining/start-all.sh",
     "cherry:export-specs": "bash scripts/cherry-servers/export-cloud-specs.sh --load-vault"
   },
   "dependencies": {
