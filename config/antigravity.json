@@ -1,0 +1,17 @@
+{
+  "runtime": "google-antigravity",
+  "sdk_source": "pypi",
+  "min_version": "0.1.4",
+  "handler": "services/intelligence/antigravity_core.py",
+  "auth": {
+    "gemini_api_key_env": "GEMINI_API_KEY",
+    "vertex_env_flag": "ANTIGRAVITY_VERTEX",
+    "gcp_project_env": "GOOGLE_CLOUD_PROJECT",
+    "gcp_location_env": "GOOGLE_CLOUD_LOCATION"
+  },
+  "safety": {
+    "block_destructive_shell": true,
+    "auto_approve_env": "ANTIGRAVITY_AUTO_APPROVE"
+  },
+  "migrated_at": "2026-06-22T03:55:56Z"
+}

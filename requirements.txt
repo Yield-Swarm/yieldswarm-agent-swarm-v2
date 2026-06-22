@@ -2,3 +2,6 @@ chromadb
 cryptography>=42.0.0
 pycryptodome>=3.20.0
 psycopg[binary]>=3.2.0
+# Sovereign agent runtime (official Google Antigravity SDK)
+google-antigravity>=0.1.4
+protobuf>=4.25,<7
