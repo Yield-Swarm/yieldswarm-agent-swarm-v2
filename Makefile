@@ -40,7 +40,8 @@ A := deploy/akash
         zk-trusted-setup zk-mutation-cycle \
         tfc-setup tfc-init tfc-apply tfc-deploy-all \
         status logs clean production rust-core rust-core-test \
-        collab-code-server collab-tunnel
+        collab-code-server collab-tunnel \
+        runpod-inference
 
 ## rust-core: build Phase 1 Swarm OS Rust engine
 rust-core:

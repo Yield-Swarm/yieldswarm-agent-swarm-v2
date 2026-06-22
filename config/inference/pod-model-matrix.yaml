@@ -1,0 +1,21 @@
+# Per-pod inference roles — edit INFERENCE_MODEL on each RunPod worker
+pods:
+  thick_salmon_goat:
+    gpu: H100-SXM
+    host: io3xh1krei03ju-644120be
+    model: qwen2.5-coder:32b
+    ollama_port: 11434
+  single_amber_peafowl:
+    gpu: H200-SXM
+    host: zaql79zvnqyhjp-644120be
+    model: llama3.3:70b
+    ollama_port: 11434
+  outdoor_tomato_impala:
+    gpu: B200
+    host: q8omsww6hmu78k-644120be
+    model: deepseek-r1:32b
+    ollama_port: 11434
+
+defaults:
+  bind: 127.0.0.1
+  log_dir: ~/yieldswarm-logs
