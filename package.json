@@ -24,6 +24,8 @@
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
     "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "swarm:elevators": "bash launch_swarm_elevators.sh",
+    "swarm:elevators:status": "bash launch_swarm_elevators.sh status",
     "domains:verify-ud": "bash scripts/domains/verify-ud-records.sh",
     "domains:wire": "bash scripts/wire-production-domains.sh"
   },

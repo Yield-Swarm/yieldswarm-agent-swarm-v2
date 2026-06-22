@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "description": "14 structural book roots for swarm elevator mounting",
+  "roots": [
+    {"id": 1, "key": "root_01_genesis", "pillar": 1, "pillar_key": "ingress", "state_dir": "data/book_roots/root_01_genesis"},
+    {"id": 2, "key": "root_02_ledger", "pillar": 2, "pillar_key": "tee_verify", "state_dir": "data/book_roots/root_02_ledger"},
+    {"id": 3, "key": "root_03_consensus", "pillar": 3, "pillar_key": "horizons", "state_dir": "data/book_roots/root_03_consensus"},
+    {"id": 4, "key": "root_04_telemetry", "pillar": 4, "pillar_key": "precessional_oracle", "state_dir": "data/book_roots/root_04_telemetry"},
+    {"id": 5, "key": "root_05_state", "pillar": 5, "pillar_key": "agent_index", "state_dir": "data/book_roots/root_05_state"},
+    {"id": 6, "key": "root_06_networking", "pillar": 6, "pillar_key": "depin_synth", "state_dir": "data/book_roots/root_06_networking"},
+    {"id": 7, "key": "root_07_validation", "pillar": 7, "pillar_key": "tesla_fleet", "state_dir": "data/book_roots/root_07_validation"},
+    {"id": 8, "key": "root_08_memepool", "pillar": 8, "pillar_key": "vault_inject", "state_dir": "data/book_roots/root_08_memepool"},
+    {"id": 9, "key": "root_09_execution", "pillar": 9, "pillar_key": "akash_lease", "state_dir": "data/book_roots/root_09_execution"},
+    {"id": 10, "key": "root_10_witness", "pillar": 10, "pillar_key": "solenoid_anchor", "state_dir": "data/book_roots/root_10_witness"},
+    {"id": 11, "key": "root_11_crypt", "pillar": 11, "pillar_key": "renaissance", "state_dir": "data/book_roots/root_11_crypt"},
+    {"id": 12, "key": "root_12_solenoid", "pillar": 12, "pillar_key": "great_delta", "state_dir": "data/book_roots/root_12_solenoid"},
+    {"id": 13, "key": "root_13_mandelor", "pillar": 13, "pillar_key": "sovereign_loop", "state_dir": "data/book_roots/root_13_mandelor"},
+    {"id": 14, "key": "root_14_mainnet", "pillar": 14, "pillar_key": "omni_apex", "state_dir": "data/book_roots/root_14_mainnet"}
+  ]
+}

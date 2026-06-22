@@ -127,6 +127,10 @@ put_if_set rpc/ton \
 put_if_set rpc/bittensor \
   staking_key=NG64_BITTENSOR_NODE_STAKING_KEY
 
+put_if_set runtime/swarm \
+  api_key_primary=SWARM_API_KEY_PRIMARY \
+  api_key_backend=SWARM_API_KEY_BACKEND
+
 # ---- Runtime secrets (consumed only by the Akash workload via vault-agent) ----
 put_if_set runtime/core \
   agentswarm_master_key=AGENTSWARM_MASTER_KEY \
