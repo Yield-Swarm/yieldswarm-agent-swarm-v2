@@ -40,8 +40,33 @@ REPORT_DATE="$(date -u +%Y-%m-%d)"
 
 log() { printf '[cherry-specs] %s\n' "$*" >&2; }
 
+if ! command -v jq >/dev/null 2>&1; then
+  log "ERROR: jq is required. Install: apt install jq / brew install jq"
+  exit 1
+fi
+
 # shellcheck disable=SC1091
 [[ -f "${REPO_ROOT}/.env" ]] && set -a && source "${REPO_ROOT}/.env" && set +a
+
+azure_vm_size_info() {
+  local location="$1"
+  local size="$2"
+  local info
+  info="$(az vm size list --location "${location}" --query "[?name=='${size}']" -o json 2>/dev/null | jq '.[0] // {}')"
+  if [[ "${info}" == "{}" ]]; then
+    info="$(az vm list-sizes --location "${location}" --query "[?name=='${size}']" -o json 2>/dev/null | jq '.[0] // {}')"
+  fi
+  echo "${info}"
+}
+
+gcp_short_zone() {
+  local zone="$1"
+  if [[ "${zone}" == *"/"* ]]; then
+    echo "${zone##*/}"
+  else
+    echo "${zone}"
+  fi
+}
 
 load_vault_cloud() {
   command -v vault >/dev/null 2>&1 || { log "vault CLI not found — skip --load-vault"; return 0; }
@@ -100,7 +125,7 @@ if command -v az >/dev/null 2>&1; then
     detail="$(az vm show -g "$rg" -n "$vm_name" -o json 2>/dev/null || echo '{}')"
     view="$(az vm get-instance-view -g "$rg" -n "$vm_name" -o json 2>/dev/null || echo '{}')"
     size="$(echo "$detail" | jq -r '.hardwareProfile.vmSize // "unknown"')"
-    size_info="$(az vm list-sizes --location "$(echo "$detail" | jq -r '.location')" --query "[?name=='${size}']" -o json 2>/dev/null | jq '.[0] // {}')"
+    size_info="$(azure_vm_size_info "$(echo "$detail" | jq -r '.location')" "${size}")"
     vm_id="$(echo "$detail" | jq -r '.id')"
     cpu_metric='null'
     mem_metric='null'
@@ -162,8 +187,9 @@ if command -v gcloud >/dev/null 2>&1; then
     log "Collecting GCP inventory (project=${PROJECT})..."
     INSTANCES="$(gcloud compute instances list --project="$PROJECT" --format=json 2>/dev/null || echo '[]')"
     GCP_ENRICHED='[]'
-    while IFS=$'\t' read -r name zone; do
+    while IFS=$'\t' read -r name zone_raw; do
       [[ -z "$name" ]] && continue
+      zone="$(gcp_short_zone "$zone_raw")"
       detail="$(gcloud compute instances describe "$name" --zone="$zone" --project="$PROJECT" --format=json 2>/dev/null || echo '{}')"
       machine_type="$(echo "$detail" | jq -r '.machineType | split("/") | last')"
       mt_detail="$(gcloud compute machine-types describe "$machine_type" --zone="$zone" --project="$PROJECT" --format=json 2>/dev/null || echo '{}')"
@@ -227,7 +253,8 @@ if [[ -n "${RUNPOD_API_KEY:-}" ]]; then
     -d "$(jq -nc --arg q "$RP_QUERY" '{query: $q}')" 2>/dev/null || echo '{}')"
 
   RUNPOD_JSON="$(echo "${RP_RESP}" | jq --arg start "$START_ISO" --arg end "$END_ISO" '{
-    status: (if .data then "ok" else "error" end),
+    status: (if .data then "ok" elif .errors then "error" else "error" end),
+    errors: (.errors // []),
     window: {start: $start, end: $end},
     gpu_types: (.data.gpuTypes // []),
     pods: (.data.myself.pods // [] | map({
@@ -244,6 +271,13 @@ else
   log "RunPod: skipped (export RUNPOD_API_KEY or use --load-vault)"
 fi
 
+# --- Local host (sys_profile.py) ---------------------------------------------
+LOCAL_JSON='{"status":"skipped","reason":"sys_profile.py not run"}'
+if command -v python3 >/dev/null 2>&1 && [[ -f "${REPO_ROOT}/scripts/telemetry/sys_profile.py" ]]; then
+  log "Collecting local host profile..."
+  LOCAL_JSON="$(python3 "${REPO_ROOT}/scripts/telemetry/sys_profile.py" --json 2>/dev/null || echo '{"status":"error","reason":"sys_profile.py failed"}')"
+fi
+
 # --- Assemble report ---------------------------------------------------------
 FULL_JSON="$(jq -nc \
   --arg generated_at "$END_ISO" \
@@ -252,12 +286,14 @@ FULL_JSON="$(jq -nc \
   --argjson azure "$AZURE_JSON" \
   --argjson gcp "$GCP_JSON" \
   --argjson runpod "$RUNPOD_JSON" \
+  --argjson local_host "$LOCAL_JSON" \
   '{
     report_title: "YieldSwarm Multi-Cloud VM/GPU Specification Export",
     recipient: $recipient,
     generated_at_utc: $generated_at,
     report_date: $report_date,
     purpose: "Free cloud credits justification — CPU/RAM/storage/GPU inventory + 30d usage where available",
+    local_host: $local_host,
     azure: $azure,
     gcp: $gcp,
     runpod: $runpod
@@ -279,6 +315,11 @@ fi
   echo "**Window:** last ${DAYS} days (${START_ISO} → ${END_ISO})"
   echo ""
   echo "---"
+  echo ""
+  echo "## Local Host (this machine)"
+  echo '```json'
+  echo "${FULL_JSON}" | jq '.local_host'
+  echo '```'
   echo ""
   echo "## Azure"
   echo '```json'

@@ -24,7 +24,9 @@
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
     "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
-    "cherry:export-specs": "bash scripts/cherry-servers/export-cloud-specs.sh --load-vault"
+    "cherry:profile": "python3 scripts/telemetry/sys_profile.py",
+    "cherry:export-specs": "bash scripts/cherry-servers/export-cloud-specs.sh --load-vault",
+    "cherry:collect-all": "bash scripts/cherry-servers/collect-all.sh --load-vault"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

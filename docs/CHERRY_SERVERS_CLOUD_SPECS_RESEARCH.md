@@ -8,13 +8,37 @@
 ```bash
 export VAULT_ADDR=https://vault.yieldswarm.io:8200
 export VAULT_TOKEN=<short-lived-operator-token>
+
+# Local host only (run on each VM: Azure, GCP, RunPod, Haji):
+python3 scripts/telemetry/sys_profile.py
+
+# Cloud API inventory (from a machine with az/gcloud/RUNPOD_API_KEY):
 ./scripts/cherry-servers/export-cloud-specs.sh --load-vault
+
+# Full packet (local host + cloud APIs):
+./scripts/cherry-servers/collect-all.sh --load-vault
 ```
 
 Outputs:
 
-- `.run/cherry-servers-cloud-specs.json` — machine-readable
+- `.run/cherry-servers-cloud-specs.json` — machine-readable cloud inventory
 - `.run/cherry-servers-cloud-specs.md` — presentation summary
+- `.run/cherry-servers-local-host.json` / `.md` — local host telemetry
+- `.run/cherry-servers-full-packet.json` / `.md` — merged packet for Cherry Servers
+
+### Git checkout blocked by `package.json` (Termux / PR #55)
+
+If `gh pr checkout 55` fails because of local `package.json` edits:
+
+```bash
+git stash
+gh pr checkout 55
+# optional restore: git stash pop
+```
+
+Or discard local edits: `git checkout -- package.json && gh pr checkout 55`
+
+Use branch `cursor/cherry-servers-cloud-specs-4f85` (latest) or `cursor/cherry-servers-cloud-specs-597f`.
 
 ---
 
