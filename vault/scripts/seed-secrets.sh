@@ -66,6 +66,14 @@ put_if_set providers/digitalocean \
   spaces_access_id=DIGITALOCEAN_SPACES_ACCESS_ID \
   spaces_secret_key=DIGITALOCEAN_SPACES_SECRET_KEY
 
+put_if_set cloud/cherry \
+  api_key=CHERRY_SERVERS_API_KEY \
+  team_id=CHERRY_TEAM_ID
+
+put_if_set providers/cherry \
+  api_key=CHERRY_SERVERS_API_KEY \
+  team_id=CHERRY_TEAM_ID
+
 # ---- RPC endpoints (consumed by both terraform/ and the Akash runtime) ----
 put_if_set rpc/solana \
   url=SOLANA_RPC_URL \

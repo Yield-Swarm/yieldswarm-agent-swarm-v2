@@ -18,7 +18,7 @@ class MultiCloudManager:
         self.dry_run = dry_run if dry_run is not None else os.environ.get("NEXUS_MULTICLOUD_DRY_RUN", "1") == "1"
 
     def list_providers(self) -> list[str]:
-        return ["akash", "azure", "vast", "runpod", "gcp", "aws", "alibaba"]
+        return ["akash", "azure", "vast", "runpod", "gcp", "aws", "alibaba", "cherry"]
 
     def launch(self, provider: str, workload: str = "gpu-worker") -> dict[str, Any]:
         script = MULTICLOUD_DIR / "launch-worker.sh"

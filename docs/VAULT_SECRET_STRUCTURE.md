@@ -126,6 +126,7 @@ Env vars: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_WEBHOOK_SIGNATURE
 | `gcp` | `project_id`, `credentials_json` |
 | `runpod` | `api_key` |
 | `vast` | `api_key` |
+| `cherry` | `api_key`, `team_id` |
 | `alibaba` | `access_key_id`, `access_key_secret` |
 
 ### Internal — `yieldswarm/internal/database` / `redis`

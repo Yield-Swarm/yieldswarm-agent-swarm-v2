@@ -15,6 +15,8 @@ PATHS: dict[str, str] = {
     "kairo": "runtime/kairo",
     "payments": "runtime/payments",
     "mining": "mining/wallets",
+    "cherry": "cloud/cherry",
+    "multicloud": "cloud/cherry,providers/azure,providers/runpod,providers/vultr",
 }
 
 # Vault key → environment variable (shared across paths; last write wins)
@@ -44,6 +46,7 @@ ENV_MAP: dict[str, str] = {
     "split_growth_bps": "SPLIT_GROWTH_BPS",
     "split_insurance_bps": "SPLIT_INSURANCE_BPS",
     "split_ops_bps": "SPLIT_OPS_BPS",
+    "team_id": "CHERRY_TEAM_ID",
     # Odysseus
     "api_key": "ODYSSEUS_API_KEY",
     "model_host": "ODYSSEUS_MODEL_HOST",
@@ -66,7 +69,10 @@ def _paths_for_profile(profile: str) -> list[str]:
     explicit = os.getenv("VAULT_SECRET_PATHS", "").strip()
     if explicit:
         return [p.strip() for p in explicit.split(",") if p.strip()]
-    return [PATHS.get(profile, profile)]
+    raw = PATHS.get(profile, profile)
+    if "," in raw:
+        return [p.strip() for p in raw.split(",") if p.strip()]
+    return [raw]
 
 
 def main() -> int:

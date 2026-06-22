@@ -71,7 +71,17 @@ Legacy paths (`akash/runtime`, `llm/*`) remain readable for backward compatibili
 # Checks: CLI, wallet >= 0.5 AKT, SDL placeholders, VAULT_TOKEN / wrap readiness
 ```
 
-### Automated (recommended)
+### Production mainnet (recommended)
+
+```bash
+export VAULT_ADDR=https://vault.yieldswarm.io:8200
+export VAULT_TOKEN=<ci-or-admin-token>
+./scripts/akash-mainnet-production.sh
+```
+
+See [`docs/VAULT_AKASH_MAINNET_PRODUCTION.md`](VAULT_AKASH_MAINNET_PRODUCTION.md) for Cherry Servers + Vault Agent pipeline.
+
+### Automated (Vault wrap only)
 
 ```bash
 export VAULT_ADDR=https://vault.yieldswarm.io:8200

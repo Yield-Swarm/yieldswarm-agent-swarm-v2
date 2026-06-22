@@ -40,6 +40,13 @@ path "yieldswarm/data/cloud/akash" {
   capabilities = ["read"]
 }
 
+path "yieldswarm/data/cloud/cherry" {
+  capabilities = ["read"]
+}
+path "yieldswarm/data/providers/cherry" {
+  capabilities = ["read"]
+}
+
 # RPC / chain provider creds (Helius, Birdeye, Solana, etc.)
 path "yieldswarm/data/rpc/+" {
   capabilities = ["read"]
@@ -58,6 +65,10 @@ path "yieldswarm/metadata/cloud/*" {
   capabilities = ["read", "list"]
 }
 path "yieldswarm/metadata/rpc/*" {
+  capabilities = ["read", "list"]
+}
+
+path "yieldswarm/metadata/providers/cherry" {
   capabilities = ["read", "list"]
 }
 
