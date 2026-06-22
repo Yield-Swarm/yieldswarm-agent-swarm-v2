@@ -95,6 +95,11 @@ export BT_NETWORK=finney
 ./vault/scripts/seed-secrets.sh          # yieldswarm/runtime/bittensor
 eval "$(./scripts/akash-vault-prepare.sh bittensor-runtime)"
 ./scripts/deploy-bittensor.sh
+
+# Or one-command (Azure Cloud Shell / Termux / laptop):
+cp deploy/akash.env.example deploy/akash.env   # first time
+./scripts/bootstrap-mining-shell.sh            # clone + mkdir + akash.env
+./scripts/start-mining.sh
 ```
 
 | Item | Value |
@@ -181,6 +186,8 @@ See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo su
 | `docs/RPC_ALCHEMY_STUDY.md` | 164-network Alchemy RPC study |
 | `docs/TRI_SOLENOID_ARCHITECTURE.md` | Nexus · Helix · Shadow solenoids |
 | `docs/MARKETING_VAULT_INTEGRATION.md` | Moltbook, Reddit, X, Email, Twilio + Vault |
+| `docs/ALCHEMY_CHRISTOPHERS_FIRST_APP.md` | Alchemy setup + Vault |
+| `docs/MINING_QUICKSTART_TERMUX.md` | Azure Cloud Shell + Termux mining bootstrap |
 | `docs/ARCHITECTURE.md` | Full + investor architecture diagrams |
 | `INTEGRATION_REPORT.md` | 16-prong status matrix |
 | `PRODUCTION_READINESS.md` | Final smoke tests + mainnet checklist |
