@@ -26,6 +26,8 @@
     "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
     "swarm:elevators": "bash launch_swarm_elevators.sh",
     "swarm:elevators:status": "bash launch_swarm_elevators.sh status",
+    "mining:start": "bash scripts/start-mining.sh",
+    "mining:preflight": "bash scripts/start-mining.sh preflight",
     "domains:verify-ud": "bash scripts/domains/verify-ud-records.sh",
     "domains:wire": "bash scripts/wire-production-domains.sh"
   },
