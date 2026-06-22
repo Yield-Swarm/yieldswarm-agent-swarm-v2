@@ -1,0 +1,29 @@
+{
+  "name": "@yieldswarm/ton-mmorpg-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "TON MMORPG authoritative server — PoE sync, on-chain timestamp reader",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "node --import tsx --test src/**/*.test.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@ton/core": "^0.62.0",
+    "@ton/ton": "^15.1.0",
+    "express": "^4.19.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

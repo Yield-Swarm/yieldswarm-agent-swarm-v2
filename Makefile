@@ -39,7 +39,8 @@ A := deploy/akash
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         zk-trusted-setup zk-mutation-cycle \
         tfc-setup tfc-init tfc-apply tfc-deploy-all \
-        status logs clean production rust-core rust-core-test
+        status logs clean production rust-core rust-core-test \
+        ton-mmorpg-server ton-mmorpg-test ton-mmorpg-client-typecheck
 
 ## rust-core: build Phase 1 Swarm OS Rust engine
 rust-core:
@@ -130,6 +131,18 @@ vercel:
 ## render: show Render blueprint instructions
 render:
 	bash scripts/deploy-production.sh render
+
+## ton-mmorpg-server: run authoritative game sync server (dev)
+ton-mmorpg-server:
+	cd ton-mmorpg/server && npm ci && npm run dev
+
+## ton-mmorpg-test: PoE engine + Δt clamp unit tests
+ton-mmorpg-test:
+	cd ton-mmorpg/server && npm ci && npm test
+
+## ton-mmorpg-client-typecheck: dashboard component types
+ton-mmorpg-client-typecheck:
+	cd ton-mmorpg/client && npm ci && npm run typecheck
 
 ## production: unified multi-platform entry (see scripts/deploy-production.sh)
 production:

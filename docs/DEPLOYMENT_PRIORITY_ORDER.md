@@ -38,7 +38,7 @@ This sequence minimizes risk and respects dependencies across 18 cloud providers
 
 | # | Component | Script / path | Depends on | Verify |
 |---|-----------|---------------|------------|--------|
-| 9 | **TON mini game + rewards** | `deploy/templates/ton-kairo/` | TON API, contract addresses | TON wallet connect |
+| 9 | **TON mini game + rewards** | `ton-mmorpg/` (server + contracts + client) | TON API, `PLAYER_SBT_ADDRESS`, Toncenter key | TonConnect + `docs/ARCHITECTURE.md` |
 | 10 | **Kairo driver system** | `kairo/`, `agents/mandelbrot_bot.py` | Identity store, Neon | `bash scripts/run-mandelbrot-bot.sh` |
 | 11 | **Mutating Agent NFTs** | `contracts/MutationController.sol` | ZK verifier deployed | `forge test --match-contract MutationController` |
 | 12 | **Arena + telemetry** | `frontend/src/routes/Arena.tsx`, `/api/arena/overview` | Integration backend :8080 | Arena Helix + ZK cards live |

@@ -1,0 +1,17 @@
+{
+  "name": "@yieldswarm/ton-mmorpg-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "blueprint build",
+    "test": "blueprint test",
+    "deploy": "blueprint run"
+  },
+  "devDependencies": {
+    "@ton/blueprint": "^0.28.0",
+    "@ton/sandbox": "^0.22.0",
+    "@ton/test-utils": "^0.4.2",
+    "@ton/core": "^0.59.0",
+    "@ton/ton": "^15.1.0"
+  }
+}
