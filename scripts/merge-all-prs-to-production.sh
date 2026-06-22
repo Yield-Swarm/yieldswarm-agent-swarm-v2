@@ -40,6 +40,11 @@ MERGE_BRANCHES=(
   cursor/final-deployment-orchestrator-9c82
   cursor/cross-chain-execution-9c82
   cursor/cloud-scheduler-30day-9c82
+  cursor/nexus-helix-shadow-vault-9c82
+  cursor/iot-hub-layer-9c82
+  cursor/solenoid-contracts-phase2-9c82
+  cursor/alchemy-christophers-first-app-9c82
+  cursor/docs-rpc-mining-pane-9c82
 )
 
 branch_exists() {
