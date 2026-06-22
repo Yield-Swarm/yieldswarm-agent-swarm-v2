@@ -27,6 +27,7 @@ A := deploy/akash
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
         frontend vercel render nexus-miner-neon-migrate nexus-miner-gateway nexus-miner-runpod-bootstrap \
+        scraper-discovery scraper-list-targets \
         monitoring-up monitoring-down sovereign-up sovereign-down \
         tesla-keys tesla-register \
         start-sovereign-consensus stop-sovereign-consensus restart-sovereign-consensus \
@@ -143,6 +144,20 @@ nexus-miner-gateway:
 ## nexus-miner-runpod-bootstrap: activate RunPod multi-mining worker (Pod 0/1)
 nexus-miner-runpod-bootstrap:
 	bash scripts/runpod/bootstrap-nexus-miner.sh
+
+## scraper-discovery: run DePIN manifest GitHub discovery (public metadata)
+scraper-discovery:
+	PYTHONPATH=. python3 -m scraper_engine run \
+	  --targets-file=manifests/scraper-discovery-manifest.txt \
+	  --output-bucket=yieldswarm-telemetry-singapore \
+	  --depth=3 \
+	  --include-issues=true \
+	  --include-prs=true \
+	  --filter-keywords="rate-limit,token-leak,access-bypass,telemetry-skew,oidc-validation"
+
+## scraper-list-targets: print manifest repo list
+scraper-list-targets:
+	PYTHONPATH=. python3 -m scraper_engine list
 
 ## production: unified multi-platform entry (see scripts/deploy-production.sh)
 production:

@@ -1,0 +1,64 @@
+===========================================================================================
+YIELDSWARM MULTI-MINING NODE AUTOMATED DATA SCRAPER DISCOVERY MANIFEST
+===========================================================================================
+TARGET KEY ENVIRONMENT PRESET:
+  - TARGET_ACCOUNT_CONTEXT: ethyswarm@proton.me
+  - NETWORK_ROUTING_TIER: Singapore (srv-d8sfuireo5us73efn3gg)
+  - BACKEND_DB_ENGINE: Neon Serverless Postgres SQL
+===========================================================================================
+
+-------------------------------------------------------------------------------------------
+CATEGORY 1: CORE DEPIN BLOCKCHAIN, REWARD COMPUTATION, & HARDWARE REPOSITORIES
+-------------------------------------------------------------------------------------------
+1.  https://github.com/ton-org/ton-core
+    - Description: Fundamental TVM data structures, cell manipulation primitives, and binary formats for processing rewards.
+2.  https://github.com/ton-blockchain/ton
+    - Description: Core node assembly implementation for parsing JSON-RPC node responses and checking synchronization clocks.
+3.  https://github.com/iotexproject/iotex-core
+    - Description: Main network state engine for validating DePIN hardware proof of consensus tracking logs.
+4.  https://github.com/iotexproject/w3bstream
+    - Description: The decentralized data ingestion hub mapping to your target 'apollo_nexus' device telemetry streams.
+5.  https://github.com/iotexproject/pebble-firmware
+    - Description: Hardware driver and diagnostic metrics scripts tracing metrics for the 'io_nexus_pebble_01' router.
+6.  https://github.com/helium/helium-program-library
+    - Description: Decentralized cellular layer configuration engines monitoring data credit and mobile network telemetry.
+
+-------------------------------------------------------------------------------------------
+CATEGORY 2: EDGE ORCHESTRATION, RUNPOD WORKERS, & DATA ROUTING REPOSITORIES
+-------------------------------------------------------------------------------------------
+7.  https://github.com/basetenlabs/openclaw-baseten
+    - Description: Target open-claw worker architecture configured inside high-density compute nodes Pod 0 & Pod 1.
+8.  https://github.com/vercel/ai
+    - Description: Native Vercel AI SDK codebase used to manage streaming completions, fallback proxies, and OIDC tokens.
+9.  https://github.com/expressjs/express
+    - Description: Lightweight edge web framework handling structural incoming JSON requests from miner sync pipelines.
+10. https://github.com/neondatabase/serverless
+    - Description: Serverless Postgres client framework driving atomic transaction insertions for profile state arrays.
+11. https://github.com/colinhacks/zod
+    - Description: Ingestion pipeline data validation model enforcing data safety rules over incoming system streams.
+12. https://github.com/luin/ioredis
+    - Description: Resilient data link interface providing high-throughput rate-limiting connections to the Redis cache.
+
+-------------------------------------------------------------------------------------------
+CATEGORY 3: DEPIN EXPLOIT DISCOVERY, THREAT MODELS, & BUG BOUNTY TARGET REPOSITORIES
+-------------------------------------------------------------------------------------------
+13. https://github.com/immunefi-team/forge-safe
+    - Description: Security framework utilities monitoring decentralized state changes, smart contracts, and access tokens.
+14. https://github.com/crytic/slither
+    - Description: Static analysis bug discovery engine used to uncover access validation flaws inside telemetry protocols.
+15. https://github.com/ethereum/solidity
+    - Description: Smart contract layout models useful for analyzing bridge flaws between HelixChain and Ethereum virtual machines.
+16. https://github.com/slowmist/DeFi-Vulnerabilities
+    - Description: Live security vulnerability library tracking edge logic bugs, price discrepancies, and permission bypasses.
+17. https://github.com/ton-blockchain/bug-bounty
+    - Description: Specific vulnerability tracking and scope blueprints mapping asset security profiles for TVM systems.
+18. https://github.com/spearbit/portfolio
+    - Description: Public audit portfolio logs outlining common architectural failure vectors inside decentralized systems.
+
+-------------------------------------------------------------------------------------------
+CATEGORY 4: SERVERLESS RUNTIMES, SYSTEM SCHEDULERS, & ENVIRONMENT SCRIPTS
+-------------------------------------------------------------------------------------------
+19. https://github.com/aws/serverless-application-model
+    - Description: Baseline infrastructure-as-code layout configuration framework powering server-authoritative logic engines.
+20. https://github.com/pnpm/pnpm
+    - Description: Package dependency management engine optimized for memory-restricted system environments like Render and Termux.
