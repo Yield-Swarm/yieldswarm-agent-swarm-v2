@@ -179,6 +179,7 @@ See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo su
 |-----|---------|
 | `SINGLE_PANE_OF_GLASS.md` | Helix + tri-solenoid + RPC mesh (Mermaid) |
 | `docs/ARCHITECTURE_FULL.md` | **Canonical** full-stack diagram (Helix DNA v2.1) + status table |
+| `docs/XAI_AWS_VERCEL_PRODUCTION.md` | AWS us-west-2 + Vercel TMA settle engine (xAI portfolio) |
 | `docs/RPC_ALCHEMY_STUDY.md` | 164-network Alchemy RPC study |
 | `docs/TRI_SOLENOID_ARCHITECTURE.md` | Nexus · Helix · Shadow solenoids |
 | `docs/ALCHEMY_CHRISTOPHERS_FIRST_APP.md` | Alchemy setup + Vault |
