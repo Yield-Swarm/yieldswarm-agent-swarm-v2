@@ -109,6 +109,10 @@ export const serverEnv = {
       Number(str("INSTANT_CASHOUT_FEE_PERCENT", "0.015")) || 0.015,
     kairoWebhookSecret: () => str("KAIRO_WEBHOOK_SECRET"),
   },
+
+  claim: {
+    signingSecret: () => str("CLAIM_SIGNING_SECRET"),
+  },
 };
 
 /** Config safe to send to the browser. */

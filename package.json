@@ -17,6 +17,7 @@
     "test:unit": "vitest run",
     "test:entropy": "vitest run src/infrastructure/entropy-core.test.js src/infrastructure/entropy-circuit-inputs.test.js",
     "test:helix": "vitest run src/infrastructure/helix-phase1.test.js src/infrastructure/helix-delta-v5.test.js src/infrastructure/sovereign-loops.test.js",
+    "test:claim": "vitest run src/lib/game/engine.test.ts src/lib/server/rateLimiter.test.ts src/lib/server/signer.test.ts",
     "circuits:build": "cd circuits && npm run build",
     "deploy:render": "bash deploy/templates/lib/render-template.sh all",
     "deploy:stack": "bash deploy/deploy-full-stack.sh",
@@ -36,8 +37,10 @@
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^4.5.0",
     "@telegram-apps/analytics": "^1.6.4",
+    "@ton/ton": "^15.4.0",
     "@tonconnect/sdk": "^3.0.5",
     "@tonconnect/ui-react": "^2.0.9",
+    "@upstash/redis": "^1.38.0",
     "circomlibjs": "^0.1.7",
     "ethers": "^6.13.2",
     "next": "14.2.5",
@@ -60,8 +63,7 @@
     "snarkjs": "^0.7.5",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.5",
-    "snarkjs": "^0.7.5"
+    "vitest": "^2.0.5"
   },
   "engines": {
     "node": ">=18.18.0"
