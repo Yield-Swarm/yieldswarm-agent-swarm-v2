@@ -168,6 +168,7 @@ See `docs/AZURE_ACI_DEPLOY.md`.
 
 ## Related
 
+- `docs/AZURE_MAINNET_VMSS_TOPOLOGY.md` — VMSS + load balancer Mermaid topology, custom domains, wiring scripts
 - `docs/AZURE_ACI_DEPLOY.md` — container deploy
 - `docs/SINGLE_PANE_PROMPTS.md` — full operator map
 - `scripts/azure-vm-bootstrap.sh` — automated setup
