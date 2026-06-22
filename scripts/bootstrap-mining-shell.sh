@@ -41,10 +41,13 @@ else
 fi
 
 chmod +x scripts/start-mining.sh 2>/dev/null || true
+chmod +x scripts/mining/start-termux.sh 2>/dev/null || true
+chmod +x scripts/mining/stop-termux.sh 2>/dev/null || true
 chmod +x scripts/deploy-to-akash.sh 2>/dev/null || true
 chmod +x scripts/deploy-bittensor.sh 2>/dev/null || true
 
 log "next steps:"
 log "  1. nano deploy/akash.env   # set akash1... wallet + VAULT_* + BT_NETUID"
-log "  2. ./scripts/start-mining.sh"
+log "  2. ./scripts/start-mining.sh          # Akash Bittensor deploy"
+log "  2b. ./scripts/mining/start-termux.sh # Termux local orchestrator (Grass/Helium)"
 log "  docs: docs/MINING_QUICKSTART_TERMUX.md"

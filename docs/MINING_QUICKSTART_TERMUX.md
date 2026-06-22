@@ -2,7 +2,67 @@
 
 Use this when you're in `~` (home), not inside the repo, and commands fail because paths don't exist yet.
 
-## Step 0 — Clone and enter the repo
+## Critical: never use `\~` in the shell
+
+| Wrong | Right |
+|-------|-------|
+| `cd \~/yieldswarm-agent-swarm-v2` | `cd ~/yieldswarm-agent-swarm-v2` |
+| `source \~/.config/yieldswarm/nexus.env` | `source ~/.config/yieldswarm/nexus.env` |
+| `tail \~/.run/mining/orchestrator.log` | `tail .run/mining/orchestrator.log` (from repo) |
+
+A backslash before `~` makes the shell treat `~` as a **literal folder name**, which creates broken nested paths like:
+
+```text
+.../yieldswarm-agent-swarm-v2/~/yieldswarm-agent-swarm-v2/.run/mining/...
+```
+
+That breaks `nohup` and prevents Grass/Helium miners from starting.
+
+---
+
+## Termux — one-command mining orchestrator
+
+```bash
+# 1. Go to project (copy exactly — no backslashes)
+cd ~/yieldswarm-agent-swarm-v2
+
+# 2. Load operator config
+source ~/.config/yieldswarm/nexus.env 2>/dev/null || true
+
+# 3. Wake lock (run once per session — keeps miners alive when screen off)
+termux-wake-lock
+
+# 4. Start with logging
+chmod +x scripts/mining/start-termux.sh
+./scripts/mining/start-termux.sh
+
+# 5. Check logs + status
+./scripts/mining/logs-termux.sh 30
+python3 -m mining status
+```
+
+Stop cleanly:
+
+```bash
+./scripts/mining/stop-termux.sh
+```
+
+Or use the manual sequence (equivalent to `start-termux.sh`):
+
+```bash
+cd ~/yieldswarm-agent-swarm-v2
+source ~/.config/yieldswarm/nexus.env 2>/dev/null || true
+python3 -m mining stop
+sleep 2
+mkdir -p .run/mining
+nohup python3 -m mining start > .run/mining/orchestrator.log 2>&1 &
+echo $! > .run/mining/orchestrator.pid
+sleep 5
+python3 -m mining status
+tail -30 .run/mining/orchestrator.log
+```
+
+---
 
 ```bash
 cd ~/yieldswarm-agent-swarm-v2 2>/dev/null || {
