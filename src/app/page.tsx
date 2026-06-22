@@ -30,11 +30,20 @@ export default function HomePage() {
       <Script src="/integrations/neon-queries.js" strategy="afterInteractive" />
       <Script id="helix-home-init" strategy="afterInteractive">
         {`
-          document.getElementById('nav-root').innerHTML = YieldSwarmSite.renderNav('home');
-          document.getElementById('lane-grid').innerHTML = YieldSwarmSite.renderLaneGrid();
-          YieldSwarmSite.initBubbles(document.getElementById('hero-bubbles'));
-          YieldSwarmSite.hydrateMetrics();
-          setInterval(() => YieldSwarmSite.hydrateMetrics(), 30000);
+          (function waitForSite() {
+            if (typeof YieldSwarmSite === 'undefined') {
+              setTimeout(waitForSite, 50);
+              return;
+            }
+            var nav = document.getElementById('nav-root');
+            if (nav) nav.innerHTML = YieldSwarmSite.renderNav('home');
+            var grid = document.getElementById('lane-grid');
+            if (grid) grid.innerHTML = YieldSwarmSite.renderLaneGrid();
+            var bubbles = document.getElementById('hero-bubbles');
+            if (bubbles) YieldSwarmSite.initBubbles(bubbles);
+            YieldSwarmSite.hydrateMetrics();
+            setInterval(function () { YieldSwarmSite.hydrateMetrics(); }, 30000);
+          })();
         `}
       </Script>
     </>
