@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "updated": "2026-06-15",
+  "vercel_project": "v2-0-bay",
+  "vercel_apex_url": "https://v2-0-bay.vercel.app",
+  "vercel_cname": "cname.vercel-dns.com",
+  "phase2_gateway": "gateway.yieldswarm.crypto",
+  "apex_domains": [
+    {
+      "domain": "yieldswarm.crypto",
+      "role": "primary",
+      "website_path": "/",
+      "notes": "Main site + hero metrics"
+    },
+    {
+      "domain": "kairo.x",
+      "role": "kairo",
+      "website_path": "/kairo",
+      "notes": "Kairo consumer app — Mapbox ride/delivery"
+    },
+    {
+      "domain": "yieldswarm.blockchain",
+      "role": "ipfs",
+      "website_ipfs_cid": "QmQUS42xN6Ej21baZZCMmxnirwzy9XFRPruqUYTof4vwTz",
+      "notes": "Decentralized site — set IPFS in UD dashboard; see docs/IPFS_YIELDSWARM_BLOCKCHAIN.md"
+    },
+    {
+      "domain": "depin.crypto",
+      "role": "depin",
+      "website_path": "/dashboard/depin-hq-sync.html"
+    },
+    {
+      "domain": "z15.crypto",
+      "role": "mining",
+      "website_path": "/marketplace"
+    },
+    {
+      "domain": "council.crypto",
+      "role": "governance",
+      "website_path": "/council"
+    }
+  ],
+  "subdomains": {
+    "frontend_phase1_vercel": [
+      { "host": "www", "target": "vercel_cname", "purpose": "Marketing alias" },
+      { "host": "app", "target": "vercel_cname", "purpose": "App / Kairo flows" },
+      { "host": "dashboard", "target": "vercel_cname", "purpose": "$5M vault + Arena telemetry" },
+      { "host": "status", "target": "vercel_cname", "purpose": "Council / governance status" },
+      { "host": "arena", "target": "vercel_cname", "purpose": "Live Arena UI" },
+      { "host": "portal", "target": "vercel_cname", "purpose": "Operator SSO" },
+      { "host": "staging", "target": "vercel_cname", "purpose": "Pre-prod" },
+      { "host": "docs", "target": "vercel_cname", "purpose": "Runbooks" }
+    ],
+    "backend_phase1_vercel_or_placeholder": [
+      {
+        "host": "api",
+        "target": "gateway.yieldswarm.crypto",
+        "phase": 1,
+        "purpose": "Placeholder until Akash stable; Phase 2 = Cloudflare Worker proxy"
+      }
+    ],
+    "backend_phase2_gateway": [
+      { "host": "worker", "purpose": "Akash worker direct" },
+      { "host": "arena", "purpose": "Arena telemetry API" },
+      { "host": "telemetry", "purpose": "DePIN + fleet ingest" },
+      { "host": "odysseus", "purpose": "Odysseus GPU / research" },
+      { "host": "grafana", "purpose": "Observability" },
+      { "host": "kairo-api", "purpose": "Driver identity API" },
+      { "host": "helix", "purpose": "Genesis YSLR" },
+      { "host": "vault", "purpose": "Secrets ops UI (internal)" },
+      { "host": "sovereign", "purpose": "Treasury loops" },
+      { "host": "cdn", "purpose": "Asset edge" },
+      { "host": "monitor", "purpose": "Health aggregation" }
+    ]
+  },
+  "treasury_records": {
+    "crypto.ETH.address": "Gnosis Safe / main EVM multisig — set in UD, never commit",
+    "crypto.BTC.address": "BTC treasury multisig",
+    "crypto.SOL.address": "Squads multisig — NOT the APN token mint"
+  },
+  "vault_paths": {
+    "ud_api_key": "yieldswarm/integrations/unstoppable",
+    "domains_runtime": "yieldswarm/domains/runtime"
+  }
+}

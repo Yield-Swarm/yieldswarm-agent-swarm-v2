@@ -156,6 +156,12 @@ put_if_set integrations/linear  api_key=LINEAR_API_KEY
 put_if_set integrations/telegram bot_token=TELEGRAM_BOT_TOKEN
 put_if_set integrations/unstoppable api_key=UD_API_KEY
 
+put_if_set domains/runtime \
+  api_key=UD_API_KEY \
+  vercel_token=VERCEL_API_TOKEN \
+  cloudflare_api_token=CLOUDFLARE_API_TOKEN \
+  cloudflare_zone_id=CLOUDFLARE_ZONE_ID
+
 # ---- Kairo (driver app) ----
 put_if_set runtime/kairo \
   mapbox_token=MAPBOX_TOKEN \
