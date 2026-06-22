@@ -149,6 +149,19 @@ put_if_set runtime/wallets \
   helix_chain_bridge_key=HELIX_CHAIN_BRIDGE_KEY \
   zec_shielded_key=ZEC_SHIELDED_KEY
 
+put_if_set integrations/iotex \
+  treasury=IOTEX_TREASURY \
+  btc_bridge=IOTEX_BTC_BRIDGE \
+  api_key=IOTEX_API_KEY \
+  w3bstream_token=W3BSTREAM_PROJECT_TOKEN \
+  w3bstream_endpoint=IOTEX_W3BSTREAM_ENDPOINT \
+  device_id=IOTEX_DEVICE_ID
+
+put_if_set providers/aws \
+  access_key_id=AWS_ACCESS_KEY_ID \
+  secret_access_key=AWS_SECRET_ACCESS_KEY \
+  region=AWS_DEFAULT_REGION
+
 put_if_set integrations/github  token=GITHUB_TOKEN
 put_if_set integrations/vercel  token=VERCEL_API_TOKEN
 put_if_set integrations/notion  api_key=NOTION_API_KEY

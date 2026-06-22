@@ -78,6 +78,7 @@ python3 services/iot_hub/cli.py device check appletv-living-room
 ## Swarm Coordinator Integration
 
 - **Nexus solenoid** `iot_hub` (id 4) in `config/nexus/solenoids.yaml`
+- **DePIN edge pipeline** — `docs/DEPIN_EDGE_INTEGRATION.md` (Pebble coords, Vault export, W3bstream)
 - **Messaging bus** topics: `device_heartbeat`, `device_status`
 - **Agent slots**: each IoT device registers via `POST /api/nexus/agents/register` equivalent
 - **State files**: `.run/iot-registry.json`, `.run/iot-coordinator-sync.json`

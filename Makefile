@@ -39,7 +39,8 @@ A := deploy/akash
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         zk-trusted-setup zk-mutation-cycle \
         tfc-setup tfc-init tfc-apply tfc-deploy-all \
-        status logs clean production rust-core rust-core-test
+        status logs clean production rust-core rust-core-test \
+        depin-edge-orchestrate depin-edge-normalize
 
 ## rust-core: build Phase 1 Swarm OS Rust engine
 rust-core:
@@ -130,6 +131,14 @@ vercel:
 ## render: show Render blueprint instructions
 render:
 	bash scripts/deploy-production.sh render
+
+## depin-edge-orchestrate: run 4-task DePIN edge pipeline (Termux / local hub)
+depin-edge-orchestrate:
+	bash scripts/edge/depin_edge_orchestrate.sh
+
+## depin-edge-normalize: Task 1 only — Pebble coordinate normalization
+depin-edge-normalize:
+	bash scripts/edge/edge_gateway_normalizer.sh
 
 ## production: unified multi-platform entry (see scripts/deploy-production.sh)
 production:
