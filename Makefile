@@ -24,6 +24,7 @@ A := deploy/akash
         akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend start-mining bootstrap-mining \
         mining-termux-start mining-termux-stop mining-termux-logs \
+        fleet-provision fleet-sync \
         go-live go-live-plan rewards-go-live azure-swarm-nsg \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
@@ -145,6 +146,16 @@ mining-termux-stop:
 ## mining-termux-logs: tail orchestrator log (default 30 lines)
 mining-termux-logs:
 	bash scripts/mining/logs-termux.sh 30
+
+## fleet-provision: provision fleet node N from .env.fleet (usage: make fleet-provision NODE=0)
+fleet-provision:
+	@test -n "$(NODE)" || (echo "Usage: make fleet-provision NODE=0" && exit 1)
+	bash swarm_provision.sh "$(NODE)"
+
+## fleet-sync: rsync fleet to remote (usage: make fleet-sync PROFILE=termux TARGET=user@host)
+fleet-sync:
+	@test -n "$(TARGET)" || (echo "Usage: make fleet-sync PROFILE=termux TARGET=user@host" && exit 1)
+	bash scripts/fleet/sync-fleet.sh "$(PROFILE)" "$(TARGET)"
 
 ## akash-odysseus: deploy Odysseus GPU worker with Vault SDL
 akash-odysseus:
