@@ -14,6 +14,7 @@ from mining.auth import MiningAuthService
 from mining.rewards import RewardRouter
 from mining.fleet import FleetRegistry
 from mining.miners import MINER_REGISTRY, BaseMiner
+from mining.paths import resolve_run_dir
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MINERS = ["bittensor", "monero", "etc", "grass", "helium"]
@@ -27,9 +28,7 @@ class UnifiedMiningManager:
         self.auth = MiningAuthService()
         self.rewards = RewardRouter()
         self.fleet = FleetRegistry(self.auth)
-        self.run_dir = Path(self.config.run_dir)
-        if not self.run_dir.is_absolute():
-            self.run_dir = REPO_ROOT / self.run_dir
+        self.run_dir = resolve_run_dir(self.config.run_dir, REPO_ROOT)
         self.run_dir.mkdir(parents=True, exist_ok=True)
         names = miners or DEFAULT_MINERS
         self.miners: Dict[str, BaseMiner] = {}

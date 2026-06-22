@@ -23,6 +23,7 @@ A := deploy/akash
 .PHONY: help deploy all preflight vault-check vault-bootstrap vault-validate-secrets seed-vault \
         akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend start-mining bootstrap-mining \
+        mining-termux-start mining-termux-stop mining-termux-logs \
         go-live go-live-plan rewards-go-live azure-swarm-nsg \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
@@ -132,6 +133,18 @@ start-mining:
 ## bootstrap-mining: clone repo + create deploy/akash.env from example
 bootstrap-mining:
 	bash scripts/bootstrap-mining-shell.sh
+
+## mining-termux-start: Termux orchestrator (Grass/Helium) — correct ~/ paths
+mining-termux-start:
+	bash scripts/mining/start-termux.sh
+
+## mining-termux-stop: stop Termux mining orchestrator
+mining-termux-stop:
+	bash scripts/mining/stop-termux.sh
+
+## mining-termux-logs: tail orchestrator log (default 30 lines)
+mining-termux-logs:
+	bash scripts/mining/logs-termux.sh 30
 
 ## akash-odysseus: deploy Odysseus GPU worker with Vault SDL
 akash-odysseus:
