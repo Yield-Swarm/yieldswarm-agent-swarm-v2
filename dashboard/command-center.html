@@ -492,6 +492,17 @@
         <p class="panel-sub">Target fleet: 10,080 agents</p>
         <ul class="cc-list" id="swarm-list"></ul>
       </div>
+
+      <div class="cc-panel">
+        <h2>Helix Nodes <a href="/dashboard/helix-nodes.html" style="font-size:0.75rem;color:var(--accent)">→ run node</a></h2>
+        <p class="panel-sub">Grass-style lottery layer · extension + tickets</p>
+        <ul class="cc-list" id="helix-nodes-list">
+          <li><span class="key">Registered</span><span class="val" id="hn-registered">—</span></li>
+          <li><span class="key">Online</span><span class="val" id="hn-online">—</span></li>
+          <li><span class="key">Pool tickets</span><span class="val" id="hn-tickets">—</span></li>
+          <li><span class="key">Mode</span><span class="val" id="hn-mode">—</span></li>
+        </ul>
+      </div>
     </section>
 
     <section class="cc-panel" aria-label="Mining roots">
@@ -796,6 +807,19 @@
         b.classList.add("visible");
       }
 
+      async function refreshHelixNodes() {
+        try {
+          const res = await fetch("/api/helix-nodes/summary", { cache: "no-store" });
+          const d = await res.json();
+          $("hn-registered").textContent = String(d.registered_nodes ?? "—");
+          $("hn-online").textContent = String(d.online_nodes ?? "—");
+          $("hn-tickets").textContent = String(d.total_lottery_tickets ?? "—");
+          $("hn-mode").textContent = d.dry_run ? "dry-run" : "live";
+        } catch {
+          $("hn-mode").textContent = "offline";
+        }
+      }
+
       async function refresh() {
         try {
           const data = await loadPrimary();
@@ -809,6 +833,7 @@
             showError(String(fallbackErr.message || fallbackErr));
           }
         }
+        refreshHelixNodes();
       }
 
       function tickClock() {

@@ -15,6 +15,8 @@ BACKEND=http://127.0.0.1:8080
 /api/iot/health
 /api/rewards/status
 /api/rewards/sweep
+/api/helix-nodes/health
+/api/helix-nodes/leaderboard
 /api/rpc/alchemy/health
 /api/single-pane/overview
 /api/integrations/marketing/health
@@ -57,7 +59,8 @@ REVENUE_SPLIT=Great Delta 50/30/15/5
 6. RPC Mesh         → backend/src/lib/alchemy.js (164 networks)
 7. Marketing        → src/lib/marketing/
 8. Mining           → mining/ + scripts/start-mining.sh
-9. Tesla/MEGAPOD    → services/rewards/megapod_node.py + docs/TESLA_FLEET_INTEGRATION.md
+9. Helix Nodes      → extensions/helix-node/ + services/helix_nodes/ (lottery layer)
+10. Tesla/MEGAPOD    → services/rewards/megapod_node.py + docs/TESLA_FLEET_INTEGRATION.md
 
 ## QUICK COMMANDS
 ./scripts/production/go-live.sh --dry-run

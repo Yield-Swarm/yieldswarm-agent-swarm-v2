@@ -26,6 +26,7 @@ import shadowRouter from './routes/shadow.js';
 import iotRouter from './routes/iot.js';
 import rpcRouter from './routes/rpc.js';
 import rewardsRouter from './routes/rewards.js';
+import helixNodesRouter from './routes/helixNodes.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -55,6 +56,7 @@ app.use('/api/shadow', shadowRouter);
 app.use('/api/iot', iotRouter);
 app.use('/api/rpc', rpcRouter);
 app.use('/api/rewards', rewardsRouter);
+app.use('/api/helix-nodes', helixNodesRouter);
 app.use('/api/single-pane', singlePaneRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
@@ -71,6 +73,9 @@ app.get('/vault-dashboard', (_req, res) =>
 );
 app.get('/command-center', (_req, res) =>
   res.sendFile(path.join(repoRoot, 'dashboard', 'command-center.html')),
+);
+app.get('/helix-nodes', (_req, res) =>
+  res.sendFile(path.join(repoRoot, 'dashboard', 'helix-nodes.html')),
 );
 app.get('/tv', (_req, res) => res.redirect('/command-center'));
 

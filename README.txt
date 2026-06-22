@@ -9,7 +9,7 @@ CORE STRANDS ASSIMILATED:
 • Alchemy RPC Mesh — 164 networks auto-bootstrap
 • Rewards Orchestrator — reshard + assemble + sweep to treasury wallets & mining roots
 • Marketing Vault — Moltbook / Reddit / X / Email / Twilio campaigns
-• Mining Stack — Bittensor (BT_NETUID=1 finney) + Akash RTX 3090/4090 + Termux/Azure bootstrap
+• Helix Nodes — Grass-style browser extension + lottery tickets (referrals, shares)
 • Tesla Fleet + MEGAPOD Watch — future distributed compute credits
 • YSLR Task Queue — 550 encrypted tasks (scheduler-ready)
 

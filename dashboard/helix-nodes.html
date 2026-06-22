@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Helix Nodes — Run & Earn</title>
+  <style>
+    :root { --bg:#06080f; --accent:#3dffa8; --text:#e8edf5; --muted:#8b9cb8; }
+    body { margin:0; font-family:system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    .wrap { max-width:720px; margin:0 auto; padding:2rem 1.25rem; }
+    h1 { color:var(--accent); }
+    .cta { display:inline-block; margin:1rem 0; padding:12px 20px; background:var(--accent); color:#06080f; text-decoration:none; border-radius:8px; font-weight:600; }
+    .card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:1rem; margin:1rem 0; }
+    .stat { font-size:1.5rem; font-weight:700; }
+    .muted { color:var(--muted); font-size:.9rem; }
+    code { background:rgba(0,0,0,.3); padding:2px 6px; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Helix Nodes</h1>
+    <p>Run a lightweight YieldSwarm node in one click. Earn <strong>lottery tickets</strong> for uptime, referrals, and shares.</p>
+    <a class="cta" href="../extensions/helix-node/README.md">Install browser extension</a>
+
+    <div class="card" id="node-card">
+      <div class="muted">Network status</div>
+      <div class="stat" id="online">—</div>
+      <div class="muted">Registered nodes / online</div>
+      <div style="margin-top:1rem" class="muted">Your tickets (connect extension)</div>
+      <div class="stat" id="tickets">—</div>
+    </div>
+
+    <div class="card">
+      <h2>How it works</h2>
+      <ol>
+        <li>Install the Helix Nodes browser extension</li>
+        <li>Node registers automatically — no wallet required for Phase 1</li>
+        <li>Earn ~1 lottery ticket per hour while the node runs</li>
+        <li>Weekly draws: USDC, SOL, cloud credits, token airdrops</li>
+      </ol>
+      <p class="muted"><strong>Honest disclosure:</strong> Phase 1 runs lightweight health tasks only — not bandwidth resale. See <code>docs/HELIX_NODES.md</code>.</p>
+    </div>
+
+    <p><a href="/command-center">← Command Center</a> · <a href="/api/helix-nodes/leaderboard">Leaderboard API</a></p>
+  </div>
+  <script>
+    const API = location.origin;
+    fetch(API + '/api/helix-nodes/summary').then(r => r.json()).then(d => {
+      document.getElementById('online').textContent = (d.online_nodes ?? 0) + ' / ' + (d.registered_nodes ?? 0);
+      document.getElementById('tickets').textContent = (d.total_lottery_tickets ?? 0) + ' pool tickets';
+    }).catch(() => {});
+  </script>
+</body>
+</html>
