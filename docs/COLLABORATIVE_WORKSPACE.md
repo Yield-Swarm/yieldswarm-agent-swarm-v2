@@ -22,8 +22,8 @@ cd /workspace
 git clone https://github.com/Yield-Swarm/yieldswarm-agent-swarm-v2.git
 cd yieldswarm-agent-swarm-v2
 
-cp deploy/collab/.env.collab.example deploy/collab/.env.collab
-# Edit deploy/collab/.env.collab — set CODE_SERVER_PASSWORD (never commit)
+cp deploy/collab/env.collab.example deploy/collab/env.collab
+# Edit deploy/collab/env.collab — set CODE_SERVER_PASSWORD (never commit)
 
 ./scripts/runpod/deploy-code-server.sh
 ```
@@ -43,8 +43,8 @@ export SSH_KEY=~/.ssh/id_ed25519
 
 ```bash
 cd deploy/collab
-cp .env.collab.example .env.collab
-# Set JITSI_* passwords in .env.collab
+cp env.collab.example env.collab
+# Set JITSI_* passwords in env.collab
 
 docker compose --profile jitsi up -d
 ```

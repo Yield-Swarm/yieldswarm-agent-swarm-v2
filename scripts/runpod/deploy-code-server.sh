@@ -2,12 +2,12 @@
 # deploy-code-server.sh — RunPod master: browser IDE on localhost (SSH tunnel access)
 #
 # Usage:
-#   export CODE_SERVER_PASSWORD=...   # or deploy/collab/.env.collab
+#   export CODE_SERVER_PASSWORD=...   # or deploy/collab/env.collab
 #   ./scripts/runpod/deploy-code-server.sh
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-ENV_FILE="${REPO_ROOT}/deploy/collab/.env.collab"
+ENV_FILE="${REPO_ROOT}/deploy/collab/env.collab"
 WORKSPACE="${CODE_SERVER_WORKSPACE:-/workspace/yieldswarm-agent-swarm-v2}"
 BIND="${CODE_SERVER_BIND:-127.0.0.1}"
 PORT="${CODE_SERVER_PORT:-8080}"
@@ -22,7 +22,7 @@ if [[ -f "${ENV_FILE}" ]]; then
   set +a
 fi
 
-: "${CODE_SERVER_PASSWORD:?Set CODE_SERVER_PASSWORD in deploy/collab/.env.collab}"
+: "${CODE_SERVER_PASSWORD:?Set CODE_SERVER_PASSWORD in deploy/collab/env.collab}"
 
 # Prefer Docker compose when available
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then

@@ -8,7 +8,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-ENV_FILE="${REPO_ROOT}/deploy/collab/.env.collab"
+ENV_FILE="${REPO_ROOT}/deploy/collab/env.collab"
 
 if [[ -f "${ENV_FILE}" ]]; then
   set -a
