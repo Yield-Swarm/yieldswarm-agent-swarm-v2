@@ -1,0 +1,60 @@
+# YieldSwarm open-metal LiteLLM backplane — no third-party inference APIs required.
+# Point Odysseus / agents at: http://127.0.0.1:4000/v1
+
+model_list:
+  # --- RunPod vLLM shards (OpenAI-compatible) ---
+  - model_name: deepseek-r1-reasoning
+    litellm_params:
+      model: openai/deepseek-r1-reasoning
+      api_base: os.environ/RUNPOD_B200_VLLM_URL
+      api_key: os.environ/YIELDSWARM_ROUTER_API_KEY
+
+  - model_name: kimi-k2-agent
+    litellm_params:
+      model: openai/kimi-k2-agent
+      api_base: os.environ/RUNPOD_H200_VLLM_URL
+      api_key: os.environ/YIELDSWARM_ROUTER_API_KEY
+
+  - model_name: qwen-tool-fast
+    litellm_params:
+      model: openai/qwen-tool-fast
+      api_base: os.environ/RUNPOD_H100_VLLM_URL
+      api_key: os.environ/YIELDSWARM_ROUTER_API_KEY
+
+  # --- Local Ollama failover partition ---
+  - model_name: llama-scout-routing
+    litellm_params:
+      model: ollama/llama3.3:70b
+      api_base: os.environ/LOCAL_OLLAMA_BASE_URL
+
+  - model_name: phi-eval-fast
+    litellm_params:
+      model: ollama/phi4:14b
+      api_base: os.environ/LOCAL_OLLAMA_BASE_URL
+
+  - model_name: qwen-coder-local
+    litellm_params:
+      model: ollama/qwen2.5-coder:32b
+      api_base: os.environ/LOCAL_OLLAMA_BASE_URL
+
+  - model_name: deepseek-r1-local
+    litellm_params:
+      model: ollama/deepseek-r1:32b
+      api_base: os.environ/LOCAL_OLLAMA_BASE_URL
+
+router_settings:
+  routing_strategy: simple-shuffle
+  model_group_alias:
+    yieldswarm-brain-default: qwen-tool-fast
+    yieldswarm-reasoning: deepseek-r1-reasoning
+    yieldswarm-refactor: kimi-k2-agent
+    yieldswarm-routing: llama-scout-routing
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  request_timeout: 300
+  num_retries: 2
+
+general_settings:
+  master_key: os.environ/YIELDSWARM_ROUTER_API_KEY

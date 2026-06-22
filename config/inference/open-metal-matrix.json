@@ -1,0 +1,94 @@
+{
+  "version": "1.0",
+  "description": "YieldSwarm open-source RunPod metal distribution — Ollama + vLLM backplane",
+  "nodes": {
+    "outdoor_tomato_impala": {
+      "gpu": "NVIDIA B200",
+      "vram_gb": 192,
+      "role": "Core Architectural Reasoning, Math Proofs, Complex Bug Auditing",
+      "engine": "vllm",
+      "vllm_port": 8000,
+      "models": [
+        {
+          "alias": "deepseek-r1-reasoning",
+          "display": "DeepSeek-R1 / V4 Pro",
+          "vllm_model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+          "ollama_fallback": "deepseek-r1:32b",
+          "active_params_b": 37,
+          "total_params_b": 671
+        }
+      ]
+    },
+    "single_amber_peafowl": {
+      "gpu": "NVIDIA H200 SXM",
+      "vram_gb": 141,
+      "role": "Long-Horizon Agent Swarms, Multi-File Repository Refactoring",
+      "engine": "vllm",
+      "vllm_port": 8001,
+      "models": [
+        {
+          "alias": "kimi-k2-agent",
+          "display": "Kimi K2.6 / GLM-5",
+          "vllm_model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+          "ollama_fallback": "qwen2.5-coder:32b",
+          "active_params_b": 32,
+          "total_params_b": 1000
+        }
+      ]
+    },
+    "thick_salmon_goat": {
+      "gpu": "NVIDIA H100 SXM",
+      "vram_gb": 80,
+      "role": "Sub-Millisecond Tool-Calling Pipeline & Dynamic System Interleaving",
+      "engine": "vllm",
+      "vllm_port": 8002,
+      "models": [
+        {
+          "alias": "qwen-tool-fast",
+          "display": "Qwen 3.6-35B-A3B",
+          "vllm_model": "Qwen/Qwen2.5-7B-Instruct",
+          "ollama_fallback": "qwen2.5-coder:7b",
+          "active_params_b": 3,
+          "total_params_b": 35
+        }
+      ]
+    }
+  },
+  "shared_failover": {
+    "role": "Fast Token Generation, Fleet Status Logging, Internal RPC Routing",
+    "engine": "ollama",
+    "models": [
+      {
+        "alias": "llama-scout-routing",
+        "display": "Llama 4 Scout",
+        "ollama_tag": "llama3.3:70b",
+        "active_params_b": 17,
+        "total_params_b": 109
+      },
+      {
+        "alias": "phi-eval-fast",
+        "display": "Phi-4 Ultra-fast Evaluation",
+        "ollama_tag": "phi4:14b",
+        "active_params_b": 14,
+        "total_params_b": 14
+      }
+    ]
+  },
+  "ollama_local": {
+    "host": "127.0.0.1:11434",
+    "pull_models": [
+      "deepseek-r1:32b",
+      "qwen2.5-coder:32b",
+      "llama3.3:70b",
+      "phi4:14b"
+    ],
+    "max_parallel_pulls": 2,
+    "api_ready_timeout_sec": 120
+  },
+  "litellm": {
+    "bind_host": "127.0.0.1",
+    "port": 4000,
+    "config_path": "config/inference/litellm-open-metal.yaml",
+    "routing_strategy": "simple-shuffle"
+  }
+}

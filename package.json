@@ -26,6 +26,8 @@
     "deploy:azure:domains": "bash scripts/azure/provision-custom-domains.sh",
     "deploy:azure:fleet": "bash scripts/azure/deploy-vmss-fleet.sh",
     "deploy:azure:autoscale": "bash scripts/azure/configure-vmss-autoscale.sh",
+    "inference:hotload": "bash scripts/inference/hotload_open_metal_llms.sh",
+    "inference:verify": "bash scripts/inference/verify-open-metal.sh",
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
