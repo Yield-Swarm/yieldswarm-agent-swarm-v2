@@ -1,5 +1,7 @@
 # YieldSwarm Deployment Guide (Akash + Terraform Cloud)
 
+> **Termux / mobile setup:** See [`docs/TERMUX_ENVIRONMENT_SETUP.md`](TERMUX_ENVIRONMENT_SETUP.md) for pipx and `npm run dev` troubleshooting.
+
 This repository now includes a minimal, real deployment path for:
 
 1. Akash lease provisioning (`scripts/akash-deploy.sh` + `deploy/deploy-swarm-monolith.yaml`)
