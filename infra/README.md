@@ -74,7 +74,8 @@ terraform apply \
 cd infra/terraform
 
 # HCP Terraform backend -> workspace "Helixchainprod"
-export TF_CLOUD_ORGANIZATION="<your-hcp-org>"
+# HCP org/project: docs/HCP_ORGANIZATION.md (yield-swarm-org / YieldSwarmHasiCorp)
+export TF_CLOUD_ORGANIZATION="<your-hcp-org>"   # e.g. yield-swarm-org or HelixChainProd
 export TF_TOKEN_app_terraform_io="<hcp-terraform-token>"
 
 # Provider credentials (or set them as sensitive workspace variables)

@@ -64,6 +64,8 @@ KVv2 mount is `yieldswarm/`. Full path layout in [§9](#9-path-reference).
 
 ## 2. Prerequisites
 
+HCP tenant layout (org, project, IAM): [`docs/HCP_ORGANIZATION.md`](docs/HCP_ORGANIZATION.md).
+
 On the operator workstation (laptop or TEE):
 
 | Tool         | Min version | Notes                                                |

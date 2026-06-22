@@ -52,8 +52,9 @@ Or use Makefile targets: `make tfc-setup tfc-init tfc-apply`
 
 Terraform is configured for workspace:
 
-- Organization: `HelixChainProd`
+- Organization: `HelixChainProd` (legacy) or `yield-swarm-org` — see [`docs/HCP_ORGANIZATION.md`](HCP_ORGANIZATION.md)
 - Workspace: `Helixchainprod`
+- HCP project: `YieldSwarmHasiCorp` (`331458d4-6c74-4e95-9497-cf2d6b846f31`)
 
 ## 5) One-command helper
 
