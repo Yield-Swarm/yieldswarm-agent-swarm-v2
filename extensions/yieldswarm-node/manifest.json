@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "YieldSwarm Node",
+  "version": "1.0.0",
+  "description": "Lightweight background network node — heartbeat, credits, and daily sweep tickets.",
+  "permissions": ["alarms", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "YieldSwarm Node"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

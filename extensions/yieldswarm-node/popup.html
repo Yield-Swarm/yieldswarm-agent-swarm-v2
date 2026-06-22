@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YieldSwarm Node</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0f1a;
+        --panel: #141a2e;
+        --border: rgba(148, 163, 184, 0.2);
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --accent: #6366f1;
+        --green: #22c55e;
+        --amber: #f59e0b;
+      }
+      * { box-sizing: border-box; margin: 0; }
+      body {
+        width: 320px;
+        min-height: 280px;
+        background: radial-gradient(circle at top, rgba(99, 102, 241, 0.15), transparent 60%), var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        padding: 16px;
+      }
+      h1 { font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; }
+      .sub { color: var(--muted); font-size: 0.75rem; margin-top: 4px; }
+      .card {
+        margin-top: 14px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+      .row:first-child { margin-top: 0; }
+      .label { color: var(--muted); font-size: 0.78rem; }
+      .value { font-size: 0.95rem; font-weight: 600; }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .badge.active { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+      .badge.idle { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+      button {
+        margin-top: 14px;
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { filter: brightness(1.08); }
+      .err { color: #f87171; font-size: 0.75rem; margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>YieldSwarm Node</h1>
+    <p class="sub">Background network participant</p>
+
+    <div class="card">
+      <div class="row">
+        <span class="label">Connection</span>
+        <span id="status-badge" class="badge idle"><span class="dot"></span><span id="status-text">Idle</span></span>
+      </div>
+      <div class="row">
+        <span class="label">Today's points</span>
+        <span class="value" id="credits">0</span>
+      </div>
+      <div class="row">
+        <span class="label">Daily sweep tickets</span>
+        <span class="value" id="tickets">0</span>
+      </div>
+      <div class="row">
+        <span class="label">Efficiency</span>
+        <span class="value" id="efficiency">—</span>
+      </div>
+    </div>
+
+    <button type="button" id="refresh">Run heartbeat now</button>
+    <p class="err" id="error" hidden></p>
+    <script src="popup.js"></script>
+  </body>
+</html>

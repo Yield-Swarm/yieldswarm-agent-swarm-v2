@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "fork_namespace": "yieldswarm-fork",
+  "gateways": {
+    "nexusGateway": "https://gateway.yieldswarm.crypto/api/nexus",
+    "helixYieldMatrix": "https://gateway.yieldswarm.crypto/api/helix/yield-matrix",
+    "rpcMesh": "https://gateway.yieldswarm.crypto/api/rpc/alchemy",
+    "telemetry": "https://gateway.yieldswarm.crypto/api/telemetry/akash"
+  },
+  "chains": {
+    "solana": { "primary": "alchemy", "fallback": "helius" },
+    "ethereum": { "primary": "alchemy", "fallback": "infura" },
+    "base": { "primary": "alchemy", "fallback": "public" },
+    "cosmos": { "primary": "nexusGateway", "fallback": null }
+  },
+  "stub_mode": true,
+  "notes": "Injected by scripts/sdk/sync-fork-repos.sh — replace stub_mode when gateways are live."
+}

@@ -31,6 +31,7 @@ import * as dydx from '../adapters/dydx.js';
 import * as miningFleet from '../adapters/miningFleet.js';
 import * as iotRegistry from '../adapters/iotRegistry.js';
 import { getSubsystemSnapshots } from '../adapters/singlePane.js';
+import questsRouter from './quests.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -43,6 +44,8 @@ function asyncRoute(fn) {
     });
   };
 }
+
+router.use('/quests', questsRouter);
 
 router.get('/health', asyncRoute(async (_req, res) => {
   const [akashPing, solanaPing, odysseusPing] = await Promise.all([

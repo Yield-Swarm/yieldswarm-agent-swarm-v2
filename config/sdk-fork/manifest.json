@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "branch": "yieldswarm-migration-v2",
+  "workspace": "workspace/sdk-forks",
+  "clone_depth": 1,
+  "routing_file": "YIELDSWARM_ROUTING.json",
+  "repositories": [
+    {"id": "cosmos-sdk", "url": "https://github.com/cosmos/cosmos-sdk.git", "stack": "go"},
+    {"id": "ibc-go", "url": "https://github.com/cosmos/ibc-go.git", "stack": "go"},
+    {"id": "solana-web3-js", "url": "https://github.com/solana-foundation/solana-web3.js.git", "stack": "node"},
+    {"id": "anchor", "url": "https://github.com/coral-xyz/anchor.git", "stack": "rust"},
+    {"id": "jupiter-core", "url": "https://github.com/jup-ag/jupiter-core.git", "stack": "rust"},
+    {"id": "uniswap-v3-core", "url": "https://github.com/Uniswap/v3-core.git", "stack": "node"},
+    {"id": "uniswap-v3-periphery", "url": "https://github.com/Uniswap/v3-periphery.git", "stack": "node"},
+    {"id": "viem", "url": "https://github.com/wevm/viem.git", "stack": "node"},
+    {"id": "wagmi", "url": "https://github.com/wevm/wagmi.git", "stack": "node"},
+    {"id": "ethers-js", "url": "https://github.com/ethers-io/ethers.js.git", "stack": "node"},
+    {"id": "foundry", "url": "https://github.com/foundry-rs/foundry.git", "stack": "rust"},
+    {"id": "alloy", "url": "https://github.com/alloy-rs/alloy.git", "stack": "rust"},
+    {"id": "pump-fun-sdk", "url": "https://github.com/pump-fun/pump-public-docs.git", "stack": "node"},
+    {"id": "raydium-sdk", "url": "https://github.com/raydium-io/raydium-sdk.git", "stack": "node"},
+    {"id": "metaplex-js", "url": "https://github.com/metaplex-foundation/js.git", "stack": "node"},
+    {"id": "tonweb", "url": "https://github.com/toncenter/tonweb.git", "stack": "node"},
+    {"id": "cosmjs", "url": "https://github.com/cosmos/cosmjs.git", "stack": "node"},
+    {"id": "stellar-sdk", "url": "https://github.com/stellar/js-stellar-sdk.git", "stack": "node"},
+    {"id": "bittensor", "url": "https://github.com/opentensor/bittensor.git", "stack": "rust"},
+    {"id": "akash", "url": "https://github.com/akash-network/node.git", "stack": "go"},
+    {"id": "lit-protocol", "url": "https://github.com/LIT-Protocol/js-sdk.git", "stack": "node"},
+    {"id": "chainlink-contracts", "url": "https://github.com/smartcontractkit/chainlink.git", "stack": "go"}
+  ]
+}

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YieldSwarm Matrix — AI Compute Network</title>
+    <meta name="description" content="Enterprise-grade AI compute network with gamified sovereignty, partner credits, and cross-chain yield." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              slate: { 950: '#060912' },
+              indigo: { 950: '#151233' },
+            },
+            fontFamily: {
+              sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .glow { box-shadow: 0 0 40px rgba(99, 102, 241, 0.15); }
+      .grid-bg {
+        background-image: linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-950 text-slate-100 font-sans antialiased">
+    <div id="landing-view" class="min-h-screen grid-bg">
+      <header class="border-b border-slate-800/80 backdrop-blur-md sticky top-0 z-50 bg-slate-950/80">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-sm">YS</div>
+            <div>
+              <p class="font-semibold tracking-tight">YieldSwarm Matrix</p>
+              <p class="text-xs text-slate-400">Helix DNA v2.1</p>
+            </div>
+          </div>
+          <nav class="hidden md:flex gap-6 text-sm text-slate-400">
+            <a href="#incentives" class="hover:text-white transition">Credits</a>
+            <a href="#quests" class="hover:text-white transition">Quests</a>
+            <a href="#agents" class="hover:text-white transition">Agents</a>
+          </nav>
+          <button id="enter-dashboard" type="button" class="text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg transition">
+            Enter Terminal
+          </button>
+        </div>
+      </header>
+
+      <main class="max-w-6xl mx-auto px-4 py-16">
+        <section class="text-center max-w-3xl mx-auto">
+          <span class="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-indigo-300 bg-indigo-950/80 border border-indigo-800/50 rounded-full px-3 py-1 mb-6">
+            Now with Google Antigravity runtime
+          </span>
+          <h1 class="text-4xl md:text-6xl font-bold tracking-tight bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
+            Sovereign AI Compute Network
+          </h1>
+          <p class="mt-6 text-lg text-slate-400 leading-relaxed">
+            Deploy autonomous agents, earn DePIN credits, and route cross-chain yield through the Helix Matrix — secured by HashiCorp Vault runtime injection.
+          </p>
+          <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <button data-onboard class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-semibold transition glow">
+              Claim Partner Credits
+            </button>
+            <a href="#incentives" class="px-6 py-3 rounded-xl border border-slate-700 hover:border-slate-500 font-semibold transition">
+              View incentive tiers
+            </a>
+          </div>
+        </section>
+
+        <section id="incentives" class="mt-24 grid md:grid-cols-3 gap-6">
+          <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 glow">
+            <p class="text-xs uppercase tracking-wider text-indigo-400 font-semibold">Tier 1</p>
+            <h2 class="mt-2 text-2xl font-bold">$1,850+</h2>
+            <p class="text-slate-400 mt-2 text-sm">Partner cloud credits across Azure, GCP, RunPod, and Akash GPU leases.</p>
+          </article>
+          <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <p class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Tier 2</p>
+            <h2 class="mt-2 text-2xl font-bold">Deposit Match</h2>
+            <p class="text-slate-400 mt-2 text-sm">Matched treasury deposits routed through Great Delta 50/30/15/5 splits.</p>
+          </article>
+          <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+            <p class="text-xs uppercase tracking-wider text-amber-400 font-semibold">Tier 3</p>
+            <h2 class="mt-2 text-2xl font-bold">Referral Funnel</h2>
+            <p class="text-slate-400 mt-2 text-sm">Verified peer invites unlock lottery tickets and sovereignty XP.</p>
+          </article>
+        </section>
+
+        <section id="quests" class="mt-24 grid lg:grid-cols-2 gap-8 items-start">
+          <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+            <h2 class="text-xl font-bold">Daily Quests</h2>
+            <p class="text-slate-400 text-sm mt-1">Complete tasks to earn XP and sweep tickets.</p>
+            <ul class="mt-6 space-y-3" id="quest-list">
+              <li class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+                <input type="checkbox" class="quest-check mt-1 accent-indigo-500" data-quest="node24" />
+                <div>
+                  <p class="font-medium">Maintain 24H Node Connection</p>
+                  <p class="text-xs text-slate-500">+120 XP · 1 lottery ticket</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+                <input type="checkbox" class="quest-check mt-1 accent-indigo-500" data-quest="referral" />
+                <div>
+                  <p class="font-medium">Invite Verified Peer</p>
+                  <p class="text-xs text-slate-500">+80 XP · 1 lottery ticket</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-bold">Sovereignty Level</h2>
+              <span class="text-sm text-indigo-300 font-mono" id="level-label">47 / 60</span>
+            </div>
+            <div class="mt-4 h-3 rounded-full bg-slate-800 overflow-hidden">
+              <div id="level-bar" class="h-full bg-gradient-to-r from-indigo-600 to-violet-400 rounded-full transition-all duration-500" style="width: 78%"></div>
+            </div>
+            <div class="mt-8">
+              <label class="text-xs uppercase tracking-wider text-slate-500">Referral link</label>
+              <div class="mt-2 flex gap-2">
+                <input id="referral-link" readonly value="https://yieldswarm.crypto/r/matrix" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300" />
+                <button id="copy-referral" type="button" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium">Copy</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="agents" class="mt-24">
+          <h2 class="text-2xl font-bold mb-6">Autonomous Agent Grid</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <article class="rounded-xl border border-slate-800 p-5 bg-slate-900/40 hover:border-indigo-700/50 transition">
+              <p class="text-xs text-indigo-400 font-semibold uppercase">Core</p>
+              <h3 class="font-bold mt-1">Cross-Chain Yield Core</h3>
+              <p class="text-sm text-slate-400 mt-2">Alchemy 164-network RPC mesh with failover routing.</p>
+              <p class="mt-4 text-xs font-mono text-emerald-400">● Operational</p>
+            </article>
+            <article class="rounded-xl border border-slate-800 p-5 bg-slate-900/40 hover:border-indigo-700/50 transition">
+              <p class="text-xs text-indigo-400 font-semibold uppercase">DePIN</p>
+              <h3 class="font-bold mt-1">Kairo Telemetry Node</h3>
+              <p class="text-sm text-slate-400 mt-2">Signed driver telemetry → Mandelbrot sovereign pipeline.</p>
+              <p class="mt-4 text-xs font-mono text-amber-400">● Alpha</p>
+            </article>
+            <article class="rounded-xl border border-slate-800 p-5 bg-slate-900/40 hover:border-indigo-700/50 transition">
+              <p class="text-xs text-indigo-400 font-semibold uppercase">Mining</p>
+              <h3 class="font-bold mt-1">Bittensor Akash Worker</h3>
+              <p class="text-sm text-slate-400 mt-2">RTX 3090 class GPU lease with Vault-injected secrets.</p>
+              <p class="mt-4 text-xs font-mono text-slate-500">○ Awaiting lease</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="border-t border-slate-800 mt-24 py-8 text-center text-sm text-slate-500">
+        YieldSwarm AgentSwarm OS v2.1 · Vault-secured · <a href="/docs/ARCHITECTURE_FULL.md" class="text-indigo-400 hover:underline">Architecture</a>
+      </footer>
+    </div>
+
+    <div id="dashboard-view" class="hidden min-h-screen bg-slate-950">
+      <header class="border-b border-slate-800 bg-slate-900/80 px-4 py-3 flex justify-between items-center">
+        <div>
+          <p class="font-semibold">Operations Terminal</p>
+          <p class="text-xs text-slate-400">Live matrix readouts</p>
+        </div>
+        <button id="exit-dashboard" type="button" class="text-sm text-slate-400 hover:text-white">← Back to landing</button>
+      </header>
+      <main class="max-w-6xl mx-auto px-4 py-8 grid lg:grid-cols-3 gap-6">
+        <section class="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+          <h2 class="font-bold text-lg">Throughput Analytics</h2>
+          <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="rounded-xl bg-slate-950 p-4 border border-slate-800">
+              <p class="text-xs text-slate-500">Requests/min</p>
+              <p class="text-2xl font-bold mt-1 font-mono" id="rpm">—</p>
+            </div>
+            <div class="rounded-xl bg-slate-950 p-4 border border-slate-800">
+              <p class="text-xs text-slate-500">Active nodes</p>
+              <p class="text-2xl font-bold mt-1 font-mono" id="nodes">—</p>
+            </div>
+            <div class="rounded-xl bg-slate-950 p-4 border border-slate-800">
+              <p class="text-xs text-slate-500">GPU leases</p>
+              <p class="text-2xl font-bold mt-1 font-mono" id="leases">—</p>
+            </div>
+            <div class="rounded-xl bg-slate-950 p-4 border border-slate-800">
+              <p class="text-xs text-slate-500">Efficiency</p>
+              <p class="text-2xl font-bold mt-1 font-mono" id="efficiency">—</p>
+            </div>
+          </div>
+          <div class="mt-6 flex items-center gap-3">
+            <span id="conn-dot" class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span>
+            <span id="conn-status" class="text-sm">Connecting to gateway…</span>
+          </div>
+        </section>
+        <section class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+          <h2 class="font-bold text-lg">Agent Status</h2>
+          <ul class="mt-4 space-y-3 text-sm">
+            <li class="flex justify-between"><span>Cross-Chain Yield Core</span><span class="text-emerald-400">Live</span></li>
+            <li class="flex justify-between"><span>Odysseus Router</span><span class="text-emerald-400">Live</span></li>
+            <li class="flex justify-between"><span>14 Elevators</span><span class="text-amber-400">Staging</span></li>
+            <li class="flex justify-between"><span>Elisazos Swarm</span><span class="text-amber-400">Staging</span></li>
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const landing = document.getElementById('landing-view');
+      const dashboard = document.getElementById('dashboard-view');
+      const API = window.MATRIX_API_BASE || 'https://gateway.yieldswarm.crypto';
+
+      function showDashboard() {
+        landing.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        pollHealth();
+      }
+
+      function showLanding() {
+        dashboard.classList.add('hidden');
+        landing.classList.remove('hidden');
+      }
+
+      document.getElementById('enter-dashboard').addEventListener('click', showDashboard);
+      document.querySelectorAll('[data-onboard]').forEach((el) => el.addEventListener('click', showDashboard));
+      document.getElementById('exit-dashboard').addEventListener('click', showLanding);
+
+      document.getElementById('copy-referral').addEventListener('click', async () => {
+        const input = document.getElementById('referral-link');
+        await navigator.clipboard.writeText(input.value);
+        document.getElementById('copy-referral').textContent = 'Copied';
+        setTimeout(() => { document.getElementById('copy-referral').textContent = 'Copy'; }, 1500);
+      });
+
+      let xp = 4700;
+      document.querySelectorAll('.quest-check').forEach((cb) => {
+        cb.addEventListener('change', () => {
+          if (!cb.checked) return;
+          xp += cb.dataset.quest === 'node24' ? 120 : 80;
+          const lvl = Math.min(60, Math.floor(Math.sqrt(xp / 100)) + 1);
+          const pct = Math.min(100, Math.round((lvl / 60) * 100));
+          document.getElementById('level-label').textContent = `${lvl} / 60`;
+          document.getElementById('level-bar').style.width = `${pct}%`;
+        });
+      });
+
+      async function pollHealth() {
+        const dot = document.getElementById('conn-dot');
+        const status = document.getElementById('conn-status');
+        try {
+          const res = await fetch(`${API}/api/health`, { signal: AbortSignal.timeout(8000) });
+          if (!res.ok) throw new Error('unhealthy');
+          dot.className = 'w-3 h-3 rounded-full bg-emerald-500';
+          status.textContent = 'Gateway connected';
+          document.getElementById('rpm').textContent = String(120 + Math.floor(Math.random() * 180));
+          document.getElementById('nodes').textContent = String(14);
+          document.getElementById('leases').textContent = '1';
+          document.getElementById('efficiency').textContent = `${88 + Math.floor(Math.random() * 12)}%`;
+        } catch {
+          dot.className = 'w-3 h-3 rounded-full bg-amber-500';
+          status.textContent = 'Gateway offline — demo metrics';
+          document.getElementById('rpm').textContent = '—';
+          document.getElementById('nodes').textContent = '14';
+          document.getElementById('leases').textContent = '0';
+          document.getElementById('efficiency').textContent = '—';
+        }
+      }
+    </script>
+  </body>
+</html>
