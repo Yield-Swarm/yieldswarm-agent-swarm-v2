@@ -25,6 +25,7 @@ import nexusRouter from './routes/nexus.js';
 import shadowRouter from './routes/shadow.js';
 import iotRouter from './routes/iot.js';
 import rpcRouter from './routes/rpc.js';
+import rewardsRouter from './routes/rewards.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,6 +54,7 @@ app.use('/api/nexus', nexusRouter);
 app.use('/api/shadow', shadowRouter);
 app.use('/api/iot', iotRouter);
 app.use('/api/rpc', rpcRouter);
+app.use('/api/rewards', rewardsRouter);
 app.use('/api/single-pane', singlePaneRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
@@ -136,7 +138,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Helix:     /api/helix/status  /api/helix/activate\n` +
       `  Nexus:     /api/nexus/status  /api/nexus/registry\n` +
       `  Shadow:    /api/shadow/status  /api/shadow/vault/injection/:provider\n` +
-      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync`,
+      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync\n` +
+      `  Rewards:   /api/rewards/status  /api/rewards/sweep  /api/rewards/full`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

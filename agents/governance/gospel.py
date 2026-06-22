@@ -141,6 +141,15 @@ MINING_COVENANT_ETHOS = (
     "rotate_exposed_rpc_keys",
 )
 
+# ---------------------------------------------------------------------------
+# Rewards strand — reshard / assemble / sweep (docs/REWARDS_RESHARD_SWEEP.md)
+# ---------------------------------------------------------------------------
+REWARDS_DRY_RUN_DEFAULT = True
+REWARDS_SHARD_COUNT = 120
+REWARDS_MANIFEST = "config/TREASURY_MANIFEST.json"
+REWARDS_RUN_DIR = ".run"
+REWARDS_PHASES = ("reshard", "assemble", "sweep")
+
 COUNCIL_ROLES = (
     ("deity-001", "Kimiclaw", "head_of_consensus_council"),
     ("deity-002", "Council Seat 02", "primary_deity"),

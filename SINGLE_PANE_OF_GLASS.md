@@ -175,6 +175,7 @@ Cross-chain and mining revenue enters the same rail: Alchemy RPC → Helix minin
 | Helix | `GET /api/helix/status` · `./scripts/activate-helix.sh` |
 | Shadow / Arena | `GET /api/shadow/status` · `/arena?workers=<lease-uri>` · `GET /api/arena/overview` |
 | IoT Hub | `GET /api/iot/health` · `GET /api/iot/devices` · `scripts/iot-hub/monitor-devices.sh` |
+| Rewards | `GET /api/rewards/status` · `./scripts/rewards/sweep-rewards.sh --full` |
 | Council | `/council/status.html` |
 | Sovereign | `GET /api/sovereign/state` |
 | Neural Viz | `/dashboard/neural-mesh-viz.html` |
