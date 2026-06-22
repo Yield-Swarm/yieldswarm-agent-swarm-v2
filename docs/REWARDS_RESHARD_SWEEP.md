@@ -41,9 +41,15 @@ python3 services/rewards/cli.py full
 ## Live sweep
 
 ```bash
-export REWARDS_DRY_RUN=0
-export REWARDS_PENDING_USD=1000   # optional override
+# Dry-run (default)
 ./scripts/rewards/sweep-rewards.sh --full
+
+# Live — requires HELIX_GO_LIVE=1 + Vault credentials
+export VAULT_TOKEN=...
+HELIX_GO_LIVE=1 ./scripts/rewards/go-live-sweep.sh
+
+# Full VMSS transition (IoT register + single-pane probe)
+HELIX_GO_LIVE=1 ./scripts/production/go-live.sh
 ```
 
 ## MEGAPOD stub

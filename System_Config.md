@@ -62,6 +62,7 @@ REVENUE_SPLIT=Great Delta 50/30/15/5
 ## QUICK COMMANDS
 ./scripts/production/go-live.sh --dry-run
 HELIX_GO_LIVE=1 ./scripts/production/go-live.sh
+HELIX_GO_LIVE=1 ./scripts/rewards/go-live-sweep.sh
 ./scripts/azure/configure-swarm-nsg.sh
 ./scripts/rewards/sweep-rewards.sh --full
 ./scripts/iot-hub/register-devices.sh

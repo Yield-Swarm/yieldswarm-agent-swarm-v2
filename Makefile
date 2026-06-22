@@ -23,6 +23,7 @@ A := deploy/akash
 .PHONY: help deploy all preflight vault-check vault-bootstrap vault-validate-secrets seed-vault \
         akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend start-mining bootstrap-mining \
+        go-live go-live-plan rewards-go-live azure-swarm-nsg \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -116,6 +117,10 @@ go-live:
 
 go-live-plan:
 	bash scripts/production/go-live.sh --dry-run
+
+## rewards-go-live: live payout sweep only (requires HELIX_GO_LIVE=1)
+rewards-go-live:
+	bash scripts/rewards/go-live-sweep.sh
 
 azure-swarm-nsg:
 	bash scripts/azure/configure-swarm-nsg.sh
