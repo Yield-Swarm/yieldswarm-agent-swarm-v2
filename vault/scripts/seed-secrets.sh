@@ -149,6 +149,20 @@ put_if_set runtime/wallets \
   helix_chain_bridge_key=HELIX_CHAIN_BRIDGE_KEY \
   zec_shielded_key=ZEC_SHIELDED_KEY
 
+put_if_set runtime/nexus_miner \
+  shadow_chain_id=SHADOW_CHAIN_ID \
+  execution_capacity=EXECUTION_CAPACITY \
+  iotex_device_id=IOTEX_DEVICE_ID \
+  iotex_w3bstream_endpoint=IOTEX_W3BSTREAM_ENDPOINT \
+  nexus_gateway_url=NEXUS_GATEWAY_URL \
+  nexus_sync_api_key=NEXUS_SYNC_API_KEY \
+  helix_chain_rpc=HELIX_CHAIN_RPC \
+  nexus_chain_rpc=NEXUS_CHAIN_RPC
+
+put_if_set integrations/xai \
+  api_key=XAI_API_KEY \
+  voice_secret_key=XAI_VOICE_SECRET_KEY
+
 put_if_set integrations/github  token=GITHUB_TOKEN
 put_if_set integrations/vercel  token=VERCEL_API_TOKEN
 put_if_set integrations/notion  api_key=NOTION_API_KEY

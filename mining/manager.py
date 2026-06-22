@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -54,6 +55,7 @@ class UnifiedMiningManager:
             "ok": True,
             "timestamp": int(time.time()),
             "dry_run": self.config.dry_run,
+            "execution_capacity": self.config.execution_capacity,
             "auth": self.auth.bootstrap_context().to_dict(),
             "reward_routes": self.rewards.route_table(),
             "fleet": self.fleet.status(),
@@ -135,8 +137,18 @@ def run_manager_cli(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="YieldSwarm unified mining manager")
     parser.add_argument("command", choices=["start", "stop", "restart", "status", "config", "list", "deploy"])
     parser.add_argument("--miner", "-m", help="Single miner (bittensor|monero|etc|grass|helium)")
+    parser.add_argument(
+        "--capacity",
+        type=float,
+        default=None,
+        help="Thread execution capacity bound 0.1–1.0 (default: EXECUTION_CAPACITY env or 0.80)",
+    )
     parser.add_argument("--json", action="store_true", help="JSON output")
     args = parser.parse_args(argv)
+
+    if args.capacity is not None:
+        cap = max(0.1, min(1.0, args.capacity))
+        os.environ["EXECUTION_CAPACITY"] = str(cap)
 
     mgr = UnifiedMiningManager()
     if args.command == "list":

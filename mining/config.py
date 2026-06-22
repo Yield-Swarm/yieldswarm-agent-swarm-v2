@@ -98,6 +98,7 @@ class MiningConfig:
 
     run_dir: str = ".run/mining"
     dry_run: bool = True
+    execution_capacity: float = 0.80
 
     # Wallets (public addresses — keys stay in Vault)
     tao_wallet: str = ""
@@ -131,6 +132,7 @@ class MiningConfig:
     def redacted(self) -> Dict[str, Any]:
         return {
             "dry_run": self.dry_run,
+            "execution_capacity": self.execution_capacity,
             "tao_wallet": self.tao_wallet,
             "tao_hotkey": self.tao_hotkey,
             "monero_wallet": self.monero_wallet,
@@ -226,9 +228,16 @@ def load_mining_config() -> MiningConfig:
         "yes",
     )
 
+    try:
+        execution_capacity = float(os.getenv("EXECUTION_CAPACITY", "0.80"))
+    except ValueError:
+        execution_capacity = 0.80
+    execution_capacity = max(0.1, min(1.0, execution_capacity))
+
     return MiningConfig(
         run_dir=os.getenv("MINING_RUN_DIR", ".run/mining"),
         dry_run=dry_run,
+        execution_capacity=execution_capacity,
         tao_wallet=tao_wallet,
         tao_hotkey=os.getenv("BITTENSOR_HOTKEY_ADDRESS", ""),
         monero_wallet=monero_wallet,

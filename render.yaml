@@ -39,3 +39,34 @@ services:
         sync: false
       - key: VAULT_TOKEN
         sync: false
+
+  - type: web
+    name: nexus-miner-gateway
+    runtime: node
+    region: singapore
+    plan: starter
+    branch: main
+    rootDir: gateway/nexus-miner
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: SHADOW_CHAIN_ID
+        value: shadow-solenoid-3
+      - key: EXECUTION_CAPACITY
+        value: "0.80"
+      - key: HELIX_CHAIN_RPC
+        value: https://yieldswarm-agent-swarm-v2-mainnet.onrender.com
+      - key: NEXUS_CHAIN_RPC
+        value: https://w3bstream-mainnet.iotex.io/v1/projects/apollo_nexus
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXUS_SYNC_API_KEY
+        sync: false
+      - key: IOTEX_DEVICE_ID
+        value: io_nexus_pebble_01

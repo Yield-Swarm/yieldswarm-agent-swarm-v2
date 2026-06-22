@@ -1,0 +1,19 @@
+{
+  "name": "yieldswarm-nexus-miner-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Singapore Render DePIN telemetry gateway — Shadow Solenoid 3 / Helix-Nexus bridge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "express": "^4.19.2",
+    "zod": "^3.23.8"
+  }
+}

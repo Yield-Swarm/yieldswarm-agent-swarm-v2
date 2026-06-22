@@ -26,7 +26,7 @@ A := deploy/akash
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
-        frontend vercel render \
+        frontend vercel render nexus-miner-neon-migrate nexus-miner-gateway nexus-miner-runpod-bootstrap \
         monitoring-up monitoring-down sovereign-up sovereign-down \
         tesla-keys tesla-register \
         start-sovereign-consensus stop-sovereign-consensus restart-sovereign-consensus \
@@ -130,6 +130,19 @@ vercel:
 ## render: show Render blueprint instructions
 render:
 	bash scripts/deploy-production.sh render
+
+## nexus-miner-neon-migrate: apply DePIN miner profile schema to Neon
+nexus-miner-neon-migrate:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL unset" && exit 1)
+	psql "$$DATABASE_URL" -f telemetry/neon/nexus_miner_schema.sql
+
+## nexus-miner-gateway: run Singapore DePIN gateway locally
+nexus-miner-gateway:
+	cd gateway/nexus-miner && npm ci && npm start
+
+## nexus-miner-runpod-bootstrap: activate RunPod multi-mining worker (Pod 0/1)
+nexus-miner-runpod-bootstrap:
+	bash scripts/runpod/bootstrap-nexus-miner.sh
 
 ## production: unified multi-platform entry (see scripts/deploy-production.sh)
 production:
