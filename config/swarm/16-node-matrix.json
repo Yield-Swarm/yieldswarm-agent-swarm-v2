@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "total_nodes": 16,
+  "stagger_sec": 3,
+  "description": "16 Termux swarm nodes → RunPod open-metal tiers (hotspot-safe staggered launch)",
+  "nodes": [
+    { "id": 1, "tier": "b200", "model": "deepseek-r1-reasoning", "runpod_host": "outdoor_tomato_impala", "role": "reasoning" },
+    { "id": 2, "tier": "b200", "model": "deepseek-r1-reasoning", "runpod_host": "outdoor_tomato_impala", "role": "reasoning" },
+    { "id": 3, "tier": "b200", "model": "deepseek-r1-reasoning", "runpod_host": "outdoor_tomato_impala", "role": "reasoning" },
+    { "id": 4, "tier": "b200", "model": "deepseek-r1-reasoning", "runpod_host": "outdoor_tomato_impala", "role": "reasoning" },
+    { "id": 5, "tier": "h200", "model": "kimi-k2-agent", "runpod_host": "single_amber_peafowl", "role": "agent-swarm" },
+    { "id": 6, "tier": "h200", "model": "kimi-k2-agent", "runpod_host": "single_amber_peafowl", "role": "agent-swarm" },
+    { "id": 7, "tier": "h200", "model": "kimi-k2-agent", "runpod_host": "single_amber_peafowl", "role": "agent-swarm" },
+    { "id": 8, "tier": "h200", "model": "kimi-k2-agent", "runpod_host": "single_amber_peafowl", "role": "agent-swarm" },
+    { "id": 9, "tier": "h200", "model": "kimi-k2-agent", "runpod_host": "single_amber_peafowl", "role": "agent-swarm" },
+    { "id": 10, "tier": "h200", "model": "kimi-k2-agent", "runpod_host": "single_amber_peafowl", "role": "agent-swarm" },
+    { "id": 11, "tier": "h100", "model": "qwen-tool-fast", "runpod_host": "thick_salmon_goat", "role": "tool-calling" },
+    { "id": 12, "tier": "h100", "model": "qwen-tool-fast", "runpod_host": "thick_salmon_goat", "role": "tool-calling" },
+    { "id": 13, "tier": "h100", "model": "qwen-tool-fast", "runpod_host": "thick_salmon_goat", "role": "tool-calling" },
+    { "id": 14, "tier": "h100", "model": "qwen-tool-fast", "runpod_host": "thick_salmon_goat", "role": "tool-calling" },
+    { "id": 15, "tier": "ollama", "model": "llama-scout-routing", "runpod_host": "shared-failover", "role": "routing" },
+    { "id": 16, "tier": "ollama", "model": "phi-eval-fast", "runpod_host": "shared-failover", "role": "evaluation" }
+  ]
+}

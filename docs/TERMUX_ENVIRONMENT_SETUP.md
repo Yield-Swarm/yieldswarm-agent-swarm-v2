@@ -144,3 +144,18 @@ Termux is fine for **git, scripts, and light editing**. For stable dev servers a
 | Looking for `./app/` at repo root | App is in `src/app/` |
 | `npm run deploy` | Use `npm run deploy:stack` or a specific `deploy:*` script |
 | Running Vite from repo root | `npm run dev:frontend` (or `cd frontend && npm run dev`) |
+
+---
+
+## 16-node RunPod swarm (mainnet workers)
+
+Each Termux instance needs a **unique** node id:
+
+```bash
+termux-wake-lock
+cd ~/yieldswarm-agent-swarm-v2
+export SWARM_NODE_ID=1   # change to 2..16 per device
+npm run run-all-onchain
+```
+
+See [`docs/SWARM_RUNPOD_ORCHESTRATION.md`](SWARM_RUNPOD_ORCHESTRATION.md) for stagger timing, RunPod tier map, and hotspot troubleshooting.
