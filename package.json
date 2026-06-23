@@ -29,7 +29,11 @@
     "prod:backend": "cd backend && npm start",
     "prod:helix": "bash scripts/activate-helix.sh",
     "prod:mining": "bash scripts/mining/start-all.sh",
-    "cherry:export-specs": "bash scripts/cherry-servers/export-cloud-specs.sh --load-vault"
+    "cherry:export-specs": "bash scripts/cherry-servers/export-cloud-specs.sh --load-vault",
+    "trident:wire-domains": "npx tsx scripts/wire-domains.ts",
+    "trident:deploy": "bash scripts/launch-trident-mainnet.sh",
+    "trident:deploy:dry": "bash scripts/launch-trident-mainnet.sh --dry-run",
+    "trident:loops": "bash scripts/start-trident-loops.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -60,9 +64,9 @@
     "postcss": "^8.4.39",
     "snarkjs": "^0.7.5",
     "tailwindcss": "^3.4.6",
+    "tsx": "^4.22.4",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.5",
-    "snarkjs": "^0.7.5"
+    "vitest": "^2.0.5"
   },
   "engines": {
     "node": ">=18.18.0"

@@ -1,0 +1,40 @@
+{
+  "version": "3.05911111100",
+  "layers": {
+    "ai_defi": {
+      "label": "AI & DeFi Agent Layer",
+      "domains": [
+        { "host": "defiswarmagents.com", "role": "kairos-dapp", "target": "vercel", "cname": "cname.vercel-dns.com" },
+        { "host": "defiswarmagents.link", "role": "ipfs-gateway", "target": "ipfs", "cname": "gateway.pinata.cloud" },
+        { "host": "defiswarmagents.info", "role": "analytics-api", "target": "akash", "path": "/api/telemetry" }
+      ]
+    },
+    "node_consensus": {
+      "label": "Node & Network Consensus Layer",
+      "domains": [
+        { "host": "helixpow.pw", "role": "vehicle-telemetry-wss", "target": "wss-ingest", "path": "/api/iot/telemetry" },
+        { "host": "helixpos.xyz", "role": "staking-frontend", "target": "vercel" },
+        { "host": "helixpow.xyz", "role": "mining-frontend", "target": "vercel" },
+        { "host": "starthelixchain.xyz", "role": "rpc-multiplexer", "target": "akash", "path": "/api/rpc" },
+        { "host": "genushelix.blockchain", "role": "did-root", "target": "ud-crypto", "record": "crypto.ETH.address" }
+      ]
+    },
+    "yield_treasury": {
+      "label": "Yield & Multi-Asset Treasury Layer",
+      "domains": [
+        { "host": "yieldswarmofficial.pw", "role": "yield-swap-ui", "target": "vercel" },
+        { "host": "yieldswarmtreasury.pw", "role": "dao-governance", "target": "vercel" },
+        { "host": "yieldswarmofficial.blockchain", "role": "multisig-vault", "target": "ud-crypto", "record": "crypto.ETH.address" },
+        { "host": "yieldswarmtreasury.blockchain", "role": "treasury-vault", "target": "ud-crypto", "record": "crypto.SOL.address" }
+      ]
+    },
+    "codex_cdn": {
+      "label": "Codex Documentation CDN Layer",
+      "domains": [
+        { "host": "yslrcodex.com", "role": "docs-hub", "target": "vercel", "path": "/docs" },
+        { "host": "yslrcodex.infi", "role": "ipfs-cdn-mirror", "target": "ipfs" },
+        { "host": "yslecodex.link", "role": "ipfs-cdn-mirror", "target": "ipfs" }
+      ]
+    }
+  }
+}

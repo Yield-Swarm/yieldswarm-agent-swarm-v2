@@ -156,6 +156,18 @@ put_if_set integrations/linear  api_key=LINEAR_API_KEY
 put_if_set integrations/telegram bot_token=TELEGRAM_BOT_TOKEN
 put_if_set integrations/unstoppable api_key=UD_API_KEY
 
+# ---- Poseidon Delta Trident (mainnet Mayhem) ----
+put_if_set runtime/trident \
+  heliom_edge_ingest_key=HELIOM_EDGE_INGEST_KEY \
+  vehicle_id=VEHICLE_ID \
+  trident_version=TRIDENT_VERSION \
+  codex_ingest_url=CODEX_INGEST_URL
+
+put_if_set domains/runtime \
+  ud_api_key=UD_API_KEY \
+  vercel_token=VERCEL_TOKEN \
+  vercel_project_id=VERCEL_PROJECT_ID
+
 # ---- Kairo (driver app) ----
 put_if_set runtime/kairo \
   mapbox_token=MAPBOX_TOKEN \
