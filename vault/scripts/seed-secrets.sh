@@ -53,7 +53,9 @@ put_if_set providers/azure \
   client_id=AZURE_CLIENT_ID \
   client_secret=AZURE_CLIENT_SECRET \
   tenant_id=AZURE_TENANT_ID \
-  subscription_id=AZURE_SUBSCRIPTION_ID
+  subscription_id=AZURE_SUBSCRIPTION_ID \
+  ssh_public_key=AZURE_SSH_PUBLIC_KEY \
+  admin_username=AZURE_ADMIN_USERNAME
 
 put_if_set providers/runpod \
   api_key=RUNPOD_API_KEY

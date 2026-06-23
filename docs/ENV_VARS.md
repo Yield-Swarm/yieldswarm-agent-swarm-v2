@@ -273,7 +273,9 @@ See `docs/COUNCIL_WISHLIST.md` for enable steps.
 | `KAIRO_API_BASE`, `MAPBOX_TOKEN` | Vercel | Frontend env (dashboard aliases) |
 | `RENDER_API_KEY`, `RENDER_SERVICE_ID` | Render | Fallback API redeploy |
 | `TF_ENABLE_RENDER`, `TF_ENABLE_FLY`, `TF_ENABLE_HETZNER` | Terraform fallback | Toggle providers |
-| `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID` | Azure | Via Vault `providers/azure` |
+| `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID` | Azure SP | Via Vault `providers/azure` |
+| `AZURE_SSH_PUBLIC_KEY`, `AZURE_ADMIN_USERNAME` | Azure VM SSH | Vault `providers/azure` · `scripts/azure/wire-ssh-key.sh` |
+| `DEPLOY_SSH_PUBLIC_KEY` | Multicloud VM SSH | Shared Vultr/DO/Azure |
 | `TFC_ORGANIZATION`, `TFC_WORKSPACE` | Terraform Cloud | Remote state (`Helixchainprod`) |
 
 ---

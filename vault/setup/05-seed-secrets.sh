@@ -48,7 +48,9 @@ put cloud/azure \
   client_id="$(val AZURE_CLIENT_ID)" \
   client_secret="$(val AZURE_CLIENT_SECRET)" \
   tenant_id="$(val AZURE_TENANT_ID)" \
-  subscription_id="$(val AZURE_SUBSCRIPTION_ID)"
+  subscription_id="$(val AZURE_SUBSCRIPTION_ID)" \
+  ssh_public_key="$(val AZURE_SSH_PUBLIC_KEY)" \
+  admin_username="$(val AZURE_ADMIN_USERNAME)"
 
 put cloud/runpod \
   api_key="$(val RUNPOD_API_KEY)"

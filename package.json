@@ -33,7 +33,8 @@
     "trident:wire-domains": "npx tsx scripts/wire-domains.ts",
     "trident:deploy": "bash scripts/launch-trident-mainnet.sh",
     "trident:deploy:dry": "bash scripts/launch-trident-mainnet.sh --dry-run",
-    "trident:loops": "bash scripts/start-trident-loops.sh"
+    "trident:loops": "bash scripts/start-trident-loops.sh",
+    "azure:wire-ssh": "bash scripts/azure/wire-ssh-key.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

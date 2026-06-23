@@ -15,6 +15,8 @@ AZURE_CLIENT_ID={{ .Data.data.client_id }}
 AZURE_CLIENT_SECRET={{ .Data.data.client_secret }}
 AZURE_TENANT_ID={{ .Data.data.tenant_id }}
 AZURE_SUBSCRIPTION_ID={{ .Data.data.subscription_id }}
+AZURE_SSH_PUBLIC_KEY={{ .Data.data.ssh_public_key }}
+AZURE_ADMIN_USERNAME={{ .Data.data.admin_username }}
 {{- end }}
 
 {{- with secret "yieldswarm/data/cloud/azure" }}

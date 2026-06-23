@@ -1,0 +1,13 @@
+# Azure SSH — operator connection template
+# Copy to ~/.ssh/config after: source .run/azure-ssh.env
+
+Host yieldswarm-azure
+  HostName YOUR_AZURE_VM_PUBLIC_IP
+  User azureuser
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  ServerAliveInterval 60
+
+# After wire-ssh-key.sh:
+#   source .run/azure-ssh.env
+#   ssh ${AZURE_ADMIN_USERNAME}@${AZURE_VM_HOST}

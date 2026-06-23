@@ -36,7 +36,7 @@ worker_env = {
 
 # Provide your own key, or leave blank to auto-generate a break-glass key
 # (exported via the sensitive `breakglass_private_key_pem` output).
-ssh_public_key = ""
+ssh_public_key = ""  # or export AZURE_SSH_PUBLIC_KEY — run scripts/azure/wire-ssh-key.sh
 
 tags = {
   project   = "yieldswarm"

@@ -13,11 +13,39 @@ Move off Termux to a standard Ubuntu Azure VM for stable paths, proper CPU/RAM, 
 
 ## 1. Connect via SSH
 
+Generate a key (once on your laptop):
+
+```bash
+ssh-keygen -t ed25519 -C "yieldswarm-azure" -f ~/.ssh/id_ed25519 -N ""
+```
+
+Wire the public key into Azure + Vault:
+
+```bash
+export AZURE_SSH_PUBLIC_KEY="$(cat ~/.ssh/id_ed25519.pub)"
+export AZURE_SUBSCRIPTION_ID="<your-subscription>"
+./scripts/azure/wire-ssh-key.sh
+
+# Persist to Vault
+export VAULT_ADDR=https://vault.yieldswarm.io:8200
+export VAULT_TOKEN=<token>
+vault kv patch yieldswarm/providers/azure \
+  ssh_public_key="$AZURE_SSH_PUBLIC_KEY" \
+  admin_username=azureuser
+```
+
+Connect:
+
+```bash
+source .run/azure-ssh.env
+ssh ${AZURE_ADMIN_USERNAME}@${AZURE_VM_HOST:-YOUR_AZURE_VM_PUBLIC_IP}
+```
+
+Or add `config/azure/ssh.config.example` to `~/.ssh/config` as `Host yieldswarm-azure`.
+
 ```bash
 ssh azureuser@YOUR_AZURE_VM_PUBLIC_IP
 ```
-
-Replace `azureuser` with the admin username you chose when creating the VM.
 
 ## 2. One-shot bootstrap (recommended)
 
