@@ -79,4 +79,35 @@ router.post('/stop', requireMiningAuth, asyncRoute(async (req, res) => {
   res.status(code === 0 ? 200 : 502).json(data);
 }));
 
+/** POST /api/mining/hotload — write configs + start kaspa/qubic/xmr stack */
+router.post('/hotload', requireMiningAuth, asyncRoute(async (req, res) => {
+  const miners = req.body?.miners || ['kaspa', 'qubic', 'monero'];
+  const results = {};
+  for (const name of miners) {
+    const { data, code } = await runMiningCommand('start', ['--miner', name]);
+    results[name] = { code, data };
+  }
+  const { data: hashpower } = await runMiningCommand('hashpower');
+  res.json({ ok: true, results, hashpower });
+}));
+
+/** GET /api/mining/hashpower — fleet hashpower estimates */
+router.get('/hashpower', asyncRoute(async (_req, res) => {
+  const { data, code } = await runMiningCommand('hashpower');
+  res.status(code === 0 ? 200 : 502).json(data);
+}));
+
+/** GET /api/mining/profitability — top coins for tier */
+router.get('/profitability', asyncRoute(async (req, res) => {
+  const tier = req.query.tier || 'h100_sxm';
+  const { data, code } = await runMiningCommand('profitability', ['--tier', String(tier)]);
+  res.status(code === 0 ? 200 : 502).json(data);
+}));
+
+/** GET /api/mining/benchmark — live nvidia-smi + fleet estimates */
+router.get('/benchmark', asyncRoute(async (_req, res) => {
+  const { data, code } = await runMiningCommand('benchmark');
+  res.status(code === 0 ? 200 : 502).json(data);
+}));
+
 export default router;

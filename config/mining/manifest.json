@@ -2,7 +2,7 @@
   "version": "1.0",
   "manager": "mining.manager.UnifiedMiningManager",
   "cli": "scripts/mining/mining-manager.sh",
-  "miners": ["bittensor", "monero", "etc", "grass", "helium"],
+  "miners": ["bittensor", "monero", "etc", "grass", "helium", "kaspa", "qubic"],
   "state_dir": ".run/mining",
   "wallet_env": {
     "tao": "MINING_ROOT_TAO",

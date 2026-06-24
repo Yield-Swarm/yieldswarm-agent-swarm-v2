@@ -1,0 +1,6 @@
+# Kimi Claw worker hosts — one RunPod pod ID per line (no secrets)
+# Copy to kimi-claw-hosts.txt and fill all 16 nodes after SSH keys are injected
+io3xh1krei03ju-644120be
+zaql79zvnqyhjp-644120be
+q8omsww6hmu78k-644120be
+# Add remaining worker pod IDs below:

@@ -1,0 +1,79 @@
+{
+  "updated": "2026-06-22",
+  "note": "Estimates for enterprise GPU (H100/H200/B200) + EPYC/Xeon CPU. Verify live on whattomine.com / nicehash before deploy.",
+  "hardware_tiers": {
+    "h100_sxm": { "vram_gb": 80, "tdp_w": 700, "class": "datacenter" },
+    "h200_sxm": { "vram_gb": 141, "tdp_w": 700, "class": "datacenter" },
+    "b200": { "vram_gb": 192, "tdp_w": 1000, "class": "datacenter" },
+    "rtx_3090": { "vram_gb": 24, "tdp_w": 350, "class": "consumer" },
+    "rtx_4090": { "vram_gb": 24, "tdp_w": 450, "class": "consumer" }
+  },
+  "rankings": [
+    {
+      "rank": 1,
+      "coin": "KAS",
+      "algorithm": "kHeavyHash",
+      "best_for": ["h100_sxm", "h200_sxm", "b200", "rtx_3090", "rtx_4090"],
+      "est_hashrate": { "h100_sxm": "2.6 GH/s", "h200_sxm": "3.1 GH/s", "b200": "4.5 GH/s", "rtx_3090": "1.0 GH/s" },
+      "est_usd_per_day": { "h100_sxm": 2.2, "h200_sxm": 2.8, "b200": 3.5, "rtx_3090": 0.9 },
+      "pool_hint": "kas.auto.nicehash.com:3385",
+      "miner": "SRBMiner-MULTI | lolMiner"
+    },
+    {
+      "rank": 2,
+      "coin": "QUBIC",
+      "algorithm": "qubic-ai-training",
+      "best_for": ["h100_sxm", "h200_sxm", "b200"],
+      "est_hashrate": { "h100_sxm": "lease", "h200_sxm": "lease", "b200": "lease" },
+      "est_usd_per_day": { "h100_sxm": 1.5, "h200_sxm": 2.0, "b200": 3.0 },
+      "pool_hint": "qubic.io / NiceHash compute lease",
+      "miner": "qubic-cli | custom"
+    },
+    {
+      "rank": 3,
+      "coin": "ALPH",
+      "algorithm": "blake3-alph",
+      "best_for": ["rtx_3090", "rtx_4090", "h100_sxm"],
+      "est_hashrate": { "rtx_3090": "1.2 GH/s", "h100_sxm": "2.0 GH/s" },
+      "est_usd_per_day": { "rtx_3090": 0.7, "h100_sxm": 1.4 },
+      "pool_hint": "pool.alephium.org:20032",
+      "miner": "SRBMiner-MULTI"
+    },
+    {
+      "rank": 4,
+      "coin": "XMR",
+      "algorithm": "RandomX",
+      "best_for": ["cpu_epyc", "cpu_xeon"],
+      "est_hashrate": { "cpu_epyc": "22 KH/s", "cpu_xeon": "18 KH/s" },
+      "est_usd_per_day": { "cpu_epyc": 0.4, "cpu_xeon": 0.3 },
+      "pool_hint": "gulf.moneroocean.stream:10128",
+      "miner": "xmrig"
+    },
+    {
+      "rank": 5,
+      "coin": "TAO",
+      "algorithm": "bittensor-inference",
+      "best_for": ["h100_sxm", "rtx_3090"],
+      "est_hashrate": { "h100_sxm": "subnet-dependent" },
+      "est_usd_per_day": { "h100_sxm": "variable" },
+      "pool_hint": "finney subnet miner",
+      "miner": "bittensor + ollama"
+    },
+    {
+      "rank": 6,
+      "coin": "ETC",
+      "algorithm": "Etchash",
+      "best_for": ["rtx_3090", "rtx_4090"],
+      "est_hashrate": { "rtx_3090": "120 MH/s" },
+      "est_usd_per_day": { "rtx_3090": 0.5 },
+      "pool_hint": "etc.2miners.com:1010",
+      "miner": "lolMiner | t-rex"
+    }
+  ],
+  "free_credit_strategy": {
+    "akash_rtx3090": ["TAO", "KAS"],
+    "runpod_h100_h200_b200": ["KAS", "QUBIC", "ALPH"],
+    "runpod_cpu": ["XMR"],
+    "azure_gcp_burst": ["GRASS", "training-burst"]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "region": "us-west-2",
+  "ssh_user": "root",
+  "ssh_host_suffix": "@ssh.runpod.io",
+  "ssh_key_default": "~/.ssh/id_ed25519",
+  "log_dir_remote": "~/yieldswarm-logs",
+  "pods": [
+    {
+      "id": "io3xh1krei03ju-644120be",
+      "alias": "thick_salmon_goat",
+      "gpu": "NVIDIA H100 SXM",
+      "est_kaspa_ghs": 2.6,
+      "est_xmr_khs": 22
+    },
+    {
+      "id": "zaql79zvnqyhjp-644120be",
+      "alias": "single_amber_peafowl",
+      "gpu": "NVIDIA H200 SXM",
+      "est_kaspa_ghs": 3.1,
+      "est_xmr_khs": 22
+    },
+    {
+      "id": "q8omsww6hmu78k-644120be",
+      "alias": "outdoor_tomato_impala",
+      "gpu": "NVIDIA B200",
+      "est_kaspa_ghs": 4.5,
+      "est_xmr_khs": 24
+    }
+  ],
+  "fleet_totals": {
+    "est_kaspa_ghs": 10.2,
+    "est_xmr_khs": 68
+  }
+}

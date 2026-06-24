@@ -14,9 +14,11 @@ from mining.auth import MiningAuthService
 from mining.rewards import RewardRouter
 from mining.fleet import FleetRegistry
 from mining.miners import MINER_REGISTRY, BaseMiner
+from mining.hashpower import fleet_hashpower_report, measure_live_nvidia
+from mining.profitability import profitability_report
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MINERS = ["bittensor", "monero", "etc", "grass", "helium"]
+DEFAULT_MINERS = ["bittensor", "monero", "etc", "grass", "helium", "kaspa", "qubic"]
 
 
 class UnifiedMiningManager:
@@ -133,14 +135,24 @@ class UnifiedMiningManager:
 
 def run_manager_cli(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="YieldSwarm unified mining manager")
-    parser.add_argument("command", choices=["start", "stop", "restart", "status", "config", "list", "deploy"])
-    parser.add_argument("--miner", "-m", help="Single miner (bittensor|monero|etc|grass|helium)")
+    parser.add_argument("command", choices=[
+        "start", "stop", "restart", "status", "config", "list", "deploy",
+        "hashpower", "profitability", "benchmark",
+    ])
+    parser.add_argument("--miner", "-m", help="Single miner name")
+    parser.add_argument("--tier", default="h100_sxm", help="Hardware tier for profitability")
     parser.add_argument("--json", action="store_true", help="JSON output")
     args = parser.parse_args(argv)
 
     mgr = UnifiedMiningManager()
     if args.command == "list":
         out = {"miners": mgr.list_miners()}
+    elif args.command == "hashpower":
+        out = {"ok": True, **fleet_hashpower_report()}
+    elif args.command == "benchmark":
+        out = {"ok": True, "fleet": fleet_hashpower_report(), "live": measure_live_nvidia()}
+    elif args.command == "profitability":
+        out = {"ok": True, **profitability_report(args.tier)}
     elif args.command == "start":
         out = mgr.start(args.miner)
     elif args.command == "stop":
