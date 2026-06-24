@@ -14,7 +14,7 @@ services:
     rootDir: backend
     buildCommand: npm ci
     startCommand: npm start
-    healthCheckPath: /api/health
+    healthCheckPath: /healthz
     autoDeploy: true
     envVars:
       - key: NODE_ENV
@@ -23,6 +23,19 @@ services:
         value: "8080"
       - key: HOST
         value: 0.0.0.0
+      - key: RENDER_REGION
+        value: singapore
+      # DePIN / IoTeX (set in Render dashboard — never commit)
+      - key: DATABASE_URL
+        sync: false
+      - key: IOTEX_DEVICE_ID
+        sync: false
+      - key: IOTEX_W3BSTREAM_ENDPOINT
+        sync: false
+      - key: IOTEX_PROJECT_TOKEN
+        sync: false
+      - key: HELIX_CHAIN_RPC
+        sync: false
       # Solana / Akash telemetry (set in Render dashboard)
       - key: SOLANA_RPC_URL
         sync: false

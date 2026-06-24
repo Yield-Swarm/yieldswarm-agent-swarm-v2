@@ -1,0 +1,27 @@
+{
+  "network": "production",
+  "routingPolicy": "WeightedLatencyRoundRobin",
+  "description": "17-domain edge routing for YieldSwarm / Helix / Nexus multi-cluster",
+  "domains": [
+    "https://yieldswarm-agent-swarm-v2-mainnet.onrender.com",
+    "https://yieldswarm.crypto",
+    "https://app.yieldswarm.crypto",
+    "https://api.yieldswarm.crypto",
+    "https://dashboard.yieldswarm.crypto",
+    "https://odysseus.yieldswarm.crypto",
+    "https://kairo.crypto",
+    "https://support.yieldswarmofficial.xyz",
+    "https://vault.yieldswarm.io",
+    "https://yieldswarm-agent-swarm-v2.vercel.app",
+    "https://v2-0-bay.vercel.app",
+    "https://apollonexusengine.io",
+    "https://solenoid3-settle.net",
+    "https://shadow-chain-nodes.org",
+    "https://geod-spatial-bridge.net",
+    "https://helix-chain-settle.onrender.com",
+    "https://depin-telemetry.yieldswarm.crypto"
+  ],
+  "healthCheckPath": "/healthz",
+  "syncPath": "/api/sync",
+  "consensusPath": "/api/depin/consensus?rounds=100"
+}

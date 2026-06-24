@@ -24,6 +24,7 @@ import singlePaneRouter from './routes/singlePane.js';
 import nexusRouter from './routes/nexus.js';
 import shadowRouter from './routes/shadow.js';
 import iotRouter from './routes/iot.js';
+import depinRouter from './routes/depin.js';
 import rpcRouter from './routes/rpc.js';
 import toolsRouter from './routes/tools.js';
 
@@ -43,7 +44,18 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/healthz', (_req, res) => {
+  res.status(200).json({
+    status: 'ACTIVE',
+    service: 'yieldswarm-integration',
+    infrastructure: 'helix-nexus-chain-bridge',
+    region: process.env.RENDER_REGION || process.env.AWS_REGION || 'local',
+    time: new Date().toISOString(),
+  });
+});
+
 app.use('/api', apiRouter);
+app.use('/api', depinRouter);
 app.use('/api/kairo', kairoRouter);
 app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
@@ -136,7 +148,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Helix:     /api/helix/status  /api/helix/activate\n` +
       `  Nexus:     /api/nexus/status  /api/nexus/registry\n` +
       `  Shadow:    /api/shadow/status  /api/shadow/vault/injection/:provider\n` +
-      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync`,
+      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync\n` +
+      `  DePIN:     /api/sync  /api/depin/checklist  /api/iotex/ingest  /api/depin/consensus`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

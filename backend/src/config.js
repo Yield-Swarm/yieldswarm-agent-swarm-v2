@@ -174,6 +174,18 @@ export const config = {
     defaults: _alchemyUrls,
     manifestPath: 'config/alchemy/christophers-first-app.json',
   },
+
+  iotex: {
+    deviceId: process.env.IOTEX_DEVICE_ID || '',
+    w3bstreamEndpoint: process.env.IOTEX_W3BSTREAM_ENDPOINT || '',
+    projectToken: process.env.IOTEX_PROJECT_TOKEN || '',
+    enabled: bool(process.env.IOTEX_ENABLED, true),
+  },
+
+  depin: {
+    databaseUrl: process.env.DATABASE_URL || '',
+    storeDir: process.env.DEPIN_STORE_DIR || '.run',
+  },
 };
 
 export default config;

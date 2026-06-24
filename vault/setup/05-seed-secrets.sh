@@ -61,6 +61,14 @@ put cloud/digitalocean \
   token="$(val DIGITALOCEAN_TOKEN)" \
   ssh_public_key="$(val DEPLOY_SSH_PUBLIC_KEY)"
 
+put cloud/iotex \
+  device_id="$(val IOTEX_DEVICE_ID)" \
+  w3bstream_endpoint="$(val IOTEX_W3BSTREAM_ENDPOINT)" \
+  project_token="$(val IOTEX_PROJECT_TOKEN)"
+
+put cloud/vercel-ai-gateway \
+  api_key="$(val AI_GATEWAY_API_KEY)"
+
 # ---- RPC / chain providers --------------------------------------------
 put rpc/helius   api_key="$(val HELIUS_API_KEY)"
 put rpc/birdeye  api_key="$(val BIRDEYE_API_KEY)"
