@@ -9,7 +9,12 @@ export VAULT_ADDR=https://vault.yieldswarm.io:8200
 export VAULT_TOKEN=<your-vault-token>   # never commit
 export AGENT_SHARD_ID=0
 export BT_NETUID=1
+export AKASH_KEY_NAME=yieldswarm
 
+# One-shot: preflight + deploy + verify
+./deploy/akash/deploy-full.sh
+
+# Or step-by-step:
 make akash-preflight          # must print GO
 make deploy-akash-europlots
 make akash-verify
