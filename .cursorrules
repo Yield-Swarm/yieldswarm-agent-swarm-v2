@@ -1,0 +1,22 @@
+# YieldSwarm Helix — Cursor Swarm Constitution
+
+## Architecture
+- Tri-solenoid: Nexus (orchestration), Helix (cross-chain yield), Shadow (arena) — `config/nexus/solenoids.yaml`
+- 14-pillar elevators — `config/helix/pillars.yaml` (source of truth)
+- Quadrilateral → Pentagram → 14× elevators — `src/infrastructure/odysseus-router.js` + `entropy-core.js`
+- Backend integration API: port **8080** — `backend/src/server.js`
+
+## Rules
+1. Map every new module to a pillar id (1–14) in `config/helix/pillars.yaml`
+2. All JSON API responses from solenoid routes should include state anchors when touching `QuadrilateralSolenoidRouter`
+3. Bridge root `src/infrastructure/*` into backend via `createRequire` in `backend/src/adapters/` — do not duplicate logic
+4. Tesla ingest: `POST /api/telemetry/tesla` — use `TeslaMeshEntropyCore`
+5. Starlink: env `STARLINK_API_KEY` — adapter stub until live key
+6. Neural mesh: 14 payloads exactly — `services/neural_mesh/elevators.py`
+7. No Polsia dependency — pure Cursor + this repo + env/Vault secrets
+8. Cloud credits pool: $5,408 — `config/helix/pillars.yaml` `credit_pool_usd`
+9. Test before deploy: `npm run test:helix` then `npm run helix:deploy-pillars`
+10. Zero placeholders in production paths — stubs must return structured `{ ok, note }` not throw
+
+## Priority build order
+contracts → sovereign-optimizer → odysseus-router → dydx-bridge → vLLM 5090 SDL → ZK entropy → neural mesh APIs

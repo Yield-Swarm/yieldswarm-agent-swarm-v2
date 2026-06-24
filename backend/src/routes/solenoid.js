@@ -10,6 +10,7 @@ import {
   pruneContext,
   runAxisMatrix,
 } from '../adapters/solenoid.js';
+import { ingestTeslaFleetTelemetry } from '../adapters/teslaFleet.js';
 
 const router = Router();
 
@@ -39,6 +40,12 @@ router.post('/prune', asyncRoute(async (req, res) => {
 /** POST /api/telemetry/pulse — oracle bridge metric pulse per pillar */
 router.post('/pulse', asyncRoute(async (req, res) => {
   res.json(ingestTelemetryPulse(req.body || {}));
+}));
+
+/** POST /api/telemetry/tesla — Tesla Fleet API ingest (pillar 7) */
+router.post('/tesla', asyncRoute(async (req, res) => {
+  const result = ingestTeslaFleetTelemetry(req.body || {});
+  res.status(result.ok ? 202 : 400).json(result);
 }));
 
 /** POST /api/solenoid/matrix — full 14-pillar axis matrix execution */

@@ -39,7 +39,8 @@
     "termux:dev": "bash scripts/termux/launch-openclaws-dev.sh",
     "termux:backend": "npm run prod:backend",
     "mining:tandem": "bash scripts/mining/tandem-pow-launch.sh",
-    "depin:vehicle-edge": "node services/depin/vehicle-edge.mjs"
+    "helix:deploy-pillars": "bash scripts/deploy-and-test-pillars.sh",
+    "neural-mesh:status": "curl -s http://127.0.0.1:8080/api/neural-mesh/status | head -c 2000",
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

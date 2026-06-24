@@ -25,7 +25,7 @@ import nexusRouter from './routes/nexus.js';
 import shadowRouter from './routes/shadow.js';
 import iotRouter from './routes/iot.js';
 import rpcRouter from './routes/rpc.js';
-import toolsRouter from './routes/tools.js';
+import neuralMeshRouter from './routes/neuralMesh.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -57,6 +57,7 @@ app.use('/api/single-pane', singlePaneRouter);
 app.use('/api/solenoid', solenoidRouter);
 app.use('/api/context', solenoidRouter);
 app.use('/api/telemetry', solenoidRouter);
+app.use('/api/neural-mesh', neuralMeshRouter);
 app.use('/', toolsRouter);
 
 // ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------
@@ -136,7 +137,8 @@ const server = app.listen(config.port, config.host, () => {
       `  Helix:     /api/helix/status  /api/helix/activate\n` +
       `  Nexus:     /api/nexus/status  /api/nexus/registry\n` +
       `  Shadow:    /api/shadow/status  /api/shadow/vault/injection/:provider\n` +
-      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync`,
+      `  IoT Hub:   /api/iot/status  /api/iot/devices  /api/iot/sync\n` +
+      `  Neural:    /api/neural-mesh/status  /api/telemetry/tesla`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();

@@ -1,0 +1,110 @@
+# Neural Mesh — external API registry (target: 88 real-world integrations)
+# Pillar 7 (tesla_fleet) + pillar 11 (telemetry) primary owners
+version: 1
+target_count: 88
+wired_count: 12
+
+categories:
+  physical_depin:
+    - id: tesla_fleet_api
+      pillar: 7
+      env: [TESLA_CLIENT_ID, TESLA_CLIENT_SECRET, TESLA_DOMAIN]
+      status: wired
+      route: POST /api/telemetry/tesla
+    - id: starlink_api
+      pillar: 7
+      env: [STARLINK_API_KEY]
+      status: stub
+      route: GET /api/neural-mesh/starlink
+    - id: helium_mobile
+      pillar: 7
+      env: [HELIOM_EDGE_INGEST_KEY]
+      status: wired
+      route: POST /api/iot/telemetry
+    - id: grass_network
+      pillar: 7
+      env: [GRASS_API_KEY]
+      status: planned
+    - id: smartthings_iot
+      pillar: 4
+      env: [SMARTTHINGS_TOKEN]
+      status: planned
+
+  cloud_compute:
+    - id: akash_network
+      pillar: 4
+      env: [AKASH_WALLET_MNEMONIC]
+      status: wired
+      route: /api/akash/workers
+    - id: azure_vmss
+      pillar: 4
+      env: [AZURE_SUBSCRIPTION_ID]
+      status: wired
+    - id: google_cloud
+      pillar: 4
+      env: [GCP_PROJECT_ID]
+      status: planned
+    - id: aws_ec2
+      pillar: 4
+      env: [AWS_ACCESS_KEY_ID]
+      status: planned
+    - id: alibaba_cloud
+      pillar: 4
+      env: [ALIBABA_ACCESS_KEY]
+      status: planned
+    - id: vast_io
+      pillar: 4
+      env: [VAST_API_KEY]
+      status: planned
+    - id: runpod
+      pillar: 4
+      env: [RUNPOD_API_KEY]
+      status: planned
+    - id: cherry_servers
+      pillar: 4
+      env: [CHERRY_API_KEY]
+      status: planned
+
+  chain_oracles:
+    - id: chainlink_functions
+      pillar: 2
+      env: [CHAINLINK_FUNCTIONS_SUBSCRIPTION_ID]
+      status: wired
+    - id: alchemy_rpc
+      pillar: 2
+      env: [ALCHEMY_API_KEY]
+      status: wired
+      route: /api/rpc/alchemy/health
+    - id: dydx_v4
+      pillar: 6
+      env: [DYDX_API_KEY]
+      status: wired
+    - id: hyperliquid
+      pillar: 6
+      env: [HYPE_RPC_URL]
+      status: wired
+
+  trading_execution:
+    - id: ninjatrader
+      pillar: 6
+      status: planned
+    - id: trading_com
+      pillar: 6
+      status: planned
+
+  identity_vault:
+    - id: hashicorp_vault
+      pillar: 10
+      env: [VAULT_ADDR, VAULT_TOKEN]
+      status: wired
+
+  # Slots 21–88: expand per swarm — copy template below
+  # - id: example_api
+  #   pillar: N
+  #   env: [EXAMPLE_API_KEY]
+  #   status: planned
+
+expansion_template:
+  fields: [id, pillar, env, status, route]
+  statuses: [wired, stub, planned]
+  assign_swarm: [alpha, beta, gamma, delta]
