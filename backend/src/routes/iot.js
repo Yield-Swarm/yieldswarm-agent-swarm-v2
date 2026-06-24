@@ -44,6 +44,26 @@ router.post('/sync', asyncRoute(async (_req, res) => {
   res.json(await iot.syncCoordinator());
 }));
 
+/** Vehicle DePIN telemetry ingest (helixpow.pw → APOLLO_NEXUS_TEST_01). */
+router.post('/telemetry', asyncRoute(async (req, res) => {
+  const vehicleId = req.body?.vehicleId ?? process.env.VEHICLE_ID ?? 'APOLLO_NEXUS_TEST_01';
+  const payload = {
+    vehicleId,
+    timestamp: req.body?.timestamp ?? Date.now(),
+    gps: req.body?.gps ?? req.body?.coordinates ?? null,
+    minerStats: req.body?.minerStats ?? null,
+    depinSignalStrength: req.body?.depinSignalStrength ?? null,
+    heliumCredits: req.body?.heliumCredits ?? req.body?.coverage ?? null,
+    source: req.headers['x-agent-auth'] ?? 'unknown',
+  };
+  res.status(202).json({ ok: true, queued: true, record: payload });
+}));
+
+/** Alias for WSS clients posting to /api/iot/telemetry */
+router.get('/telemetry/health', (_req, res) => {
+  res.json({ status: 'HEALTHY', endpoint: '/api/iot/telemetry', vehicle: process.env.VEHICLE_ID ?? 'APOLLO_NEXUS_TEST_01' });
+});
+
 /** Legacy registry summary (services.iot.device_registry). */
 router.get('/summary', async (_req, res) => {
   const result = await iotRegistry.getIoTSummary();

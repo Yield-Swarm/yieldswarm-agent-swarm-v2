@@ -34,7 +34,12 @@
     "trident:deploy": "bash scripts/launch-trident-mainnet.sh",
     "trident:deploy:dry": "bash scripts/launch-trident-mainnet.sh --dry-run",
     "trident:loops": "bash scripts/start-trident-loops.sh",
-    "azure:wire-ssh": "bash scripts/azure/wire-ssh-key.sh"
+    "azure:wire-ssh": "bash scripts/azure/wire-ssh-key.sh",
+    "azure:vmss-mining": "bash scripts/azure/deploy-vmss-mining.sh",
+    "termux:dev": "bash scripts/termux/launch-openclaws-dev.sh",
+    "termux:backend": "npm run prod:backend",
+    "mining:tandem": "bash scripts/mining/tandem-pow-launch.sh",
+    "depin:vehicle-edge": "node services/depin/vehicle-edge.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

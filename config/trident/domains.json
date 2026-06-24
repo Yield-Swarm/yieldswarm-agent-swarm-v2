@@ -4,7 +4,7 @@
     "ai_defi": {
       "label": "AI & DeFi Agent Layer",
       "domains": [
-        { "host": "defiswarmagents.com", "role": "kairos-dapp", "target": "vercel", "cname": "cname.vercel-dns.com" },
+        { "host": "defiswarmagents.com", "role": "kairos-dapp", "target": "vercel", "cname": "cname.vercel-dns.com", "aliases": ["defisearmagents.com"] },
         { "host": "defiswarmagents.link", "role": "ipfs-gateway", "target": "ipfs", "cname": "gateway.pinata.cloud" },
         { "host": "defiswarmagents.info", "role": "analytics-api", "target": "akash", "path": "/api/telemetry" }
       ]
@@ -13,6 +13,7 @@
       "label": "Node & Network Consensus Layer",
       "domains": [
         { "host": "helixpow.pw", "role": "vehicle-telemetry-wss", "target": "wss-ingest", "path": "/api/iot/telemetry" },
+        { "host": "helixpow.blockchain", "role": "pow-registry", "target": "ud-crypto", "record": "crypto.ETH.address" },
         { "host": "helixpos.xyz", "role": "staking-frontend", "target": "vercel" },
         { "host": "helixpow.xyz", "role": "mining-frontend", "target": "vercel" },
         { "host": "starthelixchain.xyz", "role": "rpc-multiplexer", "target": "akash", "path": "/api/rpc" },
