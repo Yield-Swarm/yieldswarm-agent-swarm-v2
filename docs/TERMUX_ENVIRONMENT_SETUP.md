@@ -159,3 +159,5 @@ npm run run-all-onchain
 ```
 
 See [`docs/SWARM_RUNPOD_ORCHESTRATION.md`](SWARM_RUNPOD_ORCHESTRATION.md) for stagger timing, RunPod tier map, and hotspot troubleshooting.
+
+**Mainnet matrix (no paste scripts):** [`docs/SWARM_MAINNET_TERMUX.md`](SWARM_MAINNET_TERMUX.md) — use `npm run swarm:mainnet` instead of `ts-node ./src/index.ts`.

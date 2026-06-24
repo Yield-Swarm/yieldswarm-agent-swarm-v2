@@ -23,6 +23,7 @@ dashboard/bifrost-manifest.json
 .data/
 .odysseus/
 .run/
+reports/
 data/
 # debug
 # dependencies

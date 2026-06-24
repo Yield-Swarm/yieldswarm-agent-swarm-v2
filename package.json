@@ -30,6 +30,9 @@
     "inference:verify": "bash scripts/inference/verify-open-metal.sh",
     "run-all-onchain": "bash scripts/swarm/run-all-onchain.sh",
     "swarm:status": "bash scripts/swarm/status-16-nodes.sh",
+    "swarm:mainnet": "tsx scripts/swarm/mainnet-matrix.ts",
+    "swarm:consensus": "bash scripts/swarm/run-consensus-audit.sh",
+    "swarm:remediate": "bash scripts/swarm/remediate-node-env.sh",
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
@@ -66,6 +69,7 @@
     "postcss": "^8.4.39",
     "snarkjs": "^0.7.5",
     "tailwindcss": "^3.4.6",
+    "tsx": "^4.22.4",
     "typescript": "^5.5.3",
     "vitest": "^2.0.5"
   },
