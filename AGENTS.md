@@ -37,7 +37,24 @@ These services use distinct ports, so all three can run at once.
   Python packages are installed into the user/system site with
   `pip3 install --break-system-packages`. Console scripts land in `~/.local/bin`.
 - The root `tsconfig.json`/`vitest.config.ts` scope only `src/**`; `frontend`,
-  `backend`, `kairo`, etc. are excluded and have their own configs/tests.
+ `backend`, `kairo`, etc. are excluded and have their own configs/tests.
+- **Single Next.js app dir.** The Payments app's App Router lives in `src/app/`.
+ Do NOT create a root-level `app/` directory: when both `app/` and `src/app/`
+ exist, Next.js uses root `app/` and silently ignores all of `src/app/`, so
+ `/payments` and every `/api/*` route 404. The Akash arena dashboard lives at
+ `src/app/arena/page.tsx`; keep new routes under `src/app/`.
+- **`SLIPPAGE_TOLERANCE` breaks a Python test if exported.** `.env.example`
+ ships `SLIPPAGE_TOLERANCE=0.005` (a fraction), but `services/cross_chain/jupiter.py`
+ parses it with `int(...)` (basis points). If that var is present in the shell
+ env, `tests/test_node5.py` fails with `invalid literal for int()`. Run the
+ Python suite with `env -u SLIPPAGE_TOLERANCE python3 -m unittest discover -s tests`
+ if the var is injected.
+- **`pytest` is a test-only dep** imported by `tests/test_mining_manager.py` and
+ `tests/test_node5.py` but not listed in `requirements.txt`. The update script
+ installs it (alongside `hvac`).
+- **Payments hello-world:** `node scripts/hello-world-wallet.mjs` exercises the
+ app end-to-end (anonymous session → `/api/wallets/nonce` → EVM signature →
+ `/api/wallets`) with zero secrets — the quickest smoke check that the app runs.
 
 ### Lint / test / build (per service)
 
