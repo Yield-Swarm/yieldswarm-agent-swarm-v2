@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yieldswarm.io/schemas/helical/state-contract.v1.json",
+  "title": "HelicalStateContract",
+  "description": "Shared cross-swarm state contract persisted to dashboard/helical-state.json.",
+  "type": "object",
+  "required": ["schemaVersion", "activated", "epoch", "phase", "swarms", "updatedAt"],
+  "properties": {
+    "schemaVersion": { "const": "helical-state/v1" },
+    "activated": { "type": "boolean" },
+    "epoch": { "type": "integer", "minimum": 0 },
+    "phase": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "heartbeatSeconds": { "type": "integer", "const": 420 },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "site": {
+      "type": "object",
+      "required": ["siteId", "name", "latitude", "longitude"],
+      "properties": {
+        "siteId": { "type": "string" },
+        "name": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "acreage": { "type": "number" }
+      }
+    },
+    "swarms": {
+      "type": "object",
+      "required": ["physical-core", "mining-pools", "marketplace", "mmorpg"],
+      "properties": {
+        "physical-core": { "$ref": "#/$defs/swarmTrack" },
+        "mining-pools": { "$ref": "#/$defs/swarmTrack" },
+        "marketplace": { "$ref": "#/$defs/swarmTrack" },
+        "mmorpg": { "$ref": "#/$defs/swarmTrack" }
+      }
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["messageId", "swarmId", "epoch", "emittedAt"],
+        "properties": {
+          "messageId": { "type": "string" },
+          "swarmId": { "type": "string" },
+          "epoch": { "type": "integer" },
+          "emittedAt": { "type": "string", "format": "date-time" },
+          "summary": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "swarmTrack": {
+      "type": "object",
+      "required": ["status", "lastHeartbeatAt"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["genesis", "scaffolded", "active", "degraded", "offline"]
+        },
+        "lastHeartbeatAt": { "type": ["string", "null"], "format": "date-time" },
+        "metrics": { "type": "object" },
+        "blockers": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

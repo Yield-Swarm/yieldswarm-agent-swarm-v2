@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yieldswarm.io/schemas/helical/marketplace.v1.json",
+  "title": "MarketplaceState",
+  "description": "SWARM 3 — Cross-chain Web3 marketplace orders, inventory, and settlement.",
+  "type": "object",
+  "required": ["schemaVersion", "capturedAt", "inventory", "orders"],
+  "properties": {
+    "schemaVersion": { "const": "marketplace/v1" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["sku", "category", "quantity", "status"],
+        "properties": {
+          "sku": { "type": "string" },
+          "category": { "type": "string", "enum": ["asic", "depin-kit", "gpu-rig", "service"] },
+          "quantity": { "type": "integer", "minimum": 0 },
+          "status": { "type": "string", "enum": ["available", "reserved", "sold", "fulfillment"] },
+          "priceUsd": { "type": "number", "minimum": 0 },
+          "chains": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["evm", "solana", "ton", "akash"] }
+          }
+        }
+      }
+    },
+    "orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["orderId", "status", "chain", "amountUsd"],
+        "properties": {
+          "orderId": { "type": "string" },
+          "status": { "type": "string", "enum": ["inquiry", "escrow", "paid", "fulfilled", "cancelled"] },
+          "chain": { "type": "string" },
+          "amountUsd": { "type": "number" },
+          "buyerWallet": { "type": "string" },
+          "greatDeltaRouterTx": { "type": "string" }
+        }
+      }
+    },
+    "miningPoolsRef": {
+      "type": "object",
+      "properties": {
+        "messageId": { "type": "string" },
+        "attributedYieldUsd": { "type": "number" }
+      }
+    }
+  }
+}

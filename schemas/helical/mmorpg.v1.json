@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yieldswarm.io/schemas/helical/mmorpg.v1.json",
+  "title": "MmorpgState",
+  "description": "SWARM 4 — Destiny-style social economics + RuneScape-style skill matrix engine.",
+  "type": "object",
+  "required": ["schemaVersion", "capturedAt", "worldEpoch", "players"],
+  "properties": {
+    "schemaVersion": { "const": "mmorpg/v1" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "worldEpoch": { "type": "integer", "minimum": 0 },
+    "players": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["playerId", "skills", "social"],
+        "properties": {
+          "playerId": { "type": "string" },
+          "displayName": { "type": "string" },
+          "skills": {
+            "type": "object",
+            "description": "RuneScape-style skill matrix (level 1-99).",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "level": { "type": "integer", "minimum": 1, "maximum": 99 },
+                "xp": { "type": "number", "minimum": 0 },
+                "masteryTier": { "type": "string", "enum": ["bronze", "silver", "gold", "platinum"] }
+              }
+            }
+          },
+          "social": {
+            "type": "object",
+            "description": "Destiny-style fireteam/clan economics.",
+            "properties": {
+              "clanId": { "type": "string" },
+              "fireteamSize": { "type": "integer", "minimum": 1, "maximum": 6 },
+              "reputation": { "type": "number" },
+              "bountyCredits": { "type": "number" }
+            }
+          },
+          "physicalBridge": {
+            "type": "object",
+            "description": "Helical ingest from SWARM 1 vehicle telemetry.",
+            "properties": {
+              "vehicleId": { "type": "string" },
+              "lastEventType": { "type": "string" },
+              "xpApplied": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "marketplaceRef": {
+      "type": "object",
+      "properties": {
+        "messageId": { "type": "string" },
+        "activeListings": { "type": "integer" }
+      }
+    }
+  }
+}

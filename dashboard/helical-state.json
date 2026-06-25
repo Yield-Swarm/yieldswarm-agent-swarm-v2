@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "helical-state/v1",
+  "activated": true,
+  "epoch": 1,
+  "phase": 1,
+  "heartbeatSeconds": 420,
+  "updatedAt": "2026-06-25T14:27:37.017499+00:00",
+  "site": {
+    "siteId": "carrizozo-nm-10ac",
+    "name": "YieldSwarm Sovereign Data Ranch",
+    "latitude": 33.6417,
+    "longitude": -105.8772,
+    "acreage": 10
+  },
+  "swarms": {
+    "physical-core": {
+      "status": "active",
+      "lastHeartbeatAt": "2026-06-25T14:27:37.017416+00:00",
+      "metrics": {
+        "keys": [
+          "schemaVersion",
+          "siteId",
+          "capturedAt",
+          "solar",
+          "connectivity",
+          "asics",
+          "vehicles",
+          "edge"
+        ]
+      },
+      "blockers": [
+        "Configure TESLA_* and Z15_HOST_* env vars for live telemetry",
+        "Wire Starlink API endpoints for dual-failover monitoring"
+      ]
+    },
+    "mining-pools": {
+      "status": "genesis",
+      "lastHeartbeatAt": null,
+      "metrics": {},
+      "blockers": [
+        "Awaiting physical-core ASIC aggregate hashrate handoff"
+      ]
+    },
+    "marketplace": {
+      "status": "genesis",
+      "lastHeartbeatAt": null,
+      "metrics": {},
+      "blockers": [
+        "Inventory schema scaffolded; order API pending"
+      ]
+    },
+    "mmorpg": {
+      "status": "genesis",
+      "lastHeartbeatAt": null,
+      "metrics": {},
+      "blockers": [
+        "Vehicle mmorpgBridge events defined; game server pending"
+      ]
+    }
+  },
+  "receipts": [
+    {
+      "messageId": "f2cefdd5-375f-4c63-8aea-17248da6698f",
+      "swarmId": "physical-core",
+      "epoch": 0,
+      "emittedAt": "2026-06-25T14:27:37.017471+00:00",
+      "summary": "phase-0 heartbeat"
+    }
+  ]
+}

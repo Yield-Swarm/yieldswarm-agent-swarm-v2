@@ -27,7 +27,7 @@ A := deploy/akash
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
         frontend vercel render \
         monitoring-up monitoring-down sovereign-up sovereign-down \
-        status logs clean production
+        status logs clean production physical-core-monitor helical-heartbeat
 
 ## help: show this menu
 help:
@@ -187,3 +187,12 @@ logs:
 clean:
 	rm -rf .run deploy/terraform/auto.tfvars.json deploy/terraform/active-backend.json deploy/terraform/fallback-url.txt
 	@echo "cleaned runtime state"
+
+# ---- four-swarm helical architecture --------------------------------------
+## physical-core-monitor: SWARM 1 Carrizozo telemetry matrix
+physical-core-monitor:
+	bash swarms/physical_core/scripts/monitor-matrix.sh
+
+## helical-heartbeat: rotate one 420s epoch across 4 swarms
+helical-heartbeat:
+	bash swarms/helical/heartbeat.sh

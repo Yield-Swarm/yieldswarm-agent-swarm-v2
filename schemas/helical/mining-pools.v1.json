@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yieldswarm.io/schemas/helical/mining-pools.v1.json",
+  "title": "MiningPoolsState",
+  "description": "SWARM 2 — Multi-mining token pool routing and hashrate attribution.",
+  "type": "object",
+  "required": ["schemaVersion", "capturedAt", "pools", "attribution"],
+  "properties": {
+    "schemaVersion": { "const": "mining-pools/v1" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "siteId": { "type": "string" },
+    "pools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["poolId", "algorithm", "status", "hashrate"],
+        "properties": {
+          "poolId": { "type": "string" },
+          "algorithm": { "type": "string" },
+          "coin": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "standby", "offline"] },
+          "hashrate": { "type": "number", "minimum": 0 },
+          "hashrateUnit": { "type": "string", "enum": ["H/s", "kH/s", "MH/s", "GH/s", "TH/s"] },
+          "workersOnline": { "type": "integer", "minimum": 0 },
+          "payoutAddress": { "type": "string" }
+        }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "description": "Great Delta treasury split applied to pool yield.",
+      "required": ["treasurySplit", "estimatedUsd24h"],
+      "properties": {
+        "treasurySplit": { "type": "string", "default": "50,30,15,5" },
+        "estimatedUsd24h": { "type": "number", "minimum": 0 },
+        "coreTreasuryUsd": { "type": "number" },
+        "growthTreasuryUsd": { "type": "number" },
+        "insuranceTreasuryUsd": { "type": "number" },
+        "opsTreasuryUsd": { "type": "number" }
+      }
+    },
+    "physicalCoreRef": {
+      "type": "object",
+      "description": "Helical handoff from SWARM 1 ASIC telemetry.",
+      "properties": {
+        "messageId": { "type": "string" },
+        "aggregateHashrateGh": { "type": "number" }
+      }
+    }
+  }
+}
