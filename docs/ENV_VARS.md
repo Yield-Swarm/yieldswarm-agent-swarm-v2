@@ -4,7 +4,8 @@
 > **Layered template:** `deploy/env/layered.env.example`  
 > **Deploy order:** `docs/DEPLOYMENT_PRIORITY.md`  
 > **Vault injection:** `docs/VAULT_ENV_INJECTION.md`  
-> Template: `.env.example` · Vault seed: `vault/scripts/seed-secrets.sh`  
+> Templates: `example.env` (HashiCloud) · `.env.example` · Vault seed: `vault/scripts/seed-secrets.sh`  
+> Upload guide: `docs/HASHICLOUD_ENV_UPLOAD.md`  
 > Council add-ons: `docs/COUNCIL_WISHLIST.md`
 
 ---
