@@ -18,6 +18,12 @@ import * as leaderboard from '../adapters/leaderboard.js';
 import * as solana from '../adapters/solana.js';
 import * as odysseus from '../adapters/odysseus.js';
 import * as integrations from '../adapters/integrations.js';
+import {
+  getLastLlmConsensusReport,
+  getLlmVoters,
+  listLlmVoters,
+  runLlmConsensus,
+} from '../adapters/llmConsensus.js';
 import * as dex from '../adapters/dex.js';
 import { getVaultTelemetry } from '../adapters/vaultTelemetry.js';
 import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
@@ -177,8 +183,35 @@ router.get('/governance/consensus/status', asyncRoute(async (_req, res) => {
 }));
 
 router.post('/governance/consensus/run', asyncRoute(async (req, res) => {
-  const data = await integrations.runGovernanceConsensus(req.body || {});
+  const body = req.body || {};
+  if (body.mode === 'llm' || body.options || body.context) {
+    const data = await runLlmConsensus(body);
+    return res.json(data);
+  }
+  const data = await integrations.runGovernanceConsensus(body);
   res.json(data);
+}));
+
+/** GET /api/governance/llm-consensus/voters — configured LLM council voters */
+router.get('/governance/llm-consensus/voters', asyncRoute(async (_req, res) => {
+  const data = await cache.get('governance:llm:voters', () => listLlmVoters());
+  res.json(data);
+}));
+
+/** GET /api/governance/llm-consensus/last — last persisted report */
+router.get('/governance/llm-consensus/last', asyncRoute(async (_req, res) => {
+  res.json(getLastLlmConsensusReport());
+}));
+
+/** POST /api/governance/llm-consensus/run — all LLMs vote on next step */
+router.post('/governance/llm-consensus/run', asyncRoute(async (req, res) => {
+  const data = await runLlmConsensus(req.body || {});
+  res.status(data.consensus?.threshold_met ? 200 : 202).json(data);
+}));
+
+/** GET /api/governance/llm-consensus/registry — static voter config path */
+router.get('/governance/llm-consensus/registry', asyncRoute(async (_req, res) => {
+  res.json(getLlmVoters());
 }));
 
 router.get('/dex/health', asyncRoute(async (_req, res) => {

@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "consensus_threshold": { "council_seats": 14, "required_approvals": 9 },
+  "default_timeout_seconds": 45,
+  "voters": [
+    {
+      "id": "openai-gpt4o",
+      "display_name": "OpenAI GPT-4o",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "env_key": "OPENAI_API_KEY",
+      "council_seat": 2,
+      "weight": 1.0,
+      "base_url_env": "OPENAI_BASE_URL",
+      "default_base_url": "https://api.openai.com/v1"
+    },
+    {
+      "id": "anthropic-sonnet",
+      "display_name": "Anthropic Claude",
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-latest",
+      "env_key": "ANTHROPIC_API_KEY",
+      "council_seat": 3,
+      "weight": 1.0
+    },
+    {
+      "id": "gemini-flash",
+      "display_name": "Google Gemini",
+      "provider": "gemini",
+      "model": "gemini-2.0-flash",
+      "env_key": "GEMINI_API_KEY",
+      "council_seat": 4,
+      "weight": 1.0
+    },
+    {
+      "id": "groq-llama",
+      "display_name": "Groq Llama",
+      "provider": "openai",
+      "model": "llama-3.3-70b-versatile",
+      "env_key": "GROQ_API_KEY",
+      "council_seat": 5,
+      "weight": 0.9,
+      "base_url_env": "GROQ_BASE_URL",
+      "default_base_url": "https://api.groq.com/openai/v1"
+    },
+    {
+      "id": "deepseek-chat",
+      "display_name": "DeepSeek",
+      "provider": "openai",
+      "model": "deepseek-chat",
+      "env_key": "DEEPSEEK_API_KEY",
+      "council_seat": 6,
+      "weight": 0.9,
+      "base_url_env": "DEEPSEEK_BASE_URL",
+      "default_base_url": "https://api.deepseek.com/v1"
+    },
+    {
+      "id": "xai-grok",
+      "display_name": "xAI Grok",
+      "provider": "openai",
+      "model": "grok-2-latest",
+      "env_key": "XAI_API_KEY",
+      "council_seat": 7,
+      "weight": 0.85,
+      "base_url_env": "XAI_BASE_URL",
+      "default_base_url": "https://api.x.ai/v1"
+    },
+    {
+      "id": "fireworks-70b",
+      "display_name": "Fireworks 70B",
+      "provider": "openai",
+      "model_env": "FIREWORKS_MODEL",
+      "model_default": "accounts/fireworks/models/llama-v3p1-70b-instruct",
+      "env_key": "FIREWORKS_API_KEY",
+      "council_seat": 8,
+      "weight": 0.85,
+      "base_url_env": "FIREWORKS_BASE_URL",
+      "default_base_url": "https://api.fireworks.ai/inference/v1"
+    },
+    {
+      "id": "openrouter-auto",
+      "display_name": "OpenRouter",
+      "provider": "openai",
+      "model_env": "OPENROUTER_MODEL",
+      "model_default": "openai/gpt-4o-mini",
+      "env_key": "OPENROUTER_API_KEY",
+      "council_seat": 9,
+      "weight": 0.8,
+      "base_url_env": "OPENROUTER_BASE_URL",
+      "default_base_url": "https://openrouter.ai/api/v1"
+    },
+    {
+      "id": "litellm-router",
+      "display_name": "LiteLLM Router (Odysseus)",
+      "provider": "openai",
+      "model_env": "ODYSSEUS_DEFAULT_MODEL",
+      "model_default": "openai-gpt4",
+      "env_key": "YIELDSWARM_ROUTER_API_KEY",
+      "council_seat": 1,
+      "weight": 1.1,
+      "base_url_env": "LITELLM_URL",
+      "default_base_url": "http://127.0.0.1:4000",
+      "api_key_fallback_env": "OPENAI_API_KEY"
+    },
+    {
+      "id": "akash-vllm-local",
+      "display_name": "Akash vLLM RTX5090",
+      "provider": "openai",
+      "model_env": "RTX5090_VLLM_MODEL",
+      "model_default": "Razer-70B",
+      "env_key": "RTX5090_VLLM_API_KEY",
+      "council_seat": 11,
+      "weight": 1.0,
+      "base_url_env": "RTX5090_VLLM_BASE_URL",
+      "default_base_url": "",
+      "optional": true
+    },
+    {
+      "id": "gospel-council-sim",
+      "display_name": "Gospel Council Simulator (100 models)",
+      "provider": "gospel_sim",
+      "model": "gospel-100",
+      "env_key": "",
+      "council_seat": 12,
+      "weight": 0.5,
+      "always_on": true
+    }
+  ]
+}

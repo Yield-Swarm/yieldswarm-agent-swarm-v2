@@ -16,7 +16,8 @@
 7. No Polsia dependency — pure Cursor + this repo + env/Vault secrets
 8. Cloud credits pool: $5,408 — `config/helix/pillars.yaml` `credit_pool_usd`
 9. Test before deploy: `npm run test:helix` then `npm run helix:deploy-pillars`
-10. Zero placeholders in production paths — stubs must return structured `{ ok, note }` not throw
+10. Test before deploy: `npm run test:helix` then `npm run helix:deploy-pillars`
+11. LLM next-step consensus: `npm run consensus:llm` — see `docs/LLM_CONSENSUS.md`
 
 ## Priority build order
 contracts → sovereign-optimizer → odysseus-router → dydx-bridge → vLLM 5090 SDL → ZK entropy → neural mesh APIs

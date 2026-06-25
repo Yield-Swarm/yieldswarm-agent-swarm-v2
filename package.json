@@ -40,6 +40,8 @@
     "termux:backend": "npm run prod:backend",
     "mining:tandem": "bash scripts/mining/tandem-pow-launch.sh",
     "helix:deploy-pillars": "bash scripts/deploy-and-test-pillars.sh",
+    "consensus:llm": "python3 scripts/run-llm-consensus.py",
+    "consensus:llm:voters": "python3 scripts/run-llm-consensus.py --list-voters",
     "neural-mesh:status": "curl -s http://127.0.0.1:8080/api/neural-mesh/status | head -c 2000",
   },
   "dependencies": {
