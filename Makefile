@@ -39,6 +39,7 @@ A := deploy/akash
         build-vllm-rtx5090 deploy-akash-rtx5090-vllm akash-roi-5090 nft-mutation-batch \
         zk-trusted-setup zk-mutation-cycle \
         tfc-setup tfc-init tfc-apply tfc-deploy-all \
+        hcp-quadrilateral-preflight hcp-wire-quadrilateral \
         status logs clean production rust-core rust-core-test
 
 ## rust-core: build Phase 1 Swarm OS Rust engine
@@ -335,6 +336,15 @@ tfc-apply:
 
 ## tfc-deploy-all: setup + init + apply
 tfc-deploy-all: tfc-setup tfc-init tfc-apply
+
+# ---- HCP quadrilateral (yield-swarm-org / YieldSwarmHasiCorp) ------------
+## hcp-quadrilateral-preflight: verify HCP CLI, manifest, Vault reachability
+hcp-quadrilateral-preflight:
+	bash scripts/hcp/preflight-quadrilateral.sh
+
+## hcp-wire-quadrilateral: wire Vault/Boundary/HVN/Packer/Terraform (DRY_RUN=true default)
+hcp-wire-quadrilateral:
+	bash scripts/hcp/wire-quadrilateral.sh
 
 # ---- ops ------------------------------------------------------------------
 ## status: show running loops + monitoring containers

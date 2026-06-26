@@ -49,6 +49,21 @@ Full layered file: `deploy/env/layered.env.example`.
 | `ODYSSEUS_RUNTIME_VAULT_PATH` | KV path for Odysseus runtime |
 | `ODYSSEUS_DEPLOY_VAULT_PATH` | KV path for deploy-only secrets |
 
+### HCP quadrilateral (`yield-swarm-org` / `YieldSwarmHasiCorp`)
+
+| Variable | Purpose |
+|----------|---------|
+| `HCP_ORGANIZATION` | HCP org slug (`yield-swarm-org`) |
+| `HCP_PROJECT` | Project name (`YieldSwarmHasiCorp`) |
+| `HCP_PROJECT_ID` | Project UUID (`331458d4-6c74-4e95-9497-cf2d6b846f31`) |
+| `HCP_CLIENT_ID` | HCP service principal client ID |
+| `HCP_CLIENT_SECRET` | HCP service principal secret (Vault only) |
+| `BOUNDARY_ADDR` | Boundary cluster public endpoint |
+| `HCP_PACKER_REGISTRY` | HCP Packer registry name |
+| `DRY_RUN` | `true` (default) for `wire-quadrilateral.sh` dry-run |
+
+See `docs/HCP_QUADRILATERAL_ARCHITECTURE.md` and `infra/hcp/quadrilateral-manifest.json`.
+
 **Akash runtime injection:** see `docs/VAULT_AKASH_RUNTIME.md`.
 
 ---

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "hcp-quadrilateral/v1",
+  "organization": "yield-swarm-org",
+  "project": {
+    "name": "YieldSwarmHasiCorp",
+    "id": "331458d4-6c74-4e95-9497-cf2d6b846f31",
+    "description": "Massive Agentic Ai PoW Blockchain"
+  },
+  "creditBudgetUsd": 500,
+  "updatedAt": null,
+  "quadrilateral": {
+    "vault": {
+      "corner": "secrets",
+      "resourceName": "vault-cluster",
+      "service": "vault",
+      "provider": "aws",
+      "region": "ap-northeast-1",
+      "parallelTrack": "A",
+      "redundancyRole": "primary-secrets",
+      "envVar": "VAULT_ADDR",
+      "repoPaths": ["vault/", "vault/terraform-vault-config/", "SECRETS.md"]
+    },
+    "boundary": {
+      "corner": "access",
+      "resourceName": "boundary-cluster",
+      "service": "boundary",
+      "provider": "aws",
+      "region": "us-east-1",
+      "parallelTrack": "B",
+      "redundancyRole": "ztna-control-plane",
+      "envVar": "BOUNDARY_ADDR",
+      "scopes": ["carrizozo-edge", "akash-workers", "terraform-ops"],
+      "repoPaths": ["scripts/hcp/wire-quadrilateral.sh"]
+    },
+    "hvn": {
+      "corner": "network",
+      "parallelTrack": "A+B",
+      "redundancyRole": "dual-mesh",
+      "primary": {
+        "resourceName": "HCYSRL",
+        "provider": "aws",
+        "region": "ap-northeast-1"
+      },
+      "failover": {
+        "resourceName": "demo-hvn",
+        "provider": "azure",
+        "region": "westus2"
+      }
+    },
+    "packer": {
+      "corner": "supply-chain",
+      "parallelTrack": "C",
+      "redundancyRole": "immutable-images",
+      "registry": "hcp-packer-registry",
+      "vagrantRegistryId": "183e4c0f-0ade-44ab-afcb-255edf7e6834",
+      "vagrantBoxId": "6338a520-9944-426f-a120-0d2a97c5d919",
+      "imageName": "yieldswarm-worker",
+      "repoPaths": ["infra/packer/"]
+    },
+    "terraform": {
+      "corner": "orchestration",
+      "parallelTrack": "D",
+      "workspace": "Helixchainprod",
+      "organization": "yield-swarm-org",
+      "repoPaths": ["infra/terraform/"]
+    }
+  },
+  "swarmMapping": {
+    "physical-core": ["boundary", "hvn"],
+    "mining-pools": ["vault"],
+    "marketplace": ["packer", "hvn"],
+    "mmorpg": ["boundary", "hvn"]
+  },
+  "preflight": {
+    "requiredCli": ["hcp", "vault", "terraform"],
+    "optionalCli": ["packer", "boundary"],
+    "status": "pending"
+  }
+}

@@ -1,0 +1,6 @@
+# HCP Packer registry (YieldSwarmHasiCorp)
+hcp_packer_registry = "yieldswarm-worker"
+hcp_packer_bucket   = "agentswarm-worker"
+image_version       = "1.0.0"
+
+# Cloud builds still use worker.pkrvars.hcl for ARM/GCP/Vultr credentials
