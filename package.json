@@ -20,7 +20,14 @@
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
-    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "prod:backend": "cd backend && npm start",
+    "termux:deploy": "bash scripts/termux/poseidon-deploy.sh",
+    "termux:dev": "bash scripts/termux/launch-openclaws-dev.sh",
+    "termux:backend": "npm run prod:backend",
+    "termux:consensus": "bash scripts/termux/run-consensus-audit.sh",
+    "mining:tandem": "bash scripts/mining/tandem-pow-launch.sh",
+    "akash:backend": "bash scripts/deploy-backend-akash.sh"
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",

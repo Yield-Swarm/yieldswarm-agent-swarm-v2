@@ -228,6 +228,41 @@ router.post('/cross-chain/telemetry', asyncRoute(async (req, res) => {
 /**
  * Single aggregated payload that powers the Arena dashboard in one round-trip.
  */
+/** Trident marketplace bridge — Termux-safe (no Next.js / SWC required) */
+router.get('/trident/marketplace-bridge', asyncRoute(async (_req, res) => {
+  res.json({
+    status: 'Active',
+    ecosystem: 'Open Claws Cluster Arena v4.1',
+    tridentVersion: process.env.TRIDENT_VERSION ?? '3.05911111100',
+    timestamp: new Date().toISOString(),
+    nodeId: process.env.MINING_NODE_ID ?? null,
+    networksConfigured: [
+      { name: 'Monero', token: 'XMR', layer: 'RandomX CPU' },
+      { name: 'Kaspa', token: 'KAS', layer: 'kHeavyHash' },
+      { name: 'Litecoin/Dogecoin', token: 'LTC_DOGE', layer: 'AuxPoW Merged' },
+      { name: 'Zephyr', token: 'ZEPH', layer: 'RandomX CPU' },
+      { name: 'Pyrin', token: 'PYI', layer: 'Pyrinhash GPU' },
+    ],
+    vaults: [
+      'SOL', 'ETH', 'TON', 'HYPE', 'FLUX', 'mSOL', 'cbETH', 'cbSOL',
+      'USDC', 'USDT', 'USD1', 'ZEC', 'TAO',
+    ],
+    infrastructureBridges: {
+      depinProviders: ['Akash', 'RunPod', 'Vast.io', 'Cherry Servers'],
+      enterpriseClouds: ['Azure', 'Google Cloud'],
+      edgeHosts: ['Termux', 'Own Hardware', 'Lucky Miner', 'HP Touchscreen'],
+    },
+    marketplaceIntegration: {
+      nftMintContract: process.env.NFT_MINT_CONTRACT ?? null,
+      agenticEscrowVault: process.env.AGENTIC_ESCROW_VAULT ?? null,
+    },
+    akash: {
+      configured: Boolean(process.env.AKASH_KEY_NAME),
+      workerHost: process.env.AKASH_WORKER_HOST ?? null,
+    },
+  });
+}));
+
 router.get('/arena/overview', asyncRoute(async (_req, res) => {
   const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix, xchain] = await Promise.all([
     cache.get('akash:workers', () => akash.getWorkers()),

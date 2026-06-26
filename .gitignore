@@ -23,6 +23,7 @@ data/
 # debug
 # dependencies
 deploy/config.env
+deploy/env/trident-mainnet.env
 deploy/rendered/
 deploy/terraform/active-backend.json
 deploy/terraform/auto.tfvars.json
