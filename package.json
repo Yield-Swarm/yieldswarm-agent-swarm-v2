@@ -33,7 +33,10 @@
     "helix:routes:tick": "python3 -c \"from services.cross_chain.helix_bilateral import tick_duadilateral_routes; import json; print(json.dumps(tick_duadilateral_routes(), indent=2))\"",
     "helix:verify": "node scripts/helix-verify.mjs",
     "azure:wire-ssh": "bash scripts/azure/wire-ssh-key.sh",
-    "azure:vmss-mining": "bash scripts/azure/deploy-vmss-mining.sh"
+    "azure:vmss-mining": "bash scripts/azure/deploy-vmss-mining.sh",
+    "gpu:pool": "bash scripts/gpu-pool/launch-cheap-rtx.sh",
+    "cherry:mirror": "bash scripts/cherry-servers/mirror-inventory.sh",
+    "cherry:export-specs": "bash scripts/cherry-servers/export-cloud-specs.sh"
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",
