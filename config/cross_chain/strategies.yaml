@@ -52,6 +52,20 @@ strategies:
     vault_secrets:
       - yieldswarm/data/runtime/bittensor
 
+  helix_duadilaterals:
+    enabled: true
+    priority: 1
+    config: config/helix/chain-routes.json
+    targets: [base, ethereum, ton, tao, avax]
+    sources: [nexus, helix, shadow]
+    vault_secrets:
+      - yieldswarm/data/runtime/wallets
+      - yieldswarm/data/rpc/ethereum
+      - yieldswarm/data/rpc/base
+      - yieldswarm/data/rpc/ton
+      - yieldswarm/data/rpc/avax
+      - yieldswarm/data/runtime/bittensor
+
 great_delta:
   policy: 50/30/15/5
   buckets:

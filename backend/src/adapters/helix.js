@@ -16,6 +16,7 @@ import * as akash from './akash.js';
 import * as emission from './emissionRouter.js';
 import { getVaultTelemetry } from './vaultTelemetry.js';
 import { getSovereignState } from './sovereign.js';
+import { loadRoutesState, resolveDuadilaterals } from './helixChainRouter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
@@ -79,11 +80,13 @@ export async function getHelixStatus() {
   const state = await loadHelixState();
   const envEnabled = config.helix.enabled;
   const activated = envEnabled || state.activated;
-  const [sovereign, emissions, vault, workers] = await Promise.all([
+  const [sovereign, emissions, vault, workers, routesOverview, routesState] = await Promise.all([
     getSovereignState(),
     emission.getEmissions(),
     getVaultTelemetry(),
     akash.getWorkers(),
+    resolveDuadilaterals({ probe: true }).catch(() => null),
+    loadRoutesState().catch(() => ({ armed: false })),
   ]);
 
   const readiness = {
@@ -134,6 +137,16 @@ export async function getHelixStatus() {
       vaultTargetUsd: sovereign.vault_target_usd ?? 5_000_000,
       workers: sovereign.counts?.workers ?? 0,
     },
+    duadilateralRoutes: routesOverview
+      ? {
+          targets: routesOverview.targets,
+          route_count: routesOverview.route_count,
+          live_count: routesOverview.live_count,
+          armed_count: routesOverview.armed_count,
+          armed: routesState.armed,
+          routes: routesOverview.routes,
+        }
+      : null,
     generatedAt: new Date().toISOString(),
   };
 }

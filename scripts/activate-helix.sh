@@ -116,9 +116,14 @@ if ! $SKIP_LOOPS; then
   fi
 fi
 
-step "5/5 Verify Helix Chain status"
+step "5/5 Verify Helix Chain status + arm duadilateral routes"
 if helix_route_ok; then
   curl -sf "${BACKEND_URL}/api/helix/status" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const j=JSON.parse(d);console.log('activated:',j.activated,'phase:',j.phase,'genesis:',j.genesisHash?.slice(0,16)+'…','readiness:',j.readinessScore)})"
+  curl -sf -X POST "${BACKEND_URL}/api/helix/routes/arm" \
+    -H 'Content-Type: application/json' \
+    -d '{"source":"activate-helix.sh"}' \
+    | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{if(!d.trim())return;const j=JSON.parse(d);console.log('duadilaterals:',j.overview?.live_count+'/'+j.overview?.route_count,'live')})" \
+    || warn "duadilateral arm returned non-zero"
 else
   node --input-type=module -e "import { getHelixStatus } from './backend/src/adapters/helix.js'; const j=await getHelixStatus(); console.log('activated:',j.activated,'phase:',j.phase,'genesis:',j.genesisHash?.slice(0,16)+'…','readiness:',j.readinessScore)"
 fi

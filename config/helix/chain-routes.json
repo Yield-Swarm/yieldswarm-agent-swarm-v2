@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "policy": "great_delta_50_30_15_5",
+  "description": "Helix Chain duadilateral routes — every solenoid source ↔ target L1/L2 (bidirectional)",
+
+  "sources": {
+    "nexus": {
+      "solenoid_id": 1,
+      "name": "Nexus Chain",
+      "role": "orchestration",
+      "endpoint_env": "NEXUS_CHAIN_URL"
+    },
+    "helix": {
+      "solenoid_id": 2,
+      "name": "Helix Reverberator",
+      "role": "cross_chain_yield",
+      "endpoint_env": "HELIX_CHAIN_URL"
+    },
+    "shadow": {
+      "solenoid_id": 3,
+      "name": "Shadow Chain",
+      "role": "arena_competition",
+      "endpoint_env": "SHADOW_CHAIN_URL"
+    }
+  },
+
+  "targets": {
+    "base": {
+      "chain_id": 8453,
+      "network": "base-mainnet",
+      "native_symbol": "ETH",
+      "type": "evm",
+      "rpc_env": ["BASE_RPC_URL", "EVM_RPC_URL_8453"],
+      "treasury_env": "TREASURY_BASE_ADDRESS",
+      "bridge": "base-native",
+      "explorer": "https://basescan.org"
+    },
+    "ethereum": {
+      "chain_id": 1,
+      "network": "ethereum-mainnet",
+      "native_symbol": "ETH",
+      "type": "evm",
+      "rpc_env": ["ETHEREUM_RPC_URL", "EVM_RPC_URL_1", "MAINNET_RPC_URL", "EVM_RPC_URL"],
+      "treasury_env": "TREASURY_EVM_ADDRESS",
+      "bridge": "ethereum-native",
+      "explorer": "https://etherscan.io"
+    },
+    "ton": {
+      "chain_id": "ton-mainnet",
+      "network": "ton-mainnet",
+      "native_symbol": "TON",
+      "type": "ton",
+      "rpc_env": ["TON_RPC_URL", "TON_API_BASE"],
+      "api_key_env": "TON_API_KEY",
+      "treasury_env": "TREASURY_TON_ADDRESS",
+      "bridge": "ton-connect",
+      "explorer": "https://tonviewer.com"
+    },
+    "tao": {
+      "chain_id": "bittensor",
+      "network": "finney",
+      "native_symbol": "TAO",
+      "type": "subtensor",
+      "rpc_env": ["BITTENSOR_RPC_URL", "TAO_RPC_URL", "SUBTENSOR_RPC_URL"],
+      "treasury_env": "TREASURY_TAO_ADDRESS",
+      "bridge": "bittensor-native",
+      "explorer": "https://taostats.io"
+    },
+    "avax": {
+      "chain_id": 43114,
+      "network": "avalanche-c-chain",
+      "native_symbol": "AVAX",
+      "type": "evm",
+      "rpc_env": ["AVAX_RPC_URL", "AVALANCHE_RPC_URL", "EVM_RPC_URL_43114"],
+      "treasury_env": "TREASURY_AVAX_ADDRESS",
+      "bridge": "avalanche-native",
+      "explorer": "https://snowtrace.io"
+    }
+  },
+
+  "duadilaterals": [
+    { "id": "nexus-base", "source": "nexus", "target": "base", "lane": "settlement", "priority": 1 },
+    { "id": "nexus-ethereum", "source": "nexus", "target": "ethereum", "lane": "settlement", "priority": 1 },
+    { "id": "nexus-ton", "source": "nexus", "target": "ton", "lane": "messaging", "priority": 2 },
+    { "id": "nexus-tao", "source": "nexus", "target": "tao", "lane": "inference", "priority": 2 },
+    { "id": "nexus-avax", "source": "nexus", "target": "avax", "lane": "settlement", "priority": 2 },
+
+    { "id": "helix-base", "source": "helix", "target": "base", "lane": "yield", "priority": 1 },
+    { "id": "helix-ethereum", "source": "helix", "target": "ethereum", "lane": "yield", "priority": 1 },
+    { "id": "helix-ton", "source": "helix", "target": "ton", "lane": "gaming", "priority": 2 },
+    { "id": "helix-tao", "source": "helix", "target": "tao", "lane": "inference", "priority": 1 },
+    { "id": "helix-avax", "source": "helix", "target": "avax", "lane": "yield", "priority": 2 },
+
+    { "id": "shadow-base", "source": "shadow", "target": "base", "lane": "arena-nft", "priority": 1 },
+    { "id": "shadow-ethereum", "source": "shadow", "target": "ethereum", "lane": "arena-nft", "priority": 2 },
+    { "id": "shadow-ton", "source": "shadow", "target": "ton", "lane": "arena-game", "priority": 1 },
+    { "id": "shadow-tao", "source": "shadow", "target": "tao", "lane": "arena-agent", "priority": 2 },
+    { "id": "shadow-avax", "source": "shadow", "target": "avax", "lane": "arena-defi", "priority": 2 }
+  ]
+}

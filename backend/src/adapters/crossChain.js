@@ -55,6 +55,11 @@ export async function getCrossChainOverview() {
       solana: { venues: ['jupiter', 'orca', 'raydium'], status: 'jupiter_quotes' },
       dydx: { chain: 'dydx', status: 'scaffold' },
       pow: { coins: ['bittensor', 'grass', 'flux', 'kaspa'], status: 'bittensor_live' },
+      helix_duadilaterals: {
+        targets: ['base', 'ethereum', 'ton', 'tao', 'avax'],
+        sources: ['nexus', 'helix', 'shadow'],
+        status: 'config/helix/chain-routes.json',
+      },
     },
   };
 }

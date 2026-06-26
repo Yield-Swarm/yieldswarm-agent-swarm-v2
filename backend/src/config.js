@@ -99,6 +99,40 @@ export const config = {
       process.env.HELIX_CONTROL_PLANE_URL ||
       process.env.GREAT_DELTA_INGEST_URL ||
       '',
+    nexusUrl: process.env.NEXUS_CHAIN_URL || '',
+    helixUrl: process.env.HELIX_CHAIN_URL || '',
+    shadowUrl: process.env.SHADOW_CHAIN_URL || '',
+  },
+
+  chains: {
+    base: {
+      rpcUrl: process.env.BASE_RPC_URL || process.env.EVM_RPC_URL_8453 || '',
+      chainId: 8453,
+    },
+    ethereum: {
+      rpcUrl:
+        process.env.ETHEREUM_RPC_URL ||
+        process.env.EVM_RPC_URL_1 ||
+        process.env.MAINNET_RPC_URL ||
+        process.env.EVM_RPC_URL ||
+        '',
+      chainId: 1,
+    },
+    ton: {
+      apiBase: process.env.TON_RPC_URL || process.env.TON_API_BASE || 'https://tonapi.io',
+      apiKey: process.env.TON_API_KEY || '',
+    },
+    tao: {
+      rpcUrl:
+        process.env.BITTENSOR_RPC_URL ||
+        process.env.TAO_RPC_URL ||
+        process.env.SUBTENSOR_RPC_URL ||
+        'https://entrypoint-finney.opentensor.ai:443',
+    },
+    avax: {
+      rpcUrl: process.env.AVAX_RPC_URL || process.env.AVALANCHE_RPC_URL || process.env.EVM_RPC_URL_43114 || '',
+      chainId: 43114,
+    },
   },
 
   dex: {
