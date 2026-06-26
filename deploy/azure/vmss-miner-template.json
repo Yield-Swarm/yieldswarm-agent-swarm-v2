@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmSku": { "type": "string", "defaultValue": "Standard_D4ds_v5" },
+    "instanceCount": { "type": "int", "defaultValue": 10 },
+    "adminUsername": { "type": "string", "defaultValue": "azureuser" },
+    "sshPublicKey": { "type": "string" },
+    "miningWallet": { "type": "string", "defaultValue": "LYourLitecoinWallet" }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2023-09-01",
+      "name": "PoseidonSuperchargerCluster",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('vmSku')]",
+        "tier": "Standard",
+        "capacity": "[parameters('instanceCount')]"
+      },
+      "properties": {
+        "overprovision": false,
+        "priority": "Spot",
+        "evictionPolicy": "Deallocate",
+        "virtualMachineProfile": {
+          "osProfile": {
+            "computerNamePrefix": "vmsspod",
+            "adminUsername": "[parameters('adminUsername')]",
+            "linuxConfiguration": {
+              "disablePasswordAuthentication": true,
+              "ssh": {
+                "publicKeys": [
+                  {
+                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                    "keyData": "[parameters('sshPublicKey')]"
+                  }
+                ]
+              }
+            }
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "Canonical",
+              "offer": "0001-com-ubuntu-server-jammy",
+              "sku": "22_04-lts-gen2",
+              "version": "latest"
+            }
+          },
+          "extensionProfile": {
+            "extensions": []
+          }
+        }
+      }
+    }
+  ]
+}

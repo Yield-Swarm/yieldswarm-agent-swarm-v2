@@ -27,7 +27,10 @@
     "termux:backend": "npm run prod:backend",
     "termux:consensus": "bash scripts/termux/run-consensus-audit.sh",
     "mining:tandem": "bash scripts/mining/tandem-pow-launch.sh",
-    "akash:backend": "bash scripts/deploy-backend-akash.sh"
+    "akash:backend": "bash scripts/deploy-backend-akash.sh",
+    "helix:activate": "bash scripts/activate-helix.sh",
+    "azure:wire-ssh": "bash scripts/azure/wire-ssh-key.sh",
+    "azure:vmss-mining": "bash scripts/azure/deploy-vmss-mining.sh"
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",
