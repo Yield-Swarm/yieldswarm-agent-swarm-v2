@@ -31,6 +31,7 @@
     "helix:activate": "bash scripts/activate-helix.sh",
     "helix:routes": "node --input-type=module -e \"import('http').then(http=>http.get('http://127.0.0.1:'+(process.env.PORT||8080)+'/api/helix/routes',r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>console.log(d))})\"",
     "helix:routes:tick": "python3 -c \"from services.cross_chain.helix_bilateral import tick_duadilateral_routes; import json; print(json.dumps(tick_duadilateral_routes(), indent=2))\"",
+    "helix:verify": "node scripts/helix-verify.mjs",
     "azure:wire-ssh": "bash scripts/azure/wire-ssh-key.sh",
     "azure:vmss-mining": "bash scripts/azure/deploy-vmss-mining.sh"
   },

@@ -192,7 +192,7 @@ function ArenaInner() {
         <h3>Chain / Wallet</h3>
         <p className="ysw-muted">{chain?.name ?? "—"}</p>
         <p className="ysw-mono ysw-muted">{balance ? `${balance.formatted} ${balance.symbol}` : "—"}</p>
-        <p className="ysw-mono ysw-muted">{wallet.address ?? "—"}</p>
+        <p className="ysw-mono ysw-muted">{wallet.activeAccount?.address ?? "—"}</p>
       </div>
     </section>
   );
