@@ -35,6 +35,12 @@ WALLET_ENV_PRIORITY: Dict[str, List[tuple[str, str]]] = {
     "xmr": [("MONERO_WALLET_ADDRESS", "monero"), ("MINING_ROOT_MONERO", "monero"), ("XMR_WALLET_ADDRESS", "monero")],
     "monero": [("MONERO_WALLET_ADDRESS", "monero")],
     "zec": [("MINING_ROOT_ZEC", "zcash"), ("ZEC_SHIELDED_KEY", "zcash")],
+    "prl": [("MINING_ROOT_PRL", "solana"), ("MINING_WALLET_PRL", "solana")],
+    "krx": [("MINING_WALLET_KRX", "blockdag")],
+    "zano": [("MINING_WALLET_ZANO", "zano")],
+    "qtc": [("MINING_WALLET_QTC", "qitcoin")],
+    "iron": [("MINING_WALLET_IRON", "ironfish")],
+    "ton": [("MINING_WALLET_TON", "ton"), ("TREASURY_TON_ADDRESS", "ton")],
     "grass": [("GRASS_PAYOUT_WALLET", "solana")],
     "helium": [("HELIUM_PAYOUT_WALLET", "iotex"), ("IOTEX_TREASURY", "iotex")],
     "iotex": [("IOTEX_TREASURY", "iotex"), ("MINING_ROOT_IOTEX", "iotex")],
@@ -82,6 +88,12 @@ class RewardRouter:
             "etc": "etc",
             "grass": "grass",
             "helium": "helium",
+            "prl": "prl",
+            "krx": "krx",
+            "zano": "zano",
+            "qtc": "qtc",
+            "iron": "iron",
+            "ton": "ton",
         }
         coin = mapping.get(miner_name, miner_name)
         wallet = self.get_wallet(coin)

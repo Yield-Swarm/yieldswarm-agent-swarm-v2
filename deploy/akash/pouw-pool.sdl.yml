@@ -1,0 +1,64 @@
+---
+version: "2.0"
+
+services:
+  pouw-pool:
+    image: ${POWU_POOL_IMAGE}
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - POWU_SYMBOL=${POWU_SYMBOL}
+      - POWU_ALGORITHM=${POWU_ALGORITHM}
+      - MINING_POOL_URL=${MINING_POOL_URL}
+      - MINING_WALLET=${MINING_WALLET}
+      - MINING_TICK_SECONDS=${MINING_TICK_SECONDS:-60}
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_SKIP_VERIFY=${VAULT_SKIP_VERIFY:-false}
+      - VAULT_SECRET_PATHS=runtime/akash,treasury/mining_roots,runtime/core
+      - MINING_DRY_RUN=${MINING_DRY_RUN:-0}
+    command:
+      - python3
+      - -m
+      - mining
+      - start
+      - --miner
+      - ${POWU_MINER_NAME}
+      - --json
+
+profiles:
+  compute:
+    pouw-gpu:
+      resources:
+        cpu:
+          units: 4
+        memory:
+          size: 16Gi
+        storage:
+          - size: 40Gi
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: rtx4090
+                - model: rtx3090
+                - model: a100
+  placement:
+    akash-pouw:
+      pricing:
+        pouw-pool:
+          denom: uakt
+          amount: 8000
+
+deployment:
+  pouw-pool:
+    akash-pouw:
+      profile: pouw-gpu
+      count: 1

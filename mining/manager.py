@@ -19,6 +19,20 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MINERS = ["bittensor", "monero", "etc", "grass", "helium"]
 
 
+def _load_manifest_miners() -> List[str]:
+    manifest_path = REPO_ROOT / "config" / "mining" / "manifest.json"
+    if not manifest_path.exists():
+        return DEFAULT_MINERS
+    try:
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+        miners = data.get("miners")
+        if isinstance(miners, list) and miners:
+            return [str(m) for m in miners]
+    except (json.JSONDecodeError, OSError):
+        pass
+    return DEFAULT_MINERS
+
+
 class UnifiedMiningManager:
     """Orchestrates all mining workloads from a single control plane."""
 
@@ -31,7 +45,7 @@ class UnifiedMiningManager:
         if not self.run_dir.is_absolute():
             self.run_dir = REPO_ROOT / self.run_dir
         self.run_dir.mkdir(parents=True, exist_ok=True)
-        names = miners or DEFAULT_MINERS
+        names = miners or _load_manifest_miners()
         self.miners: Dict[str, BaseMiner] = {}
         for name in names:
             cls = MINER_REGISTRY.get(name)

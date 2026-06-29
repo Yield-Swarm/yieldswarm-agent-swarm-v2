@@ -22,7 +22,7 @@ A := deploy/akash
 
 .PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault vault-validate \
         akash-deploy-vault akash-preflight akash-verify akash-verify-env deploy-akash-full deploy-akash-europlots \
-        akash-bittensor akash-odysseus akash-backend \
+        akash-bittensor akash-odysseus akash-backend pouw-pools-launch pouw-pools-status pouw-pools-render-sdl \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -130,6 +130,18 @@ akash-verify-env:
 ## deploy-akash-full: full mainnet pipeline (create → bids → lease → manifest)
 deploy-akash-full:
 	bash deploy/akash/deploy-full.sh
+
+## pouw-pools-launch: launch all 6 PoWUoI pools (PRL, KRX, ZANO, QTC, IRON, TON)
+pouw-pools-launch:
+	bash scripts/mining/launch-pouw-pools.sh launch --json
+
+## pouw-pools-status: PoWUoI pool fleet status + helical state
+pouw-pools-status:
+	bash scripts/mining/launch-pouw-pools.sh status --json
+
+## pouw-pools-render-sdl: render Akash SDL per PoWUoI coin
+pouw-pools-render-sdl:
+	bash scripts/mining/launch-pouw-pools.sh render-sdl --json
 
 ## azure-apply: apply root terraform/ (Azure Container Apps)
 azure-apply:

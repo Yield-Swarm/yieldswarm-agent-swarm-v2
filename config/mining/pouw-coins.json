@@ -1,0 +1,102 @@
+{
+  "version": "1.0",
+  "ecosystem": "PoWUoI",
+  "description": "Six Proof-of-Work Useful-of-Infrastructure coins on YieldSwarm Akash cloud tier. PRL is the YieldSwarm-native root.",
+  "yieldswarm_coin": "PRL",
+  "coins": [
+    {
+      "symbol": "PRL",
+      "name": "Pearl",
+      "work_type": "pouw",
+      "algorithm": "noisy_gemm",
+      "cloud": "akash",
+      "wallet_env": "MINING_ROOT_PRL",
+      "pool_url_env": "MINING_POOL_URL_PRL",
+      "quote_env": "MINING_QUOTE_USD_PRL",
+      "enabled_env": "POUW_PRL_ENABLED",
+      "default_pool_url": "",
+      "gpu_profile": "rtx4090",
+      "treasury_manifest_key": "prl"
+    },
+    {
+      "symbol": "KRX",
+      "name": "Keryx",
+      "work_type": "pouw",
+      "algorithm": "matmul",
+      "cloud": "akash",
+      "wallet_env": "MINING_WALLET_KRX",
+      "pool_url_env": "MINING_POOL_URL_KRX",
+      "quote_env": "MINING_QUOTE_USD_KRX",
+      "enabled_env": "POUW_KRX_ENABLED",
+      "default_pool_url": "",
+      "gpu_profile": "rtx4090",
+      "treasury_manifest_key": null
+    },
+    {
+      "symbol": "ZANO",
+      "name": "Zano",
+      "work_type": "pouw",
+      "algorithm": "progpow",
+      "cloud": "akash",
+      "wallet_env": "MINING_WALLET_ZANO",
+      "pool_url_env": "MINING_POOL_URL_ZANO",
+      "quote_env": "MINING_QUOTE_USD_ZANO",
+      "enabled_env": "POUW_ZANO_ENABLED",
+      "default_pool_url": "",
+      "gpu_profile": "rtx3090",
+      "treasury_manifest_key": null
+    },
+    {
+      "symbol": "QTC",
+      "name": "Qitcoin",
+      "work_type": "pouw",
+      "algorithm": "qhash",
+      "cloud": "akash",
+      "wallet_env": "MINING_WALLET_QTC",
+      "pool_url_env": "MINING_POOL_URL_QTC",
+      "quote_env": "MINING_QUOTE_USD_QTC",
+      "enabled_env": "POUW_QTC_ENABLED",
+      "default_pool_url": "",
+      "gpu_profile": "rtx3090",
+      "treasury_manifest_key": null
+    },
+    {
+      "symbol": "IRON",
+      "name": "Iron Fish",
+      "work_type": "pouw",
+      "algorithm": "blake3",
+      "cloud": "akash",
+      "wallet_env": "MINING_WALLET_IRON",
+      "pool_url_env": "MINING_POOL_URL_IRON",
+      "quote_env": "MINING_QUOTE_USD_IRON",
+      "enabled_env": "POUW_IRON_ENABLED",
+      "default_pool_url": "",
+      "gpu_profile": "rtx3090",
+      "treasury_manifest_key": null
+    },
+    {
+      "symbol": "TON",
+      "name": "TON",
+      "work_type": "pouw",
+      "algorithm": "ton",
+      "cloud": "akash",
+      "wallet_env": "MINING_WALLET_TON",
+      "pool_url_env": "MINING_POOL_URL_TON",
+      "quote_env": "MINING_QUOTE_USD_TON",
+      "enabled_env": "POUW_TON_ENABLED",
+      "default_pool_url": "",
+      "gpu_profile": "cpu",
+      "treasury_manifest_key": null
+    }
+  ],
+  "ranch_extension": {
+    "symbol": "ZEC",
+    "name": "Zcash",
+    "work_type": "equihash",
+    "cloud": "ranch",
+    "wallet_env": "MINING_ROOT_ZEC",
+    "pool_url_env": "MINING_POOL_URL_ZEC",
+    "quote_env": "MINING_QUOTE_USD_ZEC",
+    "treasury_manifest_key": "zec"
+  }
+}

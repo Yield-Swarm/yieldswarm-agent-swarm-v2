@@ -4,6 +4,7 @@ from mining.miners.monero_miner import MoneroMiner
 from mining.miners.etc_miner import EthereumClassicMiner
 from mining.miners.grass_miner import GrassMiner
 from mining.miners.helium_miner import HeliumMiner
+from mining.miners.pouw_pool_miner import build_pouw_miner_registry
 
 MINER_REGISTRY = {
     "bittensor": BittensorMiner,
@@ -11,6 +12,7 @@ MINER_REGISTRY = {
     "etc": EthereumClassicMiner,
     "grass": GrassMiner,
     "helium": HeliumMiner,
+    **build_pouw_miner_registry(),
 }
 
 __all__ = [

@@ -1,14 +1,35 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "manager": "mining.manager.UnifiedMiningManager",
   "cli": "scripts/mining/mining-manager.sh",
-  "miners": ["bittensor", "monero", "etc", "grass", "helium"],
+  "pouw_launcher": "scripts/mining/launch-pouw-pools.sh",
+  "pouw_registry": "config/mining/pouw-coins.json",
+  "miners": [
+    "bittensor",
+    "monero",
+    "etc",
+    "grass",
+    "helium",
+    "prl",
+    "krx",
+    "zano",
+    "qtc",
+    "iron",
+    "ton"
+  ],
+  "pouw_coins": ["prl", "krx", "zano", "qtc", "iron", "ton"],
   "state_dir": ".run/mining",
   "wallet_env": {
     "tao": "MINING_ROOT_TAO",
     "monero": "MONERO_WALLET_ADDRESS",
     "etc": "MINING_ROOT_BASE_ETC",
     "grass": "GRASS_NODE_KEYS",
-    "helium": "DEPIN_HELIUM_HOTSPOT_KEYS"
+    "helium": "DEPIN_HELIUM_HOTSPOT_KEYS",
+    "prl": "MINING_ROOT_PRL",
+    "krx": "MINING_WALLET_KRX",
+    "zano": "MINING_WALLET_ZANO",
+    "qtc": "MINING_WALLET_QTC",
+    "iron": "MINING_WALLET_IRON",
+    "ton": "MINING_WALLET_TON"
   }
 }

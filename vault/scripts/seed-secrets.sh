@@ -269,7 +269,13 @@ put_if_set mining/wallets \
   etc=MINING_ROOT_BASE_ETC \
   grass_nodes=GRASS_NODE_KEYS \
   helium_hotspots=DEPIN_HELIUM_HOTSPOT_KEYS \
-  grass_lineups=GRASS_LINEUPS
+  grass_lineups=GRASS_LINEUPS \
+  prl=MINING_ROOT_PRL \
+  krx=MINING_WALLET_KRX \
+  zano=MINING_WALLET_ZANO \
+  qtc=MINING_WALLET_QTC \
+  iron=MINING_WALLET_IRON \
+  ton=MINING_WALLET_TON
 
 put_if_set runtime/bittensor \
   wallet_name=BT_WALLET_NAME \
