@@ -27,7 +27,8 @@
     "swarm:multi-mine:live": "MULTI_MINE_DRY_RUN=0 node scripts/multi-mine-router.mjs",
     "control-center:install": "pip3 install -r services/control_center/requirements.txt --break-system-packages",
     "control-center:dev": "python3 -m services.control_center.main",
-    "control-center:test": "python3 services/control_center/test_local.py"
+    "control-center:test": "python3 services/control_center/test_local.py",
+    "genesis:manifest": "node --input-type=module -e \"fetch('http://127.0.0.1:'+(process.env.PORT||8080)+'/api/genesis/manifest').then(r=>r.json()).then(j=>console.log(JSON.stringify(j,null,2)))\""
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",

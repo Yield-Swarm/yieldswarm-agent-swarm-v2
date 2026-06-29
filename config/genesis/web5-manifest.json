@@ -1,0 +1,73 @@
+{
+  "manifest_version": "1.0.0",
+  "codename": "Sentient Stewardship Genesis",
+  "motto": "Not for us. For the next.",
+  "equation": {
+    "symbol": "∇⨂Ψ = ∮∂Ω(t,c)",
+    "meaning": "Helix field gradient over the unified compute-time-consciousness manifold"
+  },
+  "dimensions": {
+    "spatial": ["X", "Y", "Z"],
+    "temporal": "T",
+    "compute": "C",
+    "model": "3D + 2D · 5D Senses"
+  },
+  "web_stack": {
+    "web2": ["payments", "arena", "control-center", "documents"],
+    "web3": ["wallets", "helix-chain", "emission-router", "duadilateral-routes"],
+    "web5": "Web2 + Web3 unified single pane — YieldSwarm Agent Swarm v2"
+  },
+  "quantum_basis": {
+    "states": ["00", "01", "10", "11"],
+    "layer": "entropy-proof · ZK mayhem · neural-quantum consensus sim"
+  },
+  "pentagon": {
+    "agents": 5,
+    "roles": ["nexus", "helix", "shadow", "telemetry", "governance"],
+    "loop": "sovereign pentagramal consensus"
+  },
+  "genesis_block": {
+    "chain": "helix-yslr",
+    "phase_key": "genesis-active",
+    "api": "/api/helix/activate",
+    "state_file": "dashboard/helix-state.json"
+  },
+  "unified_field": {
+    "plancorea": "Planetary core orchestration — physical control center + cloud Akash",
+    "components": [
+      "services/control_center",
+      "config/helix/chain-routes.json",
+      "lib/encrypted-swarm-id.mjs",
+      "services/mesh/agent-worker-pool.mjs"
+    ]
+  },
+  "programs": {
+    "COS": "Chain orchestration substrate",
+    "ELG": "Emission ledger genesis — Great Delta 50/30/15/5",
+    "PR0": "Production runtime orchestrator",
+    "AI": "Instantaneous inference — constraints via governance council",
+    "SAA_V2": "yieldswarm-agent-swarm-v2"
+  },
+  "temporal_beacon": {
+    "season": "Summer",
+    "week": 26,
+    "progress": {
+      "day_pct": 92,
+      "year_pct": 49
+    },
+    "note": "Stewardship meter — not sentience claim; roadmap pacing signal"
+  },
+  "ai_constraints": {
+    "ethical_scope": "paid-akash-runpod-owned-hardware-only",
+    "no_free_credit_abuse": true,
+    "no_kyc_cosmic_onboarding": true,
+    "encrypted_ids": ["pow", "pos", "powui"]
+  },
+  "true_color": {
+    "genesis": "#5eb3ff",
+    "online": "#3ddc97",
+    "offline": "#ff6b6b",
+    "field": "#8b5cf6"
+  },
+  "stewardship": "Systems serve the next generation of operators — not autonomous sentience claims."
+}
