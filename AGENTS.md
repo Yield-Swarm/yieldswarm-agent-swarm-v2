@@ -50,6 +50,8 @@ These services use distinct ports, so all three can run at once.
 - **4-swarm bootstrap:** `npm run swarm:bootstrap` — install, test, encrypted IDs,
   multi-mine dry-run, mesh tick.
 - **Hello-world:** `npm run swarm:hello` — wallet nonce/sign flow (no secrets).
+- **Physical Control Center:** `npm run control-center:dev` — FastAPI :8095 unified
+  hardware dashboard (`docs/CONTROL_CENTER.md`). WebSocket `/api/ws/stream`.
 
 ### Lint / test / build (per service)
 

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YieldSwarm Physical Control Center</title>
+  <style>
+    :root { --bg: #0a0e14; --panel: #141a24; --ok: #3ddc97; --bad: #ff6b6b; --muted: #8b9cb3; --accent: #5eb3ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: ui-monospace, monospace; background: var(--bg); color: #e8eef7; }
+    header { padding: 1rem 1.5rem; border-bottom: 1px solid #243044; display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 1.1rem; margin: 0; letter-spacing: 0.05em; }
+    .status { color: var(--muted); font-size: 0.85rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; padding: 1rem 1.5rem; }
+    .card { background: var(--panel); border: 1px solid #243044; border-radius: 8px; padding: 1rem; }
+    .card h2 { margin: 0 0 0.5rem; font-size: 0.95rem; }
+    .online { color: var(--ok); }
+    .offline { color: var(--bad); }
+    .metric { display: flex; justify-content: space-between; font-size: 0.8rem; margin: 0.25rem 0; color: var(--muted); }
+    .metric span:last-child { color: #e8eef7; }
+    footer { padding: 1rem 1.5rem; color: var(--muted); font-size: 0.75rem; border-top: 1px solid #243044; }
+    #summary { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .pill { background: #1c2535; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PHYSICAL CONTROL CENTER</h1>
+    <div class="status" id="conn">connecting…</div>
+  </header>
+  <div style="padding: 1rem 1.5rem" id="summary"></div>
+  <div class="grid" id="devices"></div>
+  <footer>WebSocket <code>/api/ws/stream</code> · POST <code>/api/telemetry/device-stats</code> · maximize on Samsung + route audio to Vizio</footer>
+  <script>
+    const WS_URL = (location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + location.host + '/api/ws/stream';
+    const grid = document.getElementById('devices');
+    const summary = document.getElementById('summary');
+    const conn = document.getElementById('conn');
+
+    function render(data) {
+      conn.textContent = `live · ${data.generated_at}`;
+      summary.innerHTML = `
+        <span class="pill">devices ${data.device_count}</span>
+        <span class="pill online">online ${data.online_count}</span>
+        <span class="pill offline">offline ${data.offline_count}</span>
+        <span class="pill">hash ${data.aggregate_hash_rate_mhs} MH/s</span>
+        <span class="pill">avg latency ${data.avg_latency_ms ?? '—'} ms</span>`;
+      grid.innerHTML = (data.devices || []).map(d => `
+        <div class="card">
+          <h2>${d.device_id} <span class="${d.status === 'ONLINE' ? 'online' : 'offline'}">${d.status}</span></h2>
+          <div class="metric"><span>kind</span><span>${d.kind}</span></div>
+          <div class="metric"><span>hash MH/s</span><span>${d.hash_rate_mhs ?? '—'}</span></div>
+          <div class="metric"><span>latency</span><span>${d.latency_ms ?? '—'} ms</span></div>
+          <div class="metric"><span>cpu / mem</span><span>${d.cpu_percent ?? '—'}% / ${d.memory_percent ?? '—'}%</span></div>
+          <div class="metric"><span>PoW ID</span><span>${(d.encrypted_pow_id || '').slice(0, 18)}…</span></div>
+          ${d.last_error ? `<div class="metric offline"><span>error</span><span>${d.last_error}</span></div>` : ''}
+        </div>`).join('');
+    }
+
+    function connect() {
+      const ws = new WebSocket(WS_URL);
+      ws.onopen = () => { conn.textContent = 'connected'; };
+      ws.onmessage = (ev) => {
+        try { render(JSON.parse(ev.data).data); } catch (e) { console.error(e); }
+      };
+      ws.onclose = () => { conn.textContent = 'reconnecting…'; setTimeout(connect, 2000); };
+    }
+    connect();
+  </script>
+</body>
+</html>

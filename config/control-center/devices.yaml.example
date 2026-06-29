@@ -1,0 +1,35 @@
+# Local devices polled by the control center daemon (services/control_center)
+# Copy to config/control-center/devices.yaml and edit IPs for your rack.
+
+devices:
+  # Mac Mini / always-on monitoring station
+  - id: mac-mini-control
+    kind: orchestrator
+    host: 127.0.0.1
+
+  # Example ASIC / miner status JSON endpoint on LAN
+  - id: asic-z15-rack-01
+    kind: asic
+    host: 192.168.1.101
+    status_url: http://192.168.1.101:4028/api/status
+    sim_hash_rate_mhs: 0
+
+  # Phone wall PoE stub (pushes via POST; poller pings host)
+  - id: phone-shelf-a-01
+    kind: edge-phone
+    host: 192.168.1.201
+
+  # Lucky Miner / Termux edge
+  - id: termux-edge-primary
+    kind: termux
+    host: 192.168.1.50
+
+  # Integration backend (Node :8080 health)
+  - id: yieldswarm-backend
+    kind: api
+    status_url: http://127.0.0.1:8080/api/health
+
+  # Local xmrig / tandem miner stub
+  - id: xmrig-local
+    kind: pow-cpu
+    status_url: http://127.0.0.1:4067/1/summary

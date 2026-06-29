@@ -24,7 +24,10 @@
     "swarm:bootstrap": "bash scripts/swarm-bootstrap.sh",
     "swarm:hello": "node scripts/hello-world-wallet.mjs",
     "swarm:multi-mine": "node scripts/multi-mine-router.mjs",
-    "swarm:multi-mine:live": "MULTI_MINE_DRY_RUN=0 node scripts/multi-mine-router.mjs"
+    "swarm:multi-mine:live": "MULTI_MINE_DRY_RUN=0 node scripts/multi-mine-router.mjs",
+    "control-center:install": "pip3 install -r services/control_center/requirements.txt --break-system-packages",
+    "control-center:dev": "python3 -m services.control_center.main",
+    "control-center:test": "python3 services/control_center/test_local.py"
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",

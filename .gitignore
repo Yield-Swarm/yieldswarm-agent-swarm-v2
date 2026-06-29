@@ -23,6 +23,7 @@ data/
 # debug
 # dependencies
 deploy/config.env
+config/control-center/devices.yaml
 deploy/rendered/
 deploy/terraform/active-backend.json
 deploy/terraform/auto.tfvars.json
