@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yieldswarm.io/schemas/helical/physical-core.v1.json",
+  "title": "PhysicalCoreTelemetry",
+  "description": "SWARM 1 — Carrizozo sovereign data ranch hardware telemetry.",
+  "type": "object",
+  "required": ["schemaVersion", "siteId", "capturedAt", "solar", "connectivity", "asics", "vehicles", "edge"],
+  "properties": {
+    "schemaVersion": { "const": "physical-core/v1" },
+    "siteId": { "type": "string" },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "solar": {
+      "type": "object",
+      "required": ["arrayKwPeak", "productionKw", "status"],
+      "properties": {
+        "arrayKwPeak": { "type": "number", "const": 27 },
+        "productionKw": { "type": "number", "minimum": 0 },
+        "batterySocPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "gridExportKw": { "type": "number" },
+        "status": { "type": "string", "enum": ["producing", "idle", "fault", "offline"] }
+      }
+    },
+    "connectivity": {
+      "type": "object",
+      "required": ["primary", "failover"],
+      "properties": {
+        "primary": { "$ref": "#/$defs/starlinkLink" },
+        "failover": { "$ref": "#/$defs/starlinkLink" },
+        "activeLink": { "type": "string", "enum": ["primary", "failover", "offline"] }
+      }
+    },
+    "asics": {
+      "type": "object",
+      "required": ["fleetSize", "units"],
+      "properties": {
+        "fleetSize": { "type": "integer", "const": 30 },
+        "algorithm": { "type": "string", "const": "equihash" },
+        "model": { "type": "string", "const": "antminer-z15-pro" },
+        "aggregateHashrateGh": { "type": "number", "minimum": 0 },
+        "units": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/asicUnit" }
+        }
+      }
+    },
+    "vehicles": {
+      "type": "array",
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/teslaVehicle" }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["nodes"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/edgeNode" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "starlinkLink": {
+      "type": "object",
+      "required": ["linkId", "status"],
+      "properties": {
+        "linkId": { "type": "string" },
+        "status": { "type": "string", "enum": ["online", "degraded", "offline"] },
+        "downlinkMbps": { "type": "number", "minimum": 0 },
+        "uplinkMbps": { "type": "number", "minimum": 0 },
+        "latencyMs": { "type": "number", "minimum": 0 },
+        "obstructionPercent": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "asicUnit": {
+      "type": "object",
+      "required": ["unitId", "status", "hashrateGh"],
+      "properties": {
+        "unitId": { "type": "string" },
+        "status": { "type": "string", "enum": ["mining", "idle", "thermal", "offline", "maintenance"] },
+        "hashrateGh": { "type": "number", "minimum": 0 },
+        "powerW": { "type": "number", "minimum": 0 },
+        "chipTempC": { "type": "number" },
+        "pool": { "type": "string" },
+        "worker": { "type": "string" }
+      }
+    },
+    "teslaVehicle": {
+      "type": "object",
+      "required": ["vin", "vehicleId", "capturedAt", "kinematics"],
+      "properties": {
+        "vin": { "type": "string" },
+        "vehicleId": { "type": "string" },
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "kinematics": {
+          "type": "object",
+          "properties": {
+            "speedKmh": { "type": "number" },
+            "headingDeg": { "type": "number" },
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "accelLongMps2": { "type": "number" },
+            "accelLatMps2": { "type": "number" },
+            "yawRateDps": { "type": "number" }
+          }
+        },
+        "driverInputs": {
+          "type": "object",
+          "properties": {
+            "throttlePercent": { "type": "number", "minimum": 0, "maximum": 100 },
+            "brakePressure": { "type": "number", "minimum": 0, "maximum": 1 },
+            "steeringAngleDeg": { "type": "number" }
+          }
+        },
+        "mmorpgBridge": {
+          "type": "object",
+          "description": "Pre-mapped skill events for SWARM 4 ingestion.",
+          "properties": {
+            "skillMatrix": { "type": "string", "enum": ["driving", "efficiency", "exploration"] },
+            "xpDelta": { "type": "number" },
+            "eventType": { "type": "string" }
+          }
+        }
+      }
+    },
+    "edgeNode": {
+      "type": "object",
+      "required": ["nodeId", "role", "status"],
+      "properties": {
+        "nodeId": { "type": "string" },
+        "role": { "type": "string", "enum": ["orchestrator", "telemetry-ingest", "asic-proxy", "vehicle-bridge"] },
+        "hardware": { "type": "string", "enum": ["mac-mini", "raspberry-pi", "nuc", "custom"] },
+        "status": { "type": "string", "enum": ["online", "degraded", "offline"] },
+        "cpuPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "memPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "headlessTerminal": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}

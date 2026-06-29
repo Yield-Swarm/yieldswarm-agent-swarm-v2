@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "fleet-registry/v1",
+  "siteId": "carrizozo-nm-10ac",
+  "asics": {
+    "prefix": "z15",
+    "count": 30,
+    "units": []
+  },
+  "vehicles": [
+    { "vehicleId": "tesla-01", "slot": 1, "label": "Ranch Scout" },
+    { "vehicleId": "tesla-02", "slot": 2, "label": "Supply Runner" },
+    { "vehicleId": "tesla-03", "slot": 3, "label": "Edge Courier" },
+    { "vehicleId": "tesla-04", "slot": 4, "label": "Field Ops" }
+  ],
+  "edgeNodes": [
+    {
+      "nodeId": "mac-mini-carrizozo-01",
+      "hardware": "mac-mini",
+      "role": "orchestrator",
+      "hostname": "ranch-orchestrator.local"
+    },
+    {
+      "nodeId": "pi-asic-proxy-01",
+      "hardware": "raspberry-pi",
+      "role": "asic-proxy",
+      "hostname": "asic-proxy.local"
+    },
+    {
+      "nodeId": "nuc-telemetry-01",
+      "hardware": "nuc",
+      "role": "telemetry-ingest",
+      "hostname": "telemetry-ingest.local"
+    },
+    {
+      "nodeId": "pi-vehicle-bridge-01",
+      "hardware": "raspberry-pi",
+      "role": "vehicle-bridge",
+      "hostname": "vehicle-bridge.local"
+    }
+  ]
+}

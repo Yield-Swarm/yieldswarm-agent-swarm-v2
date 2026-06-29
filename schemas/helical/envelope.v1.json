@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yieldswarm.io/schemas/helical/envelope.v1.json",
+  "title": "HelicalEnvelope",
+  "description": "Universal message envelope for cross-swarm helical communication.",
+  "type": "object",
+  "required": ["schemaVersion", "swarmId", "epoch", "phase", "messageId", "emittedAt", "payload"],
+  "properties": {
+    "schemaVersion": { "const": "helical-envelope/v1" },
+    "swarmId": {
+      "type": "string",
+      "enum": ["physical-core", "mining-pools", "cosmic-onboarding", "mesh-engine"]
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Helical rotation epoch (increments every 420s heartbeat)."
+    },
+    "phase": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "description": "Active swarm phase within the epoch (0=physical, 1=mining, 2=marketplace, 3=mmorpg)."
+    },
+    "messageId": { "type": "string", "format": "uuid" },
+    "correlationId": { "type": "string", "format": "uuid" },
+    "emittedAt": { "type": "string", "format": "date-time" },
+    "siteId": {
+      "type": "string",
+      "default": "carrizozo-nm-10ac",
+      "description": "Physical anchor for sovereign edge sites."
+    },
+    "latencyMs": {
+      "type": "number",
+      "minimum": 0,
+      "description": "End-to-end orchestration latency; target <= 80ms p95."
+    },
+    "treasurySplit": {
+      "type": "string",
+      "pattern": "^\\d+,\\d+,\\d+,\\d+$",
+      "default": "50,30,15,5"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Swarm-specific body; validated against swarm schema."
+    },
+    "signature": {
+      "type": "string",
+      "description": "Optional HELIX-rooted attestation signature."
+    }
+  },
+  "additionalProperties": false
+}

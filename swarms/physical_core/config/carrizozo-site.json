@@ -1,0 +1,40 @@
+{
+  "siteId": "carrizozo-nm-10ac",
+  "name": "YieldSwarm Sovereign Data Ranch",
+  "location": {
+    "city": "Carrizozo",
+    "state": "NM",
+    "country": "US",
+    "latitude": 33.6417,
+    "longitude": -105.8772,
+    "acreage": 10,
+    "timezone": "America/Denver"
+  },
+  "power": {
+    "solarArrayKwPeak": 27,
+    "vendor": "tesla",
+    "notes": "Off-grid capable; feeds ASIC barn + edge cluster"
+  },
+  "connectivity": {
+    "primaryStarlinkId": "starlink-carrizozo-primary",
+    "failoverStarlinkId": "starlink-carrizozo-failover",
+    "failoverPolicy": "active-standby"
+  },
+  "miningBarn": {
+    "asicModel": "antminer-z15-pro",
+    "algorithm": "equihash",
+    "fleetSize": 30,
+    "inventoryNote": "26 units on books + 4 expansion slots reserved"
+  },
+  "vehicleFleet": {
+    "count": 4,
+    "apiDriver": "tesla-fleet-api",
+    "minModelYear": 2016,
+    "mmorpgBridge": true
+  },
+  "edgeCluster": {
+    "orchestrator": "mac-mini-carrizozo-01",
+    "headlessBroadcast": true,
+    "ingestPort": 9477
+  }
+}

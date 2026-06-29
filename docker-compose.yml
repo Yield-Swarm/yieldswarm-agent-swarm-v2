@@ -1,4 +1,189 @@
 services:
+  # ---------------------------------------------------------------------------
+  # Infrastructure bus
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - swarm-redis:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${COSMIC_DB_USER:-yieldswarm}
+      POSTGRES_PASSWORD: ${COSMIC_DB_PASSWORD:-change_me}
+      POSTGRES_DB: ${COSMIC_DB_NAME:-cosmic_onboarding}
+    ports:
+      - "${COSMIC_DB_PORT:-5432}:5432"
+    volumes:
+      - swarm-postgres:/var/lib/postgresql/data
+      - ./swarms/cosmic_onboarding/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${COSMIC_DB_USER:-yieldswarm}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Helical IPC coordinator (spiral loop across 4 swarms)
+  # ---------------------------------------------------------------------------
+  swarm-coordinator:
+    build:
+      context: .
+      dockerfile: Dockerfile.swarm
+    image: ${SWARM_IMAGE:-yieldswarm/four-swarm:local}
+    command: ["python3", "-m", "swarms.helical.coordinator"]
+    env_file:
+      - ${SWARM_ENV_FILE:-.env.swarm}
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      COSMIC_DATABASE_URL: postgresql://${COSMIC_DB_USER:-yieldswarm}:${COSMIC_DB_PASSWORD:-change_me}@postgres:5432/${COSMIC_DB_NAME:-cosmic_onboarding}
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./.data:/app/.data
+    restart: unless-stopped
+
+  swarm-heartbeat:
+    build:
+      context: .
+      dockerfile: Dockerfile.swarm
+    image: ${SWARM_IMAGE:-yieldswarm/four-swarm:local}
+    command: ["python3", "-c", "import asyncio; from swarms.helical.ipc_bridge import IPCBridge; asyncio.run(IPCBridge().run_heartbeat_loop())"]
+    env_file:
+      - ${SWARM_ENV_FILE:-.env.swarm}
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # SWARM 1 — Physical Core (Carrizozo sovereign data ranch)
+  # ---------------------------------------------------------------------------
+  swarm-physical-core:
+    build:
+      context: .
+      dockerfile: Dockerfile.swarm
+    image: ${SWARM_IMAGE:-yieldswarm/four-swarm:local}
+    command: ["bash", "swarms/physical_core/scripts/monitor-matrix.sh"]
+    env_file:
+      - ${SWARM_ENV_FILE:-.env.swarm}
+    environment:
+      PHYSICAL_CORE_OUT_DIR: /app/.data/physical-core
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./.data:/app/.data
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # SWARM 2 — Mining Pools + circuit breaker
+  # ---------------------------------------------------------------------------
+  swarm-mining-pools:
+    build:
+      context: .
+      dockerfile: Dockerfile.swarm
+    image: ${SWARM_IMAGE:-yieldswarm/four-swarm:local}
+    command:
+      - python3
+      - -c
+      - |
+        from swarms.mining_pools.engines.pool_switcher import PoolSwitcher
+        from swarms.mining_pools.engines.marketing_circuit_breaker import MarketingCircuitBreaker
+        import json, time
+        m, b = PoolSwitcher(), MarketingCircuitBreaker()
+        while True:
+          s = m.tick()
+          h = b.check_health(s)
+          print(json.dumps({"mining": s, "breaker": h}))
+          time.sleep(int(__import__("os").environ.get("MINING_TICK_SECONDS", "60")))
+    env_file:
+      - ${SWARM_ENV_FILE:-.env.swarm}
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # SWARM 3 — Cosmic Onboarding API
+  # ---------------------------------------------------------------------------
+  swarm-cosmic-onboarding:
+    build:
+      context: .
+      dockerfile: Dockerfile.swarm
+    image: ${SWARM_IMAGE:-yieldswarm/four-swarm:local}
+    command:
+      - python3
+      - -c
+      - |
+        import json
+        from swarms.cosmic_onboarding.engines.onboarding_service import CosmicOnboardingService
+        svc = CosmicOnboardingService()
+        demo = svc.onboard({
+          "email": "demo@yieldswarm.io",
+          "birthDate": "1990-06-15",
+          "birthTime": "14:30:00",
+          "birthLatitude": 33.6417,
+          "birthLongitude": -105.8772,
+          "kycVerified": False,
+        })
+        print(json.dumps(demo, indent=2))
+    env_file:
+      - ${SWARM_ENV_FILE:-.env.swarm}
+    environment:
+      COSMIC_DATABASE_URL: postgresql://${COSMIC_DB_USER:-yieldswarm}:${COSMIC_DB_PASSWORD:-change_me}@postgres:5432/${COSMIC_DB_NAME:-cosmic_onboarding}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${COSMIC_API_PORT:-8200}:8200"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # SWARM 4 — 35-Layer Mesh Engine
+  # ---------------------------------------------------------------------------
+  swarm-mesh-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.swarm
+    image: ${SWARM_IMAGE:-yieldswarm/four-swarm:local}
+    command:
+      - python3
+      - -c
+      - |
+        import asyncio, json, time
+        from swarms.mesh_engine.engines.mesh_service import MeshEngineService
+        async def loop():
+          mesh = MeshEngineService()
+          while True:
+            snap = await mesh.run_tick()
+            print(json.dumps(snap))
+            await asyncio.sleep(int(__import__("os").environ.get("MESH_TICK_SECONDS", "30")))
+        asyncio.run(loop())
+    env_file:
+      - ${SWARM_ENV_FILE:-.env.swarm}
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      MESH_LAYER_COUNT: ${MESH_LAYER_COUNT:-35}
+      AGENT_COUNT_TOTAL: ${AGENT_COUNT_TOTAL:-10080}
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Existing Odysseus stack (retained)
+  # ---------------------------------------------------------------------------
   odysseus:
     build:
       context: .
@@ -13,17 +198,19 @@ services:
       ODYSSEUS_GPU_COUNT: ${ODYSSEUS_GPU_COUNT:-1}
       ODYSSEUS_RUNTIME_VAULT_PATH: ${ODYSSEUS_RUNTIME_VAULT_PATH:-kv/data/yieldswarm/odysseus/runtime}
       ODYSSEUS_SERVICE_NAME: odysseus
-      VAULT_ADDR: ${VAULT_ADDR}
-      VAULT_APPROLE_AUTH_PATH: ${VAULT_APPROLE_AUTH_PATH:-auth/approle/login}
+      VAULT_ADDR: ${VAULT_ADDR:-}
       VAULT_AUTH_METHOD: ${VAULT_AUTH_METHOD:-token}
-      VAULT_JWT_AUTH_PATH: ${VAULT_JWT_AUTH_PATH:-auth/jwt/login}
-      VAULT_JWT_ROLE: ${VAULT_JWT_ROLE:-}
-      VAULT_KV_PATH: ${VAULT_KV_PATH:-kv/data/yieldswarm/odysseus/runtime}
-      VAULT_NAMESPACE: ${VAULT_NAMESPACE:-}
       VAULT_TOKEN_FILE: /run/secrets/vault_token
+      REDIS_URL: redis://redis:6379/0
     secrets:
       - vault_token
+    depends_on:
+      - redis
     restart: unless-stopped
+
+volumes:
+  swarm-redis:
+  swarm-postgres:
 
 secrets:
   vault_token:

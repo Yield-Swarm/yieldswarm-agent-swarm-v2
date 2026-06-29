@@ -27,6 +27,7 @@ A := deploy/akash
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
         frontend vercel render \
         monitoring-up monitoring-down sovereign-up sovereign-down \
+        four-swarm-up four-swarm-coordinator four-swarm-test physical-core-monitor \
         status logs clean production
 
 ## help: show this menu
@@ -187,3 +188,20 @@ logs:
 clean:
 	rm -rf .run deploy/terraform/auto.tfvars.json deploy/terraform/active-backend.json deploy/terraform/fallback-url.txt
 	@echo "cleaned runtime state"
+
+# ---- four-swarm mainnet lifecycle ------------------------------------------
+## four-swarm-up: start redis + postgres + all 4 swarm services
+four-swarm-up:
+	docker compose up -d redis postgres swarm-coordinator swarm-physical-core swarm-mining-pools swarm-cosmic-onboarding swarm-mesh-engine
+
+## four-swarm-coordinator: run one helical coordinator tick locally
+four-swarm-coordinator:
+	PYTHONPATH=. python3 -m swarms.helical.coordinator
+
+## four-swarm-test: integration tests for 4-swarm lifecycle
+four-swarm-test:
+	PYTHONPATH=. python3 tests/test_four_swarm_lifecycle.py
+
+## physical-core-monitor: SWARM 1 Carrizozo telemetry matrix
+physical-core-monitor:
+	bash swarms/physical_core/scripts/monitor-matrix.sh

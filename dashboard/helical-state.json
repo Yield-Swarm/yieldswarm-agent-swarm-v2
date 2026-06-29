@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "helical-state/v1",
+  "activated": false,
+  "epoch": 0,
+  "phase": 0,
+  "heartbeatSeconds": 420,
+  "updatedAt": null,
+  "site": {
+    "siteId": "carrizozo-nm-10ac",
+    "name": "YieldSwarm Sovereign Data Ranch",
+    "latitude": 33.6417,
+    "longitude": -105.8772,
+    "acreage": 10
+  },
+  "capitalization": {
+    "cherryServersSponsorshipDays": 90,
+    "alchemySolGrantUsd": 25000,
+    "grantPipelineUsd": 1800000,
+    "seedPledgedUsd": 60000000,
+    "seriesATargetUsd": 20000000
+  },
+  "swarms": {
+    "physical-core": {
+      "status": "scaffolded",
+      "lastHeartbeatAt": null,
+      "metrics": { "solarKwPeak": 27, "asicFleet": 30, "teslaVehicles": 4 },
+      "blockers": []
+    },
+    "mining-pools": {
+      "status": "scaffolded",
+      "lastHeartbeatAt": null,
+      "metrics": { "networks": ["PRL", "KRX", "ZANO", "QTC", "IRON", "TON", "ZEC"] },
+      "blockers": []
+    },
+    "cosmic-onboarding": {
+      "status": "scaffolded",
+      "lastHeartbeatAt": null,
+      "metrics": { "houses": 24, "deities": 169 },
+      "blockers": []
+    },
+    "mesh-engine": {
+      "status": "scaffolded",
+      "lastHeartbeatAt": null,
+      "metrics": { "layers": 35, "agents": 10080 },
+      "blockers": []
+    }
+  },
+  "receipts": []
+}
