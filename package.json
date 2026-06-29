@@ -20,7 +20,11 @@
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",
     "test:integration": "bash tests/integration/smoke_test.sh",
-    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    "test:python": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "swarm:bootstrap": "bash scripts/swarm-bootstrap.sh",
+    "swarm:hello": "node scripts/hello-world-wallet.mjs",
+    "swarm:multi-mine": "node scripts/multi-mine-router.mjs",
+    "swarm:multi-mine:live": "MULTI_MINE_DRY_RUN=0 node scripts/multi-mine-router.mjs"
   },
   "dependencies": {
     "@solana/web3.js": "^1.95.3",

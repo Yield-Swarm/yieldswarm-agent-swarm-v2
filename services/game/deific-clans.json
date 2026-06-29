@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "houses": 24,
+  "deity_clans": 169,
+  "skills": [
+    "Compute Harvesting",
+    "Liquidity Routing",
+    "DePIN Telemetry",
+    "Runic Crafting",
+    "Arena Combat",
+    "Governance Consensus",
+    "Cross-Chain Bridge",
+    "Solar Attunement"
+  ],
+  "note": "Self-entered birthday only — no KYC coupling. plotra.xyz agent IDs optional."
+}

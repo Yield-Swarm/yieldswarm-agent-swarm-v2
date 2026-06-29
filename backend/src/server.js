@@ -17,6 +17,7 @@ import apiRouter from './routes/api.js';
 import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
 import helixRouter from './routes/helix.js';
+import swarmRouter from './routes/swarm.js';
 import toolsRouter from './routes/tools.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -39,6 +40,7 @@ app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
 app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
+app.use('/api/swarm', swarmRouter);
 app.use('/', toolsRouter);
 
 // ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------

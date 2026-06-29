@@ -38,6 +38,18 @@ These services use distinct ports, so all three can run at once.
   `pip3 install --break-system-packages`. Console scripts land in `~/.local/bin`.
 - The root `tsconfig.json`/`vitest.config.ts` scope only `src/**`; `frontend`,
   `backend`, `kairo`, etc. are excluded and have their own configs/tests.
+- **Single Next.js app dir.** App Router lives in `src/app/`. Do NOT create root
+  `app/` — Next.js prioritizes it and ignores `src/app/` (`/payments` 404).
+  Arena dashboard: `src/app/arena/page.tsx`.
+- **`SLIPPAGE_TOLERANCE` breaks Python tests** if exported (fraction vs int bps).
+  Run: `env -u SLIPPAGE_TOLERANCE python3 -m unittest discover -s tests`.
+- **Mining ethics:** scoped to paid Akash, paid RunPod, and owned hardware only.
+  `MINING_PAID_INSTANCES_ONLY=1` (default). No free-credit abuse paths.
+- **Encrypted swarm IDs:** PoW/PoS/PoWUI via `lib/encrypted-swarm-id.mjs` —
+  `POST /api/swarm/encrypted-id/mint` on integration backend :8080.
+- **4-swarm bootstrap:** `npm run swarm:bootstrap` — install, test, encrypted IDs,
+  multi-mine dry-run, mesh tick.
+- **Hello-world:** `npm run swarm:hello` — wallet nonce/sign flow (no secrets).
 
 ### Lint / test / build (per service)
 
