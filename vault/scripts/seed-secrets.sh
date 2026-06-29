@@ -49,29 +49,45 @@ put_if_set() {
 }
 
 # ---- Cloud providers (consumed by terraform/) ----
-put_if_set providers/azure \
+put_if_set cloud/azure \
   client_id=AZURE_CLIENT_ID \
   client_secret=AZURE_CLIENT_SECRET \
   tenant_id=AZURE_TENANT_ID \
   subscription_id=AZURE_SUBSCRIPTION_ID
 
-put_if_set providers/runpod \
+put_if_set cloud/runpod \
   api_key=RUNPOD_API_KEY
 
-put_if_set providers/vultr \
-  api_key=VULTR_API_KEY
+put_if_set cloud/vultr \
+  api_key=VULTR_API_KEY \
+  ssh_public_key=VULTR_SSH_PUBLIC_KEY
 
-put_if_set providers/digitalocean \
+put_if_set cloud/digitalocean \
   token=DIGITALOCEAN_TOKEN \
+  ssh_public_key=DIGITALOCEAN_SSH_PUBLIC_KEY \
   spaces_access_id=DIGITALOCEAN_SPACES_ACCESS_ID \
   spaces_secret_key=DIGITALOCEAN_SPACES_SECRET_KEY
 
 # ---- RPC endpoints (consumed by both terraform/ and the Akash runtime) ----
 put_if_set rpc/solana \
+  http_url=SOLANA_RPC_URL \
+  ws_url=SOLANA_WS_URL \
   url=SOLANA_RPC_URL \
   helius_api_key=HELIUS_API_KEY \
   birdeye_api_key=BIRDEYE_API_KEY \
   jupiter_api_key=JUPITER_API_KEY
+
+put_if_set rpc/helius \
+  api_key=HELIUS_API_KEY
+
+put_if_set rpc/birdeye \
+  api_key=BIRDEYE_API_KEY
+
+put_if_set rpc/jupiter \
+  api_key=JUPITER_API_KEY
+
+put_if_set rpc/raydium \
+  api_key=RAYDIUM_API_KEY
 
 put_if_set integrations/alchemy \
   api_key=ALCHEMY_API_KEY \
@@ -198,11 +214,21 @@ put_if_set runtime/odysseus \
   openrouter_api_key=OPENROUTER_API_KEY \
   fireworks_api_key=FIREWORKS_API_KEY
 
-# ---- Akash deploy metadata (integration backend + lease tracking) ----
+# ---- Akash deploy + JWT auth (AEP-63/64) --------------------------------
 put_if_set runtime/akash \
-  owner_address=AKASH_OWNER_ADDRESS \
+  auth_method=AKASH_AUTH_METHOD \
   key_name=AKASH_KEY_NAME \
-  mnemonic=AKASH_WALLET_MNEMONIC
+  keyring_backend=AKASH_KEYRING_BACKEND \
+  wallet_mnemonic=AKASH_WALLET_MNEMONIC \
+  mnemonic=AKASH_WALLET_MNEMONIC \
+  account_address=AKASH_ACCOUNT_ADDRESS \
+  owner_address=AKASH_OWNER_ADDRESS \
+  rpc_endpoint=AKASH_RPC_ENDPOINT \
+  chain_id=AKASH_CHAIN_ID \
+  gas_prices=AKASH_GAS_PRICES \
+  node=AKASH_NODE \
+  provider_jwt=AKASH_JWT \
+  console_api_key=AKASH_CONSOLE_API_KEY
 
 # ---- Integration backend (Arena API on Akash) ----
 put_if_set runtime/backend \
@@ -306,11 +332,7 @@ put_if_set runtime/iot \
   network_id=IOT_NETWORK_ID
 
 # ---- Akash deploy operator config (deploy host, not container) ---------
-put_if_set runtime/akash \
-  key_name=AKASH_KEY_NAME \
-  mnemonic=AKASH_WALLET_MNEMONIC \
-  node=AKASH_NODE \
-  chain_id=AKASH_CHAIN_ID
+# (merged into runtime/akash above)
 
 # ---- Node 5 — Stellar (XLM) from SecretProd.pdf ----
 put_if_set node5/stellar \

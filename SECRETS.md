@@ -545,10 +545,14 @@ terraform/                                ← infrastructure stack
     vault-login.sh
 akash/
   README.md
+deploy/akash/
   Dockerfile
   entrypoint.sh
+  setup-auth.sh
+  verify-env.sh
+  deploy-full.sh
+  deploy.sh
   vault-agent.hcl
-  templates/
-    agent.env.ctmpl
-  deploy.yaml
+  lib/vault-fetch.sh
+  templates/app.env.tpl
 ```

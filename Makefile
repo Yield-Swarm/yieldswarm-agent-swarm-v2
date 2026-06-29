@@ -20,8 +20,8 @@ endif
 S := deploy/scripts
 A := deploy/akash
 
-.PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault \
-        akash-deploy-vault akash-preflight akash-verify deploy-akash-europlots \
+.PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault vault-validate \
+        akash-deploy-vault akash-preflight akash-verify akash-verify-env deploy-akash-full deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
@@ -118,6 +118,18 @@ vault-bootstrap:
 ## seed-vault: seed KV from operator environment
 seed-vault:
 	bash vault/scripts/seed-secrets.sh
+
+## vault-validate: verify Vault paths, policies, and AppRoles
+vault-validate:
+	bash vault/scripts/validate-secrets.sh
+
+## akash-verify-env: pre-deploy Akash + Vault + JWT auth checks
+akash-verify-env:
+	bash deploy/akash/verify-env.sh
+
+## deploy-akash-full: full mainnet pipeline (create → bids → lease → manifest)
+deploy-akash-full:
+	bash deploy/akash/deploy-full.sh
 
 ## azure-apply: apply root terraform/ (Azure Container Apps)
 azure-apply:

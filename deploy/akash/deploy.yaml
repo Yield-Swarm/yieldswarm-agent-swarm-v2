@@ -1,0 +1,67 @@
+---
+version: "2.0"
+
+services:
+  agentswarm:
+    image: ghcr.io/yield-swarm/agentswarm-akash:latest
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+    env:
+      # --- Vault connection (no secret values in SDL — inject at deploy time) ---
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID=${VAULT_SECRET_ID}
+      - VAULT_KV_MOUNT=yieldswarm
+      - VAULT_SECRET_PATHS=akash,rpc,runpod
+      - VAULT_SKIP_VERIFY=false
+      # --- Non-secret runtime config ---
+      - AGENT_SHARD_ID=0
+      - LOG_LEVEL=INFO
+    params:
+      storage:
+        data:
+          mount: /run/secrets
+          readOnly: false
+    compute:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi
+    count: 1
+    pricing:
+      denom: uakt
+      amount: 5000
+
+profiles:
+  compute:
+    agentswarm:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1..."
+      pricing:
+        agentswarm:
+          denom: uakt
+          amount: 5000
+
+deployment:
+  agentswarm:
+    akash:
+      profile: agentswarm
+      count: 1
