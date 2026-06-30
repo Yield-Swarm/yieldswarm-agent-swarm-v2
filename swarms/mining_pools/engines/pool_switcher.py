@@ -12,11 +12,11 @@ from typing import Any
 
 
 NETWORKS = {
-    "PRL": {"name": "Pearl", "work_type": "pouw", "cloud": "akash", "algorithm": "noisy_gemm"},
-    "KRX": {"name": "Keryx", "work_type": "pouw", "cloud": "akash", "algorithm": "matmul"},
-    "ZANO": {"name": "Zano", "work_type": "pouw", "cloud": "akash", "algorithm": "progpow"},
-    "QTC": {"name": "Qitcoin", "work_type": "pouw", "cloud": "akash", "algorithm": "qhash"},
-    "IRON": {"name": "Iron Fish", "work_type": "pouw", "cloud": "akash", "algorithm": "blake3"},
+    "PRL": {"name": "Pearl", "work_type": "pouw", "cloud": "akash", "algorithm": "ProgPowZ"},
+    "KRX": {"name": "Keryx", "work_type": "pouw", "cloud": "akash", "algorithm": "BlockDAG"},
+    "ZANO": {"name": "Zano", "work_type": "pouw", "cloud": "akash", "algorithm": "ProgPowZ"},
+    "QTC": {"name": "Qitcoin", "work_type": "pouw", "cloud": "akash", "algorithm": "Qhash"},
+    "IRON": {"name": "Iron Fish", "work_type": "pouw", "cloud": "akash", "algorithm": "FishHash"},
     "TON": {"name": "TON", "work_type": "pouw", "cloud": "akash", "algorithm": "ton"},
     "ZEC": {"name": "Zcash", "work_type": "equihash", "cloud": "ranch", "algorithm": "equihash"},
 }

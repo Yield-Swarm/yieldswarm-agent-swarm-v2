@@ -23,6 +23,7 @@ A := deploy/akash
 .PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault vault-validate \
         akash-deploy-vault akash-preflight akash-verify akash-verify-env deploy-akash-full deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend pouw-pools-launch pouw-pools-status pouw-pools-render-sdl \
+        pearl-srbminer-deploy srbminer-pouw-deploy \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -142,6 +143,14 @@ pouw-pools-status:
 ## pouw-pools-render-sdl: render Akash SDL per PoWUoI coin
 pouw-pools-render-sdl:
 	bash scripts/mining/launch-pouw-pools.sh render-sdl --json
+
+## pearl-srbminer-deploy: Pearl (PRL) SRBMiner pearlhash on 2Miners pool
+pearl-srbminer-deploy:
+	bash scripts/mining/deploy-pearl-srbminer.sh
+
+## srbminer-pouw-deploy: SRBMiner deploy for any PoWUoI coin (e.g. SYMBOL=ZANO)
+srbminer-pouw-deploy:
+	bash scripts/mining/deploy-srbminer-pouw.sh $${SYMBOL:-PRL}
 
 ## azure-apply: apply root terraform/ (Azure Container Apps)
 azure-apply:

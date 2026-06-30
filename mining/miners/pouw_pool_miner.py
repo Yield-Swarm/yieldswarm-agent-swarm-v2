@@ -61,18 +61,46 @@ class PouwPoolMiner(BaseMiner):
             "name": self.coin.name,
             "work_type": self.coin.work_type,
             "algorithm": self.coin.algorithm,
+            "srbminer_algorithm": self.coin.srbminer_algorithm or None,
             "cloud": self.coin.cloud,
             "pool_url": pool,
             "payout_wallet": wallet,
             "payout_wallet_redacted": self._wallet_display(),
+            "worker_name": self.coin.worker_name(),
+            "wallet_worker": self.coin.wallet_worker(),
             "quote_usd_day": self.coin.quote_usd_day(),
             "gpu_profile": self.coin.gpu_profile,
             "deploy_sdl": str(REPO_ROOT / "deploy" / "akash" / "pouw-pool.sdl.yml"),
+            "deploy_script": str(REPO_ROOT / "scripts" / "mining" / "deploy-pearl-srbminer.sh")
+            if self.coin.symbol == "PRL"
+            else str(REPO_ROOT / "scripts" / "mining" / "deploy-srbminer-pouw.sh"),
             "yieldswarm_native": self.coin.symbol == "PRL",
             "treasury_split": "50,30,15,5",
         }
 
     def start_command(self) -> List[str]:
+        if self.coin.srbminer_algorithm and not self.config.dry_run:
+            srb = os.getenv("SRBMINER_PATH", "SRBMiner-MULTI")
+            pool = self.coin.pool_url()
+            if pool and self.coin.wallet():
+                cmd = [
+                    srb,
+                    "--algorithm",
+                    self.coin.srbminer_algorithm,
+                    "--pool",
+                    pool,
+                    "--wallet",
+                    self.coin.wallet_worker(),
+                    "--password",
+                    "x",
+                    "--disable-cpu",
+                ]
+                cmd.extend(list(self.coin.srbminer_extra_args))
+                return cmd
+        if self.coin.symbol == "PRL" and not self.config.dry_run:
+            script = REPO_ROOT / "scripts" / "mining" / "deploy-pearl-srbminer.sh"
+            if script.exists():
+                return ["bash", str(script)]
         return [
             sys.executable,
             "-c",

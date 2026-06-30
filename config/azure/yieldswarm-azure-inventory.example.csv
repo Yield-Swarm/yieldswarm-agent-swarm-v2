@@ -1,0 +1,8 @@
+NAME,TYPE,RESOURCE GROUP,LOCATION,SUBSCRIPTION,RESOURCE LINK,PURPOSE,EST_COST_USD,YIELD_POTENTIAL
+yieldswarm-rg,Resource Group,yieldswarm-prod-rg,Central US,your-sub-id,N/A,Main RG for YieldSwarm Azure footprint,0,High - orchestration hub
+grass-node-vm-01,Virtual Machine,yieldswarm-prod-rg,Central US,your-sub-id,portal.azure.com/...,Grass DePIN bandwidth node,50-100/mo spot,Passive points + data yield to treasury
+gpu-agent-vm-01,Virtual Machine (ND-series H100),yieldswarm-prod-rg,East US,your-sub-id,...,AI Agent Swarm inference + FSD compute,500-2000/mo reserved,GPU Credit Yield 32%+ APY target
+aks-yieldswarm,AKS Cluster,yieldswarm-prod-rg,Central US,your-sub-id,...,"Orchestrate 521 agents, LangGraph/ElizaOS",200-500/mo,Swarm consensus + execution yield
+pouwgpuspot,AKS Node Pool (Spot H100),yieldswarm-prod-rg,Central US,your-sub-id,N/A,PoWUoI Pearl SRBMiner spot fleet,variable spot,GPU mining yield to MINING_ROOT_PRL
+kairo-telemetry-blob,Storage Account (Blob),yieldswarm-prod-rg,Central US,your-sub-id,...,"Kairo Flutter app telemetry, Grass data",10-50/mo,Data monetization via DePIN
+yieldswarm-kv,Key Vault,yieldswarm-prod-rg,Central US,your-sub-id,...,"Secrets for agents, wallet keys (air-gap sync)",5/mo,Security for ZKML verified execution

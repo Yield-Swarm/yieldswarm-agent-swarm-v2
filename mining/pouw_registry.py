@@ -27,10 +27,27 @@ class PouwCoin:
     default_pool_url: str
     gpu_profile: str
     treasury_manifest_key: str | None = None
+    srbminer_algorithm: str = ""
+    worker_name_env: str = ""
+    default_worker_name: str = "yieldswarm-rig-1"
+    srbminer_extra_args: tuple[str, ...] = ()
 
     @property
     def miner_name(self) -> str:
         return self.symbol.lower()
+
+    def worker_name(self) -> str:
+        env_key = self.worker_name_env or f"{self.symbol}_WORKER_NAME"
+        raw = os.getenv(env_key, self.default_worker_name).strip()
+        safe = "".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in raw)
+        return safe[:32] or self.default_worker_name
+
+    def wallet_worker(self) -> str:
+        wallet = self.wallet()
+        worker = self.worker_name()
+        if not wallet:
+            return ""
+        return f"{wallet}.{worker}" if worker else wallet
 
     def wallet(self) -> str:
         direct = os.getenv(self.wallet_env, "").strip()
@@ -78,6 +95,8 @@ class PouwCoin:
             "quote_usd_day": self.quote_usd_day(),
             "enabled": self.enabled(),
             "gpu_profile": self.gpu_profile,
+            "srbminer_algorithm": self.srbminer_algorithm or None,
+            "worker_name": self.worker_name(),
             "yieldswarm_native": self.symbol == yieldswarm_coin_symbol(),
         }
 
@@ -128,6 +147,10 @@ def list_pouw_coins() -> list[PouwCoin]:
                 default_pool_url=str(row.get("default_pool_url", "")),
                 gpu_profile=str(row.get("gpu_profile", "rtx3090")),
                 treasury_manifest_key=row.get("treasury_manifest_key"),
+                srbminer_algorithm=str(row.get("srbminer_algorithm", "")),
+                worker_name_env=str(row.get("worker_name_env", "")),
+                default_worker_name=str(row.get("default_worker_name", "yieldswarm-rig-1")),
+                srbminer_extra_args=tuple(row.get("srbminer_extra_args", [])),
             )
         )
     return coins

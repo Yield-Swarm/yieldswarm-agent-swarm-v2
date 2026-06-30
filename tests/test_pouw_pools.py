@@ -65,6 +65,37 @@ def test_pouw_launcher_dry_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     assert prl["status"] == "active"
 
 
+def test_pouw_registry_default_pools():
+    from mining.pouw_registry import list_pouw_coins
+
+    prl = next(c for c in list_pouw_coins() if c.symbol == "PRL")
+    assert prl.srbminer_algorithm == "pearlhash"
+    assert prl.default_pool_url == "prl.2miners.com:1818"
+    assert prl.algorithm == "ProgPowZ"
+
+    iron = next(c for c in list_pouw_coins() if c.symbol == "IRON")
+    assert iron.srbminer_algorithm == "fishhash"
+    assert iron.algorithm == "FishHash"
+
+
+def test_pearl_deploy_script_dry_run(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("MINING_ROOT_PRL", "prl1ptestwallet")
+    monkeypatch.setenv("MINING_DRY_RUN", "1")
+    import subprocess
+
+    proc = subprocess.run(
+        ["bash", "scripts/mining/deploy-pearl-srbminer.sh"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0
+    assert "pearlhash" in proc.stdout
+    assert "prl.2miners.com:1818" in proc.stdout
+    assert "etc.2miners.com" not in proc.stdout
+
+
 def test_render_akash_sdls(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("MINING_ROOT_PRL", "29L3dA5XvXUthBJeanarcTij6e5fdtAD81PxQMfEEQQ9")
     monkeypatch.setenv("MINING_WALLET_KRX", "krx-wallet-test")
