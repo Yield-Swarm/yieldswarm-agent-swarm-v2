@@ -1,0 +1,68 @@
+{
+  "version": "1.0.0",
+  "profile": "trident-vlan-static",
+  "immutable": true,
+  "description": "Structural topology for ASUS ZenWiFi BE5000 Pro mesh + TP-Link PoE+ smart switches",
+  "mesh": {
+    "vendor": "ASUS",
+    "model": "ZenWiFi BE5000 Pro",
+    "mode": "multi-backhaul-mesh",
+    "notes": "Primary wireless backhaul for VLAN trunking to PoE farms"
+  },
+  "switches": [
+    {
+      "model": "TL-SG608P",
+      "role": "core-trading-matrix",
+      "poe": "PoE+",
+      "vlans": [10]
+    },
+    {
+      "model": "TL-SG605P",
+      "role": "depin-phone-farm",
+      "poe": "PoE+",
+      "vlans": [20]
+    }
+  ],
+  "vlans": [
+    {
+      "id": 10,
+      "name": "Airgapped Core Trading Matrix",
+      "subnet": "10.10.10.0/24",
+      "gateway": "10.10.10.1",
+      "switch": "TL-SG608P",
+      "ports": [1, 2, 3, 4],
+      "isolation": "airgapped",
+      "workloads": ["treasury-signing", "cold-path-rpc", "trident-orchestrator-local"]
+    },
+    {
+      "id": 20,
+      "name": "DePIN Phone Farm Wall",
+      "subnet": "10.10.20.0/24",
+      "gateway": "10.10.20.1",
+      "switch": "TL-SG605P",
+      "ports": "all",
+      "nodeCount": 700,
+      "deviceProfile": {
+        "model": "AT&T Vista WTATTRW2",
+        "oem": "Wingtech",
+        "ramMb": 4096,
+        "storageGb": 64,
+        "platform": "android",
+        "termuxFleet": true
+      },
+      "workloads": ["grass-depin", "termux-mining-daemon", "edge-telemetry"]
+    },
+    {
+      "id": 30,
+      "name": "Telemetry Stream Engine",
+      "subnet": "10.10.30.0/24",
+      "gateway": "10.10.30.1",
+      "switches": ["TL-SG608P", "TL-SG605P"],
+      "workloads": ["kairo-stream", "websocket-clients", "asic-z15-telemetry", "starlink-uplink"]
+    }
+  ],
+  "dns": {
+    "orchestrator": "10.10.10.10",
+    "telemetryHub": "10.10.30.10"
+  }
+}

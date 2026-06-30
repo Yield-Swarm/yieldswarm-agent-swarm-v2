@@ -24,6 +24,7 @@ A := deploy/akash
         akash-deploy-vault akash-preflight akash-verify akash-verify-env deploy-akash-full deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend pouw-pools-launch pouw-pools-status pouw-pools-render-sdl \
         pearl-srbminer-deploy srbminer-pouw-deploy termux-mining-install termux-mining-daemon \
+        trident-start trident-switcher trident-test \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -159,6 +160,18 @@ termux-mining-install:
 ## termux-mining-daemon: 8-instance Termux fleet status (set CMD=start|stop|foreground)
 termux-mining-daemon:
 	bash scripts/termux/mining-daemon.sh $${CMD:-status}
+
+## trident-start: Trident Protocol WebSocket orchestrator (127.0.0.1:8095)
+trident-start:
+	cd yieldswarm-core && npm install --omit=dev && npm start
+
+## trident-switcher: autonomous PRL/ETC/ERG profitability daemon
+trident-switcher:
+	cd yieldswarm-core && npm install --omit=dev && npm run switcher
+
+## trident-test: Trident Protocol unit tests
+trident-test:
+	cd yieldswarm-core && npm test
 
 ## azure-apply: apply root terraform/ (Azure Container Apps)
 azure-apply:
