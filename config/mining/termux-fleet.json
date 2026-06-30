@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "platform": "termux",
+  "description": "Edge multi-mining fleet — 8 logical instances (16GB RAM / 128GB SSD profile) from Termux daemons.",
+  "defaults": {
+    "instance_count": 8,
+    "ram_mb_per_instance": 16384,
+    "storage_gb_per_instance": 128,
+    "platform": "android",
+    "network": "mobile_data",
+    "tick_seconds": 60,
+    "run_dir": ".run/termux"
+  },
+  "coin_rotation": ["prl", "krx", "zano", "qtc", "iron", "ton", "grass", "monero"],
+  "notes": {
+    "gpu_coins": "PRL/ZANO/QTC/IRON run as edge supervisors on Termux; hash on H100/Akash fleet.",
+    "grass": "Android 3x multiplier — one lineup per instance with unique device_id.",
+    "monero": "Optional CPU mine in proot Ubuntu with xmrig when XMRIG_PATH is set."
+  }
+}

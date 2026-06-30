@@ -150,6 +150,12 @@ class PouwPoolLauncher:
             },
             "physicalCoreRef": switcher_state.get("physicalCoreRef"),
         }
+        termux_path = REPO_ROOT / ".data" / "termux-fleet" / "latest.json"
+        if termux_path.exists():
+            try:
+                state["termuxFleetRef"] = json.loads(termux_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                pass
         return state
 
     def write_state(self) -> Path:

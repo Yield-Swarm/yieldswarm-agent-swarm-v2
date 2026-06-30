@@ -23,7 +23,7 @@ A := deploy/akash
 .PHONY: help deploy all preflight vault-check vault-bootstrap seed-vault vault-validate \
         akash-deploy-vault akash-preflight akash-verify akash-verify-env deploy-akash-full deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend pouw-pools-launch pouw-pools-status pouw-pools-render-sdl \
-        pearl-srbminer-deploy srbminer-pouw-deploy \
+        pearl-srbminer-deploy srbminer-pouw-deploy termux-mining-install termux-mining-daemon \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -151,6 +151,14 @@ pearl-srbminer-deploy:
 ## srbminer-pouw-deploy: SRBMiner deploy for any PoWUoI coin (e.g. SYMBOL=ZANO)
 srbminer-pouw-deploy:
 	bash scripts/mining/deploy-srbminer-pouw.sh $${SYMBOL:-PRL}
+
+## termux-mining-install: Termux/Android dependency bootstrap
+termux-mining-install:
+	bash scripts/termux/install-mining.sh
+
+## termux-mining-daemon: 8-instance Termux fleet status (set CMD=start|stop|foreground)
+termux-mining-daemon:
+	bash scripts/termux/mining-daemon.sh $${CMD:-status}
 
 ## azure-apply: apply root terraform/ (Azure Container Apps)
 azure-apply:
