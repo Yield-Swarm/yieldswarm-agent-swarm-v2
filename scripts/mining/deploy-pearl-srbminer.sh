@@ -20,7 +20,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "${REPO_ROOT}/scripts/mining/lib/srbminer-common.sh"
 
 WALLET_ADDRESS="${MINING_ROOT_PRL:-${MINING_WALLET_PRL:-}}"
-WORKER_NAME="$(srbminer_sanitize_worker "${PRL_WORKER_NAME:-16xH100-YieldSwarm-Fleet1}")"
+WORKER_NAME="$(srbminer_sanitize_worker "${PRL_WORKER_NAME:-16xH100-RunPod-Fleet1}")"
 POOL_URL="${MINING_POOL_URL_PRL:-prl.2miners.com:1818}"
 GPU_THREADS="${PRL_GPU_THREADS:-2}"
 PEARL_CPU_COOLDOWN="${PRL_CPU_COOLDOWN:-50}"
@@ -30,6 +30,9 @@ if [[ -z "${WALLET_ADDRESS}" ]]; then
   echo "[pearl] ERROR: set MINING_ROOT_PRL or MINING_WALLET_PRL" >&2
   exit 1
 fi
+
+pearl_validate_pool "${POOL_URL}"
+pearl_validate_wallet "${WALLET_ADDRESS}"
 
 if [[ "${DISABLE_RUNPOD_MINING:-false}" == "true" ]]; then
   echo "[pearl] WARN: DISABLE_RUNPOD_MINING=true — use Cherry/Akash/Azure fleet instead of RunPod" >&2

@@ -17,7 +17,7 @@
       "quote_env": "MINING_QUOTE_USD_PRL",
       "enabled_env": "POUW_PRL_ENABLED",
       "worker_name_env": "PRL_WORKER_NAME",
-      "default_worker_name": "16xH100-YieldSwarm-Fleet1",
+      "default_worker_name": "16xH100-RunPod-Fleet1",
       "default_pool_url": "prl.2miners.com:1818",
       "gpu_profile": "h100",
       "treasury_manifest_key": "prl",

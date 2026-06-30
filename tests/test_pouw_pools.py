@@ -78,22 +78,45 @@ def test_pouw_registry_default_pools():
     assert iron.algorithm == "FishHash"
 
 
-def test_pearl_deploy_script_dry_run(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("MINING_ROOT_PRL", "prl1ptestwallet")
-    monkeypatch.setenv("MINING_DRY_RUN", "1")
+def test_pearl_rejects_etc_pool_and_solana_wallet():
+    import subprocess
+
+    env = os.environ.copy()
+    env["MINING_ROOT_PRL"] = "WXJ1EqmxfkpiYHaVm8SKGMbH6sRPXBJcHnpEpndBkg3"
+    env["MINING_POOL_URL_PRL"] = "etc.2miners.com:1010"
+    env["MINING_DRY_RUN"] = "1"
+
+    proc = subprocess.run(
+        ["bash", "scripts/mining/deploy-pearl-srbminer.sh"],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode != 0
+    assert "Ethereum Classic" in proc.stderr or "Ethereum Classic" in proc.stdout
+
+
+def test_pearl_accepts_prl1_wallet_dry_run():
     import subprocess
 
     proc = subprocess.run(
         ["bash", "scripts/mining/deploy-pearl-srbminer.sh"],
         cwd=REPO_ROOT,
+        env={
+            **os.environ,
+            "MINING_ROOT_PRL": "prl1p5d0pjdre96sv29dq9q8qpjtrrvkglr93efljk6p90w38qqacztgqnhvcjl",
+            "PRL_WORKER_NAME": "16xH100-RunPod-Fleet1",
+            "MINING_DRY_RUN": "1",
+        },
         capture_output=True,
         text=True,
         check=False,
     )
     assert proc.returncode == 0
-    assert "pearlhash" in proc.stdout
+    assert "16xH100-RunPod-Fleet1" in proc.stdout
     assert "prl.2miners.com:1818" in proc.stdout
-    assert "etc.2miners.com" not in proc.stdout
 
 
 def test_render_akash_sdls(monkeypatch: pytest.MonkeyPatch):
