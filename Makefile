@@ -25,6 +25,7 @@ A := deploy/akash
         akash-bittensor akash-odysseus akash-backend pouw-pools-launch pouw-pools-status pouw-pools-render-sdl \
         pearl-srbminer-deploy srbminer-pouw-deploy termux-mining-install termux-mining-daemon \
         trident-start trident-switcher trident-test \
+        salad-preflight salad-deploy-pouw \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
         terraform-init terraform-plan terraform-apply terraform-destroy azure-apply \
@@ -172,6 +173,14 @@ trident-switcher:
 ## trident-test: Trident Protocol unit tests
 trident-test:
 	cd yieldswarm-core && npm test
+
+## salad-preflight: validate Salad API key + org/project
+salad-preflight:
+	bash scripts/salad/preflight.sh
+
+## salad-deploy-pouw: deploy ~$100 PoUW GPU fleet on Salad Cloud
+salad-deploy-pouw:
+	bash scripts/salad/deploy-pouw-budget.sh
 
 ## azure-apply: apply root terraform/ (Azure Container Apps)
 azure-apply:

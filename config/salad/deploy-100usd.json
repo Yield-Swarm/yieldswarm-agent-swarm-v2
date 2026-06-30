@@ -1,0 +1,12 @@
+{
+  "budget_usd": 100,
+  "hourly_usd_per_gpu": {
+    "rtx_4090": 0.09,
+    "rtx_3090": 0.08,
+    "rtx_3080": 0.06
+  },
+  "default_gpu": "rtx_4090",
+  "replicas": 4,
+  "estimated_hours_at_budget": 278,
+  "notes": "4× RTX 4090 ≈ $0.36/hr → ~278 GPU-hours on $100 prepaid credit. Credits are purchased in portal billing, not via API."
+}

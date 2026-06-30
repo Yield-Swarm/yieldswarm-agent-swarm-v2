@@ -263,6 +263,11 @@ put_if_set iotex \
   nexus_treasury_solana=NEXUS_TREASURY_SOLANA
 
 # ---- Mining infrastructure ----
+put_if_set cloud/salad \
+  api_key=SALAD_API_KEY \
+  organization=SALAD_ORGANIZATION \
+  project=SALAD_PROJECT
+
 put_if_set mining/wallets \
   tao=MINING_ROOT_TAO \
   monero=MONERO_WALLET_ADDRESS \
