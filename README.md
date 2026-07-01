@@ -182,6 +182,7 @@ See `DOMAINS.md` for Unstoppable Domains + Cloudflare wiring (app, api, kairo su
 | `docs/TRI_SOLENOID_ARCHITECTURE.md` | Nexus · Helix · Shadow solenoids |
 | `docs/ALCHEMY_CHRISTOPHERS_FIRST_APP.md` | Alchemy setup + Vault |
 | `docs/ARCHITECTURE.md` | Full + investor architecture diagrams |
+| `docs/OPERATIONS_STACK.md` | Operator stack — agents, Zeeve, cloud fleet, Termux edge |
 | `INTEGRATION_REPORT.md` | 16-prong status matrix |
 | `PRODUCTION_READINESS.md` | Final smoke tests + mainnet checklist |
 | `KAIRO_FRONTEND.md` | Kairo app architecture + Vercel deploy |

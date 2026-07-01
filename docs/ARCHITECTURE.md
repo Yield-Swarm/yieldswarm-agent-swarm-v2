@@ -221,6 +221,7 @@ See `docs/MULTI_CLOUD_30DAY_PLAN.md` and `docs/CROSS_CHAIN_EXECUTION.md`.
 
 | Doc | Purpose |
 |-----|---------|
+| [`OPERATIONS_STACK.md`](OPERATIONS_STACK.md) | **Operator view** — agents, Zeeve, cloud fleet, Termux edge, Prometheus |
 | [`SINGLE_PANE_OF_GLASS.md`](../SINGLE_PANE_OF_GLASS.md) | Canonical v2.0 diagram |
 | [`HELIX_SINGLE_PANE.md`](HELIX_SINGLE_PANE.md) | Layer detail + domain breakdown |
 | [`STACK_STATUS.md`](../STACK_STATUS.md) | Health board + endpoints |
