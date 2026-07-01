@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2026-07-01T17:08:36.022403+00:00",
+  "poolsRunning": 2,
+  "pools": [
+    {
+      "id": "xmr-local",
+      "coin": "XMR",
+      "algorithm": "RandomX",
+      "status": "running",
+      "local": true,
+      "hashrateHps": 18500
+    },
+    {
+      "id": "woolypooly-ethw",
+      "coin": "ETHW",
+      "algorithm": "Ethash",
+      "status": "running",
+      "local": false,
+      "hashrateMhs": 420
+    }
+  ],
+  "localXmr": true
+}

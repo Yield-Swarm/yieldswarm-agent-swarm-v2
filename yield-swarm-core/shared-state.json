@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-01T17:13:24.579578+00:00",
+  "heavenEarth": {
+    "earth": {
+      "localXmr": true,
+      "poolsRunning": 2,
+      "cloudVmsPlanned": 90,
+      "solarSurplusKw": 12.4,
+      "hydroOnline": true,
+      "blockers": [
+        "aws-not-authenticated",
+        "azure-not-authenticated",
+        "alibaba-not-authenticated",
+        "wallet-ZANO",
+        "wallet-RVN",
+        "wallet-ETHW",
+        "wallet-QUBIC"
+      ],
+      "lastSyncAt": "2026-07-01T17:08:36.022403+00:00"
+    },
+    "helix": {
+      "tick": 1,
+      "phase": "genesis-pending",
+      "activated": false,
+      "readinessScore": "0/8",
+      "genesisHash": null,
+      "yslrPhase": "pending",
+      "earthPoolsRunning": 2,
+      "earthLocalXmr": true,
+      "earthBlockerCount": 7,
+      "lastTickAt": "2026-07-01T17:13:24.579564+00:00",
+      "source": "helix_bridge",
+      "liveApi": false
+    },
+    "handoffBus": {
+      "synced": true,
+      "lastMessage": "Heaven-Earth fusion sync OK \u2014 helix tick merged into shared-state",
+      "lastSyncAt": "2026-07-01T17:13:24.579578+00:00",
+      "earthBlockers": [
+        "aws-not-authenticated",
+        "azure-not-authenticated",
+        "alibaba-not-authenticated",
+        "wallet-ZANO",
+        "wallet-RVN",
+        "wallet-ETHW",
+        "wallet-QUBIC"
+      ],
+      "helixTick": 1
+    }
+  }
+}
