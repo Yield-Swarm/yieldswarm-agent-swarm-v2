@@ -24,6 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 chmod +x "${REPO_ROOT}/scripts/termux/"*.sh 2>/dev/null || true
 
-echo "[termux] Done. Start fleet:"
-echo "  cd ${REPO_ROOT}"
-echo "  ./scripts/termux/mining-daemon.sh start"
+echo "[termux] Done. Mining paths:"
+echo "  PoWUoI fleet: ./scripts/termux/mining-daemon.sh start"
+echo "  XMRig install: ./scripts/termux/xmrig-install.sh"
+echo "  XMRig 8-slot : ./scripts/termux/xmrig-start-8.sh"

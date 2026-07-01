@@ -24,7 +24,8 @@ A := deploy/akash
         akash-deploy-vault akash-preflight akash-verify akash-verify-env deploy-akash-full deploy-akash-europlots \
         akash-bittensor akash-odysseus akash-backend pouw-pools-launch pouw-pools-status pouw-pools-render-sdl \
         pearl-srbminer-deploy srbminer-pouw-deploy termux-mining-install termux-mining-daemon \
-        trident-start trident-switcher trident-test \
+        termux-xmrig-install termux-xmrig-start termux-xmrig-stop termux-xmrig-status \
+        trident-start trident-switcher trident-dashboard trident-test \
         salad-preflight salad-deploy-pouw \
         login build build-ghcr push images \
         akash-lease akash-heal akash-heal-stop \
@@ -161,6 +162,22 @@ termux-mining-install:
 ## termux-mining-daemon: 8-instance Termux fleet status (set CMD=start|stop|foreground)
 termux-mining-daemon:
 	bash scripts/termux/mining-daemon.sh $${CMD:-status}
+
+## termux-xmrig-install: build XMRig in Termux (one-time)
+termux-xmrig-install:
+	bash scripts/termux/xmrig-install.sh
+
+## termux-xmrig-start: 8-slotted tmux XMRig miners on phone
+termux-xmrig-start:
+	bash scripts/termux/xmrig-start-8.sh
+
+## termux-xmrig-stop: stop tmux XMRig session
+termux-xmrig-stop:
+	bash scripts/termux/xmrig-stop.sh
+
+## termux-xmrig-status: aggregate hashrate + write .data/termux-xmrig/latest.json
+termux-xmrig-status:
+	bash scripts/termux/xmrig-status.sh
 
 ## trident-start: Trident Protocol WebSocket orchestrator (127.0.0.1:8095)
 trident-start:

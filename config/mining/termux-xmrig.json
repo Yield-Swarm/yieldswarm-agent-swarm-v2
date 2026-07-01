@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "platform": "termux-android",
+  "deviceProfile": "TCL 10 NXT / Snapdragon class",
+  "instances": 8,
+  "threadsPerInstance": 2,
+  "maxTotalThreads": 16,
+  "pool": {
+    "url": "pool.supportxmr.com:3333",
+    "tls": false
+  },
+  "xmrig": {
+    "randomxMode": "light",
+    "cpuPriority": 2,
+    "coin": "monero",
+    "httpPortBase": 8081
+  },
+  "workerPrefix": "TPIT-TERMUX",
+  "buildDir": "~/xmrig/build",
+  "warnings": [
+    "Low profitability — edge swarm node only",
+    "Monitor thermals; keep plugged in",
+    "Use termux-wake-lock during mining"
+  ]
+}

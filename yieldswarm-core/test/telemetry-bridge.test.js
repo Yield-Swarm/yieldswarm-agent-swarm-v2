@@ -16,16 +16,23 @@ test("buildTelemetryView maps dashboard fields", () => {
       yieldswarmCoin: "PRL",
       pools: [
         { coin: "PRL", status: "active", algorithm: "ProgPowZ", workersOnline: 2, hashrate: 12 },
-        { coin: "ZANO", status: "standby", algorithm: "ProgPowZ", workersOnline: 0, hashrate: 0 },
       ],
       switcher: { activeNetwork: "PRL", activeQuoteUsdDay: 12.5 },
-      attribution: { estimatedUsd24h: 50, treasurySplit: "50,30,15,5" },
     },
-    termuxFleet: { instances: [{ alive: true }, { alive: false }] },
+    termuxFleet: { instances: [{ alive: true }] },
+    termuxXmrig: {
+      instances: 8,
+      instancesAlive: 6,
+      hashrateTotalHps: 2400,
+      hashrateTotalKhps: 2.4,
+    },
     physicalCore: { asics: { aggregateHashrateGh: 120 } },
   });
 
   assert.ok(view.genesisHash);
+  assert.equal(view.termuxXmrig.instancesAlive, 6);
+  assert.equal(view.termuxXmrig.hashrateTotalKhps, 2.4);
+  assert.equal(view.localHardware.xmrigHashrateKhps, 2.4);
   assert.equal(view.temporalBeacon.week > 0, true);
   assert.equal(view.localHardware.s19Count, 3);
   assert.equal(view.localHardware.phoneWallNodes, 700);

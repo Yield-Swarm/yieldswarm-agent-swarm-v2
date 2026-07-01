@@ -24,6 +24,7 @@ export function loadExternalTelemetry() {
   return {
     miningPools: readJson(join(REPO_ROOT, ".data/mining-pools/latest.json")),
     termuxFleet: readJson(join(REPO_ROOT, ".data/termux-fleet/latest.json")),
+    termuxXmrig: readJson(join(REPO_ROOT, ".data/termux-xmrig/latest.json")),
     physicalCore: readJson(join(REPO_ROOT, ".data/physical-core/latest.json")),
   };
 }
@@ -60,6 +61,9 @@ export function mapLocalHardware(systemState, external) {
 
   let status = "standby";
   if (termuxAlive > 0) status = `active:${termuxAlive}/${termux}`;
+  if (external.termuxXmrig?.instancesAlive > 0) {
+    status = `xmr-mining:${external.termuxXmrig.instancesAlive}/${external.termuxXmrig.instances ?? 8}`;
+  }
   if (external.physicalCore?.asics?.aggregateHashrateGh > 0) status = "ranch-asic-live";
 
   return {
@@ -71,6 +75,8 @@ export function mapLocalHardware(systemState, external) {
     z15Count: asic.z15Fleet?.count ?? 0,
     status,
     physicalCoreHashrateGh: external.physicalCore?.asics?.aggregateHashrateGh ?? 0,
+    xmrigHashrateKhps: external.termuxXmrig?.hashrateTotalKhps ?? 0,
+    xmrigInstancesAlive: external.termuxXmrig?.instancesAlive ?? 0,
   };
 }
 
@@ -110,6 +116,26 @@ export function aggregateMiningPools(systemState, external) {
   };
 }
 
+export function aggregateTermuxXmrig(external) {
+  const x = external.termuxXmrig;
+  if (!x) {
+    return { mining: false, instancesAlive: 0, hashrateTotalKhps: 0, hashrateTotalHps: 0 };
+  }
+  return {
+    mining: (x.instancesAlive ?? 0) > 0,
+    instances: x.instances ?? 8,
+    instancesAlive: x.instancesAlive ?? 0,
+    hashrateTotalHps: x.hashrateTotalHps ?? 0,
+    hashrateTotalKhps: x.hashrateTotalKhps ?? 0,
+    workers: (x.workers || []).filter((w) => w.alive).map((w) => ({
+      instance: w.instance,
+      worker: w.worker,
+      hashrateHps: w.hashrateHps,
+    })),
+    capturedAt: x.capturedAt,
+  };
+}
+
 export function buildTelemetryView(systemState, external = loadExternalTelemetry()) {
   return {
     genesisHash: genesisHash(systemState),
@@ -118,6 +144,7 @@ export function buildTelemetryView(systemState, external = loadExternalTelemetry
     cloudPrices: mapCloudPrices(systemState?.cloud),
     localHardware: mapLocalHardware(systemState, external),
     miningPools: aggregateMiningPools(systemState, external),
+    termuxXmrig: aggregateTermuxXmrig(external),
     remoteFleet: {
       creditUsd: systemState?.remoteFleet?.creditUsd ?? 0,
       h100: systemState?.remoteFleet?.gpus?.h100?.count ?? 0,

@@ -24,7 +24,7 @@ function pickView(payload) {
 
 function renderFrame(message) {
   const view = pickView(message.payload);
-  const { genesisHash, temporalBeacon, cloudPrices, localHardware, miningPools, remoteFleet } = view;
+  const { genesisHash, temporalBeacon, cloudPrices, localHardware, miningPools, termuxXmrig, remoteFleet } = view;
 
   logHardwareDelta(view, LOG_PATH);
 
@@ -42,6 +42,11 @@ function renderFrame(message) {
   console.log(`  • ASIC Clusters    : ${localHardware.s19Count}x S19, ${localHardware.l7Count}x L7, ${localHardware.z15Count}x Z15`);
   if (localHardware.physicalCoreHashrateGh > 0) {
     console.log(`  • Ranch Hashrate   : ${localHardware.physicalCoreHashrateGh} GH/s`);
+  }
+  if (termuxXmrig?.mining) {
+    console.log(
+      `  • XMRig (Termux)   : ${termuxXmrig.hashrateTotalKhps} kH/s | ${termuxXmrig.instancesAlive}/${termuxXmrig.instances} instances`
+    );
   }
   console.log("-----------------------------------------------------");
   console.log("📊 CLOUD COMPUTE INDEX (USD/hr per GPU):");
