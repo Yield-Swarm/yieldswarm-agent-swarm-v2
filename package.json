@@ -16,6 +16,7 @@
     "test": "vitest run && npm run test:frontend && npm run test:backend",
     "test:unit": "vitest run",
     "test:entropy": "vitest run src/infrastructure/entropy-core.test.js src/infrastructure/entropy-circuit-inputs.test.js",
+    "test:zkml-arena": "vitest run src/zkml-arena/reputation.test.js",
     "circuits:build": "cd circuits && npm run build",
     "test:frontend": "node --test frontend/tests/*.test.js",
     "test:backend": "cd backend && npm test",

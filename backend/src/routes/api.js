@@ -23,6 +23,7 @@ import { getVaultTelemetry } from '../adapters/vaultTelemetry.js';
 import { toAkashTelemetryPayload, toOdysseusTelemetryPayload } from '../adapters/telemetryFormat.js';
 import { getHelixStatus } from '../adapters/helix.js';
 import * as crossChain from '../adapters/crossChain.js';
+import { getLeaderboard } from '../adapters/zkmlArena.js';
 
 const router = Router();
 const cache = new TtlCache(config.cacheTtlMs);
@@ -229,7 +230,7 @@ router.post('/cross-chain/telemetry', asyncRoute(async (req, res) => {
  * Single aggregated payload that powers the Arena dashboard in one round-trip.
  */
 router.get('/arena/overview', asyncRoute(async (_req, res) => {
-  const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix, xchain] = await Promise.all([
+  const [workers, emissions, treasurySplits, board, odysseusSnap, gd, helix, xchain, zkml] = await Promise.all([
     cache.get('akash:workers', () => akash.getWorkers()),
     cache.get('telemetry:emission', () => emission.getEmissions()),
     cache.get('telemetry:treasury', () => treasury.getTreasurySplits()),
@@ -238,6 +239,7 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     cache.get('great-delta:overview', () => greatDelta.getGreatDeltaOverview()),
     cache.get('telemetry:helix', () => getHelixStatus()),
     cache.get('cross-chain:overview', () => crossChain.getCrossChainOverview()),
+    cache.get('zkml:leaderboard', () => getLeaderboard(10)),
   ]);
 
   const connections = {
@@ -249,6 +251,7 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     greatDeltaEvm: { connected: gd.evm?.live ?? false, source: gd.evm?.source ?? 'disabled' },
     helixChain: { connected: helix.activated, source: helix.phase },
     crossChain: { connected: xchain.live, source: xchain.source },
+    zkmlArena: { connected: zkml.count > 0, source: 'zkml-reputation-engine' },
   };
   const connectedCount = Object.values(connections).filter((c) => c.connected).length;
 
@@ -265,6 +268,7 @@ router.get('/arena/overview', asyncRoute(async (_req, res) => {
     odysseus: odysseusSnap,
     helix,
     crossChain: xchain,
+    zkmlArena: zkml,
   });
 }));
 

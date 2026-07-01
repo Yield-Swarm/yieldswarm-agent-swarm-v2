@@ -6,6 +6,8 @@ foundry.lock
 circuits/build/
 circuits/node_modules/
 circuits/package-lock.json
+dashboard/zkml-arena-leaderboard.json
+dashboard/zkml-bounty-reports.jsonl
 
 bin/
 .odysseus/

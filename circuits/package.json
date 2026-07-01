@@ -5,9 +5,13 @@
   "description": "ZK circuits for hardware telemetry entropy proofs",
   "scripts": {
     "compile": "bash scripts/compile.sh",
+    "compile:reputation": "bash scripts/compile-reputation.sh",
     "setup": "bash scripts/trusted-setup.sh",
+    "setup:reputation": "bash scripts/setup-reputation.sh",
     "build": "npm run compile && npm run setup",
-    "export-vkey": "npx snarkjs zkey export verificationkey build/entropy_proof_final.zkey build/verification_key.json"
+    "build:all": "npm run compile && npm run compile:reputation && npm run setup && npm run setup:reputation",
+    "export-vkey": "npx snarkjs zkey export verificationkey build/entropy_proof_final.zkey build/verification_key.json",
+    "export-vkey:reputation": "npx snarkjs zkey export verificationkey build/reputation_score_final.zkey build/reputation_verification_key.json"
   },
   "devDependencies": {
     "circomlib": "^2.0.5",

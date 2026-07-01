@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-01T00:00:00.000Z",
+  "tasks": {
+    "13": {
+      "id": 13,
+      "title": "ZKML Arena Reputation Scoring",
+      "status": "complete",
+      "branch": "cursor/zkml-arena-reputation-597f",
+      "components": [
+        "circuits/reputation_score.circom",
+        "src/zkml-arena/reputation-engine.js",
+        "backend/src/routes/arena-zkml.js",
+        "programs/swarm_ops/src/reputation.rs"
+      ],
+      "verification": [
+        "npm run test:zkml-arena",
+        "node scripts/test-zkml-reputation.js"
+      ],
+      "bountySol": 100,
+      "notes": "God Task #13 extension — ZK-wrapped deterministic reputation with quarantined judge"
+    }
+  }
+}

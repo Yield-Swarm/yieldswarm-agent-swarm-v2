@@ -18,6 +18,8 @@ import kairoRouter from './routes/kairo.js';
 import sovereignRouter from './routes/sovereign.js';
 import helixRouter from './routes/helix.js';
 import toolsRouter from './routes/tools.js';
+import arenaZkmlRouter from './routes/arena-zkml.js';
+import bountyRouter from './routes/bounty.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
@@ -39,6 +41,8 @@ app.use('/api', apiRouter);
 app.use('/api/kairo', kairoRouter);
 app.use('/api/sovereign', sovereignRouter);
 app.use('/api/helix', helixRouter);
+app.use('/api/arena/zkml', arenaZkmlRouter);
+app.use('/api/bounty', bountyRouter);
 app.use('/', toolsRouter);
 
 // ---- Dashboards ($5M vault, OpenClaw admin) -------------------------------
@@ -109,7 +113,9 @@ const server = app.listen(config.port, config.host, () => {
       `  API:     /api/arena/overview\n` +
       `  Odysseus: /api/telemetry/odysseus  /api/brain/status\n` +
       `  Great Delta: /api/great-delta/overview\n` +
-      `  Helix:     /api/helix/status  /api/helix/activate`,
+      `  Helix:     /api/helix/status  /api/helix/activate\n` +
+      `  ZKML:      /api/arena/zkml/submit-battle  /api/arena/zkml/leaderboard\n` +
+      `  Bounty:    POST /api/bounty`,
   );
   if (config.cronJobsEnabled) {
     startCronJobs();
