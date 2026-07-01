@@ -174,6 +174,10 @@ trident-switcher:
 trident-test:
 	cd yieldswarm-core && npm test
 
+## trident-dashboard: telemetry console listener (requires npm start in other pane)
+trident-dashboard:
+	cd yieldswarm-core && npm run dashboard
+
 ## salad-preflight: validate Salad API key + org/project
 salad-preflight:
 	bash scripts/salad/preflight.sh

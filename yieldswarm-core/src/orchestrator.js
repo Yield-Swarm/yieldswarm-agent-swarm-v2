@@ -8,6 +8,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildSystemState } from "./lib/trident-state.js";
+import { buildTelemetryView, loadExternalTelemetry } from "./lib/telemetry-bridge.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -31,9 +32,13 @@ function loadVlanProfile() {
 
 function enrichState(base) {
   const vlan = loadVlanProfile();
+  const externalTelemetry = loadExternalTelemetry();
+  const telemetryView = buildTelemetryView(base, externalTelemetry);
   return {
     ...base,
     vlanTrident: vlan,
+    externalTelemetry,
+    telemetryView,
     systemState: base,
   };
 }

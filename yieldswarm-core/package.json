@@ -13,6 +13,7 @@
   "scripts": {
     "start": "node src/orchestrator.js",
     "switcher": "node src/swarm-switcher.js",
+    "dashboard": "node src/dashboard-listener.js",
     "test": "node --test test/*.test.js"
   }
 }
