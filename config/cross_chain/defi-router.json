@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "portfolioUsd": 32.50,
+  "positions": [
+    { "symbol": "ETH", "amountUsd": 16.0, "chain": "ethereum" },
+    { "symbol": "CURVE_LP", "amountUsd": 14.0, "chain": "curve" },
+    { "symbol": "AVAX", "amountUsd": 2.50, "chain": "avalanche" }
+  ],
+  "circuitBreaker": {
+    "feeThresholdPct": 30,
+    "minViablePortfolioUsd": 50
+  },
+  "preferredStrategy": "arbitrum_hub",
+  "providers": {
+    "bridges": ["stargate", "cctp", "symbiosis", "debridge"],
+    "swaps": ["oneinch", "curve", "uniswap"]
+  },
+  "security": {
+    "multisig": "gnosis-safe-2-of-3",
+    "sessionKeyExpiryHours": 1,
+    "sessionKeyMaxUsd": 1000,
+    "whitelistOnly": true
+  }
+}

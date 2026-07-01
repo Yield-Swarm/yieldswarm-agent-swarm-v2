@@ -37,6 +37,7 @@ A := deploy/akash
         multicloud-preflight multicloud-cost-report multicloud-launch multicloud-teardown \
         scale-akash-workers \
         cross-chain-preflight cross-chain-run cross-chain-test \
+        defi-router-simulate defi-router-test \
         smoke smoke-test merge-all-prs merge-all-prs-to-production \
         deploy-production-full wire-domains \
         cloud-scheduler-tick cloud-scheduler-report cloud-scheduler-test \
@@ -368,6 +369,14 @@ cross-chain-run:
 ## cross-chain-test: pytest cross-chain + Great Delta routing
 cross-chain-test:
 	python3 -m pytest tests/test_cross_chain.py tests/test_cross_chain_mvp.py -q
+
+## defi-router-simulate: fee simulation + circuit breaker ($32.50 default portfolio)
+defi-router-simulate:
+	python3 agents/defi_router_agent.py
+
+## defi-router-test: DeFiRouter agent unit tests
+defi-router-test:
+	python3 -m pytest tests/test_defi_router.py -q
 
 ## cloud-scheduler-tick: one async multi-cloud scheduler cycle
 cloud-scheduler-tick:

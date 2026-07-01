@@ -237,9 +237,12 @@ Works alongside multi-cloud GPU utilization:
 ```bash
 ./scripts/cross-chain-preflight.sh
 python3 agents/cross_chain_executor.py
-make cross-chain-run          # if Makefile target added
+make cross-chain-run
+make defi-router-simulate   # treasury route sim + circuit breaker
 curl -s localhost:8080/api/cross-chain/overview | jq .
 ```
+
+See also [`DEFI_ROUTER_SECURITY.md`](DEFI_ROUTER_SECURITY.md) for the 5-layer DeFiRouter security stack.
 
 ---
 

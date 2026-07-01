@@ -1,0 +1,22 @@
+{
+  "name": "@yieldswarm/defi-router",
+  "version": "1.0.0",
+  "description": "YieldSwarm DeFiRouter — bridge/swap optimization with Gnosis Safe gating",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": { "node": ">=18.0.0" },
+  "scripts": {
+    "build": "tsc",
+    "simulate": "node dist/cli.js",
+    "test": "node --test dist/*.test.js"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "viem": "^2.21.0",
+    "@safe-global/protocol-kit": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}
